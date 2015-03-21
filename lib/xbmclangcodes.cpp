@@ -64,8 +64,8 @@ void CLCodeHandler::Init(std::string strURL)
 
   for (int i=0; i<CUST_LANG_COUNT ; i++)
   {
-    if (m_mapLCodes.find(CustomLangcodes[i].Langcode) != m_mapLCodes.end())
-      m_mapLCodes[CustomLangcodes[i].Langcode].Langname = CustomLangcodes[i].Langname;
+    if (m_mapLCodes.find(CustomLangcodes[i].Old_langcode) != m_mapLCodes.end())
+      m_mapLCodes[CustomLangcodes[i].Old_langcode].Gui_langname = CustomLangcodes[i].Gui_langname;
   }
 
   CLog::Log(logINFO, "LCodeHandler: Succesfully fetched %i language codes from Transifex", m_mapLCodes.size());
@@ -90,7 +90,7 @@ std::string CLCodeHandler::GetPlurForm(std::string LangCode)
 std::string CLCodeHandler::FindLang(std::string LangCode)
 {
   if (m_mapLCodes.find(LangCode) != m_mapLCodes.end())
-    return m_mapLCodes[LangCode].Langname;
+    return m_mapLCodes[LangCode].Gui_langname;
   CLog::Log(logERROR, "LangCodes: FindLang: unable to find language for langcode: %s", LangCode.c_str());
   return "UNKNOWN";
 }

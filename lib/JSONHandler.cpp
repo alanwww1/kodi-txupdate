@@ -187,12 +187,12 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
     const Json::Value JFields =JValu.get("fields", "unknown");
 
     CLangcodes LangData;
-    LangData.Langcode = JFields.get("code", "unknown").asString();
-    LangData.Langname = JFields.get("name", "unknown").asString();
+    LangData.Old_langcode = JFields.get("code", "unknown").asString();
+    LangData.Gui_langname = JFields.get("name", "unknown").asString();
     LangData.Pluralform = JFields.get("pluralequation", "unknown").asString();
     LangData.nplurals = JFields.get("nplurals", 0).asInt();
-    if (LangData.Langcode != "unknown" && LangData.Langname != "unknown")
-      mapTXLangs[LangData.Langcode] = LangData;
+    if (LangData.Old_langcode != "unknown" && LangData.Gui_langname != "unknown")
+      mapTXLangs[LangData.Old_langcode] = LangData;
     else
       CLog::Log(logWARNING, "JSONHandler: ParseTXLanguageDB: corrupt JSON data found while parsing Language Database from Transifex");
   };
