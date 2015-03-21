@@ -81,7 +81,6 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
   const Json::Value langs = root;
   std::string strLangsToFetch;
   std::string strLangsToDrop;
-  std::string strLangsBlacklisted;
 
   for(Json::ValueIterator itr = langs.begin() ; itr != langs.end() ; itr++)
   {
@@ -89,33 +88,26 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
     if (lang == "unknown")
       CLog::Log(logERROR, "JSONHandler: ParseLangs: no language code in json data. json string:\n %s", strJSON.c_str());
 
+    if (g_LCodeHandler.VerifyLangCode(lang) == "UNKNOWN")
+      continue;
+
     Json::Value valu = *itr;
     std::string strCompletedPerc = valu.get("completed", "unknown").asString();
     std::string strModTime = valu.get("last_update", "unknown").asString();
-
-    bool bLangBlacklisted = g_LCodeHandler.CheckIfLangCodeBlacklisted(lang);
 
     // we only add language codes to the list which has a minimum ready percentage defined in the xml file
     // we make an exception with all English derived languages, as they can have only a few srings changed
     if (lang.find("en_") != std::string::npos || strtol(&strCompletedPerc[0], NULL, 10) > g_Settings.GetMinCompletion()-1 || !bIsXBMCCore)
     {
-      if (!bLangBlacklisted)
-      {
-        strLangsToFetch += lang + ": " + strCompletedPerc + ", ";
-        listLangs.push_back(lang);
-        g_Fileversion.SetVersionForURL(strURL + "translation/" + lang + "/?file", strModTime);
-      }
-      else
-      {
-	strLangsBlacklisted += lang + ": " + strCompletedPerc + ", ";
-      }
+      strLangsToFetch += lang + ": " + strCompletedPerc + ", ";
+      listLangs.push_back(lang);
+      g_Fileversion.SetVersionForURL(strURL + "translation/" + lang + "/?file", strModTime);
     }
     else
       strLangsToDrop += lang + ": " + strCompletedPerc + ", ";
   };
   CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Fetcehed: %s", strLangsToFetch.c_str());
   CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Dropped (not enough completion): %s", strLangsToDrop.c_str());
-  CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Dropped due they are blacklisted: %s",strLangsBlacklisted.c_str());
   return listLangs;
 };
 
@@ -151,15 +143,12 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJS
     if (strVersion == "unknown")
       CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid sha JSON data downloaded from Github");
 
-    if (!g_LCodeHandler.CheckIfLangBlacklisted(lang))
+    std::string strFoundLangCode = g_LCodeHandler.FindLangCode(lang);
+    if (strFoundLangCode != "UNKNOWN")
     {
-      listLangs.push_back(g_LCodeHandler.FindLangCode(lang));
+      listLangs.push_back(strFoundLangCode);
       g_Fileversion.SetVersionForURL(strURL + lang + "/strings." + (bisPO ? "po" : "xml"), strVersion);
     }
-    else
-    {
-      printf("");
-    } 
   };
 
   return listLangs;
@@ -184,17 +173,22 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
   for(Json::ValueIterator itr = JLangs.begin() ; itr !=JLangs.end() ; itr++)
   {
     Json::Value JValu = *itr;
-    const Json::Value JFields =JValu.get("fields", "unknown");
 
     CLangcodes LangData;
-    LangData.Old_langcode = JFields.get("code", "unknown").asString();
-    LangData.Gui_langname = JFields.get("name", "unknown").asString();
-    LangData.Pluralform = JFields.get("pluralequation", "unknown").asString();
-    LangData.nplurals = JFields.get("nplurals", 0).asInt();
-    if (LangData.Old_langcode != "unknown" && LangData.Gui_langname != "unknown")
+    LangData.Old_langcode = JValu.get("old_langcode", "unknown").asString();
+    LangData.Gui_langname = JValu.get("gui_langname", "unknown").asString();
+    LangData.Tx_langname = JValu.get("tx_langname", "unknown").asString();
+    LangData.New_langcode = JValu.get("new_langcode", "unknown").asString();
+
+//    LangData.Pluralform = JFields.get("pluralequation", "unknown").asString();
+    LangData.Pluralform = "(n != 1)";
+//    LangData.nplurals = JFields.get("nplurals", 0).asInt();
+    LangData.nplurals = 2;
+    if (LangData.Old_langcode != "unknown" && LangData.Gui_langname != "unknown" &&
+        LangData.Tx_langname != "unknown" && LangData.New_langcode != "unknown")
       mapTXLangs[LangData.Old_langcode] = LangData;
     else
-      CLog::Log(logWARNING, "JSONHandler: ParseTXLanguageDB: corrupt JSON data found while parsing Language Database from Transifex");
+      CLog::Log(logWARNING, "JSONHandler: ParseTXLanguageDB: corrupt JSON data found while parsing Language Database");
   };
   return mapTXLangs;
 };

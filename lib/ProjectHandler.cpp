@@ -690,7 +690,11 @@ std::list<std::string> CProjectHandler::GetLangsFromDir(std::string const &strLa
     {
       std::string strDirname = DirEntry->d_name;
       if (strDirname != "English")
-        listDirs.push_back(g_LCodeHandler.FindLangCode(DirEntry->d_name));
+      {
+        std::string strFoundLangCode = g_LCodeHandler.FindLangCode(DirEntry->d_name);
+        if (strFoundLangCode != "UNKNOWN")
+          listDirs.push_back(strFoundLangCode);
+      }
     }
   }
 

@@ -31,21 +31,6 @@ using namespace std;
 
 CLCodeHandler g_LCodeHandler;
 
-enum
-{
-  CUST_LANG_COUNT = 6,
-};
-
-CLangcodes CustomLangcodes [CUST_LANG_COUNT] =
-{
-  {"Chinese (Simple)", "zh", 0, ""},
-  {"Chinese (Traditional)", "zh_TW", 0, ""},
-  {"English (US)", "en_US", 0, ""},
-  {"Hindi (Devanagiri)", "hi", 0, ""},
-  {"Serbian (Cyrillic)", "sr_RS", 0, ""},
-  {"Spanish", "es", 0, ""}
-};
-
 CLCodeHandler::CLCodeHandler()
 {}
 
@@ -58,17 +43,11 @@ void CLCodeHandler::Init(std::string strURL)
   g_HTTPHandler.ReInit();
   std::string strtemp = g_HTTPHandler.GetURLToSTR(strURL);
   if (strtemp.empty())
-    CLog::Log(logERROR, "XBMCLangCode::Init: error getting available language list from transifex.net");
+    CLog::Log(logERROR, "XBMCLangCode::Init: error getting available language list from URL %s", strURL.c_str());
 
   m_mapLCodes = g_Json.ParseTransifexLanguageDatabase(strtemp);
 
-  for (int i=0; i<CUST_LANG_COUNT ; i++)
-  {
-    if (m_mapLCodes.find(CustomLangcodes[i].Old_langcode) != m_mapLCodes.end())
-      m_mapLCodes[CustomLangcodes[i].Old_langcode].Gui_langname = CustomLangcodes[i].Gui_langname;
-  }
-
-  CLog::Log(logINFO, "LCodeHandler: Succesfully fetched %i language codes from Transifex", m_mapLCodes.size());
+  CLog::Log(logINFO, "LCodeHandler: Succesfully fetched %i language codes from URL %s", m_mapLCodes.size(), strURL.c_str());
 }
 
 int CLCodeHandler::GetnPlurals(std::string LangCode)
@@ -99,10 +78,10 @@ std::string CLCodeHandler::FindLangCode(std::string Lang)
 {
   for (itmapLCodes = m_mapLCodes.begin(); itmapLCodes != m_mapLCodes.end() ; itmapLCodes++)
   {
-    if (Lang == itmapLCodes->second.Langname)
+    if (Lang == itmapLCodes->second.Gui_langname)
       return itmapLCodes->first;
   }
-  CLog::Log(logERROR, "LangCodes: FindLangCode: unable to find langcode for language: %s", Lang.c_str());
+  CLog::Log(logINFO, "LangCodes: FindLangCode: unable to find langcode for language: %s", Lang.c_str());
   return "UNKNOWN";
 }
 
@@ -120,76 +99,6 @@ std::string CLCodeHandler::VerifyLangCode(std::string LangCode)
 
   if (m_mapLCodes.find(LangCode) != m_mapLCodes.end())
     return LangCode;
-  CLog::Log(logERROR, "LangCodes::VerifyLangCode: unable to find language code: %s", LangCode.c_str());
+  CLog::Log(logINFO, "LangCodes::VerifyLangCode: unable to find language code: %s", LangCode.c_str());
   return "UNKNOWN";
-}
-
-void CLCodeHandler::ReadWhiteBlackLangList (std::string strPath)
-{
-  if (!g_File.FileExist(strPath))
-    return;
-
-  std::string strXMLBuffer = g_File.ReadFileToStr(strPath);
-  if (strXMLBuffer.empty())
-    CLog::Log(logERROR, "CLCodeHandler::ReadWhiteBlackLangList: file error reading XML file from path: %s", strPath.c_str());
-
-  std::map<std::string, std::string>  * pList;
-
-  TiXmlDocument XMLDoc;
-
-  strXMLBuffer.push_back('\n');
-
-  if (!XMLDoc.Parse(strXMLBuffer.c_str(), 0, TIXML_DEFAULT_ENCODING))
-    CLog::Log(logERROR, "CLCodeHandler::ReadWhiteBlackLangList: xml file problem: %s %s\n", XMLDoc.ErrorDesc(), strPath.c_str());
-
-  TiXmlElement* pRootElement = XMLDoc.RootElement();
-
-  if (!pRootElement || pRootElement->NoChildren() || pRootElement->ValueTStr()=="blacklist")
-    pList = &m_BlackList;
-  else if (!pRootElement || pRootElement->NoChildren() || pRootElement->ValueTStr()=="whitelist")
-    pList = &m_WhiteList;
-  else
-    CLog::Log(logERROR, "CLCodeHandler::ReadWhiteBlackLangList: No root element or no child found in input XML file: %s\n", strPath.c_str());
-
-  const TiXmlElement *pChildElement = pRootElement->FirstChildElement("lang");
-  const char* pAttrId = NULL;
-  const char* pValue = NULL;
-  std::string valueString;
-  std::string strLcode;
-
-  while (pChildElement)
-  {
-    pAttrId=pChildElement->Attribute("lcode");
-    if (pAttrId && !pChildElement->NoChildren())
-    {
-      strLcode = pAttrId;
-      pValue = pChildElement->FirstChild()->Value();
-      valueString = pValue;
-      pList->operator[](strLcode) = valueString;
-    }
-    pChildElement = pChildElement->NextSiblingElement("lang");
-  }
-  // Free up the allocated memory for the XML file
-  XMLDoc.Clear();
-  return;
-}
-
-bool CLCodeHandler::CheckIfLangCodeBlacklisted (std::string strLcode)
-{
-  if (strLcode.find("_") != std::string::npos)
-    return m_WhiteList.find(strLcode) == m_WhiteList.end();
-  else
-    return m_BlackList.find(strLcode) != m_BlackList.end();
-}
-
-bool CLCodeHandler::CheckIfLangBlacklisted (std::string strLang)
-{
-  std::string strLcode = FindLangCode(strLang);
-  if (strLcode == "UNKNOWN")
-    CLog::Log(logERROR, "CLCodeHandler::CheckIfLangBlacklisted: invalid language: %s", strLang.c_str());
-
-  if (strLcode.find("_") != std::string::npos)
-    return m_WhiteList.find(strLcode) == m_WhiteList.end();
-  else
-    return m_BlackList.find(strLcode) != m_BlackList.end();
 }

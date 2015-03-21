@@ -133,9 +133,7 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (std::string AddonXMLFilename, TiXmlD
       strLang = "en";
     strLang = g_LCodeHandler.VerifyLangCode(strLang); // just make sure we read a valid language code
 
-    bool bLangBlackListed = g_LCodeHandler.CheckIfLangCodeBlacklisted(strLang);
-
-    if (pChildSummElement->FirstChild() && !bLangBlackListed)
+    if (pChildSummElement->FirstChild() && strLang != "UNKNOWN")
     {
       std::string strValue = CstrToString(pChildSummElement->FirstChild()->Value());
             strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
@@ -156,9 +154,7 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (std::string AddonXMLFilename, TiXmlD
       strLang = "en";
     strLang = g_LCodeHandler.VerifyLangCode(strLang); // just make sure we read a valid language code
 
-    bool bLangBlackListed = g_LCodeHandler.CheckIfLangCodeBlacklisted(strLang);
-
-    if (pChildDescElement->FirstChild() && !bLangBlackListed)
+    if (pChildDescElement->FirstChild() && strLang != "UNKNOWN")
     {
       std::string strValue = CstrToString(pChildDescElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
@@ -179,9 +175,7 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (std::string AddonXMLFilename, TiXmlD
       strLang = "en";
     strLang = g_LCodeHandler.VerifyLangCode(strLang); // just make sure we read a valid language code
 
-    bool bLangBlackListed = g_LCodeHandler.CheckIfLangCodeBlacklisted(strLang);
-
-    if (pChildDisclElement->FirstChild() &&!bLangBlackListed)
+    if (pChildDisclElement->FirstChild() && strLang != "UNKNOWN")
     {
       std::string strValue = CstrToString(pChildDisclElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);

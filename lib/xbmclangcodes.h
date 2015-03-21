@@ -32,6 +32,8 @@ struct CLangcodes
 {
   std::string Gui_langname;
   std::string Old_langcode;
+  std::string Tx_langname;
+  std::string New_langcode;
   int nplurals;
   std::string Pluralform;
 };
@@ -47,16 +49,9 @@ public:
   int GetnPlurals(std::string LangToLook);
   std::string GetPlurForm(std::string LangToLook);
   std::string VerifyLangCode(std::string LangCode);
-  void ReadWhiteBlackLangList (std::string strPath);
-  bool CheckIfLangCodeBlacklisted (std::string strLcode);
-  bool CheckIfLangBlacklisted (std::string strLang);
 private:
   std::map <std::string, CLangcodes> m_mapLCodes;
   std::map <std::string, CLangcodes>::iterator itmapLCodes;
-  std::string FindCustomLangCode(std::string LangToLook);
-  std::string FindCustomLang(std::string LangCode);
-  std::map<std::string, std::string>  m_BlackList;  // contains langcodes and langnames of non-derivated languages to be blacklisted
-  std::map<std::string, std::string>  m_WhiteList;  // contains langcodes and langnames of derivated languages to be whitelisted (by default it is not alowed)
 };
 
 extern CLCodeHandler g_LCodeHandler;
