@@ -111,8 +111,12 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
   return listLangs;
 };
 
-std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL, bool bisPO)
+std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL)
 {
+
+
+
+
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
   std::string lang, strVersion;

@@ -40,7 +40,6 @@ public:
   bool FetchResourcesFromUpstream();
   bool CreateMergedResources();
   bool WriteResourcesToFile(std::string strProjRootDir);
-  void InitUpdateXMLHandler(std::string strProjRootDir);
   void UploadTXUpdateFiles(std::string strProjRootDir);
 
 protected:
@@ -73,5 +72,4 @@ protected:
   typedef std::map<std::string, CResourceHandler>::iterator T_itmapRes;
   std::map<std::string, std::string> m_mapResourceNamesTX;
   int m_resCount;
-  CUpdateXMLHandler m_UpdateXMLHandler;
 };

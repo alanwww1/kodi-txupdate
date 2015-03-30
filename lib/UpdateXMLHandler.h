@@ -18,6 +18,9 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
+#ifndef UPDXMLHANDLER_H
+#define UPDXMLHANDLER_H
+
 #pragma once
 
 #include "TinyXML/tinyxml.h"
@@ -29,18 +32,28 @@ class CXMLResdata
 public:
   CXMLResdata();
   ~CXMLResdata();
-  std::string strUpstreamURL;
-  std::string strLangsFromUpstream;
-  int Restype;
-  std::string strResDirectory;
-  std::string strTXResName;
-  std::string strLangFileType;
-  std::string strURLSuffix;
-  std::string strDIRprefix;
-  std::string strAddonXMLSuffix;
-  std::string strLogFormat;
-  std::string strLogFilename;
-  bool bWritePO, bWriteXML, bHasChangelog;
+  std::string strName;
+
+  std::string strTXName;
+  std::string strTXSourcelang;
+
+  std::string strUPSLangURL, strUPSLangURLRoot, strUPSLangURLPost, strUPSLangFormat, strUPSLangFileType;
+  std::string strUPSLangEnURL;
+  std::string strUPSAddonURL, strUPSAddonURLRoot;
+  std::string strUPSSourcelang;
+  std::string strUPSChangelogURL;
+
+  std::string strLocalLangPath;
+  std::string strLocalAddonPath;
+
+
+//  std::string strLangsFromUpstream;
+//  int Restype;
+//  std::string strResDirectory;
+//  std::string strURLSuffix;
+//  std::string strDIRprefix;
+//  std::string strAddonXMLSuffix;
+  std::string strChangelogFormat;
 };
 
 class CUpdateXMLHandler
@@ -55,7 +68,11 @@ public:
 private:
   int GetResType(std::string const &ResRootDir) const {return m_resType;}
   std::string IntToStr(int number);
+  void GetParametersFromURL(string const &strURL, string &strPre, string &strPost,
+                            string &strLangFormat, string &strLangFileType, string &strSourcelang);
   int m_resType; 
   std::map<std::string, CXMLResdata> m_mapXMLResdata;
   std::map<std::string, CXMLResdata>::iterator itXMLResdata;
 };
+extern CUpdateXMLHandler g_UpdateXMLHandler;
+#endif

@@ -54,7 +54,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
     CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from TRANSIFEX: %s", it->c_str());
     CLog::IncIdent(4);
 
-    std::string strResname = m_UpdateXMLHandler.GetResNameFromTXResName(*it);
+    std::string strResname = g_UpdateXMLHandler.GetResNameFromTXResName(*it);
     if (strResname.empty())
     {
       printf(" )\n");
@@ -75,7 +75,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 bool CProjectHandler::FetchResourcesFromUpstream()
 {
 
-  std::map<std::string, CXMLResdata> mapRes = m_UpdateXMLHandler.GetResMap();
+  std::map<std::string, CXMLResdata> mapRes = g_UpdateXMLHandler.GetResMap();
 
   CResourceHandler ResourceHandler;
 
@@ -122,7 +122,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CLog::Log(logLINEFEED, "");
     CLog::Log(logINFO, "ProjHandler: *** Write Merged Resource: %s ***", itmapResources->first.c_str());
     CLog::IncIdent(4);
-    CXMLResdata XMLResdata = m_UpdateXMLHandler.GetResData(itmapResources->first);
+    CXMLResdata XMLResdata = g_UpdateXMLHandler.GetResData(itmapResources->first);
     m_mapResMerged[itmapResources->first].WritePOToFiles (strProjRootDir, strPrefixDir, itmapResources->first, XMLResdata, false);
     CLog::DecIdent(4);
   }
@@ -137,7 +137,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CLog::Log(logLINEFEED, "");
     CLog::Log(logINFO, "ProjHandler: *** Write UpdTX Resource: %s ***", itmapResources->first.c_str());
     CLog::IncIdent(4);
-    CXMLResdata XMLResdata = m_UpdateXMLHandler.GetResData(itmapResources->first);
+    CXMLResdata XMLResdata = g_UpdateXMLHandler.GetResData(itmapResources->first);
     m_mapResUpdateTX[itmapResources->first].WritePOToFiles (strProjRootDir, strPrefixDir, itmapResources->first, XMLResdata, true);
     CLog::DecIdent(4);
   }
@@ -544,11 +544,6 @@ void CProjectHandler::MergeAddonXMLEntry(CAddonXMLEntry const &EntryToMerge, CAd
   }
 }
 
-void CProjectHandler::InitUpdateXMLHandler(std::string strProjRootDir)
-{
-m_UpdateXMLHandler.LoadXMLToMem(strProjRootDir);
-}
-
 void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 {
   g_HTTPHandler.Cleanup();
@@ -560,7 +555,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 
   std::list<std::string> listResourceNamesTX = g_Json.ParseResources(strtemp);
 
-  std::map<std::string, CXMLResdata> mapUpdateXMLHandler = m_UpdateXMLHandler.GetResMap();
+  std::map<std::string, CXMLResdata> mapUpdateXMLHandler = g_UpdateXMLHandler.GetResMap();
   std::string strPrefixDir = g_Settings.GetTXUpdateLangfilesDir();
 
   g_HTTPHandler.Cleanup();
@@ -608,7 +603,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
                                       strLangDir + "English" + DirSepChar + "strings.po",
                                       "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() + "/resources/",
                                       straddednew, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
-                                      "/resource/" + XMLResdata.strTXResName + "/translation/" + "en" + "/");
+                                      "/resource/" + XMLResdata.strTXName + "/translation/" + "en" + "/");
 
       CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Resource %s was succesfully created with %i English strings.",
                 itres->first.c_str(), straddednew);
@@ -643,11 +638,11 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
       size_t stradded, strupd;
       if (*it == "en")
         g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
-                                                "/resource/" + XMLResdata.strTXResName + "/content/",
+                                                "/resource/" + XMLResdata.strTXName + "/content/",
                                                 buploaded, stradded, strupd);
       else
         g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
-                                                "/resource/" + XMLResdata.strTXResName + "/translation/" + strLangCode + "/",
+                                                "/resource/" + XMLResdata.strTXName + "/translation/" + strLangCode + "/",
                                                 buploaded, stradded, strupd);
       if (buploaded)
       {

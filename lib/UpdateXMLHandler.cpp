@@ -30,12 +30,7 @@ using namespace std;
 
 CXMLResdata::CXMLResdata()
 {
-  Restype = UNKNOWN;
-  bWritePO = true;
-  bWriteXML = false;
-  bHasChangelog = true;
-  strLogFormat = "[B]%i[/B]\n\n- Updated language files from Transifex\n\n";
-  strLogFilename = "changelog.txt";
+  strTXSourcelang = "en";
 }
 
 CXMLResdata::~CXMLResdata()
@@ -134,7 +129,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     CLog::Log(logINFO, "UpdXMLHandler: Forced PO file comments for non English languages.", strMergedLangfileDir.c_str());
     g_Settings.SetForcePOComments(true);
   }
-  
+
   if (pRootElement->Attribute("Rebrand") && (strAttr = pRootElement->Attribute("Rebrand")) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Rebrand of XBMC strings to Kodi strings turned on.");
@@ -164,77 +159,49 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       CLog::Log(logERROR, "UpdXMLHandler: No name specified for resource. Cannot continue. Please specify it.");
       return false;
     }
+    currResData.strName =strResName;
 
     if (pChildResElement->FirstChild())
     {
-      const TiXmlElement *pChildURLElement = pChildResElement->FirstChildElement("upstreamURL");
-      if (pChildURLElement && pChildURLElement->FirstChild())
-        currResData.strUpstreamURL = pChildURLElement->FirstChild()->Value();
-      if (currResData.strUpstreamURL.empty())
-        CLog::Log(logERROR, "UpdXMLHandler: UpstreamURL entry is empty or missing for resource %s", strResName.c_str());
-      if (pChildURLElement->Attribute("filetype"))
-        currResData.strLangFileType = pChildURLElement->Attribute("filetype"); // For PO no need to explicitly specify. Only for XML.
-      if (pChildURLElement->Attribute("URLsuffix"))
-        currResData.strURLSuffix = pChildURLElement->Attribute("URLsuffix"); // Some http servers need suffix strings after filename(eg. gitweb)
-      if (pChildURLElement->Attribute("HasChangelog"))
-      {
-        std::string strHaschangelog = pChildURLElement->Attribute("HasChangelog"); // Note if the addon has upstream changelog
-        currResData.bHasChangelog = strHaschangelog == "true";
-      }
-      if (pChildURLElement->Attribute("LogFormat"))
-      {
-        std::string strLogFormat = pChildURLElement->Attribute("LogFormat");
-        currResData.strLogFormat = strLogFormat;
-      }
-      if (pChildURLElement->Attribute("LogFilename"))
-      {
-        std::string strLogFilename = pChildURLElement->Attribute("LogFilename");
-        currResData.strLogFilename = strLogFilename;
-      }
-
-      const TiXmlElement *pChildUpstrLElement = pChildResElement->FirstChildElement("upstreamLangs");
-      if (pChildUpstrLElement && pChildUpstrLElement->FirstChild())
-        currResData.strLangsFromUpstream = pChildUpstrLElement->FirstChild()->Value();
-
-      const TiXmlElement *pChildResTypeElement = pChildResElement->FirstChildElement("resourceType");
-      if (pChildResTypeElement->Attribute("AddonXMLSuffix"))
-        currResData.strAddonXMLSuffix = pChildResTypeElement->Attribute("AddonXMLSuffix"); // Some addons have unique addon.xml filename eg. pvr addons with .in suffix
-      if (pChildResTypeElement && pChildResTypeElement->FirstChild())
-      {
-        strType = pChildResTypeElement->FirstChild()->Value();
-        if (strType == "addon")
-         currResData.Restype = ADDON;
-        else if (strType == "addon_nostrings")
-          currResData.Restype = ADDON_NOSTRINGS;
-        else if (strType == "skin")
-          currResData.Restype = SKIN;
-        else if (strType == "xbmc_core")
-          currResData.Restype = CORE;
-      }
-      if (currResData.Restype == UNKNOWN)
-        CLog::Log(logERROR, "UpdXMLHandler: Unknown type found or missing resourceType field for resource %s", strResName.c_str());
-
-      const TiXmlElement *pChildResDirElement = pChildResElement->FirstChildElement("resourceSubdir");
-      if (pChildResDirElement && pChildResDirElement->FirstChild())
-        currResData.strResDirectory = pChildResDirElement->FirstChild()->Value();
-      if (pChildResDirElement->Attribute("writePO"))
-      {
-	      std::string strBool = pChildResDirElement->Attribute("writePO");
-        currResData.bWritePO = strBool == "true";
-      }
-      if (pChildResDirElement->Attribute("writeXML"))
-      {
-	      std::string strBool = pChildResDirElement->Attribute("writeXML");
-        currResData.bWriteXML = strBool == "true";
-      }
-      if (pChildResDirElement->Attribute("DIRprefix"))
-        currResData.strDIRprefix = pChildResDirElement->Attribute("DIRprefix"); // If there is any SUBdirectory needed in the tree
-
       const TiXmlElement *pChildTXNameElement = pChildResElement->FirstChildElement("TXname");
       if (pChildTXNameElement && pChildTXNameElement->FirstChild())
-        currResData.strTXResName = pChildTXNameElement->FirstChild()->Value();
-      if (currResData.strTXResName.empty())
+        currResData.strTXName = pChildTXNameElement->FirstChild()->Value();
+      if (currResData.strTXName.empty())
         CLog::Log(logERROR, "UpdXMLHandler: Transifex resource name is empty or missing for resource %s", strResName.c_str());
+
+      const TiXmlElement *pChildURLElement = pChildResElement->FirstChildElement("upstreamLangURL");
+      if (pChildURLElement && pChildURLElement->FirstChild())
+        currResData.strUPSLangURL = pChildURLElement->FirstChild()->Value();
+      if (currResData.strUPSLangURL.empty())
+        CLog::Log(logINFO, "UpdXMLHandler: UpstreamURL entry is empty for resource %s, which means we have no language files for this addon", strResName.c_str());
+      GetParametersFromURL(currResData.strUPSLangURL, currResData.strUPSLangURLRoot, currResData.strUPSLangURLPost, currResData.strUPSLangFormat,
+                           currResData.strUPSLangFileType, currResData.strUPSSourcelang);
+
+      const TiXmlElement *pChildURLENElement = pChildResElement->FirstChildElement("upstreamLangEnURL");
+      if (pChildURLENElement && pChildURLENElement->FirstChild())
+        currResData.strUPSLangEnURL = pChildURLENElement->FirstChild()->Value();
+
+      const TiXmlElement *pChildAddonURLElement = pChildResElement->FirstChildElement("upstreamAddonURL");
+      if (pChildAddonURLElement && pChildAddonURLElement->FirstChild())
+        currResData.strUPSAddonURL = pChildAddonURLElement->FirstChild()->Value();
+      currResData.strUPSAddonURLRoot = currResData.strUPSAddonURL;
+      currResData.strUPSAddonURLRoot.resize(currResData.strUPSAddonURLRoot.find_last_of("/")+1);
+
+      const TiXmlElement *pChildChglogElement = pChildResElement->FirstChildElement("changelogFormat");
+      if (pChildChglogElement && pChildChglogElement->FirstChild())
+        currResData.strChangelogFormat = pChildChglogElement->FirstChild()->Value();
+
+      const TiXmlElement *pChildChglogUElement = pChildResElement->FirstChildElement("upstreamChangelogURL");
+      if (pChildChglogUElement && pChildChglogUElement->FirstChild())
+        currResData.strUPSChangelogURL = pChildChglogUElement->FirstChild()->Value();
+
+      const TiXmlElement *pChildLocLangElement = pChildResElement->FirstChildElement("localLangPath");
+      if (pChildLocLangElement && pChildLocLangElement->FirstChild())
+        currResData.strLocalLangPath = pChildLocLangElement->FirstChild()->Value();
+
+      const TiXmlElement *pChildLocAddonElement = pChildResElement->FirstChildElement("localAddonPath");
+      if (pChildLocAddonElement && pChildLocAddonElement->FirstChild())
+        currResData.strLocalAddonPath = pChildLocAddonElement->FirstChild()->Value();
 
       m_mapXMLResdata[strResName] = currResData;
       CLog::Log(logINFO, "UpdXMLHandler: found resource in update.xml file: %s, Type: %s, SubDir: %s",
@@ -270,4 +237,51 @@ CXMLResdata CUpdateXMLHandler::GetResData(string strResName)
     return m_mapXMLResdata[strResName];
   CLog::Log(logINFO, "UpdXMLHandler::GetResData: unknown resource to find: %s", strResName.c_str());
   return EmptyXMLResdata;
+}
+
+void CUpdateXMLHandler::GetParametersFromURL(string const &strURL, string &strPre, string &strPost, string &strLangFormat,
+                                             string &strLangFileType, string &strSourcelang)
+{
+  if (strURL.empty())
+    return;
+
+  if (strURL.find("strings.po") != std::string::npos)
+  strLangFileType = "PO";
+  else if (strURL.find("strings.xml") != std::string::npos)
+  strLangFileType = "XML";
+  else
+    CLog::Log(logERROR, "UpdXMLHandler: Unknown upstream language file type for URL %s", strURL.c_str());
+
+  size_t posPre;
+
+  if (posPre = strURL.find("$(NEWLANGCODE)") != std::string::npos) // new en_EN format code used in language addons, TX
+  {
+    strPre = strURL.substr(posPre);
+    strPost = strURL.substr(posPre+14);
+    strLangFormat = "$(NEWLANGCODE)";
+    strSourcelang = "en_EN";
+  }
+  else if (posPre = strURL.find("$(OLDLANGCODE)") != std::string::npos) // old en format code used in Kodi before v15
+  {
+    strPre = strURL.substr(posPre);
+    strPost = strURL.substr(posPre+14);
+    strLangFormat = "$(OLDLANGCODE)";
+    strSourcelang = "en";
+  }
+  else if (posPre = strURL.find("$(TXLANGNAME)") != std::string::npos) // new language name that matches the new code
+  {
+    strPre = strURL.substr(posPre);
+    strPost = strURL.substr(posPre+13);
+    strLangFormat = "$(TXLANGNAME)";
+    strSourcelang = "en_EN";
+  }
+  else if (posPre = strURL.find("$(GUILANGNAME)") != std::string::npos) // language name Kodi still uses for gui display
+  {
+    strPre = strURL.substr(posPre);
+    strPost = strURL.substr(posPre+14);
+    strLangFormat = "$(GUILANGNAME)";
+    strSourcelang = "en";
+  }
+  else
+    CLog::Log(logERROR, "UpdXMLHandler::GetParametersFromURL: unknown languageformat found in URL: %s", strURL.c_str());
 }
