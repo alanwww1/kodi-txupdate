@@ -30,10 +30,7 @@
 
 struct CLangcodes
 {
-  std::string Gui_langname;
-  std::string Old_langcode;
-  std::string Tx_langname;
-  std::string New_langcode;
+  std::map<std::string, std::string> mapLangdata;
   int nplurals;
   std::string Pluralform;
 };

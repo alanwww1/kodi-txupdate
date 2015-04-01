@@ -113,10 +113,6 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
 
 std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL)
 {
-
-
-
-
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
   std::string lang, strVersion;
@@ -174,22 +170,34 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
 
   const Json::Value JLangs = root;
 
-  for(Json::ValueIterator itr = JLangs.begin() ; itr !=JLangs.end() ; itr++)
+  for (Json::ValueIterator itrlangs = JLangs.begin() ; itrlangs !=JLangs.end() ; itrlangs++)
   {
-    Json::Value JValu = *itr;
+    Json::Value JValu = *itrlangs;
+    const Json::Value JAliases =JValu.get("aliases", "unknown");
+    if (JValu.asString() == "unknown")
+      CLog::Log(logERROR, "JSONHandler: ParseTXLanguageDB: No aliases field in language database");
 
     CLangcodes LangData;
-    LangData.Old_langcode = JValu.get("old_langcode", "unknown").asString();
-    LangData.Gui_langname = JValu.get("gui_langname", "unknown").asString();
-    LangData.Tx_langname = JValu.get("tx_langname", "unknown").asString();
-    LangData.New_langcode = JValu.get("new_langcode", "unknown").asString();
+    std::string strLCode;
+
+    for (Json::ValueIterator itralias = JAliases.begin(); itralias !=JAliases.end() ; itralias++)
+    {
+      Json::Value JValualias = *itralias;
+      std::string langstrKey = itralias.key().asString();
+      std::string langstrName = (*itralias).asString();
+      LangData.mapLangdata[langstrKey] = langstrName;
+      if (langstrKey == "LCODE")
+        strLCode = langstrName;
+    }
+
+    if (strLCode.empty())
+      CLog::Log(logERROR, "JSONHandler: ParseTXLanguageDB: Missing key LCODE in language database aliases");
+
     LangData.Pluralform = JValu.get("pluralequation", "unknown").asString();
     LangData.nplurals = JValu.get("nplurals", 0).asInt();
 
-    if (LangData.Old_langcode != "unknown" && LangData.Gui_langname != "unknown" &&
-        LangData.Tx_langname != "unknown" && LangData.New_langcode != "unknown" &&
-        LangData.Pluralform != "unknown" && LangData.nplurals != 0)
-      mapTXLangs[LangData.Old_langcode] = LangData;
+    if (!LangData.mapLangdata.empty() && LangData.Pluralform != "unknown" && LangData.nplurals != 0)
+      mapTXLangs[strLCode] = LangData;
     else
       CLog::Log(logWARNING, "JSONHandler: ParseTXLanguageDB: corrupt JSON data found while parsing Language Database");
   };
