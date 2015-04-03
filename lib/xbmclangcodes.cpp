@@ -66,10 +66,10 @@ std::string CLCodeHandler::GetPlurForm(std::string LangCode)
   return "(n != 1)";
 }
 
-std::string CLCodeHandler::FindLang(std::string LangCode)
+std::string CLCodeHandler::GetLangFromLCode(std::string LangCode, std::string AliasForm)
 {
   if (m_mapLCodes.find(LangCode) != m_mapLCodes.end())
-    return m_mapLCodes[LangCode].Gui_langname;
+    return m_mapLCodes[LangCode].mapLangdata.;
   CLog::Log(logERROR, "LangCodes: FindLang: unable to find language for langcode: %s", LangCode.c_str());
   return "UNKNOWN";
 }
