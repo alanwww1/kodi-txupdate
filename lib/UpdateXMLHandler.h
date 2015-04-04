@@ -34,8 +34,7 @@ public:
   ~CXMLResdata();
   std::string strName;
 
-  std::string strTXName;
-  std::string strTXSourcelang;
+  std::string strTXName, strTXLangFormat, strTXSourceLang;
 
   std::string strUPSLangURL, strUPSLangURLRoot, strUPSLangURLPost, strUPSLangFormat, strUPSLangFileType;
   std::string strUPSLangEnURL;
@@ -68,8 +67,8 @@ public:
 private:
   int GetResType(std::string const &ResRootDir) const {return m_resType;}
   std::string IntToStr(int number);
-  void GetParametersFromURL(string const &strURL, string &strPre, string &strPost,
-                            string &strLangFormat, string &strLangFileType, string &strSourcelang);
+  void GetParametersFromLangURL(string const &strURL, string &strPre, string &strPost,
+                            string &strLangFormat, string &strLangFileType, string &strSourcelang, string strSeparator = "/");
   int m_resType; 
   std::map<std::string, CXMLResdata> m_mapXMLResdata;
   std::map<std::string, CXMLResdata>::iterator itXMLResdata;

@@ -30,7 +30,7 @@ using namespace std;
 
 CXMLResdata::CXMLResdata()
 {
-  strTXSourcelang = "en";
+  strTXLangFormat = "$(NEWLCODE)";
 }
 
 CXMLResdata::~CXMLResdata()
@@ -168,13 +168,17 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         currResData.strTXName = pChildTXNameElement->FirstChild()->Value();
       if (currResData.strTXName.empty())
         CLog::Log(logERROR, "UpdXMLHandler: Transifex resource name is empty or missing for resource %s", strResName.c_str());
+      std::string strTXLcodeFormat;
+      if (pRootElement->Attribute("lcode") && (strTXLcodeFormat = pRootElement->Attribute("lcode")) != "")
+        currResData.strTXLangFormat = strTXLcodeFormat;
+      currResData.strTXSourceLang = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), currResData.strTXLangFormat);
 
       const TiXmlElement *pChildURLElement = pChildResElement->FirstChildElement("upstreamLangURL");
       if (pChildURLElement && pChildURLElement->FirstChild())
         currResData.strUPSLangURL = pChildURLElement->FirstChild()->Value();
       if (currResData.strUPSLangURL.empty())
         CLog::Log(logINFO, "UpdXMLHandler: UpstreamURL entry is empty for resource %s, which means we have no language files for this addon", strResName.c_str());
-      GetParametersFromURL(currResData.strUPSLangURL, currResData.strUPSLangURLRoot, currResData.strUPSLangURLPost, currResData.strUPSLangFormat,
+      GetParametersFromLangURL(currResData.strUPSLangURL, currResData.strUPSLangURLRoot, currResData.strUPSLangURLPost, currResData.strUPSLangFormat,
                            currResData.strUPSLangFileType, currResData.strUPSSourcelang);
 
       const TiXmlElement *pChildURLENElement = pChildResElement->FirstChildElement("upstreamLangEnURL");
@@ -239,49 +243,24 @@ CXMLResdata CUpdateXMLHandler::GetResData(string strResName)
   return EmptyXMLResdata;
 }
 
-void CUpdateXMLHandler::GetParametersFromURL(string const &strURL, string &strPre, string &strPost, string &strLangFormat,
-                                             string &strLangFileType, string &strSourcelang)
+void CUpdateXMLHandler::GetParametersFromLangURL(string const &strURL, string &strPre, string &strPost, string &strLangFormat,
+                                                 string &strLangFileName, string &strSourcelang, string strSeparator = "/")
 {
   if (strURL.empty())
     return;
 
-  if (strURL.find("strings.po") != std::string::npos)
-  strLangFileType = "PO";
-  else if (strURL.find("strings.xml") != std::string::npos)
-  strLangFileType = "XML";
-  else
-    CLog::Log(logERROR, "UpdXMLHandler: Unknown upstream language file type for URL %s", strURL.c_str());
+  if (strURL.find(strSeparator) == std::string::npos)
+    CLog::Log(logERROR, "UpdXMLHandler: Wrong language file URL format: %s", strURL.c_str());
 
-  size_t posPre;
+  strLangFileName = strURL.substr(strURL.find_last_of(strSeparator));
 
-  if (posPre = strURL.find("$(NEWLANGCODE)") != std::string::npos) // new en_EN format code used in language addons, TX
-  {
-    strPre = strURL.substr(posPre);
-    strPost = strURL.substr(posPre+14);
-    strLangFormat = "$(NEWLANGCODE)";
-    strSourcelang = "en_EN";
-  }
-  else if (posPre = strURL.find("$(OLDLANGCODE)") != std::string::npos) // old en format code used in Kodi before v15
-  {
-    strPre = strURL.substr(posPre);
-    strPost = strURL.substr(posPre+14);
-    strLangFormat = "$(OLDLANGCODE)";
-    strSourcelang = "en";
-  }
-  else if (posPre = strURL.find("$(TXLANGNAME)") != std::string::npos) // new language name that matches the new code
-  {
-    strPre = strURL.substr(posPre);
-    strPost = strURL.substr(posPre+13);
-    strLangFormat = "$(TXLANGNAME)";
-    strSourcelang = "en_EN";
-  }
-  else if (posPre = strURL.find("$(GUILANGNAME)") != std::string::npos) // language name Kodi still uses for gui display
-  {
-    strPre = strURL.substr(posPre);
-    strPost = strURL.substr(posPre+14);
-    strLangFormat = "$(GUILANGNAME)";
-    strSourcelang = "en";
-  }
-  else
-    CLog::Log(logERROR, "UpdXMLHandler::GetParametersFromURL: unknown languageformat found in URL: %s", strURL.c_str());
+  size_t posStart, posEnd;
+
+  if (posStart = strURL.find("$(") == std::string::npos || posEnd = strURL.find("(",posStart) == std::string::npos)
+    CLog::Log(logERROR, "UpdXMLHandler: Unknown upstream language file format found for URL %s", strURL.c_str());
+
+  strPre = strURL.substr(posStart);
+  strPost = strURL.substr(posEnd);
+  strLangFormat = strURL.substr(posStart, posStart-posEnd+1);
+  strSourcelang = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(),strLangFormat);
 }

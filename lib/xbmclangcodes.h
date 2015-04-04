@@ -41,8 +41,8 @@ public:
   CLCodeHandler();
   ~CLCodeHandler();
   void Init(std::string strURL);
-  std::string FindLangCode(std::string Lang);
-  std::string FindLang(std::string LangCode);
+  std::string GetLangCodeFromAlias(std::string Alias, std::string AliasForm);
+  std::string GetLangFromLCode(std::string LangCode, std::string AliasForm);
   int GetnPlurals(std::string LangToLook);
   std::string GetPlurForm(std::string LangToLook);
   std::string VerifyLangCode(std::string LangCode);

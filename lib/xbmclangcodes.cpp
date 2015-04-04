@@ -68,20 +68,23 @@ std::string CLCodeHandler::GetPlurForm(std::string LangCode)
 
 std::string CLCodeHandler::GetLangFromLCode(std::string LangCode, std::string AliasForm)
 {
-  if (m_mapLCodes.find(LangCode) != m_mapLCodes.end())
-    return m_mapLCodes[LangCode].mapLangdata.;
-  CLog::Log(logERROR, "LangCodes: FindLang: unable to find language for langcode: %s", LangCode.c_str());
+  if (m_mapLCodes.find(LangCode) != m_mapLCodes.end() &&
+      m_mapLCodes[LangCode].mapLangdata.find(AliasForm) != m_mapLCodes[LangCode].mapLangdata.end())
+    return m_mapLCodes[LangCode].mapLangdata[AliasForm];
+  CLog::Log(logERROR, "LangCodes:GetLangFromLCode: unable to find language for langcode: %s", LangCode.c_str());
   return "UNKNOWN";
 }
 
-std::string CLCodeHandler::FindLangCode(std::string Lang)
+std::string CLCodeHandler::GetLangCodeFromAlias(std::string Alias, std::string AliasForm)
 {
   for (itmapLCodes = m_mapLCodes.begin(); itmapLCodes != m_mapLCodes.end() ; itmapLCodes++)
   {
-    if (Lang == itmapLCodes->second.Gui_langname)
+    std::map<std::string, std::string> mapLangdata = itmapLCodes->second.mapLangdata;
+    if (itmapLCodes->second.mapLangdata.find(AliasForm) != itmapLCodes->second.mapLangdata.end() &&
+        Alias == itmapLCodes->second.mapLangdata[AliasForm])
       return itmapLCodes->first;
   }
-  CLog::Log(logINFO, "LangCodes: FindLangCode: unable to find langcode for language: %s", Lang.c_str());
+  CLog::Log(logERROR, "LangCodes:GetLangCodeFromAlias unable to find langcode for alias: %s", Alias.c_str());
   return "UNKNOWN";
 }
 

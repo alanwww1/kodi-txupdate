@@ -30,6 +30,7 @@ const size_t DEFAULTCACHEEXPIRE = 360; // 6 hours
 const size_t DEFAULTMINCOMPLETION = 10; // %
 const std::string DEFAULTMERGEDLANGDIR = "merged-langfiles";
 const std::string DEFAULTTXUPDLANGDIR = "tempfiles_txupdate";
+const std::string DEFAULTSOURCELCODE = "en_GB";
 
 class CSettings
 {
@@ -53,6 +54,7 @@ public:
   bool GetRebrand();
   void SetSupportEmailAdd(std::string const &strEmailAdd);
   std::string GetSupportEmailAdd();
+  std::string GetSourceLcode() {return m_strSourceLcode;}
   bool GetForceTXUpdate();
   void SetForceTXUpdate(bool bForceTXUpd);
 private:
@@ -63,6 +65,7 @@ private:
   std::string m_strTXUpdateLangfilesDir;
   std::string m_strSupportEmailAdd;
   std::string m_strProjectnameLong;
+  std::string m_strSourceLcode;
   bool m_bForceComm;
   bool m_bRebrand;
   bool m_bForceTXUpd;

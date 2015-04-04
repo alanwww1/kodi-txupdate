@@ -37,6 +37,7 @@ CSettings::CSettings()
   m_bRebrand = false;
   m_bForceTXUpd = false;
   m_strSupportEmailAdd = "anonymus";
+  m_strSourceLcode = DEFAULTSOURCELCODE;
 };
 
 CSettings::~CSettings()
