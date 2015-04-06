@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include "Settings.h"
 #include "Fileversioning.h"
+#include "CharsetUtils/CharsetUtils.h"
 
 CJSONHandler g_Json;
 
@@ -64,11 +65,11 @@ std::list<std::string> CJSONHandler::ParseResources(std::string strJSON)
   return listResources;
 };
 
-std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, bool bIsXBMCCore, std::string strURL)
+std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, bool bIsKODICore, std::string strURL)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
-  std::string lang;
+  std::string LCode;
   std::list<std::string> listLangs;
 
   bool parsingSuccessful = reader.parse(strJSON, root );
@@ -84,11 +85,11 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
 
   for(Json::ValueIterator itr = langs.begin() ; itr != langs.end() ; itr++)
   {
-    lang = itr.key().asString();
-    if (lang == "unknown")
+    LCode = itr.key().asString();
+    if (LCode == "unknown")
       CLog::Log(logERROR, "JSONHandler: ParseLangs: no language code in json data. json string:\n %s", strJSON.c_str());
 
-    if (g_LCodeHandler.VerifyLangCode(lang) == "UNKNOWN")
+    if (g_LCodeHandler.VerifyLangCode(LCode) == "UNKNOWN")
       continue;
 
     Json::Value valu = *itr;
@@ -97,21 +98,21 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
 
     // we only add language codes to the list which has a minimum ready percentage defined in the xml file
     // we make an exception with all English derived languages, as they can have only a few srings changed
-    if (lang.find("en_") != std::string::npos || strtol(&strCompletedPerc[0], NULL, 10) > g_Settings.GetMinCompletion()-1 || !bIsXBMCCore)
+    if (LCode.find("en_") != std::string::npos || strtol(&strCompletedPerc[0], NULL, 10) > g_Settings.GetMinCompletion()-1 || !bIsKODICore)
     {
-      strLangsToFetch += lang + ": " + strCompletedPerc + ", ";
-      listLangs.push_back(lang);
-      g_Fileversion.SetVersionForURL(strURL + "translation/" + lang + "/?file", strModTime);
+      strLangsToFetch += LCode + ": " + strCompletedPerc + ", ";
+      listLangs.push_back(LCode);
+      g_Fileversion.SetVersionForURL(strURL + "translation/" + LCode + "/?file", strModTime);
     }
     else
-      strLangsToDrop += lang + ": " + strCompletedPerc + ", ";
+      strLangsToDrop += LCode + ": " + strCompletedPerc + ", ";
   };
   CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Fetcehed: %s", strLangsToFetch.c_str());
   CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Dropped (not enough completion): %s", strLangsToDrop.c_str());
   return listLangs;
 };
 
-std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL)
+std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL, std::string strLangformat)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
@@ -143,11 +144,14 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJS
     if (strVersion == "unknown")
       CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid sha JSON data downloaded from Github");
 
-    std::string strFoundLangCode = g_LCodeHandler.FindLangCode(lang);
+    std::string strMatchedLangalias = g_CharsetUtils.GetLangnameFromURL(lang, strURL, strLangformat);
+    std::string strFoundLangCode = g_LCodeHandler.GetLangCodeFromAlias(strMatchedLangalias, strLangformat);
     if (strFoundLangCode != "UNKNOWN")
     {
       listLangs.push_back(strFoundLangCode);
-      g_Fileversion.SetVersionForURL(strURL + lang + "/strings." + (bisPO ? "po" : "xml"), strVersion);
+      std::string strURLforFile = strURL;
+      g_CharsetUtils.replaceAllStrParts(&strURLforFile, strLangformat, strMatchedLangalias);
+      g_Fileversion.SetVersionForURL(strURLforFile, strVersion);
     }
   };
 
@@ -275,7 +279,7 @@ std::string CJSONHandler::ParseLongProjectName(std::string const &strJSON)
   return root.get("name", "").asString();
 }
 
-void CJSONHandler::ParseAddonXMLVersionGITHUB(std::string strJSON, std::string strURL)
+void CJSONHandler::ParseAddonXMLVersionGITHUB(const std::string &strJSON, const std::string &strURL, const std::string &strAddXMLFilename, const std::string &strChlogname)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
@@ -300,14 +304,15 @@ void CJSONHandler::ParseAddonXMLVersionGITHUB(std::string strJSON, std::string s
     if (strName == "unknown")
       CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
 
-    if (strType == "file" && (strName == "addon.xml" || strName == "changelog.txt"))
+    if (strType == "file" && ((!strAddXMLFilename.empty() && strName == strAddXMLFilename) ||
+        (!strChlogname.empty() && strName == strChlogname)))
     {
-    strVersion =JValu.get("sha", "unknown").asString();
+      strVersion =JValu.get("sha", "unknown").asString();
 
-    if (strVersion == "unknown")
-      CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid sha JSON data downloaded from Github");
+      if (strVersion == "unknown")
+        CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid sha JSON data downloaded from Github");
 
-    g_Fileversion.SetVersionForURL(strURL + strName, strVersion);
+      g_Fileversion.SetVersionForURL(strURL + strName, strVersion);
     }
   };
 };

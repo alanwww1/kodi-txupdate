@@ -178,18 +178,23 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         currResData.strUPSLangURL = pChildURLElement->FirstChild()->Value();
       if (currResData.strUPSLangURL.empty())
         CLog::Log(logINFO, "UpdXMLHandler: UpstreamURL entry is empty for resource %s, which means we have no language files for this addon", strResName.c_str());
-      GetParametersFromLangURL(currResData.strUPSLangURL, currResData.strUPSLangURLRoot, currResData.strUPSLangURLPost, currResData.strUPSLangFormat,
-                           currResData.strUPSLangFileType, currResData.strUPSSourcelang);
+      else if (!GetParamsFromURLorPath (currResData.strUPSLangURL, currResData.strUPSLangFormat, currResData.strUPSLangFileName,
+                                   currResData.strUPSSourcelang, currResData.strUPSLangURLRoot))
+        CLog::Log(logERROR, "UpdXMLHandler: UpstreamURL format is wrong for resource %s", strResName.c_str());
+
 
       const TiXmlElement *pChildURLENElement = pChildResElement->FirstChildElement("upstreamLangEnURL");
       if (pChildURLENElement && pChildURLENElement->FirstChild())
-        currResData.strUPSLangEnURL = pChildURLENElement->FirstChild()->Value();
+        currResData.strUPSSourceLangURL = pChildURLENElement->FirstChild()->Value();
 
       const TiXmlElement *pChildAddonURLElement = pChildResElement->FirstChildElement("upstreamAddonURL");
       if (pChildAddonURLElement && pChildAddonURLElement->FirstChild())
         currResData.strUPSAddonURL = pChildAddonURLElement->FirstChild()->Value();
-      currResData.strUPSAddonURLRoot = currResData.strUPSAddonURL;
-      currResData.strUPSAddonURLRoot.resize(currResData.strUPSAddonURLRoot.find_last_of("/")+1);
+      if (currResData.strUPSAddonURL.empty())
+        CLog::Log(logERROR, "UpdXMLHandler: UpstreamAddonURL entry is empty for resource %s", strResName.c_str());
+      else
+        GetParamsFromURLorPath (currResData.strUPSAddonURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
+                                currResData.strUPSSourcelang);
 
       const TiXmlElement *pChildChglogElement = pChildResElement->FirstChildElement("changelogFormat");
       if (pChildChglogElement && pChildChglogElement->FirstChild())
@@ -201,11 +206,21 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
 
       const TiXmlElement *pChildLocLangElement = pChildResElement->FirstChildElement("localLangPath");
       if (pChildLocLangElement && pChildLocLangElement->FirstChild())
-        currResData.strLocalLangPath = pChildLocLangElement->FirstChild()->Value();
+        currResData.strLOCLangPath = pChildLocLangElement->FirstChild()->Value();
+      if (currResData.strLOCLangPath.empty())
+        CLog::Log(logINFO, "UpdXMLHandler: Local langpath entry is empty for resource %s, which means we have no language files for this addon", strResName.c_str());
+      else if (!GetParamsFromURLorPath (currResData.strLOCLangPath, currResData.strLOCLangFormat, currResData.strLOCLangFileName,
+               currResData.strLOCSourceLang), DirSepChar)
+        CLog::Log(logERROR, "UpdXMLHandler: Local langpath format is wrong for resource %s", strResName.c_str());
 
       const TiXmlElement *pChildLocAddonElement = pChildResElement->FirstChildElement("localAddonPath");
       if (pChildLocAddonElement && pChildLocAddonElement->FirstChild())
-        currResData.strLocalAddonPath = pChildLocAddonElement->FirstChild()->Value();
+        currResData.strLOCAddonPath = pChildLocAddonElement->FirstChild()->Value();
+      if (currResData.strLOCAddonPath.empty())
+        CLog::Log(logERROR, "UpdXMLHandler: Local addon path entry is empty for resource %s", strResName.c_str());
+      else
+        GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
+                                currResData.strLOCSourceLang, DirSepChar);
 
       m_mapXMLResdata[strResName] = currResData;
       CLog::Log(logINFO, "UpdXMLHandler: found resource in update.xml file: %s, Type: %s, SubDir: %s",
@@ -243,24 +258,26 @@ CXMLResdata CUpdateXMLHandler::GetResData(string strResName)
   return EmptyXMLResdata;
 }
 
-void CUpdateXMLHandler::GetParametersFromLangURL(string const &strURL, string &strPre, string &strPost, string &strLangFormat,
-                                                 string &strLangFileName, string &strSourcelang, string strSeparator = "/")
+bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,
+                                                 string &strSourcelang, string &strURLRoot, string strSeparator = "/")
 {
   if (strURL.empty())
-    return;
+    return true;
 
   if (strURL.find(strSeparator) == std::string::npos)
-    CLog::Log(logERROR, "UpdXMLHandler: Wrong language file URL format: %s", strURL.c_str());
+    return false;
 
-  strLangFileName = strURL.substr(strURL.find_last_of(strSeparator));
+  strFileName = strURL.substr(strURL.find_last_of(strSeparator)+1);
 
   size_t posStart, posEnd;
 
-  if (posStart = strURL.find("$(") == std::string::npos || posEnd = strURL.find("(",posStart) == std::string::npos)
-    CLog::Log(logERROR, "UpdXMLHandler: Unknown upstream language file format found for URL %s", strURL.c_str());
+  if (posStart = strURL.find("$(") == std::string::npos || posEnd = strURL.find(")",posStart) == std::string::npos)
+    return false;
 
-  strPre = strURL.substr(posStart);
-  strPost = strURL.substr(posEnd);
   strLangFormat = strURL.substr(posStart, posStart-posEnd+1);
-  strSourcelang = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(),strLangFormat);
+  if (strSourcelang.empty())
+    strSourcelang = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(),strLangFormat);
+
+  strURLRoot = g_CharsetUtils.GetRoot(strURL, strFileName);
+  return true;
 }

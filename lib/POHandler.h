@@ -61,7 +61,7 @@ public:
   size_t const GetNumEntriesCount() {return m_mapStrings.size();}
   size_t const GetClassEntriesCount() {return m_vecClassicEntries.size();}
   size_t const GetCommntEntriesCount() {return m_CommsCntr;}
-  void SetIfIsEnglish(bool bIsENLang) {m_bPOIsEnglish = bIsENLang;}
+  void SetIfIsSourceLang(bool bIsENLang) {m_bPOIsEnglish = bIsENLang;}
   void SetIfPOIsUpdTX(bool bIsUpdTX) {m_bPOIsUpdateTX = bIsUpdTX;}
   bool GetIfSourceIsXML () {return m_bIsXMLSource;}
 

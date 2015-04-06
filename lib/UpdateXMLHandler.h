@@ -36,22 +36,15 @@ public:
 
   std::string strTXName, strTXLangFormat, strTXSourceLang;
 
-  std::string strUPSLangURL, strUPSLangURLRoot, strUPSLangURLPost, strUPSLangFormat, strUPSLangFileType;
-  std::string strUPSLangEnURL;
-  std::string strUPSAddonURL, strUPSAddonURLRoot;
-  std::string strUPSSourcelang;
-  std::string strUPSChangelogURL;
+  std::string strUPSLangURL, strUPSLangURLRoot, strUPSLangFormat, strUPSLangFileName, strUPSSourcelang;
+  std::string strUPSSourceLangURL;
+  std::string strUPSAddonURL, strUPSAddonURLRoot, strUPSAddonLangFormat, strUPSAddonXMLFilename;
+  std::string strUPSChangelogURL, strUPSChangelogName;
 
-  std::string strLocalLangPath;
-  std::string strLocalAddonPath;
+  std::string strLOCLangPath, strLOCLangPathRoot, strLOCLangFormat, strLOCLangFileName, strLOCSourceLang;
+  std::string strLOCAddonPath, strLOCAddonPathRoot, strLOCAddonLangFormat, strLOCAddonXMLFilename;
+  std::string strLOCChangelogURL, strLOCChangelogName;
 
-
-//  std::string strLangsFromUpstream;
-//  int Restype;
-//  std::string strResDirectory;
-//  std::string strURLSuffix;
-//  std::string strDIRprefix;
-//  std::string strAddonXMLSuffix;
   std::string strChangelogFormat;
 };
 
@@ -67,7 +60,7 @@ public:
 private:
   int GetResType(std::string const &ResRootDir) const {return m_resType;}
   std::string IntToStr(int number);
-  void GetParametersFromLangURL(string const &strURL, string &strPre, string &strPost,
+  bool GetParamsFromURLorPath (string const &strURL, string &strPre, string &strPost,
                             string &strLangFormat, string &strLangFileType, string &strSourcelang, string strSeparator = "/");
   int m_resType; 
   std::map<std::string, CXMLResdata> m_mapXMLResdata;

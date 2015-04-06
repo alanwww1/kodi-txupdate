@@ -46,7 +46,7 @@ CPOHandler* CResourceHandler::GetPOData(std::string strLang)
 
 // Download from Transifex related functions
 
-bool CResourceHandler::FetchPOFilesTXToMem(std::string strURL, bool bIsXBMCCore)
+bool CResourceHandler::FetchPOFilesTXToMem(std::string strURL, bool bIsKODICore)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
@@ -60,7 +60,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(std::string strURL, bool bIsXBMCCore)
   char cstrtemp[strtemp.size()];
   strcpy(cstrtemp, strtemp.c_str());
 
-  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, bIsXBMCCore, strURL);
+  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, bIsKODICore, strURL);
 
   CPOHandler POHandler;
 
@@ -70,7 +70,8 @@ bool CResourceHandler::FetchPOFilesTXToMem(std::string strURL, bool bIsXBMCCore)
     m_mapPOFiles[*it] = POHandler;
     CPOHandler * pPOHandler = &m_mapPOFiles[*it];
     pPOHandler->FetchPOURLToMem(strURL + "translation/" + *it + "/?file", false);
-    pPOHandler->SetIfIsEnglish(*it == "en");
+//TODO Get source language code here
+    pPOHandler->SetIfIsSourceLang(*it == "en");
     std::string strLang = *it;
     CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i\t\t%i", strLang.c_str(), pPOHandler->GetNumEntriesCount(),
                             pPOHandler->GetClassEntriesCount());
@@ -90,7 +91,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(CXMLResdata XMLResdata, std::li
 
   std::string strLangdirPrefix, strGitHubURL, strtemp;
 
-  if (XMLResdata.strName != "kodi.core")
+  if (!XMLResdata.strUPSAddonURL.empty() && XMLResdata.strUPSAddonLangFormat.empty())
   {
     // We get the version of the addon.xml and changelog.txt files here
     if (XMLResdata.strUPSAddonURL.find(".github") != std::string::npos)  //if URL is github, we download a directory tree to get SHA versions
@@ -101,7 +102,8 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(CXMLResdata XMLResdata, std::li
       if (strtemp.empty())
         CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting addon.xml file version from github.com");
 
-      g_Json.ParseAddonXMLVersionGITHUB(strtemp, XMLResdata.strUPSAddonURLRoot);
+//TODO separate addon.xml and changelog.txt version parsing as they can be in a different place
+      g_Json.ParseAddonXMLVersionGITHUB(strtemp, XMLResdata.strUPSAddonURLRoot, XMLResdata.strUPSAddonXMLFilename, XMLResdata.strUPSChangelogName);
     }
 
     printf(" Addxml");
@@ -129,8 +131,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(CXMLResdata XMLResdata, std::li
     if (strtemp.empty())
       CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting po file list from github.com");
 
-    listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUpstreamURL + strLangdirPrefix,
-                                                       XMLResdata.strUPSLangURL.find("strings.xml") == std::string::npos);
+    listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat);
   }
   else
     CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: only github hosting is supported for upstream files");
@@ -142,13 +143,16 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(CXMLResdata XMLResdata, std::li
   for (std::list<std::string>::iterator it = listLangs.begin(); it != listLangs.end(); it++)
   {
     CPOHandler POHandler;
-    POHandler.SetIfIsEnglish(*it == XMLResdata.strUPSSourcelang);
+    POHandler.SetIfIsSourceLang(*it == g_Settings.GetSourceLcode());
     printf (" %s", it->c_str());
 
-    if (XMLResdata.strUPSLangFileType == "xml")
-      bResult = POHandler.FetchXMLURLToMem(XMLResdata.strUpstreamURL + strLangdirPrefix + g_LCodeHandler.FindLang(*it) + DirSepChar + "strings.xml" + XMLResdata.strURLSuffix);
+    std::string strDloadURL = g_CharsetUtils.replaceStrParts(XMLResdata.strUPSLangURL, XMLResdata.strUPSAddonLangFormat,
+                              g_LCodeHandler.GetLangFromLCode(*it));
+
+    if (XMLResdata.strUPSLangFileName == "strings.xml")
+      bResult = POHandler.FetchXMLURLToMem(strDloadURL);
     else
-      bResult = POHandler.FetchPOURLToMem(XMLResdata.strUpstreamURL + strLangdirPrefix + g_LCodeHandler.FindLang(*it) + DirSepChar + "strings.po" + XMLResdata.strURLSuffix,false);
+      bResult = POHandler.FetchPOURLToMem(strDloadURL,false);
     if (bResult)
     {
       m_mapPOFiles[*it] = POHandler;

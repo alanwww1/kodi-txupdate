@@ -201,8 +201,8 @@ bool CProjectHandler::CreateMergedResources()
       const CPOEntry* pPOEntryUpstr;
       bool bResChangedInAddXMLFromUpstream = false; bool bResChangedFromUpstream = false;
 
-      mergedPOHandler.SetIfIsEnglish(strLangCode == "en");
-      updTXPOHandler.SetIfIsEnglish(strLangCode == "en");
+      mergedPOHandler.SetIfIsSourceLang(strLangCode == "en");
+      updTXPOHandler.SetIfIsSourceLang(strLangCode == "en");
       updTXPOHandler.SetIfPOIsUpdTX(true);
 
       CAddonXMLEntry MergedAddonXMLEntry, MergedAddonXMLEntryTX;

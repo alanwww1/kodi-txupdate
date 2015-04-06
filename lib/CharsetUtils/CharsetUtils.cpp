@@ -270,14 +270,24 @@ size_t CCharsetUtils::GetCharCountInStr(std::string const &strToCheck, unsigned 
   return std::count(strToCheck.begin(), strToCheck.end(), chrToFInd);
 }
 
-void CCharsetUtils::replaceAllStrParts(std::string * pstr, const std::string& from, const std::string& to)
+bool CCharsetUtils::replaceAllStrParts(std::string * pstr, const std::string& from, const std::string& to)
 {
+  if (pstr->find(from) == std::string::npos)
+    return false;
+
   size_t start_pos = 0;
   while((start_pos = pstr->find(from, start_pos)) != std::string::npos)
   {
       pstr->replace(start_pos, from.length(), to);
       start_pos += to.length();
   }
+  return true;
+};
+
+std::string CCharsetUtils::replaceStrParts(std::string strToReplace, const std::string& from, const std::string& to)
+{
+  replaceAllStrParts(&strToReplace, from, to);
+  return strToReplace;
 };
 
 void CCharsetUtils::reBrandXBMCToKodi(std::string * pstrtorebrand)
@@ -294,4 +304,37 @@ void CCharsetUtils::reBrandXBMCToKodi(std::string * pstrtorebrand)
   replaceAllStrParts(pstrtorebrand, "xbmc", "Kodi");
   replaceAllStrParts(pstrtorebrand, "xmbc", "Kodi");
   replaceAllStrParts(pstrtorebrand, "Xbmc", "Kodi");
+}
+
+std::string CCharsetUtils::GetRoot(const std::string &strPath,const std::string &strFilename)
+{
+  return strPath.substr(strPath.size()-strFilename.size());
+}
+
+std::string CCharsetUtils::GetLangnameFromURL(std::string strName, std::string strURL, std::string strLangformat)
+{
+  //Get Directory nameformat
+  sizet_t pos1 = strURL.find(strLangformat);
+  if (pos1 == std::string::npos)
+    CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
+
+  sizet_t pos2 = pos1 + strLangformat.size();
+  if (pos2 >> strURL.size())
+    CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
+
+  sizet_t pos1per = strURL.substr(pos1).find_last_of("/");
+  if (pos1per == std::string::npos)
+    CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
+
+  sizet_t pos2per = strURL.find_first_of("/",pos2);
+  if (pos2per == std::string::npos)
+    CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
+
+  std::string strPre = strURL.substr(pos1per, pos1-pos1per);
+  std::string strPost = strURL.substr(pos2, pos2per-pos2);
+
+  if (strName.find(strPre) != 0 || strName.rfind(strPost) != strName.size()-strPost.size())
+    return "";
+
+  return strName.substr(strPre.size(), strName.size()-strPre.size()-strPost.size());
 }

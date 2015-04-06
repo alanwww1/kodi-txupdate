@@ -77,6 +77,9 @@ std::string CLCodeHandler::GetLangFromLCode(std::string LangCode, std::string Al
 
 std::string CLCodeHandler::GetLangCodeFromAlias(std::string Alias, std::string AliasForm)
 {
+  if (Alias = "")
+    return "UNKNOWN";
+
   for (itmapLCodes = m_mapLCodes.begin(); itmapLCodes != m_mapLCodes.end() ; itmapLCodes++)
   {
     std::map<std::string, std::string> mapLangdata = itmapLCodes->second.mapLangdata;
