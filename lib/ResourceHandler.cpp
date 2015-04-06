@@ -46,7 +46,7 @@ CPOHandler* CResourceHandler::GetPOData(std::string strLang)
 
 // Download from Transifex related functions
 
-bool CResourceHandler::FetchPOFilesTXToMem(std::string strURL, bool bIsKODICore)
+bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::string strURL, bool bIsKODICore)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
@@ -70,8 +70,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(std::string strURL, bool bIsKODICore)
     m_mapPOFiles[*it] = POHandler;
     CPOHandler * pPOHandler = &m_mapPOFiles[*it];
     pPOHandler->FetchPOURLToMem(strURL + "translation/" + *it + "/?file", false);
-//TODO Get source language code here
-    pPOHandler->SetIfIsSourceLang(*it == "en");
+    pPOHandler->SetIfIsSourceLang(*it == g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strTXLangFormat));
     std::string strLang = *it;
     CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i\t\t%i", strLang.c_str(), pPOHandler->GetNumEntriesCount(),
                             pPOHandler->GetClassEntriesCount());
@@ -83,7 +82,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(std::string strURL, bool bIsKODICore)
   return true;
 }
 
-bool CResourceHandler::FetchPOFilesUpstreamToMem(CXMLResdata XMLResdata, std::list<std::string> listLangsTX)
+bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata, std::list<std::string> listLangsTX)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
@@ -91,20 +90,17 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(CXMLResdata XMLResdata, std::li
 
   std::string strLangdirPrefix, strGitHubURL, strtemp;
 
-  if (!XMLResdata.strUPSAddonURL.empty() && XMLResdata.strUPSAddonLangFormat.empty())
+  if (!XMLResdata.strUPSAddonURL.empty() && XMLResdata.strUPSAddonLangFormat.empty()) // kodi core language addon has individual addon.xml files
   {
     // We get the version of the addon.xml and changelog.txt files here
-    if (XMLResdata.strUPSAddonURL.find(".github") != std::string::npos)  //if URL is github, we download a directory tree to get SHA versions
-    {
-      strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSAddonURLRoot, "");
-      printf(" Dir");
-      strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
-      if (strtemp.empty())
-        CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting addon.xml file version from github.com");
+    strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSAddonURLRoot, "");
+    printf(" Dir");
+    strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
+    if (strtemp.empty())
+      CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting addon.xml file version from github.com");
 
 //TODO separate addon.xml and changelog.txt version parsing as they can be in a different place
-      g_Json.ParseAddonXMLVersionGITHUB(strtemp, XMLResdata.strUPSAddonURLRoot, XMLResdata.strUPSAddonXMLFilename, XMLResdata.strUPSChangelogName);
-    }
+    g_Json.ParseAddonXMLVersionGITHUB(strtemp, XMLResdata.strUPSAddonURLRoot, XMLResdata.strUPSAddonXMLFilename, XMLResdata.strUPSChangelogName);
 
     printf(" Addxml");
     m_AddonXMLHandler.FetchAddonXMLFileUpstr(XMLResdata.strUPSAddonURL);
@@ -120,21 +116,16 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(CXMLResdata XMLResdata, std::li
 
   std::list<std::string> listLangs, listGithubLangs;
 
-  if (XMLResdata.strUPSLangURL.find(".github") != std::string::npos)  //if URL is github, we download a directory tree to get SHA versions
-  {
-    printf(" Langlist");
-    strtemp.clear();
-    strGitHubURL.clear();
-    strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSLangURLRoot, "");
+  printf(" Langlist");
+  strtemp.clear();
+  strGitHubURL.clear();
+  strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSLangURLRoot, "");
 
-    strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
-    if (strtemp.empty())
-      CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting po file list from github.com");
+  strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
+  if (strtemp.empty())
+    CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting po file list from github.com");
 
-    listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat);
-  }
-  else
-    CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: only github hosting is supported for upstream files");
+  listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat);
 
   listLangs=listGithubLangs;
 

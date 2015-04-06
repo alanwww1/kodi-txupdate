@@ -45,6 +45,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   strcpy(cstrtemp, strtemp.c_str());
 
   std::list<std::string> listResourceNamesTX = g_Json.ParseResources(strtemp);
+  std::map<std::string, CXMLResdata> mapRes = g_UpdateXMLHandler.GetResMap();
 
   CResourceHandler ResourceHandler;
   for (std::list<std::string>::iterator it = listResourceNamesTX.begin(); it != listResourceNamesTX.end(); it++)
@@ -63,9 +64,10 @@ bool CProjectHandler::FetchResourcesFromTransifex()
       continue;
     }
 
+    CXMLResdata XMLResdata = mapRes[strResname];
     m_mapResourcesTX[strResname]=ResourceHandler;
-    m_mapResourcesTX[strResname].FetchPOFilesTXToMem("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
-                                              "/resource/" + *it + "/", strResname == "xbmc.core");
+    m_mapResourcesTX[strResname].FetchPOFilesTXToMem(XMLResdata, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
+                                              "/resource/" + *it + "/", strResname == "kodi.core");
     CLog::DecIdent(4);
     printf(" )\n");
   }

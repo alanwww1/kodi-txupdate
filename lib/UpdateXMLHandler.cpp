@@ -181,7 +181,8 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       else if (!GetParamsFromURLorPath (currResData.strUPSLangURL, currResData.strUPSLangFormat, currResData.strUPSLangFileName,
                                    currResData.strUPSSourcelang, currResData.strUPSLangURLRoot))
         CLog::Log(logERROR, "UpdXMLHandler: UpstreamURL format is wrong for resource %s", strResName.c_str());
-
+      if (!currResData.strUPSLangURLRoot.empty() && currResData.strUPSLangURLRoot.find (".github") == std::string::npos)
+        CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
 
       const TiXmlElement *pChildURLENElement = pChildResElement->FirstChildElement("upstreamLangEnURL");
       if (pChildURLENElement && pChildURLENElement->FirstChild())
@@ -195,6 +196,8 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       else
         GetParamsFromURLorPath (currResData.strUPSAddonURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
                                 currResData.strUPSSourcelang);
+      if (!currResData.strUPSAddonURL.empty() && currResData.strUPSAddonURL.find (".github") == std::string::npos)
+          CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
 
       const TiXmlElement *pChildChglogElement = pChildResElement->FirstChildElement("changelogFormat");
       if (pChildChglogElement && pChildChglogElement->FirstChild())
