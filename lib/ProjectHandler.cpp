@@ -187,12 +187,12 @@ bool CProjectHandler::CreateMergedResources()
       updTXResHandler.GetXMLHandler()->SetAddonChangelogFile(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonChangelogFile());
       updTXResHandler.GetXMLHandler()->SetAddonLogFilename(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonLogFilename());
     }
-    else if (*itResAvail != "xbmc.core")
+    else if (*itResAvail != "kodi.core")
       CLog::Log(logERROR, "CreateMergedResources: No Upstream AddonXML file found as source for merging");
 
     std::list<std::string> listMergedLangs = CreateMergedLanguageList(*itResAvail, false);
 
-    CPOHandler * pcurrPOHandlerEN = m_mapResourcesUpstr[*itResAvail].GetPOData("en");
+    CPOHandler * pcurrPOHandlerEN = m_mapResourcesUpstr[*itResAvail].GetPOData(g_Settings.GetSourceLcode());
 
     for (std::list<std::string>::iterator itlang = listMergedLangs.begin(); itlang != listMergedLangs.end(); itlang++)
     {
@@ -203,8 +203,8 @@ bool CProjectHandler::CreateMergedResources()
       const CPOEntry* pPOEntryUpstr;
       bool bResChangedInAddXMLFromUpstream = false; bool bResChangedFromUpstream = false;
 
-      mergedPOHandler.SetIfIsSourceLang(strLangCode == "en");
-      updTXPOHandler.SetIfIsSourceLang(strLangCode == "en");
+      mergedPOHandler.SetIfIsSourceLang(strLangCode == g_Settings.GetSourceLcode());
+      updTXPOHandler.SetIfIsSourceLang(strLangCode == g_Settings.GetSourceLcode());
       updTXPOHandler.SetIfPOIsUpdTX(true);
 
       CAddonXMLEntry MergedAddonXMLEntry, MergedAddonXMLEntryTX;
@@ -224,12 +224,12 @@ bool CProjectHandler::CreateMergedResources()
       // Get the addon.xml file translatable strings from upstream merged into the merged entry
       if ((pAddonXMLEntry = GetAddonDataFromXML(&m_mapResourcesUpstr, *itResAvail, *itlang)) != NULL)
         MergeAddonXMLEntry(*pAddonXMLEntry, MergedAddonXMLEntry, *pENAddonXMLEntry,
-                           *GetAddonDataFromXML(&m_mapResourcesUpstr, *itResAvail, "en"), true, bResChangedInAddXMLFromUpstream);
+                           *GetAddonDataFromXML(&m_mapResourcesUpstr, *itResAvail, g_Settings.GetSourceLcode()), true, bResChangedInAddXMLFromUpstream);
       else if (!MergedAddonXMLEntryTX.strDescription.empty() || !MergedAddonXMLEntryTX.strSummary.empty() ||
                !MergedAddonXMLEntryTX.strDisclaimer.empty())
         bResChangedInAddXMLFromUpstream = true;
 
-      if (*itResAvail != "xbmc.core")
+      if (*itResAvail != "kodi.core")
       {
         mergedResHandler.GetXMLHandler()->GetMapAddonXMLData()->operator[](*itlang) = MergedAddonXMLEntry;
         updTXResHandler.GetXMLHandler()->GetMapAddonXMLData()->operator[](*itlang) = MergedAddonXMLEntry;
@@ -249,7 +249,7 @@ bool CProjectHandler::CreateMergedResources()
 
         CheckPOEntrySyntax(pPOEntryTX, strLangCode, pcurrPOEntryEN);
 
-        if (strLangCode == "en") // English entry
+        if (strLangCode == g_Settings.GetSourceLcode()) // Source language entry
         {
           mergedPOHandler.AddNumPOEntryByID(numID, *pcurrPOEntryEN, *pcurrPOEntryEN, true);
           updTXPOHandler.AddNumPOEntryByID(numID, *pcurrPOEntryEN, *pcurrPOEntryEN, true);
@@ -313,7 +313,7 @@ bool CProjectHandler::CreateMergedResources()
 
         CheckPOEntrySyntax(pPOEntryTX, strLangCode, pcurrPOEntryEN);
 
-        if (strLangCode == "en")
+        if (strLangCode == g_Settings.GetSourceLcode())
         {
           mergedPOHandler.AddClassicEntry(*pcurrPOEntryEN, *pcurrPOEntryEN, true);
           updTXPOHandler.AddClassicEntry(*pcurrPOEntryEN, *pcurrPOEntryEN, true);
@@ -371,8 +371,8 @@ bool CProjectHandler::CreateMergedResources()
       }
 
       if ((updTXPOHandler.GetNumEntriesCount() !=0 || updTXPOHandler.GetClassEntriesCount() !=0) &&
-        (strLangCode != "en" || g_Settings.GetForceTXUpdate() ||
-        !g_HTTPHandler.ComparePOFilesInMem(&updTXPOHandler, pPOHandlerTX, strLangCode == "en")))
+        (strLangCode != g_Settings.GetSourceLcode() || g_Settings.GetForceTXUpdate() ||
+        !g_HTTPHandler.ComparePOFilesInMem(&updTXPOHandler, pPOHandlerTX, strLangCode == g_Settings.GetSourceLcode())))
       {
         updTXPOHandler.SetPreHeader(strResPreHeader);
         updTXPOHandler.SetHeaderNEW(*itlang);
@@ -570,31 +570,13 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
     std::string strResname = itres->first;
     bool bNewResource = false;
 
-    if (!XMLResdata.strResDirectory.empty())
-      XMLResdata.strResDirectory += DirSepChar;
-
-    switch (XMLResdata.Restype)
-    {
-      case ADDON: case ADDON_NOSTRINGS:
-        strResourceDir = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strResDirectory + strResname + DirSepChar + XMLResdata.strDIRprefix + DirSepChar;
-        strLangDir = strResourceDir + "resources" + DirSepChar + "language" + DirSepChar;
-        break;
-      case SKIN:
-        strResourceDir = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strResDirectory + strResname + DirSepChar + XMLResdata.strDIRprefix + DirSepChar;
-        strLangDir = strResourceDir + "language" + DirSepChar;
-        break;
-      case CORE:
-        strResourceDir = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strResDirectory;
-        strLangDir = strResourceDir + "language" + DirSepChar;
-        break;
-      default:
-        CLog::Log(logERROR, "ResHandler: No resourcetype defined for resource: %s",strResname.c_str());
-    }
+    strResourceDir = strProjRootDir + strPrefixDir + DirSepChar + strResname + DirSepChar;
+    strLangDir = strResourceDir + "resources" + DirSepChar + "language" + DirSepChar;
 
     CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Uploading resource: %s, from langdir: %s",itres->first.c_str(), strLangDir.c_str());
     printf ("Uploading files for resource: %s", itres->first.c_str());
 
-    if (!FindResInList(listResourceNamesTX, itres->second.strTXResName))
+    if (!FindResInList(listResourceNamesTX, itres->second.strTXName))
     {
       CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: No resource %s exists on Transifex. Creating it now.", itres->first.c_str());
       // We create the new resource on transifex and also upload the English source file at once
@@ -602,10 +584,11 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
       g_HTTPHandler.ReInit();
       size_t straddednew;
       g_HTTPHandler.CreateNewResource(itres->second.strTXResName,
-                                      strLangDir + "English" + DirSepChar + "strings.po",
+                                      strLangDir + g_Settings.GetSourceLcode() + DirSepChar + "strings.po",
                                       "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() + "/resources/",
                                       straddednew, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
-                                      "/resource/" + XMLResdata.strTXName + "/translation/" + "en" + "/");
+                                      "/resource/" + XMLResdata.strTXName + "/translation/" +
+				      g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strTXLangFormat) + "/");
 
       CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Resource %s was succesfully created with %i English strings.",
                 itres->first.c_str(), straddednew);
@@ -631,14 +614,14 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 
     for (std::list<std::string>::const_iterator it = listLangCodes.begin(); it!=listLangCodes.end(); it++)
     {
-      if (bNewResource && *it == "en") // Let's not upload the English file again
+      if (bNewResource && *it == g_Settings.GetSourceLcode()) // Let's not upload the Source language file again
         continue;
-      std::string strFilePath = strLangDir + g_LCodeHandler.FindLang(*it) + DirSepChar + "strings.po";
+      std::string strFilePath = strLangDir + *it + DirSepChar + "strings.po";
       std::string strLangCode = *it;
 
       bool buploaded = false;
       size_t stradded, strupd;
-      if (*it == "en")
+      if (strLangCode == g_Settings.GetSourceLcode())
         g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
                                                 "/resource/" + XMLResdata.strTXName + "/content/",
                                                 buploaded, stradded, strupd);
@@ -648,11 +631,11 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
                                                 buploaded, stradded, strupd);
       if (buploaded)
       {
-        printf ("\tlangcode: %s:\t added strings:%lu, updated strings:%lu\n", it->c_str(), stradded, strupd);
+        printf ("\tlangcode: %s:\t added strings:%lu, updated strings:%lu\n", strLangCode->c_str(), stradded, strupd);
         g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
                                        "/resource/" + strResname + "/stats/", "GET");
         g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
-        "/resource/" + strResname + "/translation/" + *it + "/?file", "GET");
+        "/resource/" + strResname + "/translation/" + strLangCode + "/?file", "GET");
       }
       else
         printf ("\tlangcode: %s:\t no change, skipping.\n", it->c_str());
@@ -674,7 +657,7 @@ std::list<std::string> CProjectHandler::GetLangsFromDir(std::string const &strLa
 {
   std::list<std::string> listDirs;
   bool bEnglishExists = true;
-  if (!g_File.DirExists(strLangDir + "English"))
+  if (!g_File.DirExists(strLangDir + g_Settings.GetSourceLcode()))
     bEnglishExists = false;
 
   DIR* Dir;
@@ -686,18 +669,17 @@ std::list<std::string> CProjectHandler::GetLangsFromDir(std::string const &strLa
     if (DirEntry->d_type == DT_DIR && DirEntry->d_name[0] != '.')
     {
       std::string strDirname = DirEntry->d_name;
-      if (strDirname != "English")
+      if (strDirname != g_Settings.GetSourceLcode())
       {
-        std::string strFoundLangCode = g_LCodeHandler.FindLangCode(DirEntry->d_name);
-        if (strFoundLangCode != "UNKNOWN")
-          listDirs.push_back(strFoundLangCode);
+        std::string strFoundLangCode = DirEntry->d_name;
+        listDirs.push_back(strFoundLangCode);
       }
     }
   }
 
   listDirs.sort();
   if (bEnglishExists)
-    listDirs.push_front("en");
+    listDirs.push_front(g_Settings.GetSourceLcode());
 
   return listDirs;
 };

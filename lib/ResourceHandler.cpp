@@ -187,7 +187,12 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
       printf ("+%i Langs", m_mapPOFiles.size()-19);
 
     CPOHandler * pPOHandler = &m_mapPOFiles[itmapPOFiles->first];
+    if (g_CharsetUtils.bISPOFile(XMLResdata.strLOCLangFileName) || bTXUpdFile)
+      pPOHandler->WritePOFile(strPODir);
+    else if (g_CharsetUtils.bISPOFile(XMLResdata.strLOCLangFileName))
       pPOHandler->WriteXMLFile(strPODir);
+    else
+      CLog::Log(logERROR, "ResHandler::WritePOToFiles: unknown local fileformat: %s", XMLResdata.strLOCLangFileName.c_str());
 
     CLog::LogTable(logINFO, "writepo", "\t\t\t%s\t\t%i\t\t%i", itmapPOFiles->first.c_str(), pPOHandler->GetNumEntriesCount(),
               pPOHandler->GetClassEntriesCount());
@@ -200,13 +205,14 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
   CLog::LogTable(logADDTABLEHEADER, "writepo", "--------------------------------------------------------------\n");
   CLog::LogTable(logCLOSETABLE, "writepo", "");
 
+//TODO handle new language addons where each language has a separate addon.xml file
   // update local addon.xml file
-  if (strResname != "xbmc.core" && strPrefixDir == g_Settings.GetMergedLangfilesDir())
+  if (strResname != "kodi.core" && strPrefixDir == g_Settings.GetMergedLangfilesDir())
   {
     bool bResChangedFromUpstream = !m_lChangedLangsFromUpstream.empty() || !m_lChangedLangsInAddXMLFromUpstream.empty();
-    m_AddonXMLHandler.UpdateAddonXMLFile(strResourceDir + "addon.xml" + XMLResdata.strAddonXMLSuffix, bResChangedFromUpstream);
-    if (XMLResdata.bHasChangelog)
-      m_AddonXMLHandler.UpdateAddonChangelogFile(strResourceDir + XMLResdata.strChangelogFilename, XMLResdata.strChangelogFormat, bResChangedFromUpstream);
+    m_AddonXMLHandler.UpdateAddonXMLFile(XMLResdata.strLOCAddonPath, bResChangedFromUpstream);
+    if (!XMLResdata.strChangelogFormat.empty())
+      m_AddonXMLHandler.UpdateAddonChangelogFile(XMLResdata.strLOCChangelogURL, XMLResdata.strChangelogFormat, bResChangedFromUpstream);
   }
 
   return true;

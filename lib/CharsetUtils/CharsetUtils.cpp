@@ -25,6 +25,7 @@
 #include "../Log.h"
 #include <sstream>
 #include <algorithm>
+#include "../xbmclangcodes.h"
 
 CCharsetUtils g_CharsetUtils;
 
@@ -337,4 +338,19 @@ std::string CCharsetUtils::GetLangnameFromURL(std::string strName, std::string s
     return "";
 
   return strName.substr(strPre.size(), strName.size()-strPre.size()-strPost.size());
+}
+
+std::string CCharsetUtils::ReplaceLanginURL(const std::string& strURL, const std::string& strLangFormat, const std::string& strLCode)
+{
+  return replaceStrParts(strURL, strLangFormat, g_LCodeHandler.GetLangFromLCode(strLCode, strLangFormat));
+}
+
+bool CCharsetUtils::bISPOFile(const std::string strFilename)
+{
+  return (strFilename.find(".po") != std::string::npos || strFilename.find(".PO") != std::string::npos);
+}
+
+bool CCharsetUtils::bISXMLFile(const std::string strFilename)
+{
+  return (strFilename.find(".xml") != std::string::npos || strFilename.find(".XML") != std::string::npos);
 }
