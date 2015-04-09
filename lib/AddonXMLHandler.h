@@ -22,6 +22,7 @@
 
 #include "POHandler.h"
 #include "TinyXML/tinyxml.h"
+#include "UpdateXMLHandler.h"
 
 struct COtherAddonMetadata
 {
@@ -40,7 +41,7 @@ public:
   CAddonXMLHandler();
   ~CAddonXMLHandler();
   bool UpdateAddonXMLFile (std::string strAddonXMLFilename, bool bUpdateVersion);
-  bool FetchAddonXMLFileUpstr (std::string strURL);
+  bool FetchAddonXMLFileUpstr (const CXMLResdata &XMLResdata);
   bool UpdateAddonChangelogFile (std::string strFilename, std::string strFormat, bool bUpdate);
   bool FetchAddonChangelogFile (std::string strURL);
   bool LoadCoreVersion(std::string filename);
@@ -60,7 +61,7 @@ public:
   void SetAddonMetadata(COtherAddonMetadata const &MetaData) {m_AddonMetadata = MetaData;}
 
 protected:
-  bool ProcessAddonXMLFile (std::string AddonXMLFilename, TiXmlDocument &xmlAddonXML);
+  bool ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXmlDocument &xmlAddonXML);
   bool ProcessCoreVersion(std::string filename, std::string &strBuffer);
   bool GetEncoding(const TiXmlDocument* pDoc, std::string& strEncoding);
   void BumpVersionNumber();

@@ -103,7 +103,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata, 
     g_Json.ParseAddonXMLVersionGITHUB(strtemp, XMLResdata.strUPSAddonURLRoot, XMLResdata.strUPSAddonXMLFilename, XMLResdata.strUPSChangelogName);
 
     printf(" Addxml");
-    m_AddonXMLHandler.FetchAddonXMLFileUpstr(XMLResdata.strUPSAddonURL);
+    m_AddonXMLHandler.FetchAddonXMLFileUpstr(XMLResdata);
     if (!XMLResdata.strUPSChangelogURL.empty())
     {
       printf(" Chlog");
@@ -169,8 +169,8 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
   }
   else
   {
-    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strName + DirSepChar + "$(NEWLCODE)" + DirSepChar + "strings.po";
-    strLangFormat = "$(NEWLCODE)";
+    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strName + DirSepChar + "$(LCODE)" + DirSepChar + "strings.po";
+    strLangFormat = "$(LCODE)";
   }
 
   if (bTXUpdFile && !m_mapPOFiles.empty())

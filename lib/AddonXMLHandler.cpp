@@ -25,6 +25,7 @@
 #include <algorithm>
 #include "HTTPUtils.h"
 #include "Settings.h"
+#include "UpdateXMLHandler.h"
 
 using namespace std;
 
@@ -34,8 +35,9 @@ CAddonXMLHandler::CAddonXMLHandler()
 CAddonXMLHandler::~CAddonXMLHandler()
 {};
 
-bool CAddonXMLHandler::FetchAddonXMLFileUpstr (std::string strURL)
+bool CAddonXMLHandler::FetchAddonXMLFileUpstr (const CXMLResdata &XMLResdata)
 {
+  std::string strURL = XMLResdata.strUPSAddonURL;
   TiXmlDocument xmlAddonXML;
 
   std::string strXMLFile = g_HTTPHandler.GetURLToSTR(strURL);
@@ -52,11 +54,12 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr (std::string strURL)
     return false;
   }
 
-return   ProcessAddonXMLFile(strURL, xmlAddonXML);
+return   ProcessAddonXMLFile(XMLResdata, xmlAddonXML);
 }
 
-bool CAddonXMLHandler::ProcessAddonXMLFile (std::string AddonXMLFilename, TiXmlDocument &xmlAddonXML)
+bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXmlDocument &xmlAddonXML)
 {
+  std::string AddonXMLFilename = XMLResdata.strUPSAddonURL;
   std::string addonXMLEncoding;
   m_strResourceData.clear();
 
@@ -126,20 +129,20 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (std::string AddonXMLFilename, TiXmlD
   const TiXmlElement *pChildSummElement = pChildElement->FirstChildElement("summary");
   while (pChildSummElement && pChildSummElement->FirstChild())
   {
-    std::string strLang;
+    std::string strAlias, strLCode;
     if (pChildSummElement->Attribute("lang"))
-      strLang = pChildSummElement->Attribute("lang");
+      strAlias = pChildSummElement->Attribute("lang");
     else
-      strLang = "en";
-    strLang = g_LCodeHandler.VerifyLangCode(strLang); // just make sure we read a valid language code
+      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormat);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormat);
 
-    if (pChildSummElement->FirstChild() && strLang != "UNKNOWN")
+    if (pChildSummElement->FirstChild() && strLCode != "UNKNOWN")
     {
       std::string strValue = CstrToString(pChildSummElement->FirstChild()->Value());
             strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
       if (g_Settings.GetRebrand())
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
-      m_mapAddonXMLData[strLang].strSummary = strValue;
+      m_mapAddonXMLData[strLCode].strSummary = strValue;
     }
     pChildSummElement = pChildSummElement->NextSiblingElement("summary");
   }
@@ -147,20 +150,20 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (std::string AddonXMLFilename, TiXmlD
   const TiXmlElement *pChildDescElement = pChildElement->FirstChildElement("description");
   while (pChildDescElement && pChildDescElement->FirstChild())
   {
-    std::string strLang;
+    std::string strLCode, strAlias;
     if (pChildDescElement->Attribute("lang"))
-      strLang = pChildDescElement->Attribute("lang");
+      strAlias = pChildDescElement->Attribute("lang");
     else
-      strLang = "en";
-    strLang = g_LCodeHandler.VerifyLangCode(strLang); // just make sure we read a valid language code
+      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormat);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormat);
 
-    if (pChildDescElement->FirstChild() && strLang != "UNKNOWN")
+    if (pChildDescElement->FirstChild() && strLCode != "UNKNOWN")
     {
       std::string strValue = CstrToString(pChildDescElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
       if (g_Settings.GetRebrand())
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
-      m_mapAddonXMLData[strLang].strDescription = strValue;
+      m_mapAddonXMLData[strLCode].strDescription = strValue;
     }
     pChildDescElement = pChildDescElement->NextSiblingElement("description");
   }
@@ -168,20 +171,20 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (std::string AddonXMLFilename, TiXmlD
   const TiXmlElement *pChildDisclElement = pChildElement->FirstChildElement("disclaimer");
   while (pChildDisclElement && pChildDisclElement->FirstChild())
   {
-    std::string strLang;
+    std::string strLCode, strAlias;
     if (pChildDisclElement->Attribute("lang"))
-      strLang = pChildDisclElement->Attribute("lang");
+      strAlias = pChildDisclElement->Attribute("lang");
     else
-      strLang = "en";
-    strLang = g_LCodeHandler.VerifyLangCode(strLang); // just make sure we read a valid language code
+      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormat);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormat);
 
-    if (pChildDisclElement->FirstChild() && strLang != "UNKNOWN")
+    if (pChildDisclElement->FirstChild() && strLCode != "UNKNOWN")
     {
       std::string strValue = CstrToString(pChildDisclElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
       if (g_Settings.GetRebrand())
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
-      m_mapAddonXMLData[strLang].strDisclaimer = strValue;
+      m_mapAddonXMLData[strLCode].strDisclaimer = strValue;
     }
     pChildDisclElement = pChildDisclElement->NextSiblingElement("disclaimer");
   }

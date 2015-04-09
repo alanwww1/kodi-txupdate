@@ -30,7 +30,7 @@ using namespace std;
 
 CXMLResdata::CXMLResdata()
 {
-  strTXLangFormat = "$(NEWLCODE)";
+  strTXLangFormat = "$(LCODE)";
 }
 
 CXMLResdata::~CXMLResdata()

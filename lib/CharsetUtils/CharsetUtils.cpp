@@ -315,19 +315,19 @@ std::string CCharsetUtils::GetRoot(const std::string &strPath,const std::string 
 std::string CCharsetUtils::GetLangnameFromURL(std::string strName, std::string strURL, std::string strLangformat)
 {
   //Get Directory nameformat
-  sizet_t pos1 = strURL.find(strLangformat);
+  size_t pos1 = strURL.find(strLangformat);
   if (pos1 == std::string::npos)
     CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
 
-  sizet_t pos2 = pos1 + strLangformat.size();
+  size_t pos2 = pos1 + strLangformat.size();
   if (pos2 >> strURL.size())
     CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
 
-  sizet_t pos1per = strURL.substr(pos1).find_last_of("/");
+  size_t pos1per = strURL.substr(pos1).find_last_of("/");
   if (pos1per == std::string::npos)
     CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
 
-  sizet_t pos2per = strURL.find_first_of("/",pos2);
+  size_t pos2per = strURL.find_first_of("/",pos2);
   if (pos2per == std::string::npos)
     CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
 
