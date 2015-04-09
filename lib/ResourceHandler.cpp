@@ -161,23 +161,16 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata, 
 
 bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResname, CXMLResdata XMLResdata, bool bTXUpdFile)
 {
-  std::string strResourceDir, strLangDir;
-  switch (XMLResdata.Restype)
+  std::string strPath, strLangFormat;
+  if (!bTXUpdFile)
   {
-    case ADDON: case ADDON_NOSTRINGS:
-      strResourceDir = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strResDirectory + DirSepChar + strResname + DirSepChar + XMLResdata.strDIRprefix + DirSepChar;
-      strLangDir = strResourceDir + "resources" + DirSepChar + "language" + DirSepChar;
-      break;
-    case SKIN:
-      strResourceDir = strProjRootDir + strPrefixDir + DirSepChar  + XMLResdata.strResDirectory + DirSepChar + strResname + DirSepChar+ XMLResdata.strDIRprefix + DirSepChar;
-      strLangDir = strResourceDir + "language" + DirSepChar;
-      break;
-    case CORE:
-      strResourceDir = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strResDirectory + DirSepChar + XMLResdata.strDIRprefix + DirSepChar;
-      strLangDir = strResourceDir + "language" + DirSepChar;
-      break;
-    default:
-      CLog::Log(logERROR, "ResHandler: No resourcetype defined for resource: %s",strResname.c_str());
+    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCLangFileName;
+    strLangFormat = XMLResdata.strLOCLangFormat;
+  }
+  else
+  {
+    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strName + DirSepChar + "$(NEWLCODE)" + DirSepChar + "strings.po";
+    strLangFormat = "$(NEWLCODE)";
   }
 
   if (bTXUpdFile && !m_mapPOFiles.empty())
@@ -186,8 +179,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
 
   for (T_itmapPOFiles itmapPOFiles = m_mapPOFiles.begin(); itmapPOFiles != m_mapPOFiles.end(); itmapPOFiles++)
   {
-    std::string strLang = g_LCodeHandler.FindLang(itmapPOFiles->first);
-    std::string strPODir = strLangDir + strLang;
+    std::string strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, strLangFormat, itmapPOFiles->first);
 
     if (bTXUpdFile && counter < 20)
       printf (" %s", itmapPOFiles->first.c_str());
@@ -195,11 +187,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
       printf ("+%i Langs", m_mapPOFiles.size()-19);
 
     CPOHandler * pPOHandler = &m_mapPOFiles[itmapPOFiles->first];
-    if (XMLResdata.bWritePO || bTXUpdFile)
-      pPOHandler->WritePOFile(strPODir + DirSepChar + "strings.po");
-
-    if (XMLResdata.bWriteXML && !bTXUpdFile)
-      pPOHandler->WriteXMLFile(strPODir + DirSepChar + "strings.xml");
+      pPOHandler->WriteXMLFile(strPODir);
 
     CLog::LogTable(logINFO, "writepo", "\t\t\t%s\t\t%i\t\t%i", itmapPOFiles->first.c_str(), pPOHandler->GetNumEntriesCount(),
               pPOHandler->GetClassEntriesCount());

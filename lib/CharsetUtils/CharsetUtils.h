@@ -55,6 +55,7 @@ public:
   void reBrandXBMCToKodi(std::string * pstrtorebrand);
   std::string GetRoot(const std::string &strPath,const std::string &strFilename);
   std::string GetLangnameFromURL(std::string strName, std::string strURL, std::string strLangformat);
+  std::string ReplaceLanginURL(const std::string &strURL,const std::string &strLangFormat, const std::string &strLCode);
 };
 
 extern CCharsetUtils g_CharsetUtils;
