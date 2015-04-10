@@ -61,7 +61,7 @@ private:
   int GetResType(std::string const &ResRootDir) const {return m_resType;}
   std::string IntToStr(int number);
   bool GetParamsFromURLorPath (std::string const &strURL, std::string &strLangFormat, std::string &strFileName,
-                                                 std::string &strSourcelang, std::string &strURLRoot, const char strSeparator = '/');
+                                                 std::string &strSourcelang, std::string &strURLRoot, const char strSeparator);
   int m_resType; 
   std::map<std::string, CXMLResdata> m_mapXMLResdata;
   std::map<std::string, CXMLResdata>::iterator itXMLResdata;

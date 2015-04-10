@@ -28,6 +28,8 @@
 
 using namespace std;
 
+CUpdateXMLHandler g_UpdateXMLHandler;
+
 CXMLResdata::CXMLResdata()
 {
   strTXLangFormat = "$(LCODE)";
@@ -179,7 +181,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (currResData.strUPSLangURL.empty())
         CLog::Log(logINFO, "UpdXMLHandler: UpstreamURL entry is empty for resource %s, which means we have no language files for this addon", strResName.c_str());
       else if (!GetParamsFromURLorPath (currResData.strUPSLangURL, currResData.strUPSLangFormat, currResData.strUPSLangFileName,
-                                   currResData.strUPSSourcelang, currResData.strUPSLangURLRoot))
+                                   currResData.strUPSSourcelang, currResData.strUPSLangURLRoot, '/'))
         CLog::Log(logERROR, "UpdXMLHandler: UpstreamURL format is wrong for resource %s", strResName.c_str());
       if (!currResData.strUPSLangURLRoot.empty() && currResData.strUPSLangURLRoot.find (".github") == std::string::npos)
         CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
@@ -195,7 +197,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         CLog::Log(logERROR, "UpdXMLHandler: UpstreamAddonURL entry is empty for resource %s", strResName.c_str());
       else
         GetParamsFromURLorPath (currResData.strUPSAddonURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
-                                currResData.strUPSSourcelang, currResData.strUPSAddonURLRoot);
+                                currResData.strUPSSourcelang, currResData.strUPSAddonURLRoot, '/');
       if (!currResData.strUPSAddonURL.empty() && currResData.strUPSAddonURL.find (".github") == std::string::npos)
           CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
 
@@ -262,7 +264,7 @@ CXMLResdata CUpdateXMLHandler::GetResData(string strResName)
 }
 
 bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,
-                                                 string &strSourcelang, string &strURLRoot, const char strSeparator = '/')
+                                                 string &strSourcelang, string &strURLRoot, const char strSeparator)
 {
   if (strURL.empty())
     return true;
@@ -274,7 +276,7 @@ bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &st
 
   size_t posStart, posEnd;
 
-  if (posStart = strURL.find("$(") == std::string::npos || posEnd = strURL.find(")",posStart) == std::string::npos)
+  if ((posStart = strURL.find("$(") == std::string::npos) || (posEnd = strURL.find(")",posStart) == std::string::npos))
     return false;
 
   strLangFormat = strURL.substr(posStart, posStart-posEnd+1);

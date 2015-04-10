@@ -25,6 +25,7 @@
 #include "JSONHandler.h"
 #include "Settings.h"
 #include <algorithm>
+#include "UpdateXMLHandler.h"
 
 CProjectHandler::CProjectHandler()
 {};
