@@ -137,8 +137,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata, 
     POHandler.SetIfIsSourceLang(*it == g_Settings.GetSourceLcode());
     printf (" %s", it->c_str());
 
-    std::string strDloadURL = g_CharsetUtils.replaceStrParts(XMLResdata.strUPSLangURL, XMLResdata.strUPSAddonLangFormat,
-                              g_LCodeHandler.GetLangFromLCode(*it));
+    std::string strDloadURL = g_CharsetUtils.ReplaceLanginURL(XMLResdata.strUPSChangelogURL, XMLResdata.strUPSLangFormat, *it);
 
     if (XMLResdata.strUPSLangFileName == "strings.xml")
       bResult = POHandler.FetchXMLURLToMem(strDloadURL);
@@ -184,7 +183,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
     if (bTXUpdFile && counter < 20)
       printf (" %s", itmapPOFiles->first.c_str());
     if ((bTXUpdFile && counter == 19) && m_mapPOFiles.size() != 20)
-      printf ("+%i Langs", m_mapPOFiles.size()-19);
+      printf ("+%i Langs", (int)m_mapPOFiles.size()-19);
 
     CPOHandler * pPOHandler = &m_mapPOFiles[itmapPOFiles->first];
     if (g_CharsetUtils.bISPOFile(XMLResdata.strLOCLangFileName) || bTXUpdFile)

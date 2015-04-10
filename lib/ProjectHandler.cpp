@@ -583,7 +583,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
       g_HTTPHandler.Cleanup();
       g_HTTPHandler.ReInit();
       size_t straddednew;
-      g_HTTPHandler.CreateNewResource(itres->second.strTXResName,
+      g_HTTPHandler.CreateNewResource(itres->second.strTXName,
                                       strLangDir + g_Settings.GetSourceLcode() + DirSepChar + "strings.po",
                                       "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() + "/resources/",
                                       straddednew, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
@@ -631,7 +631,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
                                                 buploaded, stradded, strupd);
       if (buploaded)
       {
-        printf ("\tlangcode: %s:\t added strings:%lu, updated strings:%lu\n", strLangCode->c_str(), stradded, strupd);
+        printf ("\tlangcode: %s:\t added strings:%lu, updated strings:%lu\n", strLangCode.c_str(), stradded, strupd);
         g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
                                        "/resource/" + strResname + "/stats/", "GET");
         g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
@@ -751,7 +751,7 @@ void CProjectHandler::PrintChangedLangs(std::list<std::string> lChangedLangs)
     counter++;
     if (counter > 19)
     {
-      printf ("+ %i langs ", lChangedLangs.size() - 20);
+      printf ("+ %i langs ", (int)lChangedLangs.size() - 20);
       break;
     }
   }

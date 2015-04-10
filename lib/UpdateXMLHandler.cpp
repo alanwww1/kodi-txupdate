@@ -195,7 +195,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         CLog::Log(logERROR, "UpdXMLHandler: UpstreamAddonURL entry is empty for resource %s", strResName.c_str());
       else
         GetParamsFromURLorPath (currResData.strUPSAddonURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
-                                currResData.strUPSSourcelang);
+                                currResData.strUPSSourcelang, currResData.strUPSAddonURLRoot);
       if (!currResData.strUPSAddonURL.empty() && currResData.strUPSAddonURL.find (".github") == std::string::npos)
           CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
 
@@ -213,7 +213,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (currResData.strLOCLangPath.empty())
         CLog::Log(logINFO, "UpdXMLHandler: Local langpath entry is empty for resource %s, which means we have no language files for this addon", strResName.c_str());
       else if (!GetParamsFromURLorPath (currResData.strLOCLangPath, currResData.strLOCLangFormat, currResData.strLOCLangFileName,
-               currResData.strLOCSourceLang), DirSepChar)
+               currResData.strLOCSourceLang, currResData.strLOCLangPathRoot, DirSepChar))
         CLog::Log(logERROR, "UpdXMLHandler: Local langpath format is wrong for resource %s", strResName.c_str());
 
       const TiXmlElement *pChildLocAddonElement = pChildResElement->FirstChildElement("localAddonPath");
@@ -223,11 +223,11 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         CLog::Log(logERROR, "UpdXMLHandler: Local addon path entry is empty for resource %s", strResName.c_str());
       else
         GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
-                                currResData.strLOCSourceLang, DirSepChar);
+                                currResData.strLOCSourceLang, currResData.strLOCAddonPathRoot, DirSepChar);
 
       m_mapXMLResdata[strResName] = currResData;
       CLog::Log(logINFO, "UpdXMLHandler: found resource in update.xml file: %s, Type: %s, SubDir: %s",
-                strResName.c_str(), strType.c_str(), currResData.strResDirectory.c_str());
+                strResName.c_str(), strType.c_str(), currResData.strLOCAddonPath.c_str());
     }
     pChildResElement = pChildResElement->NextSiblingElement("resource");
   }
@@ -239,7 +239,7 @@ std::string CUpdateXMLHandler::GetResNameFromTXResName(std::string const &strTXR
 {
   for (itXMLResdata = m_mapXMLResdata.begin(); itXMLResdata != m_mapXMLResdata.end(); itXMLResdata++)
   {
-    if (itXMLResdata->second.strTXResName == strTXResName)
+    if (itXMLResdata->second.strTXName == strTXResName)
       return itXMLResdata->first;
   }
   return "";
@@ -262,7 +262,7 @@ CXMLResdata CUpdateXMLHandler::GetResData(string strResName)
 }
 
 bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,
-                                                 string &strSourcelang, string &strURLRoot, string strSeparator = "/")
+                                                 string &strSourcelang, string &strURLRoot, const char strSeparator = '/')
 {
   if (strURL.empty())
     return true;
