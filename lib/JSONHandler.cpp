@@ -172,7 +172,8 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
 
   std::map<std::string, CLangcodes> mapTXLangs;
 
-  const Json::Value JLangs = root;
+  const Json::Value JRoot = root;
+  const Json::Value JLangs =  JRoot["fixtures"];
 
   for (Json::ValueIterator itrlangs = JLangs.begin() ; itrlangs !=JLangs.end() ; itrlangs++)
   {
@@ -186,7 +187,6 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
 
     for (Json::ValueIterator itralias = JAliases.begin(); itralias !=JAliases.end() ; itralias++)
     {
-      Json::Value JValualias = *itralias;
       std::string langstrKey = itralias.key().asString();
       std::string langstrName = (*itralias).asString();
       LangData.mapLangdata[langstrKey] = langstrName;
@@ -205,8 +205,49 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
     else
       CLog::Log(logWARNING, "JSONHandler: ParseTXLanguageDB: corrupt JSON data found while parsing Language Database");
   };
+
+  const Json::Value JRules =  JRoot["rules"];
+  const Json::Value JRulesGen =  JRules["general"];
+  const Json::Value JRulesCust =  JRules["custom"];
+
+  for (Json::ValueIterator itrules = JRulesGen.begin() ; itrules !=JRulesGen.end() ; itrules++)
+  {
+    std::string strLeft = itrules.key().asString();
+    std::string strRight = (*itrules).asString();
+    AddGeneralRule(mapTXLangs, strLeft, strRight);
+  }
+
+  for (Json::ValueIterator itrules = JRulesCust.begin() ; itrules !=JRulesCust.end() ; itrules++)
+  {
+    std::string strLangformat = itrules.key().asString();
+    const Json::Value JRulesCustR = (*itrules);
+    for (Json::ValueIterator itrulesR = JRulesCustR.begin() ; itrules !=JRulesCustR.end() ; itrulesR++)
+    {
+      std::string strLeft = itrulesR.key().asString();
+      std::string strRight = (*itrulesR).asString();
+      AddCustomRule(mapTXLangs, strLangformat, strLeft, strRight);
+    }
+  }
+
   return mapTXLangs;
 };
+
+//TODO error checking
+void CJSONHandler::AddGeneralRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLeft,
+                                  const std::string &strRight)
+{
+  std::map<std::string, CLangcodes>::iterator itmapTXLangs;
+  for (itmapTXLangs = mapTXLangs.begin(); itmapTXLangs != mapTXLangs.end(); itmapTXLangs++)
+  {
+    itmapTXLangs->second.mapLangdata[strLeft] = itmapTXLangs->second.mapLangdata[strRight];
+  }
+}
+
+void CJSONHandler::AddCustomRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLangformat,
+                                  const std::string &strLeft, const std::string &strRight)
+{
+  mapTXLangs[strLeft].mapLangdata[strLangformat] = strRight;
+}
 
 std::string CJSONHandler::CreateJSONStrFromPOStr(std::string const &strPO)
 {
