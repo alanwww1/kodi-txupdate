@@ -31,6 +31,8 @@ const size_t DEFAULTMINCOMPLETION = 10; // %
 const std::string DEFAULTMERGEDLANGDIR = "merged-langfiles";
 const std::string DEFAULTTXUPDLANGDIR = "tempfiles_txupdate";
 const std::string DEFAULTSOURCELCODE = "en_GB";
+const std::string DEFAULTBASELCODE = "$(LCODE)";
+const std::string DEFAULTTXLFORMAT = "$(LCODE)";
 
 class CSettings
 {
@@ -55,8 +57,13 @@ public:
   void SetSupportEmailAdd(std::string const &strEmailAdd);
   std::string GetSupportEmailAdd();
   std::string GetSourceLcode() {return m_strSourceLcode;}
+  void SetSourceLcode(std::string strSourceLcode);
   bool GetForceTXUpdate();
   void SetForceTXUpdate(bool bForceTXUpd);
+  void SetBaseLCode(std::string const &strBaseLCode);
+  std::string GetBaseLCode();
+  std::string GetDefaultTXLFormat();
+
 private:
   size_t m_CacheExpire;
   int m_minComplPercentage;
@@ -66,6 +73,8 @@ private:
   std::string m_strSupportEmailAdd;
   std::string m_strProjectnameLong;
   std::string m_strSourceLcode;
+  std::string m_strBaseLCode;
+  std::string m_strDefTXLFormat;
   bool m_bForceComm;
   bool m_bRebrand;
   bool m_bForceTXUpd;

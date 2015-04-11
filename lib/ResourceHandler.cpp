@@ -168,8 +168,8 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
   }
   else
   {
-    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strName + DirSepChar + "$(LCODE)" + DirSepChar + "strings.po";
-    strLangFormat = "$(LCODE)";
+    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strName + DirSepChar + g_Settings.GetBaseLCode() + DirSepChar + "strings.po";
+    strLangFormat = g_Settings.GetBaseLCode();
   }
 
   if (bTXUpdFile && !m_mapPOFiles.empty())

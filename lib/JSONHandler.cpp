@@ -190,12 +190,12 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
       std::string langstrKey = itralias.key().asString();
       std::string langstrName = (*itralias).asString();
       LangData.mapLangdata[langstrKey] = langstrName;
-      if (langstrKey == "LCODE")
+      if ( "$(" + langstrKey + ")" == g_Settings.GetBaseLCode())
         strLCode = langstrName;
     }
 
     if (strLCode.empty())
-      CLog::Log(logERROR, "JSONHandler: ParseTXLanguageDB: Missing key LCODE in language database aliases");
+      CLog::Log(logERROR, "JSONHandler: ParseTXLanguageDB: Missing base langcode key in language database aliases");
 
     LangData.Pluralform = JValu.get("pluralequation", "unknown").asString();
     LangData.nplurals = JValu.get("nplurals", 0).asInt();

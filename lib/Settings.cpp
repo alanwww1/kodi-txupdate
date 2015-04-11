@@ -38,6 +38,8 @@ CSettings::CSettings()
   m_bForceTXUpd = false;
   m_strSupportEmailAdd = "anonymus";
   m_strSourceLcode = DEFAULTSOURCELCODE;
+  m_strBaseLCode =DEFAULTBASELCODE;
+  m_strDefTXLFormat = DEFAULTTXLFORMAT;
 };
 
 CSettings::~CSettings()
@@ -144,3 +146,23 @@ void CSettings::SetForceTXUpdate(bool bForceTXUpd)
 {
   m_bForceTXUpd = bForceTXUpd;
 };
+
+string CSettings::GetBaseLCode()
+{
+  return m_strBaseLCode;
+}
+
+void CSettings::SetBaseLCode(const string& strBaseLCode)
+{
+  m_strBaseLCode = strBaseLCode;
+}
+
+void CSettings::SetSourceLcode(string strSourceLcode)
+{
+  m_strSourceLcode = strSourceLcode;
+}
+
+string CSettings::GetDefaultTXLFormat()
+{
+  return m_strDefTXLFormat;
+}

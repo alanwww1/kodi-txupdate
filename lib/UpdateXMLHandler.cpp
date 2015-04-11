@@ -31,9 +31,7 @@ using namespace std;
 CUpdateXMLHandler g_UpdateXMLHandler;
 
 CXMLResdata::CXMLResdata()
-{
-  strTXLangFormat = "$(LCODE)";
-}
+{}
 
 CXMLResdata::~CXMLResdata()
 {}
@@ -46,27 +44,35 @@ CUpdateXMLHandler::~CUpdateXMLHandler()
 
 bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
 {
-  std::string UpdateXMLFilename = rootDir  + DirSepChar + "xbmc-txupdate.xml";
+  std::string UpdateXMLFilename = rootDir  + DirSepChar + "kodi-txupdate.xml";
   TiXmlDocument xmlUpdateXML;
 
   if (!xmlUpdateXML.LoadFile(UpdateXMLFilename.c_str()))
   {
-    CLog::Log(logERROR, "UpdXMLHandler: No 'xbmc-txupdate.xml' file exists in the specified project dir. Cannot continue. "
+    CLog::Log(logERROR, "UpdXMLHandler: No 'kodi-txupdate.xml' file exists in the specified project dir. Cannot continue. "
                         "Please create one!");
     return false;
   }
 
   CLog::Log(logINFO, "UpdXMLHandler: Succesfuly found the update.xml file in the specified project directory");
 
-  TiXmlElement* pRootElement = xmlUpdateXML.RootElement();
-  if (!pRootElement || pRootElement->NoChildren() || pRootElement->ValueTStr()!="resources")
+  TiXmlElement* pProjectRootElement = xmlUpdateXML.RootElement();
+  if (!pProjectRootElement || pProjectRootElement->NoChildren() || pProjectRootElement->ValueTStr()!="project")
   {
-    CLog::Log(logERROR, "UpdXMLHandler: No root element called \"resources\" in xml file. Cannot continue. Please create it");
+    CLog::Log(logERROR, "UpdXMLHandler: No root element called \"project\" in xml file. Cannot continue. Please create it");
     return false;
   }
 
+  TiXmlElement* pDataRootElement = pProjectRootElement->FirstChildElement("projectdata");
+  if (!pDataRootElement || pDataRootElement->NoChildren())
+  {
+    CLog::Log(logERROR, "UpdXMLHandler: No element called \"projectdata\" in xml file. Cannot continue. Please create it");
+    return false;
+  }
+
+  TiXmlElement * pData;
   std::string strHTTPCacheExp;
-  if (pRootElement->Attribute("http_cache_expire") && (strHTTPCacheExp = pRootElement->Attribute("http_cache_expire")) != "")
+  if ((pData = pDataRootElement->FirstChildElement("http_cache_expire")) && (strHTTPCacheExp = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found http cache expire time in xbmc-txupdate.xml file: %s", strHTTPCacheExp.c_str());
     g_Settings.SetHTTPCacheExpire(strtol(&strHTTPCacheExp[0], NULL, 10));
@@ -76,17 +82,32 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
               DEFAULTCACHEEXPIRE);
 
   std::string strProjName ;
-  if (pRootElement->Attribute("projectname") && (strProjName = pRootElement->Attribute("projectname")) != "")
+  if (pDataRootElement->FirstChildElement("projectname") && (strProjName = pDataRootElement->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found projectname in xbmc-txupdate.xml file: %s",strProjName.c_str());
     g_Settings.SetProjectname(strProjName);
   }
   else
     CLog::Log(logERROR, "UpdXMLHandler: No projectname specified in xbmc-txupdate.xml file. Cannot continue. "
-                        "Please specify the Transifex projectname in the xml file");
+    "Please specify the Transifex projectname in the xml file");
+
+
+  std::string strDefTXLangFormat="";
+  if (pDataRootElement->FirstChildElement("txlcode") && (strDefTXLangFormat = pDataRootElement->FirstChild()->Value()) != "")
+  {
+    CLog::Log(logINFO, "UpdXMLHandler: Found tx langformat in xbmc-txupdate.xml file: %s",strDefTXLangFormat.c_str());
+  }
+  else
+    std::string strDefTXLangFormat=g_Settings.GetDefaultTXLFormat();
+
+  std::string strBaseLcode;
+  if (pDataRootElement->FirstChildElement("baselcode") && (strBaseLcode = pDataRootElement->FirstChild()->Value()) != "")
+  {
+    CLog::Log(logINFO, "UpdXMLHandler: found base language code format in xbmc-txupdate.xml file: %s",strBaseLcode.c_str());
+  }
 
   std::string strMinCompletion;
-  if (pRootElement->Attribute("min_completion") && (strMinCompletion = pRootElement->Attribute("min_completion")) != "")
+  if (pDataRootElement->FirstChildElement("min_completion") && (strMinCompletion = pDataRootElement->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found min completion percentage in xbmc-txupdate.xml file: %s", strMinCompletion.c_str());
     g_Settings.SetMinCompletion(strtol(&strMinCompletion[0], NULL, 10));
@@ -96,7 +117,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
               DEFAULTMINCOMPLETION);
 
   std::string strMergedLangfileDir;
-  if (pRootElement->Attribute("merged_langfiledir") && (strMergedLangfileDir = pRootElement->Attribute("merged_langfiledir")) != "")
+  if (pDataRootElement->FirstChildElement("merged_langfiledir") && (strMergedLangfileDir = pDataRootElement->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found merged language file directory in xbmc-txupdate.xml file: %s", strMergedLangfileDir.c_str());
     g_Settings.SetMergedLangfilesDir(strMergedLangfileDir);
@@ -105,8 +126,18 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     CLog::Log(logINFO, "UpdXMLHandler: No merged language file directory specified in xbmc-txupdate.xml file. Using default value: %s",
               g_Settings.GetMergedLangfilesDir().c_str());
 
+  std::string strSourcelcode;
+  if (pDataRootElement->FirstChildElement("sourcelcode") && (strSourcelcode = pDataRootElement->FirstChild()->Value()) != "")
+  {
+    CLog::Log(logINFO, "UpdXMLHandler: Found sourcelcode in xbmc-txupdate.xml file: %s", strSourcelcode.c_str());
+    g_Settings.SetSourceLcode(strSourcelcode);
+  }
+  else
+    CLog::Log(logINFO, "UpdXMLHandler: No source language code specified in xbmc-txupdate.xml file. Using default value: %s",
+              g_Settings.GetSourceLcode().c_str());
+
   std::string strTXUpdatelangfileDir;
-  if (pRootElement->Attribute("temptxupdate_langfiledir") && (strTXUpdatelangfileDir = pRootElement->Attribute("temptxupdate_langfiledir")) != "")
+  if (pDataRootElement->FirstChildElement("temptxupdate_langfiledir") && (strTXUpdatelangfileDir = pDataRootElement->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found temp tx update language file directory in xbmc-txupdate.xml file: %s", strTXUpdatelangfileDir.c_str());
     g_Settings.SetTXUpdateLangfilesDir(strTXUpdatelangfileDir);
@@ -116,7 +147,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
               g_Settings.GetTXUpdateLangfilesDir().c_str());
 
   std::string strSupportEmailAdd;
-  if (pRootElement->Attribute("support_email") && (strSupportEmailAdd = pRootElement->Attribute("support_email")) != "")
+  if (pDataRootElement->FirstChildElement("support_email") && (strSupportEmailAdd = pDataRootElement->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found support email address in xbmc-txupdate.xml file: %s", strSupportEmailAdd.c_str());
     g_Settings.SetSupportEmailAdd(strSupportEmailAdd);
@@ -126,22 +157,29 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
               g_Settings.GetSupportEmailAdd().c_str());
 
   std::string strAttr;
-  if (pRootElement->Attribute("forcePOComm") && (strAttr = pRootElement->Attribute("forcePOComm")) == "true")
+  if (pDataRootElement->FirstChildElement("forcePOComm") && (strAttr = pDataRootElement->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Forced PO file comments for non English languages.", strMergedLangfileDir.c_str());
     g_Settings.SetForcePOComments(true);
   }
 
-  if (pRootElement->Attribute("Rebrand") && (strAttr = pRootElement->Attribute("Rebrand")) == "true")
+  if (pDataRootElement->FirstChildElement("Rebrand") && (strAttr = pDataRootElement->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Rebrand of XBMC strings to Kodi strings turned on.");
     g_Settings.SetRebrand(true);
   }
 
-  if (pRootElement->Attribute("ForceTXUpd") && (strAttr = pRootElement->Attribute("ForceTXUpd")) == "true")
+  if (pDataRootElement->FirstChildElement("ForceTXUpd") && (strAttr = pDataRootElement->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Create of TX update files is forced.");
     g_Settings.SetForceTXUpdate(true);
+  }
+
+  TiXmlElement* pRootElement = pProjectRootElement->FirstChildElement("resources");
+  if (!pRootElement || pRootElement->NoChildren())
+  {
+    CLog::Log(logERROR, "UpdXMLHandler: No element called \"resources\" in xml file. Cannot continue. Please create it");
+    return false;
   }
 
   const TiXmlElement *pChildResElement = pRootElement->FirstChildElement("resource");
