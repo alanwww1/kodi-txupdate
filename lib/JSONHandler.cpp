@@ -179,8 +179,6 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
   {
     Json::Value JValu = *itrlangs;
     const Json::Value JAliases =JValu.get("aliases", "unknown");
-    if (JValu.asString() == "unknown")
-      CLog::Log(logERROR, "JSONHandler: ParseTXLanguageDB: No aliases field in language database");
 
     CLangcodes LangData;
     std::string strLCode;
@@ -207,7 +205,7 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
   };
 
   const Json::Value JRules =  JRoot["rules"];
-  const Json::Value JRulesGen =  JRules["general"];
+  const Json::Value JRulesGen =  JRules.get("general", "unknown");
   const Json::Value JRulesCust =  JRules["custom"];
 
   for (Json::ValueIterator itrules = JRulesGen.begin() ; itrules !=JRulesGen.end() ; itrules++)

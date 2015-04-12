@@ -81,8 +81,8 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     CLog::Log(logINFO, "UpdXMLHandler: No http cache expire time specified in xbmc-txupdate.xml file. Using default value: %iminutes",
               DEFAULTCACHEEXPIRE);
 
-  std::string strProjName ;
-  if (pDataRootElement->FirstChildElement("projectname") && (strProjName = pDataRootElement->FirstChild()->Value()) != "")
+  std::string strProjName;
+  if ((pData = pDataRootElement->FirstChildElement("projectname")) && (strProjName = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found projectname in xbmc-txupdate.xml file: %s",strProjName.c_str());
     g_Settings.SetProjectname(strProjName);
@@ -92,8 +92,8 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     "Please specify the Transifex projectname in the xml file");
 
 
-  std::string strDefTXLangFormat="";
-  if (pDataRootElement->FirstChildElement("txlcode") && (strDefTXLangFormat = pDataRootElement->FirstChild()->Value()) != "")
+  std::string strDefTXLangFormat;
+  if ((pData = pDataRootElement->FirstChildElement("txlcode")) && (strDefTXLangFormat = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found tx langformat in xbmc-txupdate.xml file: %s",strDefTXLangFormat.c_str());
   }
@@ -101,13 +101,13 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     std::string strDefTXLangFormat=g_Settings.GetDefaultTXLFormat();
 
   std::string strBaseLcode;
-  if (pDataRootElement->FirstChildElement("baselcode") && (strBaseLcode = pDataRootElement->FirstChild()->Value()) != "")
+  if ((pData = pDataRootElement->FirstChildElement("baselcode")) && (strBaseLcode = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: found base language code format in xbmc-txupdate.xml file: %s",strBaseLcode.c_str());
   }
 
   std::string strMinCompletion;
-  if (pDataRootElement->FirstChildElement("min_completion") && (strMinCompletion = pDataRootElement->FirstChild()->Value()) != "")
+  if ((pData = pDataRootElement->FirstChildElement("min_completion")) && (strMinCompletion = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found min completion percentage in xbmc-txupdate.xml file: %s", strMinCompletion.c_str());
     g_Settings.SetMinCompletion(strtol(&strMinCompletion[0], NULL, 10));
@@ -117,7 +117,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
               DEFAULTMINCOMPLETION);
 
   std::string strMergedLangfileDir;
-  if (pDataRootElement->FirstChildElement("merged_langfiledir") && (strMergedLangfileDir = pDataRootElement->FirstChild()->Value()) != "")
+  if ((pData = pDataRootElement->FirstChildElement("merged_langfiledir")) && (strMergedLangfileDir = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found merged language file directory in xbmc-txupdate.xml file: %s", strMergedLangfileDir.c_str());
     g_Settings.SetMergedLangfilesDir(strMergedLangfileDir);
@@ -127,7 +127,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
               g_Settings.GetMergedLangfilesDir().c_str());
 
   std::string strSourcelcode;
-  if (pDataRootElement->FirstChildElement("sourcelcode") && (strSourcelcode = pDataRootElement->FirstChild()->Value()) != "")
+  if ((pData = pDataRootElement->FirstChildElement("sourcelcode")) && (strSourcelcode = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found sourcelcode in xbmc-txupdate.xml file: %s", strSourcelcode.c_str());
     g_Settings.SetSourceLcode(strSourcelcode);
@@ -137,7 +137,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
               g_Settings.GetSourceLcode().c_str());
 
   std::string strTXUpdatelangfileDir;
-  if (pDataRootElement->FirstChildElement("temptxupdate_langfiledir") && (strTXUpdatelangfileDir = pDataRootElement->FirstChild()->Value()) != "")
+  if ((pData = pDataRootElement->FirstChildElement("temptxupdate_langfiledir")) && (strTXUpdatelangfileDir = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found temp tx update language file directory in xbmc-txupdate.xml file: %s", strTXUpdatelangfileDir.c_str());
     g_Settings.SetTXUpdateLangfilesDir(strTXUpdatelangfileDir);
@@ -147,7 +147,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
               g_Settings.GetTXUpdateLangfilesDir().c_str());
 
   std::string strSupportEmailAdd;
-  if (pDataRootElement->FirstChildElement("support_email") && (strSupportEmailAdd = pDataRootElement->FirstChild()->Value()) != "")
+  if ((pData = pDataRootElement->FirstChildElement("support_email")) && (strSupportEmailAdd = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found support email address in xbmc-txupdate.xml file: %s", strSupportEmailAdd.c_str());
     g_Settings.SetSupportEmailAdd(strSupportEmailAdd);
@@ -157,19 +157,19 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
               g_Settings.GetSupportEmailAdd().c_str());
 
   std::string strAttr;
-  if (pDataRootElement->FirstChildElement("forcePOComm") && (strAttr = pDataRootElement->FirstChild()->Value()) == "true")
+  if ((pData = pDataRootElement->FirstChildElement("forcePOComm")) && (strAttr = pData->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Forced PO file comments for non English languages.", strMergedLangfileDir.c_str());
     g_Settings.SetForcePOComments(true);
   }
 
-  if (pDataRootElement->FirstChildElement("Rebrand") && (strAttr = pDataRootElement->FirstChild()->Value()) == "true")
+  if ((pData = pDataRootElement->FirstChildElement("Rebrand")) && (strAttr = pData->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Rebrand of XBMC strings to Kodi strings turned on.");
     g_Settings.SetRebrand(true);
   }
 
-  if (pDataRootElement->FirstChildElement("ForceTXUpd") && (strAttr = pDataRootElement->FirstChild()->Value()) == "true")
+  if ((pData = pDataRootElement->FirstChildElement("ForceTXUpd")) && (strAttr = pData->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Create of TX update files is forced.");
     g_Settings.SetForceTXUpdate(true);
@@ -211,7 +211,6 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       std::string strTXLcodeFormat;
       if (pRootElement->Attribute("lcode") && (strTXLcodeFormat = pRootElement->Attribute("lcode")) != "")
         currResData.strTXLangFormat = strTXLcodeFormat;
-      currResData.strTXSourceLang = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), currResData.strTXLangFormat);
 
       const TiXmlElement *pChildURLElement = pChildResElement->FirstChildElement("upstreamLangURL");
       if (pChildURLElement && pChildURLElement->FirstChild())
@@ -219,7 +218,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (currResData.strUPSLangURL.empty())
         CLog::Log(logINFO, "UpdXMLHandler: UpstreamURL entry is empty for resource %s, which means we have no language files for this addon", strResName.c_str());
       else if (!GetParamsFromURLorPath (currResData.strUPSLangURL, currResData.strUPSLangFormat, currResData.strUPSLangFileName,
-                                   currResData.strUPSSourcelang, currResData.strUPSLangURLRoot, '/'))
+                                        currResData.strUPSLangURLRoot, '/'))
         CLog::Log(logERROR, "UpdXMLHandler: UpstreamURL format is wrong for resource %s", strResName.c_str());
       if (!currResData.strUPSLangURLRoot.empty() && currResData.strUPSLangURLRoot.find (".github") == std::string::npos)
         CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
@@ -235,7 +234,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         CLog::Log(logERROR, "UpdXMLHandler: UpstreamAddonURL entry is empty for resource %s", strResName.c_str());
       else
         GetParamsFromURLorPath (currResData.strUPSAddonURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
-                                currResData.strUPSSourcelang, currResData.strUPSAddonURLRoot, '/');
+                                currResData.strUPSAddonURLRoot, '/');
       if (!currResData.strUPSAddonURL.empty() && currResData.strUPSAddonURL.find (".github") == std::string::npos)
           CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
 
@@ -253,7 +252,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (currResData.strLOCLangPath.empty())
         CLog::Log(logINFO, "UpdXMLHandler: Local langpath entry is empty for resource %s, which means we have no language files for this addon", strResName.c_str());
       else if (!GetParamsFromURLorPath (currResData.strLOCLangPath, currResData.strLOCLangFormat, currResData.strLOCLangFileName,
-               currResData.strLOCSourceLang, currResData.strLOCLangPathRoot, DirSepChar))
+                                        currResData.strLOCLangPathRoot, DirSepChar))
         CLog::Log(logERROR, "UpdXMLHandler: Local langpath format is wrong for resource %s", strResName.c_str());
 
       const TiXmlElement *pChildLocAddonElement = pChildResElement->FirstChildElement("localAddonPath");
@@ -263,7 +262,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         CLog::Log(logERROR, "UpdXMLHandler: Local addon path entry is empty for resource %s", strResName.c_str());
       else
         GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
-                                currResData.strLOCSourceLang, currResData.strLOCAddonPathRoot, DirSepChar);
+                                currResData.strLOCAddonPathRoot, DirSepChar);
 
       m_mapXMLResdata[strResName] = currResData;
       CLog::Log(logINFO, "UpdXMLHandler: found resource in update.xml file: %s, Type: %s, SubDir: %s",
@@ -302,7 +301,7 @@ CXMLResdata CUpdateXMLHandler::GetResData(string strResName)
 }
 
 bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,
-                                                 string &strSourcelang, string &strURLRoot, const char strSeparator)
+                                                 string &strURLRoot, const char strSeparator)
 {
   if (strURL.empty())
     return true;
@@ -318,8 +317,6 @@ bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &st
     return false;
 
   strLangFormat = strURL.substr(posStart, posStart-posEnd+1);
-  if (strSourcelang.empty())
-    strSourcelang = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(),strLangFormat);
 
   strURLRoot = g_CharsetUtils.GetRoot(strURL, strFileName);
   return true;

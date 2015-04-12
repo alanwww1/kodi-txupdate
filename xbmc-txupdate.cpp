@@ -137,6 +137,11 @@ int main(int argc, char* argv[])
     g_HTTPHandler.SetCacheDir(WorkingDir + ".httpcache");
 
     CProjectHandler TXProject;
+
+//TODO
+g_LCodeHandler.Init("https://raw.github.com/xbmc/translations/master/tool/lang-database/kodi-languages.json");
+
+
     g_UpdateXMLHandler.LoadXMLToMem(WorkingDir);
     g_LCodeHandler.Init("https://raw.github.com/xbmc/translations/master/tool/lang-database/kodi-languages.json");
 
