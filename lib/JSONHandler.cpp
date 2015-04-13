@@ -204,9 +204,12 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
       CLog::Log(logWARNING, "JSONHandler: ParseTXLanguageDB: corrupt JSON data found while parsing Language Database");
   };
 
-  const Json::Value JRules =  JRoot["rules"];
-  const Json::Value JRulesGen =  JRules.get("general", "unknown");
-  const Json::Value JRulesCust =  JRules["custom"];
+  const Json::Value JRules =  JRoot.get("rules", "unknown");
+  const Json::Value JRulesGen0 =  JRules.get("general","unknown");
+  const Json::Value JRulesGen =  JRules.get("general","unknown")[0];
+  const Json::Value JRulesCust =  JRules["custom"][0];
+  Json::Value::Members genMembernames = JRulesGen.getMemberNames();
+  Json::Value::Members custMembernames = JRulesCust.getMemberNames();
 
   for (Json::ValueIterator itrules = JRulesGen.begin() ; itrules !=JRulesGen.end() ; itrules++)
   {
@@ -219,9 +222,12 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
   {
     std::string strLangformat = itrules.key().asString();
     const Json::Value JRulesCustR = (*itrules);
-    for (Json::ValueIterator itrulesR = JRulesCustR.begin() ; itrules !=JRulesCustR.end() ; itrulesR++)
+
+    for (int i = 0 ; i != (*itrules).size() ; i++)
     {
-      std::string strLeft = itrulesR.key().asString();
+      const Json::Value JRulesCustR = (*itrules)[i];
+      Json::ValueIterator itrulesR = JRulesCustR.begin();
+      std::string strLeft = itrulesR.key().asString(); //= itrulesR.key().asString();
       std::string strRight = (*itrulesR).asString();
       AddCustomRule(mapTXLangs, strLangformat, strLeft, strRight);
     }
