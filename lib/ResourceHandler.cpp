@@ -211,7 +211,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
     bool bResChangedFromUpstream = !m_lChangedLangsFromUpstream.empty() || !m_lChangedLangsInAddXMLFromUpstream.empty();
     m_AddonXMLHandler.UpdateAddonXMLFile(XMLResdata.strLOCAddonPath, bResChangedFromUpstream);
     if (!XMLResdata.strChangelogFormat.empty())
-      m_AddonXMLHandler.UpdateAddonChangelogFile(XMLResdata.strLOCChangelogURL, XMLResdata.strChangelogFormat, bResChangedFromUpstream);
+      m_AddonXMLHandler.UpdateAddonChangelogFile(XMLResdata.strLOCChangelogPath, XMLResdata.strChangelogFormat, bResChangedFromUpstream);
   }
 
   return true;

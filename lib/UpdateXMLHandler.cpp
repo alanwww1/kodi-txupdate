@@ -209,8 +209,12 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (currResData.strTXName.empty())
         CLog::Log(logERROR, "UpdXMLHandler: Transifex resource name is empty or missing for resource %s", strResName.c_str());
       std::string strTXLcodeFormat;
-      if (pRootElement->Attribute("lcode") && (strTXLcodeFormat = pRootElement->Attribute("lcode")) != "")
+      if (pRootElement->Attribute("lcode"))
+	strTXLcodeFormat = pRootElement->Attribute("lcode");
+      if (strTXLcodeFormat != "")
         currResData.strTXLangFormat = strTXLcodeFormat;
+      else
+	currResData.strTXLangFormat = strDefTXLangFormat;
 
       const TiXmlElement *pChildURLElement = pChildResElement->FirstChildElement("upstreamLangURL");
       if (pChildURLElement && pChildURLElement->FirstChild())
@@ -245,7 +249,12 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       const TiXmlElement *pChildChglogUElement = pChildResElement->FirstChildElement("upstreamChangelogURL");
       if (pChildChglogUElement && pChildChglogUElement->FirstChild())
         currResData.strUPSChangelogURL = pChildChglogUElement->FirstChild()->Value();
-
+      else
+	currResData.strUPSChangelogURL = currResData.strUPSAddonURLRoot + "changelog.txt";
+      GetParamsFromURLorPath (currResData.strUPSChangelogURL, currResData.strUPSChangelogName,
+                                currResData.strUPSChangelogURLRoot, '/');
+ 
+//TODO add ability to make it parametric, using id, or name etc.
       const TiXmlElement *pChildLocLangElement = pChildResElement->FirstChildElement("localLangPath");
       if (pChildLocLangElement && pChildLocLangElement->FirstChild())
         currResData.strLOCLangPath = pChildLocLangElement->FirstChild()->Value();
@@ -263,6 +272,14 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       else
         GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
                                 currResData.strLOCAddonPathRoot, DirSepChar);
+
+      const TiXmlElement *pChildChglogLElement = pChildResElement->FirstChildElement("localChangelogPath");
+      if (pChildChglogLElement && pChildChglogLElement->FirstChild())
+        currResData.strLOCChangelogPath = pChildChglogLElement->FirstChild()->Value();
+      else
+	currResData.strLOCChangelogPath = currResData.strLOCAddonPathRoot + "changelog.txt";
+      GetParamsFromURLorPath (currResData.strLOCChangelogPath, currResData.strLOCChangelogName,
+                                currResData.strLOCChangelogPathRoot, '/');
 
       m_mapXMLResdata[strResName] = currResData;
       CLog::Log(logINFO, "UpdXMLHandler: found resource in update.xml file: %s, Type: %s, SubDir: %s",
@@ -304,20 +321,27 @@ bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &st
                                                  string &strURLRoot, const char strSeparator)
 {
   if (strURL.empty())
-    return true;
+    return false;
+
+  size_t pos0, posStart, posEnd;
+
+  pos0 = strURL.find_last_of("$");
+  if (((posStart = strURL.find("$("), pos0) != std::string::npos) && ((posEnd = strURL.find(")",posStart)) != std::string::npos))
+    strLangFormat = strURL.substr(posStart, posEnd - posStart +1);
+
+  return GetParamsFromURLorPath (strURL, strFileName, strURLRoot, strSeparator);
+}
+
+bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strFileName,
+                                                 string &strURLRoot, const char strSeparator)
+{
+  if (strURL.empty())
+    return false;
 
   if (strURL.find(strSeparator) == std::string::npos)
     return false;
 
   strFileName = strURL.substr(strURL.find_last_of(strSeparator)+1);
-
-  size_t posStart, posEnd;
-
-  if ((posStart = strURL.find("$(") == std::string::npos) || (posEnd = strURL.find(")",posStart) == std::string::npos))
-    return false;
-
-  strLangFormat = strURL.substr(posStart, posStart-posEnd+1);
-
   strURLRoot = g_CharsetUtils.GetRoot(strURL, strFileName);
   return true;
 }

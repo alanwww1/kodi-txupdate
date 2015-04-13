@@ -309,7 +309,7 @@ void CCharsetUtils::reBrandXBMCToKodi(std::string * pstrtorebrand)
 
 std::string CCharsetUtils::GetRoot(const std::string &strPath,const std::string &strFilename)
 {
-  return strPath.substr(strPath.size()-strFilename.size());
+  return strPath.substr(0, strPath.size()-strFilename.size());
 }
 
 std::string CCharsetUtils::GetLangnameFromURL(std::string strName, std::string strURL, std::string strLangformat)
