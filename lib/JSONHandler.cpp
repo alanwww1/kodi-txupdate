@@ -205,11 +205,8 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
   };
 
   const Json::Value JRules =  JRoot.get("rules", "unknown");
-  const Json::Value JRulesGen0 =  JRules.get("general","unknown");
-  const Json::Value JRulesGen =  JRules.get("general","unknown")[0];
-  const Json::Value JRulesCust =  JRules["custom"][0];
-  Json::Value::Members genMembernames = JRulesGen.getMemberNames();
-  Json::Value::Members custMembernames = JRulesCust.getMemberNames();
+  const Json::Value JRulesGen =  JRules.get("general","unknown");
+  const Json::Value JRulesCust =  JRules["custom"];
 
   for (Json::ValueIterator itrules = JRulesGen.begin() ; itrules !=JRulesGen.end() ; itrules++)
   {
@@ -223,10 +220,8 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
     std::string strLangformat = itrules.key().asString();
     const Json::Value JRulesCustR = (*itrules);
 
-    for (int i = 0 ; i != (*itrules).size() ; i++)
+    for (Json::ValueIterator itrulesR = JRulesCustR.begin() ; itrulesR !=JRulesCustR.end() ; itrulesR++)
     {
-      const Json::Value JRulesCustR = (*itrules)[i];
-      Json::ValueIterator itrulesR = JRulesCustR.begin();
       std::string strLeft = itrulesR.key().asString(); //= itrulesR.key().asString();
       std::string strRight = (*itrulesR).asString();
       AddCustomRule(mapTXLangs, strLangformat, strLeft, strRight);

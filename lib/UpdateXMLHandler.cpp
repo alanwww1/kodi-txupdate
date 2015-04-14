@@ -169,6 +169,16 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     g_Settings.SetRebrand(true);
   }
 
+  std::string strLangteamLFormat;
+  if ((pData = pDataRootElement->FirstChildElement("LangteamLFormat")) && (strLangteamLFormat = pData->FirstChild()->Value()) != "")
+  {
+    CLog::Log(logINFO, "UpdXMLHandler: Found language team format to put into PO files in xbmc-txupdate.xml file: %s", strLangteamLFormat.c_str());
+    g_Settings.SetLangteamLFormat(strLangteamLFormat);
+  }
+  else
+    CLog::Log(logINFO, "UpdXMLHandler: No language team format specified in xbmc-txupdate.xml file. Using default value: %s",
+              g_Settings.GetLangteamLFormat().c_str());
+
   if ((pData = pDataRootElement->FirstChildElement("ForceTXUpd")) && (strAttr = pData->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Create of TX update files is forced.");

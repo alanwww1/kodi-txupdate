@@ -40,6 +40,7 @@ CSettings::CSettings()
   m_strSourceLcode = DEFAULTSOURCELCODE;
   m_strBaseLCode =DEFAULTBASELCODE;
   m_strDefTXLFormat = DEFAULTTXLFORMAT;
+  m_strLangteamLFormat = "$(GUILNAME)";
 };
 
 CSettings::~CSettings()

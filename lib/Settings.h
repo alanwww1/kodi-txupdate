@@ -63,6 +63,8 @@ public:
   void SetBaseLCode(std::string const &strBaseLCode);
   std::string GetBaseLCode();
   std::string GetDefaultTXLFormat();
+  void SetLangteamLFormat(std::string const &strLangteamLFormat) {m_strLangteamLFormat = strLangteamLFormat;}
+  std::string GetLangteamLFormat() {return m_strLangteamLFormat;}
 
 private:
   size_t m_CacheExpire;
@@ -75,6 +77,7 @@ private:
   std::string m_strSourceLcode;
   std::string m_strBaseLCode;
   std::string m_strDefTXLFormat;
+  std::string m_strLangteamLFormat;
   bool m_bForceComm;
   bool m_bRebrand;
   bool m_bForceTXUpd;
