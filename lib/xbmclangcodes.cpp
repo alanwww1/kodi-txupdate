@@ -91,19 +91,22 @@ std::string CLCodeHandler::GetLangCodeFromAlias(std::string Alias, std::string A
   return "UNKNOWN";
 }
 
-std::string CLCodeHandler::VerifyLangCode(std::string LangCode)
+std::string CLCodeHandler::VerifyLangCode(std::string LangCode, const std::string &strLangformat)
 {
-  std::string strOldCode = LangCode;
+  if (strLangformat == "($OLDLCODE)")
+  {
+    std::string strOldCode = LangCode;
 
-  // common mistakes, we correct them on the fly
-  if (LangCode == "kr") LangCode = "ko";
-  if (LangCode == "cr") LangCode = "hr";
-  if (LangCode == "cz") LangCode = "cs";
+    // common mistakes, we correct them on the fly
+    if (LangCode == "kr") LangCode = "ko";
+    if (LangCode == "cr") LangCode = "hr";
+    if (LangCode == "cz") LangCode = "cs";
 
-  if (strOldCode != LangCode)
-    CLog::Log(logWARNING, "LangCodes: problematic language code: %s was corrected to %s", strOldCode.c_str(), LangCode.c_str());
+    if (strOldCode != LangCode)
+      CLog::Log(logWARNING, "LangCodes: problematic language code: %s was corrected to %s", strOldCode.c_str(), LangCode.c_str());
+  }
 
-  if (m_mapLCodes.find(LangCode) != m_mapLCodes.end())
+  if (GetLangCodeFromAlias(LangCode, strLangformat) != "UNKNOWN")
     return LangCode;
   CLog::Log(logINFO, "LangCodes::VerifyLangCode: unable to find language code: %s", LangCode.c_str());
   return "UNKNOWN";

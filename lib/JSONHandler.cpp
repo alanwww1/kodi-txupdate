@@ -65,7 +65,8 @@ std::list<std::string> CJSONHandler::ParseResources(std::string strJSON)
   return listResources;
 };
 
-std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, bool bIsKODICore, std::string strURL)
+std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, bool bIsKODICore,
+                                                           const std::string &strURL, const std::string &strTXLangformat)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
@@ -89,7 +90,7 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
     if (LCode == "unknown")
       CLog::Log(logERROR, "JSONHandler: ParseLangs: no language code in json data. json string:\n %s", strJSON.c_str());
 
-    if (g_LCodeHandler.VerifyLangCode(LCode) == "UNKNOWN")
+    if (g_LCodeHandler.VerifyLangCode(LCode, strTXLangformat) == "UNKNOWN")
       continue;
 
     Json::Value valu = *itr;

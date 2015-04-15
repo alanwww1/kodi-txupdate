@@ -37,7 +37,7 @@ public:
   CJSONHandler();
   ~CJSONHandler();
   std::list<std::string> ParseResources(std::string strJSON);
-  std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, bool bIsXBMCCore, std::string strURL);
+  std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, bool bIsXBMCCore, const std::string &strURL, const std::string &strTXLangformat);
   std::list<std::string> ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL, std::string strLangformat);
   void ParseAddonXMLVersionGITHUB(const std::string &strJSON, const std::string &strURL, const std::string &strAddXMLFilename, const std::string &strChlogname);
   std::map<std::string, CLangcodes> ParseTransifexLanguageDatabase(std::string strJSON);
