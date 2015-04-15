@@ -90,7 +90,9 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
     if (LCode == "unknown")
       CLog::Log(logERROR, "JSONHandler: ParseLangs: no language code in json data. json string:\n %s", strJSON.c_str());
 
-    if (g_LCodeHandler.VerifyLangCode(LCode, strTXLangformat) == "UNKNOWN")
+    LCode = g_LCodeHandler.VerifyLangCode(LCode, strTXLangformat);
+
+    if (LCode == "UNKNOWN")
       continue;
 
     Json::Value valu = *itr;

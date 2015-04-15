@@ -46,6 +46,7 @@ public:
   int GetnPlurals(std::string LangToLook);
   std::string GetPlurForm(std::string LangToLook);
   std::string VerifyLangCode(std::string LangCode, const std::string &strLangformat);
+  void CleanLangform (std::string &strLangform);
 private:
   std::map <std::string, CLangcodes> m_mapLCodes;
   std::map <std::string, CLangcodes>::iterator itmapLCodes;

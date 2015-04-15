@@ -68,6 +68,7 @@ std::string CLCodeHandler::GetPlurForm(std::string LangCode)
 
 std::string CLCodeHandler::GetLangFromLCode(std::string LangCode, std::string AliasForm)
 {
+  CleanLangform(AliasForm);
   if (m_mapLCodes.find(LangCode) != m_mapLCodes.end() &&
       m_mapLCodes[LangCode].mapLangdata.find(AliasForm) != m_mapLCodes[LangCode].mapLangdata.end())
     return m_mapLCodes[LangCode].mapLangdata[AliasForm];
@@ -79,6 +80,8 @@ std::string CLCodeHandler::GetLangCodeFromAlias(std::string Alias, std::string A
 {
   if (Alias == "")
     return "UNKNOWN";
+
+  CleanLangform(AliasForm);
 
   for (itmapLCodes = m_mapLCodes.begin(); itmapLCodes != m_mapLCodes.end() ; itmapLCodes++)
   {
@@ -93,7 +96,7 @@ std::string CLCodeHandler::GetLangCodeFromAlias(std::string Alias, std::string A
 
 std::string CLCodeHandler::VerifyLangCode(std::string LangCode, const std::string &strLangformat)
 {
-  if (strLangformat == "($OLDLCODE)")
+  if (strLangformat == "$(OLDLCODE)")
   {
     std::string strOldCode = LangCode;
 
@@ -106,8 +109,16 @@ std::string CLCodeHandler::VerifyLangCode(std::string LangCode, const std::strin
       CLog::Log(logWARNING, "LangCodes: problematic language code: %s was corrected to %s", strOldCode.c_str(), LangCode.c_str());
   }
 
-  if (GetLangCodeFromAlias(LangCode, strLangformat) != "UNKNOWN")
+  if ((LangCode = GetLangCodeFromAlias(LangCode, strLangformat)) != "UNKNOWN")
     return LangCode;
   CLog::Log(logINFO, "LangCodes::VerifyLangCode: unable to find language code: %s", LangCode.c_str());
   return "UNKNOWN";
+}
+
+void CLCodeHandler::CleanLangform (std::string &strLangform)
+{
+  size_t pos1, pos2;
+  pos1 = strLangform.find_first_not_of("$(");
+  pos2 = strLangform.find_last_not_of(")");
+  strLangform = strLangform.substr(pos1, pos2-pos1+1);
 }
