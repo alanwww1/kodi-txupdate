@@ -103,7 +103,7 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
     {
       strLangsToFetch += LCode + ": " + strCompletedPerc + ", ";
       listLangs.push_back(LCode);
-      g_Fileversion.SetVersionForURL(strURL + "translation/" + LCode + "/?file", strModTime);
+      g_Fileversion.SetVersionForURL(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(LCode,strTXLangformat) + "/?file", strModTime);
     }
     else
       strLangsToDrop += LCode + ": " + strCompletedPerc + ", ";

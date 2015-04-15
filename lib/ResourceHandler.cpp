@@ -69,8 +69,8 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
     printf (" %s", it->c_str());
     m_mapPOFiles[*it] = POHandler;
     CPOHandler * pPOHandler = &m_mapPOFiles[*it];
-    pPOHandler->FetchPOURLToMem(strURL + "translation/" + *it + "/?file", false);
-    pPOHandler->SetIfIsSourceLang(*it == g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strTXLangFormat));
+    pPOHandler->FetchPOURLToMem(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(*it, XMLResdata.strTXLangFormat) + "/?file", false);
+    pPOHandler->SetIfIsSourceLang(*it == g_Settings.GetSourceLcode());
     std::string strLang = *it;
     CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i\t\t%i", strLang.c_str(), pPOHandler->GetNumEntriesCount(),
                             pPOHandler->GetClassEntriesCount());
