@@ -33,7 +33,7 @@ public:
   CResourceHandler();
   ~CResourceHandler();
   bool FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::string strURL, bool bIsXBMCCore);
-  bool FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata, std::list<std::string> listLangsAll);
+  bool FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata);
   bool WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResName, CXMLResdata XMLResdata, bool bTXUpdFile);
   size_t GetLangsCount() const {return m_mapPOFiles.size();}
   std::string GetLangCodeFromPos(size_t pos) {T_itmapPOFiles it = IterateToMapIndex (m_mapPOFiles.begin(), pos); return it->first;}

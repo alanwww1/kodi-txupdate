@@ -90,7 +90,7 @@ bool CProjectHandler::FetchResourcesFromUpstream()
 
     CLog::IncIdent(4);
     m_mapResourcesUpstr[it->first] = ResourceHandler;
-    m_mapResourcesUpstr[it->first].FetchPOFilesUpstreamToMem(it->second, CreateMergedLanguageList(it->first, true));
+    m_mapResourcesUpstr[it->first].FetchPOFilesUpstreamToMem(it->second);
     CLog::DecIdent(4);
     printf(" )\n");
   }
@@ -191,7 +191,7 @@ bool CProjectHandler::CreateMergedResources()
     else if (*itResAvail != "kodi.core")
       CLog::Log(logERROR, "CreateMergedResources: No Upstream AddonXML file found as source for merging");
 
-    std::list<std::string> listMergedLangs = CreateMergedLanguageList(*itResAvail, false);
+    std::list<std::string> listMergedLangs = CreateMergedLanguageList(*itResAvail);
 
     CPOHandler * pcurrPOHandlerEN = m_mapResourcesUpstr[*itResAvail].GetPOData(g_Settings.GetSourceLcode());
 
@@ -406,7 +406,7 @@ bool CProjectHandler::CreateMergedResources()
   return true;
 }
 
-std::list<std::string> CProjectHandler::CreateMergedLanguageList(std::string strResname, bool bOnlyTX)
+std::list<std::string> CProjectHandler::CreateMergedLanguageList(std::string strResname)
 {
   std::list<std::string> listMergedLangs;
 
@@ -421,8 +421,6 @@ std::list<std::string> CProjectHandler::CreateMergedLanguageList(std::string str
         listMergedLangs.push_back(strMLCode);
     }
   }
-  if (bOnlyTX)
-    return listMergedLangs;
 
   if (m_mapResourcesUpstr.find(strResname) != m_mapResourcesUpstr.end())
   {

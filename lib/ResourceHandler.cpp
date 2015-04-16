@@ -82,7 +82,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
   return true;
 }
 
-bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata, std::list<std::string> listLangsTX)
+bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();

@@ -136,7 +136,7 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXml
       strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormat);
     strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormat);
 
-    if (pChildSummElement->FirstChild() && strLCode != "UNKNOWN")
+    if (pChildSummElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildSummElement->FirstChild()->Value());
             strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
@@ -157,7 +157,7 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXml
       strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormat);
     strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormat);
 
-    if (pChildDescElement->FirstChild() && strLCode != "UNKNOWN")
+    if (pChildDescElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildDescElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
@@ -178,7 +178,7 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXml
       strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormat);
     strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormat);
 
-    if (pChildDisclElement->FirstChild() && strLCode != "UNKNOWN")
+    if (pChildDisclElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildDisclElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);

@@ -92,7 +92,7 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
 
     LCode = g_LCodeHandler.VerifyLangCode(LCode, strTXLangformat);
 
-    if (LCode == "UNKNOWN")
+    if (LCode == "")
       continue;
 
     Json::Value valu = *itr;
@@ -149,7 +149,7 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJS
 
     std::string strMatchedLangalias = g_CharsetUtils.GetLangnameFromURL(lang, strURL, strLangformat);
     std::string strFoundLangCode = g_LCodeHandler.GetLangCodeFromAlias(strMatchedLangalias, strLangformat);
-    if (strFoundLangCode != "UNKNOWN")
+    if (strFoundLangCode != "")
     {
       listLangs.push_back(strFoundLangCode);
       std::string strURLforFile = strURL;
