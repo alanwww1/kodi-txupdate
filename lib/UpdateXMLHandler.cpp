@@ -100,6 +100,12 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
   else
     std::string strDefTXLangFormat=g_Settings.GetDefaultTXLFormat();
 
+  std::string strDefAddonLangFormatinXML;
+  if ((pData = pDataRootElement->FirstChildElement("addonxmllangformat")) && (strDefAddonLangFormatinXML = pData->FirstChild()->Value()) != "")
+    CLog::Log(logINFO, "UpdXMLHandler: Found addon.xml langformat in xbmc-txupdate.xml file: %s",strDefAddonLangFormatinXML.c_str());
+  else
+    strDefAddonLangFormatinXML=g_Settings.GetDefaultAddonLFormatinXML();
+
   std::string strBaseLcode;
   if ((pData = pDataRootElement->FirstChildElement("baselcode")) && (strBaseLcode = pData->FirstChild()->Value()) != "")
   {
@@ -220,11 +226,11 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         CLog::Log(logERROR, "UpdXMLHandler: Transifex resource name is empty or missing for resource %s", strResName.c_str());
       std::string strTXLcodeFormat;
       if (pRootElement->Attribute("lcode"))
-	strTXLcodeFormat = pRootElement->Attribute("lcode");
+        strTXLcodeFormat = pRootElement->Attribute("lcode");
       if (strTXLcodeFormat != "")
         currResData.strTXLangFormat = strTXLcodeFormat;
       else
-	currResData.strTXLangFormat = strDefTXLangFormat;
+        currResData.strTXLangFormat = strDefTXLangFormat;
 
       const TiXmlElement *pChildURLElement = pChildResElement->FirstChildElement("upstreamLangURL");
       if (pChildURLElement && pChildURLElement->FirstChild())
@@ -251,6 +257,14 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
                                 currResData.strUPSAddonURLRoot, '/');
       if (!currResData.strUPSAddonURL.empty() && currResData.strUPSAddonURL.find (".github") == std::string::npos)
           CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
+      std::string strUPSAddonLangFormatinXML;
+      if (pRootElement->Attribute("addonxmllangformat"))
+        strUPSAddonLangFormatinXML = pRootElement->Attribute("addonxmllangformat");
+      if (strUPSAddonLangFormatinXML != "")
+        currResData.strUPSAddonLangFormatinXML = strUPSAddonLangFormatinXML;
+      else
+        currResData.strUPSAddonLangFormatinXML = strDefAddonLangFormatinXML;
+
 
       const TiXmlElement *pChildChglogElement = pChildResElement->FirstChildElement("changelogFormat");
       if (pChildChglogElement && pChildChglogElement->FirstChild())
@@ -260,10 +274,10 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (pChildChglogUElement && pChildChglogUElement->FirstChild())
         currResData.strUPSChangelogURL = pChildChglogUElement->FirstChild()->Value();
       else
-	currResData.strUPSChangelogURL = currResData.strUPSAddonURLRoot + "changelog.txt";
+        currResData.strUPSChangelogURL = currResData.strUPSAddonURLRoot + "changelog.txt";
       GetParamsFromURLorPath (currResData.strUPSChangelogURL, currResData.strUPSChangelogName,
                                 currResData.strUPSChangelogURLRoot, '/');
- 
+
 //TODO add ability to make it parametric, using id, or name etc.
       const TiXmlElement *pChildLocLangElement = pChildResElement->FirstChildElement("localLangPath");
       if (pChildLocLangElement && pChildLocLangElement->FirstChild())
@@ -282,6 +296,13 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       else
         GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
                                 currResData.strLOCAddonPathRoot, DirSepChar);
+      std::string strLOCAddonLangFormatinXML;
+      if (pRootElement->Attribute("addonxmllangformat"))
+        strLOCAddonLangFormatinXML = pRootElement->Attribute("addonxmllangformat");
+      if (strLOCAddonLangFormatinXML != "")
+        currResData.strLOCAddonLangFormatinXML = strLOCAddonLangFormatinXML;
+      else
+        currResData.strLOCAddonLangFormatinXML = strDefAddonLangFormatinXML;
 
       const TiXmlElement *pChildChglogLElement = pChildResElement->FirstChildElement("localChangelogPath");
       if (pChildChglogLElement && pChildChglogLElement->FirstChild())

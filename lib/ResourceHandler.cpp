@@ -119,6 +119,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
   printf(" Langlist");
   strtemp.clear();
   strGitHubURL.clear();
+//TODO trim langformat from end of url
   strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSLangURLRoot, "");
 
   strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);

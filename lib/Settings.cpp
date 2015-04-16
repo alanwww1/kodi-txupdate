@@ -41,6 +41,7 @@ CSettings::CSettings()
   m_strBaseLCode =DEFAULTBASELCODE;
   m_strDefTXLFormat = DEFAULTTXLFORMAT;
   m_strLangteamLFormat = "$(GUILNAME)";
+  m_DefaultAddonLFormatinXML = "$(OLDLCODE)";
 };
 
 CSettings::~CSettings()

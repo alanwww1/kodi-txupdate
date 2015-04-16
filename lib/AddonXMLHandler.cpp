@@ -133,8 +133,8 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXml
     if (pChildSummElement->Attribute("lang"))
       strAlias = pChildSummElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormat);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormat);
+      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormatinXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormatinXML);
 
     if (pChildSummElement->FirstChild() && strLCode != "")
     {
@@ -154,8 +154,8 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXml
     if (pChildDescElement->Attribute("lang"))
       strAlias = pChildDescElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormat);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormat);
+      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormatinXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormatinXML);
 
     if (pChildDescElement->FirstChild() && strLCode != "")
     {
@@ -175,8 +175,8 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXml
     if (pChildDisclElement->Attribute("lang"))
       strAlias = pChildDisclElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormat);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormat);
+      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormatinXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormatinXML);
 
     if (pChildDisclElement->FirstChild() && strLCode != "")
     {
