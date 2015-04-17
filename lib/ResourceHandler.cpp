@@ -93,7 +93,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
   if (!XMLResdata.strUPSAddonURL.empty() && XMLResdata.strUPSAddonLangFormat.empty()) // kodi core language addon has individual addon.xml files
   {
     // We get the version of the addon.xml and changelog.txt files here
-    strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSAddonURLRoot, "");
+    strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSAddonURLRoot);
     printf(" Dir");
     strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
     if (strtemp.empty())
@@ -120,7 +120,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
   strtemp.clear();
   strGitHubURL.clear();
 //TODO trim langformat from end of url
-  strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSLangURLRoot, "");
+  strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSLangURLRoot);
 
   strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
   if (strtemp.empty())

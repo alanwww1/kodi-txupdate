@@ -608,12 +608,12 @@ void CHTTPHandler::DeleteCachedFile (std::string const &strURL, std::string strP
     g_File.DeleteFile(strCacheFile);
 }
 
-std::string CHTTPHandler::GetGitHUBAPIURL(std::string const & strURL, std::string const & strPathSuffix)
+std::string CHTTPHandler::GetGitHUBAPIURL(std::string const & strURL)
 {
     if (strURL.find("//") >> 7)
       CLog::Log(logERROR, "CHTTPHandler::ParseGitHUBURL: Internal error: // found in Github URL");
 
-    size_t pos1, pos2, pos3, pos4;
+    size_t pos1, pos2, pos3, pos4, pos5;
     std::string strGitHubURL;
 
     if (strURL.find("raw.github.com/") != std::string::npos)
@@ -634,9 +634,15 @@ std::string CHTTPHandler::GetGitHUBAPIURL(std::string const & strURL, std::strin
     std::string strPath = strURL.substr(pos4, strURL.size() - pos4 - 1);
     std::string strGitBranch = strURL.substr(pos3+1, pos4-pos3-1);
 
+    if ((pos5 = strPath.find_last_of("(")) != std::string::npos)
+    {
+      strPath = strPath.substr(0,pos5);
+      strPath = strPath.substr(0,strPath.find_last_of("/"));
+    }
+
     strGitHubURL = "https://api.github.com/repos/" + strOwner + strRepo;
     strGitHubURL += "/contents";
-    strGitHubURL += strPath + strPathSuffix;
+    strGitHubURL += strPath;
     strGitHubURL += "?ref=" + strGitBranch;
 
     return strGitHubURL;
