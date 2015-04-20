@@ -24,7 +24,7 @@
 #include <algorithm>
 #include "JSONHandler.h"
 #include "HTTPUtils.h"
-#include "xbmclangcodes.h"
+#include "Langcodes.h"
 #include "Settings.h"
 
 using namespace std;

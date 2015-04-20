@@ -29,7 +29,7 @@
 #include <jsoncpp/json/json.h>
 #include <map>
 #include <list>
-#include "xbmclangcodes.h"
+#include "Langcodes.h"
 
 class CJSONHandler
 {

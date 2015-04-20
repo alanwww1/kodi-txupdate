@@ -21,7 +21,7 @@
 
 #include <string>
 #include <stdio.h>
-#include "xbmclangcodes.h"
+#include "Langcodes.h"
 #include "Log.h"
 #include "HTTPUtils.h"
 #include "JSONHandler.h"

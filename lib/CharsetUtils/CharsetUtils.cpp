@@ -25,7 +25,7 @@
 #include "../Log.h"
 #include <sstream>
 #include <algorithm>
-#include "../xbmclangcodes.h"
+#include "../Langcodes.h"
 
 CCharsetUtils g_CharsetUtils;
 

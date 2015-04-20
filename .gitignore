@@ -17,6 +17,7 @@
 
 # Built binary
 xbmc-txupdate
+kodi-txupdate
 
 # Kdevelop files
 .kdev4

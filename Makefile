@@ -24,13 +24,13 @@ endif
 
 INCS :=
 
-OUTPUT := xbmc-txupdate
+OUTPUT := kodi-txupdate
 
 all: ${OUTPUT}
 
 SRCS := lib/TinyXML/tinyxml.cpp lib/TinyXML/tinyxmlparser.cpp lib/TinyXML/tinystr.cpp lib/TinyXML/tinyxmlerror.cpp \
 lib/HTTPUtils.cpp \
-lib/xbmclangcodes.cpp \
+lib/Langcodes.cpp \
 lib/Settings.h \
 lib/CharsetUtils/CharsetUtils.cpp \
 lib/POUtils/POUtils.cpp \
@@ -78,6 +78,6 @@ Settings.o: Settings.h Settings.cpp
 AddonXMLHandler.cpp: AddonXMLHandler.h
 
 install:
-	install -m 755 xbmc-txupdate /usr/local/bin/
+	install -m 755 kodi-txupdate /usr/local/bin/
 uninstall:
-	rm -rf /usr/local/bin/xbmc-txupdate
+	rm -rf /usr/local/bin/kodi-txupdate

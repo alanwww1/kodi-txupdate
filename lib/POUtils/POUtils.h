@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "../Log.h"
-#include "../xbmclangcodes.h"
+#include "../Langcodes.h"
 #include "../FileUtils/FileUtils.h"
 #include "../CharsetUtils/CharsetUtils.h"
 

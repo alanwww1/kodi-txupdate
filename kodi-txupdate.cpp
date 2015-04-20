@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include "lib/ProjectHandler.h"
 #include "lib/HTTPUtils.h"
-#include "lib/xbmclangcodes.h"
+#include "lib/Langcodes.h"
 #include "lib/Settings.h"
 
 using namespace std;
