@@ -60,7 +60,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
     if (strResname.empty())
     {
       printf(" )\n");
-      CLog::Log(logWARNING, "ProjHandler: found resource on Transifex which is not in xbmc-txupdate.xml: %s", it->c_str());
+      CLog::Log(logWARNING, "ProjHandler: found resource on Transifex which is not in kodi-txupdate.xml: %s", it->c_str());
       CLog::DecIdent(4);
       continue;
     }

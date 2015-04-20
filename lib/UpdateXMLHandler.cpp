@@ -74,91 +74,91 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
   std::string strHTTPCacheExp;
   if ((pData = pDataRootElement->FirstChildElement("http_cache_expire")) && (strHTTPCacheExp = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found http cache expire time in xbmc-txupdate.xml file: %s", strHTTPCacheExp.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: Found http cache expire time in kodi-txupdate.xml file: %s", strHTTPCacheExp.c_str());
     g_Settings.SetHTTPCacheExpire(strtol(&strHTTPCacheExp[0], NULL, 10));
   }
   else
-    CLog::Log(logINFO, "UpdXMLHandler: No http cache expire time specified in xbmc-txupdate.xml file. Using default value: %iminutes",
+    CLog::Log(logINFO, "UpdXMLHandler: No http cache expire time specified in kodi-txupdate.xml file. Using default value: %iminutes",
               DEFAULTCACHEEXPIRE);
 
   std::string strProjName;
   if ((pData = pDataRootElement->FirstChildElement("projectname")) && (strProjName = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found projectname in xbmc-txupdate.xml file: %s",strProjName.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: Found projectname in kodi-txupdate.xml file: %s",strProjName.c_str());
     g_Settings.SetProjectname(strProjName);
   }
   else
-    CLog::Log(logERROR, "UpdXMLHandler: No projectname specified in xbmc-txupdate.xml file. Cannot continue. "
+    CLog::Log(logERROR, "UpdXMLHandler: No projectname specified in kodi-txupdate.xml file. Cannot continue. "
     "Please specify the Transifex projectname in the xml file");
 
 
   std::string strDefTXLangFormat;
   if ((pData = pDataRootElement->FirstChildElement("txlcode")) && (strDefTXLangFormat = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found tx langformat in xbmc-txupdate.xml file: %s",strDefTXLangFormat.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: Found tx langformat in kodi-txupdate.xml file: %s",strDefTXLangFormat.c_str());
     g_Settings.SetDefaultTXLFormat(strDefTXLangFormat);
   }
 
   std::string strDefAddonLangFormatinXML;
   if ((pData = pDataRootElement->FirstChildElement("addonxmllangformat")) && (strDefAddonLangFormatinXML = pData->FirstChild()->Value()) != "")
-    CLog::Log(logINFO, "UpdXMLHandler: Found addon.xml langformat in xbmc-txupdate.xml file: %s",strDefAddonLangFormatinXML.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: Found addon.xml langformat in kodi-txupdate.xml file: %s",strDefAddonLangFormatinXML.c_str());
   else
     strDefAddonLangFormatinXML=g_Settings.GetDefaultAddonLFormatinXML();
 
   std::string strBaseLcode;
   if ((pData = pDataRootElement->FirstChildElement("baselcode")) && (strBaseLcode = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: found base language code format in xbmc-txupdate.xml file: %s",strBaseLcode.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: found base language code format in kodi-txupdate.xml file: %s",strBaseLcode.c_str());
   }
 
   std::string strMinCompletion;
   if ((pData = pDataRootElement->FirstChildElement("min_completion")) && (strMinCompletion = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found min completion percentage in xbmc-txupdate.xml file: %s", strMinCompletion.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: Found min completion percentage in kodi-txupdate.xml file: %s", strMinCompletion.c_str());
     g_Settings.SetMinCompletion(strtol(&strMinCompletion[0], NULL, 10));
   }
   else
-    CLog::Log(logINFO, "UpdXMLHandler: No min completion percentage specified in xbmc-txupdate.xml file. Using default value: %i%",
+    CLog::Log(logINFO, "UpdXMLHandler: No min completion percentage specified in kodi-txupdate.xml file. Using default value: %i%",
               DEFAULTMINCOMPLETION);
 
   std::string strMergedLangfileDir;
   if ((pData = pDataRootElement->FirstChildElement("merged_langfiledir")) && (strMergedLangfileDir = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found merged language file directory in xbmc-txupdate.xml file: %s", strMergedLangfileDir.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: Found merged language file directory in kodi-txupdate.xml file: %s", strMergedLangfileDir.c_str());
     g_Settings.SetMergedLangfilesDir(strMergedLangfileDir);
   }
   else
-    CLog::Log(logINFO, "UpdXMLHandler: No merged language file directory specified in xbmc-txupdate.xml file. Using default value: %s",
+    CLog::Log(logINFO, "UpdXMLHandler: No merged language file directory specified in kodi-txupdate.xml file. Using default value: %s",
               g_Settings.GetMergedLangfilesDir().c_str());
 
   std::string strSourcelcode;
   if ((pData = pDataRootElement->FirstChildElement("sourcelcode")) && (strSourcelcode = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found sourcelcode in xbmc-txupdate.xml file: %s", strSourcelcode.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: Found sourcelcode in kodi-txupdate.xml file: %s", strSourcelcode.c_str());
     g_Settings.SetSourceLcode(strSourcelcode);
   }
   else
-    CLog::Log(logINFO, "UpdXMLHandler: No source language code specified in xbmc-txupdate.xml file. Using default value: %s",
+    CLog::Log(logINFO, "UpdXMLHandler: No source language code specified in kodi-txupdate.xml file. Using default value: %s",
               g_Settings.GetSourceLcode().c_str());
 
   std::string strTXUpdatelangfileDir;
   if ((pData = pDataRootElement->FirstChildElement("temptxupdate_langfiledir")) && (strTXUpdatelangfileDir = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found temp tx update language file directory in xbmc-txupdate.xml file: %s", strTXUpdatelangfileDir.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: Found temp tx update language file directory in kodi-txupdate.xml file: %s", strTXUpdatelangfileDir.c_str());
     g_Settings.SetTXUpdateLangfilesDir(strTXUpdatelangfileDir);
   }
   else
-    CLog::Log(logINFO, "UpdXMLHandler: No temp tx update language file directory specified in xbmc-txupdate.xml file. Using default value: %s",
+    CLog::Log(logINFO, "UpdXMLHandler: No temp tx update language file directory specified in kodi-txupdate.xml file. Using default value: %s",
               g_Settings.GetTXUpdateLangfilesDir().c_str());
 
   std::string strSupportEmailAdd;
   if ((pData = pDataRootElement->FirstChildElement("support_email")) && (strSupportEmailAdd = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found support email address in xbmc-txupdate.xml file: %s", strSupportEmailAdd.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: Found support email address in kodi-txupdate.xml file: %s", strSupportEmailAdd.c_str());
     g_Settings.SetSupportEmailAdd(strSupportEmailAdd);
   }
   else
-    CLog::Log(logINFO, "UpdXMLHandler: No support email address specified in xbmc-txupdate.xml file. Using default value: %s",
+    CLog::Log(logINFO, "UpdXMLHandler: No support email address specified in kodi-txupdate.xml file. Using default value: %s",
               g_Settings.GetSupportEmailAdd().c_str());
 
   std::string strAttr;
@@ -177,11 +177,11 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
   std::string strLangteamLFormat;
   if ((pData = pDataRootElement->FirstChildElement("langteamformat")) && (strLangteamLFormat = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found language team format to put into PO files in xbmc-txupdate.xml file: %s", strLangteamLFormat.c_str());
+    CLog::Log(logINFO, "UpdXMLHandler: Found language team format to put into PO files in kodi-txupdate.xml file: %s", strLangteamLFormat.c_str());
     g_Settings.SetLangteamLFormat(strLangteamLFormat);
   }
   else
-    CLog::Log(logINFO, "UpdXMLHandler: No language team format specified in xbmc-txupdate.xml file. Using default value: %s",
+    CLog::Log(logINFO, "UpdXMLHandler: No language team format specified in kodi-txupdate.xml file. Using default value: %s",
               g_Settings.GetLangteamLFormat().c_str());
 
   if ((pData = pDataRootElement->FirstChildElement("ForceTXUpd")) && (strAttr = pData->FirstChild()->Value()) == "true")

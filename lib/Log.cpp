@@ -54,7 +54,7 @@ bool CLog::Init(std::string logfile, std::string syntaxlogfile)
     printf("Error creating logfile: %s\n", logfile.c_str());
     return false;
   }
-  fprintf(m_pLogFile, "XBMC-TXUPDATE v%s Logfile\n\n", VERSION.c_str());
+  fprintf(m_pLogFile, "KODI-TXUPDATE v%s Logfile\n\n", VERSION.c_str());
 
   if (m_bWriteSyntaxLog)
   {
@@ -65,7 +65,7 @@ bool CLog::Init(std::string logfile, std::string syntaxlogfile)
       printf("Error creating syntax logfile: %s\n", syntaxlogfile.c_str());
       return false;
     }
-    fprintf(m_pLogSyntaxFile, "XBMC-TXUPDATE v%s Syntax-Check Logfile\n\n", VERSION.c_str());
+    fprintf(m_pLogSyntaxFile, "KODI-TXUPDATE v%s Syntax-Check Logfile\n\n", VERSION.c_str());
   }
 
   return true;

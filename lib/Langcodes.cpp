@@ -43,7 +43,7 @@ void CLCodeHandler::Init(std::string strURL)
   g_HTTPHandler.ReInit();
   std::string strtemp = g_HTTPHandler.GetURLToSTR(strURL);
   if (strtemp.empty())
-    CLog::Log(logERROR, "XBMCLangCode::Init: error getting available language list from URL %s", strURL.c_str());
+    CLog::Log(logERROR, "LangCode::Init: error getting available language list from URL %s", strURL.c_str());
 
   m_mapLCodes = g_Json.ParseTransifexLanguageDatabase(strtemp);
 

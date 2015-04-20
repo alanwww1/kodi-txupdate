@@ -42,8 +42,8 @@ void PrintUsage()
 {
   printf
   (
-  "Usage: xbmc-txpudate PROJECTDIR [working mode]\n\n"
-  "PROJECTDIR: the directory which contains the xbmc-txupdate.xml settings file and the .passwords file.\n"
+  "Usage: kodi-txpudate PROJECTDIR [working mode]\n\n"
+  "PROJECTDIR: the directory which contains the kodi-txupdate.xml settings file and the .passwords file.\n"
   "            This will be the directory where your merged and transifex update files get generated.\n\n"
   "Working modes:\n"
   "     -d   Only download to local cache, without performing a merge.\n"
@@ -57,7 +57,7 @@ void PrintUsage()
   (
   "Note for Windows users: In case you have whitespace or any special character\n"
   "in the directory argument, please use apostrophe around them. For example:\n"
-  "xbmc-txupdate.exe \"C:\\xbmc dir\\language\"\n"
+  "kodi-txupdate.exe \"C:\\kodi dir\\language\"\n"
   );
   #endif
   return;
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
   if (argc == 2)
     {bDownloadNeeded = true; bMergeNeeded = true;}
 
-  printf("\nXBMC-TXUPDATE v%s by Team Kodi\n", VERSION.c_str());
+  printf("\nKODI-TXUPDATE v%s by Team Kodi\n", VERSION.c_str());
 
   try
   {
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
       WorkingDir.append(&DirSepChar);
 
     CLog::SetbWriteSyntaxLog(bDownloadNeeded);
-    CLog::Init(WorkingDir + "xbmc-txupdate.log", WorkingDir + "txupdate-syntax.log");
+    CLog::Init(WorkingDir + "kodi-txupdate.log", WorkingDir + "txupdate-syntax.log");
     CLog::Log(logINFO, "Root Directory: %s", WorkingDir.c_str());
 
     g_HTTPHandler.LoadCredentials(WorkingDir + ".passwords.xml");
@@ -139,6 +139,7 @@ int main(int argc, char* argv[])
     CProjectHandler TXProject;
 
     g_UpdateXMLHandler.LoadXMLToMem(WorkingDir);
+//TODO make langdatabase URL parametric
     g_LCodeHandler.Init("https://raw.github.com/xbmc/translations/master/tool/lang-database/kodi-languages.json");
 
     if (bDownloadNeeded)
@@ -202,7 +203,7 @@ int main(int argc, char* argv[])
         CLog::Log(logINFO, "********************************************");
 
         TXProject.WriteResourcesToFile(WorkingDir);
-        g_File.CopyFile(WorkingDir + "xbmc-txupdate.xml", WorkingDir + ".httpcache" + DirSepChar + ".last_xbmc-txupdate.xml");
+        g_File.CopyFile(WorkingDir + "kodi-txupdate.xml", WorkingDir + ".httpcache" + DirSepChar + ".last_kodi-txupdate.xml");
       }
       g_File.WriteFileFromStr(WorkingDir + ".httpcache" + DirSepChar + ".dload_merge_status", "ok");
     }
@@ -213,9 +214,9 @@ int main(int argc, char* argv[])
       if (!bForceUpload && g_File.ReadFileToStrE(WorkingDir + ".httpcache" + DirSepChar + ".dload_merge_status") != "ok")
         CLog::Log(logERROR, "There was no successful download and merge run before. Please (re)run download and merge.");
 
-      if (!bForceUpload && g_File.ReadFileToStrE(WorkingDir + ".httpcache" + DirSepChar + ".last_xbmc-txupdate.xml") !=
-          g_File.ReadFileToStrE(WorkingDir + "xbmc-txupdate.xml"))
-        CLog::Log(logERROR, "xbmc-txupdate.xml file changed since last download and merge. Please (re)run download and merge.");
+      if (!bForceUpload && g_File.ReadFileToStrE(WorkingDir + ".httpcache" + DirSepChar + ".last_kodi-txupdate.xml") !=
+          g_File.ReadFileToStrE(WorkingDir + "kodi-txupdate.xml"))
+        CLog::Log(logERROR, "kodi-txupdate.xml file changed since last download and merge. Please (re)run download and merge.");
 
       printf("\n");
       printf("-----------------------------------------\n");
