@@ -60,7 +60,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
   char cstrtemp[strtemp.size()];
   strcpy(cstrtemp, strtemp.c_str());
 
-  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, bIsKODICore, strURL, XMLResdata.strTXLangFormat);
+  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, bIsKODICore, strURL, g_Settings.GetDefaultTXLFormat());
 
   CPOHandler POHandler;
 
@@ -69,7 +69,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
     printf (" %s", it->c_str());
     m_mapPOFiles[*it] = POHandler;
     CPOHandler * pPOHandler = &m_mapPOFiles[*it];
-    pPOHandler->FetchPOURLToMem(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(*it, XMLResdata.strTXLangFormat) + "/?file", false);
+    pPOHandler->FetchPOURLToMem(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(*it, g_Settings.GetDefaultTXLFormat()) + "/?file", false);
     pPOHandler->SetIfIsSourceLang(*it == g_Settings.GetSourceLcode());
     std::string strLang = *it;
     CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i\t\t%i", strLang.c_str(), pPOHandler->GetNumEntriesCount(),
@@ -119,7 +119,6 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
   printf(" Langlist");
   strtemp.clear();
   strGitHubURL.clear();
-//TODO trim langformat from end of url
   strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSLangURLRoot);
 
   strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
@@ -138,7 +137,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
     POHandler.SetIfIsSourceLang(*it == g_Settings.GetSourceLcode());
     printf (" %s", it->c_str());
 
-    std::string strDloadURL = g_CharsetUtils.ReplaceLanginURL(XMLResdata.strUPSChangelogURL, XMLResdata.strUPSLangFormat, *it);
+    std::string strDloadURL = g_CharsetUtils.ReplaceLanginURL(XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat, *it);
 
     if (XMLResdata.strUPSLangFileName == "strings.xml")
       bResult = POHandler.FetchXMLURLToMem(strDloadURL);
@@ -164,7 +163,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
   std::string strPath, strLangFormat;
   if (!bTXUpdFile)
   {
-    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCLangFileName;
+    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCLangPath;
     strLangFormat = XMLResdata.strLOCLangFormat;
   }
   else
@@ -189,7 +188,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
     CPOHandler * pPOHandler = &m_mapPOFiles[itmapPOFiles->first];
     if (g_CharsetUtils.bISPOFile(XMLResdata.strLOCLangFileName) || bTXUpdFile)
       pPOHandler->WritePOFile(strPODir);
-    else if (g_CharsetUtils.bISPOFile(XMLResdata.strLOCLangFileName))
+    else if (g_CharsetUtils.bISXMLFile(XMLResdata.strLOCLangFileName))
       pPOHandler->WriteXMLFile(strPODir);
     else
       CLog::Log(logERROR, "ResHandler::WritePOToFiles: unknown local fileformat: %s", XMLResdata.strLOCLangFileName.c_str());
@@ -210,9 +209,9 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
   if (strResname != "kodi.core" && strPrefixDir == g_Settings.GetMergedLangfilesDir())
   {
     bool bResChangedFromUpstream = !m_lChangedLangsFromUpstream.empty() || !m_lChangedLangsInAddXMLFromUpstream.empty();
-    m_AddonXMLHandler.UpdateAddonXMLFile(XMLResdata.strLOCAddonPath, bResChangedFromUpstream);
+    m_AddonXMLHandler.UpdateAddonXMLFile(strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCAddonPath, bResChangedFromUpstream, XMLResdata);
     if (!XMLResdata.strChangelogFormat.empty())
-      m_AddonXMLHandler.UpdateAddonChangelogFile(XMLResdata.strLOCChangelogPath, XMLResdata.strChangelogFormat, bResChangedFromUpstream);
+      m_AddonXMLHandler.UpdateAddonChangelogFile(strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCChangelogPath, XMLResdata.strChangelogFormat, bResChangedFromUpstream);
   }
 
   return true;

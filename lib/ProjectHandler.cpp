@@ -176,7 +176,7 @@ bool CProjectHandler::CreateMergedResources()
 
     CAddonXMLEntry * pENAddonXMLEntry;
 
-    if ((pENAddonXMLEntry = GetAddonDataFromXML(&m_mapResourcesUpstr, *itResAvail, "en")) != NULL)
+    if ((pENAddonXMLEntry = GetAddonDataFromXML(&m_mapResourcesUpstr, *itResAvail, g_Settings.GetSourceLcode())) != NULL)
     {
       mergedResHandler.GetXMLHandler()->SetStrAddonXMLFile(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetStrAddonXMLFile());
       mergedResHandler.GetXMLHandler()->SetAddonVersion(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonVersion());
@@ -587,7 +587,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
                                       "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() + "/resources/",
                                       straddednew, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
                                       "/resource/" + XMLResdata.strTXName + "/translation/" +
-				      g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strTXLangFormat) + "/");
+                                      g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), g_Settings.GetDefaultTXLFormat()) + "/");
 
       CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Resource %s was succesfully created with %i English strings.",
                 itres->first.c_str(), straddednew);

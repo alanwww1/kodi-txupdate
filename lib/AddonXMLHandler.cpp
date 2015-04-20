@@ -255,7 +255,7 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXml
   return true;
 };
 
-bool CAddonXMLHandler::UpdateAddonXMLFile (std::string strAddonXMLFilename, bool bUpdateVersion)
+bool CAddonXMLHandler::UpdateAddonXMLFile (std::string strAddonXMLFilename, bool bUpdateVersion, const CXMLResdata &XMLResdata)
 {
   if (bUpdateVersion)
     UpdateVersionNumber();
@@ -297,20 +297,20 @@ bool CAddonXMLHandler::UpdateAddonXMLFile (std::string strAddonXMLFilename, bool
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
     if (!m_mapAddonXMLData[*it].strSummary.empty())
-      strNewMetadata += strAllign + "<summary lang=\"" + *it + "\">" + g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[*it].strSummary)
-                        + "</summary>\n";
+      strNewMetadata += strAllign + "<summary lang=\"" + g_LCodeHandler.GetLangFromLCode(*it, XMLResdata.strLOCAddonLangFormatinXML) +
+                        "\">" + g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[*it].strSummary) + "</summary>\n";
   }
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
     if (!m_mapAddonXMLData[*it].strDescription.empty())
-      strNewMetadata += strAllign + "<description lang=\"" + *it + "\">" + g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[*it].strDescription)
-                        + "</description>\n";
+      strNewMetadata += strAllign + "<description lang=\"" + g_LCodeHandler.GetLangFromLCode(*it, XMLResdata.strLOCAddonLangFormatinXML) +
+                        "\">" + g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[*it].strDescription) + "</description>\n";
   }
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
     if (!m_mapAddonXMLData[*it].strDisclaimer.empty())
-      strNewMetadata += strAllign + "<disclaimer lang=\"" + *it + "\">" + g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[*it].strDisclaimer)
-                        + "</disclaimer>\n";
+      strNewMetadata += strAllign + "<disclaimer lang=\"" + g_LCodeHandler.GetLangFromLCode(*it, XMLResdata.strLOCAddonLangFormatinXML) +
+                        "\">" + g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[*it].strDisclaimer) + "</disclaimer>\n";
   }
 
   if (!m_AddonMetadata.strLanguage.empty())

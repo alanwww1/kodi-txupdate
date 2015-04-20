@@ -63,6 +63,7 @@ public:
   void SetBaseLCode(std::string const &strBaseLCode);
   std::string GetBaseLCode();
   std::string GetDefaultTXLFormat();
+  void SetDefaultTXLFormat(std::string const &strTXLFormat) {m_strDefTXLFormat = strTXLFormat;}
   void SetLangteamLFormat(std::string const &strLangteamLFormat) {m_strLangteamLFormat = strLangteamLFormat;}
   std::string GetLangteamLFormat() {return m_strLangteamLFormat;}
   std::string GetDefaultAddonLFormatinXML() {return m_DefaultAddonLFormatinXML;}

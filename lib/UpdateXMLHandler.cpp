@@ -96,9 +96,8 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
   if ((pData = pDataRootElement->FirstChildElement("txlcode")) && (strDefTXLangFormat = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found tx langformat in xbmc-txupdate.xml file: %s",strDefTXLangFormat.c_str());
+    g_Settings.SetDefaultTXLFormat(strDefTXLangFormat);
   }
-  else
-    std::string strDefTXLangFormat=g_Settings.GetDefaultTXLFormat();
 
   std::string strDefAddonLangFormatinXML;
   if ((pData = pDataRootElement->FirstChildElement("addonxmllangformat")) && (strDefAddonLangFormatinXML = pData->FirstChild()->Value()) != "")
@@ -169,14 +168,14 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     g_Settings.SetForcePOComments(true);
   }
 
-  if ((pData = pDataRootElement->FirstChildElement("Rebrand")) && (strAttr = pData->FirstChild()->Value()) == "true")
+  if ((pData = pDataRootElement->FirstChildElement("rebrand")) && (strAttr = pData->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Rebrand of XBMC strings to Kodi strings turned on.");
     g_Settings.SetRebrand(true);
   }
 
   std::string strLangteamLFormat;
-  if ((pData = pDataRootElement->FirstChildElement("LangteamLFormat")) && (strLangteamLFormat = pData->FirstChild()->Value()) != "")
+  if ((pData = pDataRootElement->FirstChildElement("langteamformat")) && (strLangteamLFormat = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found language team format to put into PO files in xbmc-txupdate.xml file: %s", strLangteamLFormat.c_str());
     g_Settings.SetLangteamLFormat(strLangteamLFormat);
@@ -224,13 +223,6 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         currResData.strTXName = pChildTXNameElement->FirstChild()->Value();
       if (currResData.strTXName.empty())
         CLog::Log(logERROR, "UpdXMLHandler: Transifex resource name is empty or missing for resource %s", strResName.c_str());
-      std::string strTXLcodeFormat;
-      if (pRootElement->Attribute("lcode"))
-        strTXLcodeFormat = pRootElement->Attribute("lcode");
-      if (strTXLcodeFormat != "")
-        currResData.strTXLangFormat = strTXLcodeFormat;
-      else
-        currResData.strTXLangFormat = strDefTXLangFormat;
 
       const TiXmlElement *pChildURLElement = pChildResElement->FirstChildElement("upstreamLangURL");
       if (pChildURLElement && pChildURLElement->FirstChild())
