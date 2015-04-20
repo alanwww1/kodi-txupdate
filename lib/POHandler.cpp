@@ -407,7 +407,7 @@ void CPOHandler::SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXM
   newPOEntryDisc.msgID = AddonXMLEntryEN.strDisclaimer;
   newPOEntrySumm.msgID = AddonXMLEntryEN.strSummary;
 
-  if (strLang != "en")
+  if (strLang != g_Settings.GetSourceLcode())
   {
     if (!AddonXMLEntry.strDescription.empty() && (g_Settings.GetForceTXUpdate() || AddonXMLEntry.strDescription != PrevAddonXMLEntry.strDescription))
       newPOEntryDesc.msgStr = AddonXMLEntry.strDescription;
@@ -417,11 +417,11 @@ void CPOHandler::SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXM
       newPOEntrySumm.msgStr = AddonXMLEntry.strSummary;
   }
 
-  if (!newPOEntryDesc.msgID.empty() && (strLang == "en" || !newPOEntryDesc.msgStr.empty()))
+  if (!newPOEntryDesc.msgID.empty() && (strLang == g_Settings.GetSourceLcode() || !newPOEntryDesc.msgStr.empty()))
     ModifyClassicEntry(POEntryDesc, newPOEntryDesc);
-  if (!newPOEntryDisc.msgID.empty() && (strLang == "en" || !newPOEntryDisc.msgStr.empty()))
+  if (!newPOEntryDisc.msgID.empty() && (strLang == g_Settings.GetSourceLcode() || !newPOEntryDisc.msgStr.empty()))
     ModifyClassicEntry(POEntryDiscl, newPOEntryDisc);
-  if (!newPOEntrySumm.msgID.empty() && (strLang == "en" || !newPOEntrySumm.msgStr.empty()))
+  if (!newPOEntrySumm.msgID.empty() && (strLang == g_Settings.GetSourceLcode() || !newPOEntrySumm.msgStr.empty()))
     ModifyClassicEntry(POEntrySumm, newPOEntrySumm);
   return;
 }

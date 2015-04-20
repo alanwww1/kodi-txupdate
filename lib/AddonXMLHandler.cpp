@@ -289,28 +289,30 @@ bool CAddonXMLHandler::UpdateAddonXMLFile (std::string strAddonXMLFilename, bool
   std::list<std::string> listAddonDataLangs;
 
   for (itAddonXMLData = m_mapAddonXMLData.begin(); itAddonXMLData != m_mapAddonXMLData.end(); itAddonXMLData++)
-    listAddonDataLangs.push_back(itAddonXMLData->first);
+    listAddonDataLangs.push_back(g_LCodeHandler.GetLangFromLCode(itAddonXMLData->first, XMLResdata.strLOCAddonLangFormatinXML));
+
+  listAddonDataLangs.sort();
 
   std::string strNewMetadata;
   strNewMetadata += "\n";
 
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
-    if (!m_mapAddonXMLData[*it].strSummary.empty())
-      strNewMetadata += strAllign + "<summary lang=\"" + g_LCodeHandler.GetLangFromLCode(*it, XMLResdata.strLOCAddonLangFormatinXML) +
-                        "\">" + g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[*it].strSummary) + "</summary>\n";
+    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, XMLResdata.strLOCAddonLangFormatinXML)].strSummary.empty())
+      strNewMetadata += strAllign + "<summary lang=\"" + *it + "\">" + 
+                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, XMLResdata.strLOCAddonLangFormatinXML)].strSummary) + "</summary>\n";
   }
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
-    if (!m_mapAddonXMLData[*it].strDescription.empty())
-      strNewMetadata += strAllign + "<description lang=\"" + g_LCodeHandler.GetLangFromLCode(*it, XMLResdata.strLOCAddonLangFormatinXML) +
-                        "\">" + g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[*it].strDescription) + "</description>\n";
+    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, XMLResdata.strLOCAddonLangFormatinXML)].strDescription.empty())
+      strNewMetadata += strAllign + "<description lang=\"" + *it + "\">" +
+                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, XMLResdata.strLOCAddonLangFormatinXML)].strDescription) + "</description>\n";
   }
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
-    if (!m_mapAddonXMLData[*it].strDisclaimer.empty())
-      strNewMetadata += strAllign + "<disclaimer lang=\"" + g_LCodeHandler.GetLangFromLCode(*it, XMLResdata.strLOCAddonLangFormatinXML) +
-                        "\">" + g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[*it].strDisclaimer) + "</disclaimer>\n";
+    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, XMLResdata.strLOCAddonLangFormatinXML)].strDisclaimer.empty())
+      strNewMetadata += strAllign + "<disclaimer lang=\"" + *it + "\">" +
+                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, XMLResdata.strLOCAddonLangFormatinXML)].strDisclaimer) + "</disclaimer>\n";
   }
 
   if (!m_AddonMetadata.strLanguage.empty())

@@ -709,7 +709,7 @@ std::string CProjectHandler::GetEntryContent(const CPOEntry * pPOEntry, std::str
 
   strReturn += "msgid \""  + g_CharsetUtils.EscapeStringCPP(pPOEntry->msgID) +  "\"\n";
 
-  if (strLangCode != "en")
+  if (strLangCode != g_Settings.GetSourceLcode())
     strReturn += "msgstr \"" + g_CharsetUtils.EscapeStringCPP(pPOEntry->msgStr) + "\"\n";
   else
     strReturn += "msgstr \"\"\n";
@@ -725,7 +725,7 @@ void CProjectHandler::CheckCharCount(const CPOEntry * pPOEntry, std::string cons
     CLog::SyntaxLog(logWARNING, "Warning: count missmatch of char \"%s\"%s",
                    g_CharsetUtils.EscapeStringCPP(g_CharsetUtils.ChrToStr(chrToCheck)).c_str(), GetEntryContent(pPOEntry, strLangCode).c_str());
 
-  if (strLangCode != "en")
+  if (strLangCode != g_Settings.GetSourceLcode())
   {
     if (!pPOEntry->msgStr.empty() && count != g_CharsetUtils.GetCharCountInStr(pPOEntry->msgStr, chrToCheck))
       CLog::SyntaxLog(logWARNING, "Warning: count missmatch of char \"%s\"%s",
