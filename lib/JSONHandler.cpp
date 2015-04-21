@@ -332,9 +332,9 @@ void CJSONHandler::ParseAddonXMLVersionGITHUB(const std::string &strJSON, const 
   if ( !parsingSuccessful )
     CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
 
-  const Json::Value JLangs = root;
+  const Json::Value JFiles = root;
 
-  for(Json::ValueIterator itr = JLangs.begin() ; itr !=JLangs.end() ; itr++)
+  for(Json::ValueIterator itr = JFiles.begin() ; itr !=JFiles.end() ; itr++)
   {
     Json::Value JValu = *itr;
     std::string strType =JValu.get("type", "unknown").asString();
@@ -356,6 +356,45 @@ void CJSONHandler::ParseAddonXMLVersionGITHUB(const std::string &strJSON, const 
         CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid sha JSON data downloaded from Github");
 
       g_Fileversion.SetVersionForURL(strURL + strName, strVersion);
+    }
+  };
+};
+
+void CJSONHandler::ParseLangDatabaseVersion(const std::string &strJSON, const std::string &strURL)
+{
+  Json::Value root;   // will contains the root value after parsing.
+  Json::Reader reader;
+  std::string strName, strVersion;
+
+  std::string strDatabaseFilename = strURL.substr(strURL.rfind("/")+1,std::string::npos);
+
+  bool parsingSuccessful = reader.parse(strJSON, root );
+  if ( !parsingSuccessful )
+    CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
+
+  const Json::Value JFiles = root;
+
+  for(Json::ValueIterator itr = JFiles.begin() ; itr !=JFiles.end() ; itr++)
+  {
+    Json::Value JValu = *itr;
+    std::string strType =JValu.get("type", "unknown").asString();
+
+    if (strType == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseLangDatabaseVersion: no valid JSON data downloaded from Github");
+
+    strName =JValu.get("name", "unknown").asString();
+
+    if (strName == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseLangDatabaseVersion: no valid JSON data downloaded from Github");
+
+    if (strType == "file" && strName == strDatabaseFilename)
+    {
+      strVersion =JValu.get("sha", "unknown").asString();
+
+      if (strVersion == "unknown")
+        CLog::Log(logERROR, "CJSONHandler::ParseLangDatabaseVersion: no valid sha JSON data downloaded from Github");
+
+      g_Fileversion.SetVersionForURL(strURL, strVersion);
     }
   };
 };

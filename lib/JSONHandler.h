@@ -48,6 +48,7 @@ public:
   std::string ParseLongProjectName(std::string const &strJSON);
   void AddGeneralRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLeft, const std::string &strRight);
   void AddCustomRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLangformat, const std::string &strLeft, const std::string &strRight);
+  void ParseLangDatabaseVersion(const std::string &strJSON, const std::string &strURL);
 };
 extern CJSONHandler g_Json;
 #endif
