@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 
     g_UpdateXMLHandler.LoadXMLToMem(WorkingDir);
 //TODO make langdatabase URL parametric
-    g_LCodeHandler.Init("https://raw.github.com/xbmc/translations/master/tool/lang-database/kodi-languages.json");
+    g_LCodeHandler.Init();
 
     if (bDownloadNeeded)
     {

@@ -67,6 +67,8 @@ public:
   void SetLangteamLFormat(std::string const &strLangteamLFormat) {m_strLangteamLFormat = strLangteamLFormat;}
   std::string GetLangteamLFormat() {return m_strLangteamLFormat;}
   std::string GetDefaultAddonLFormatinXML() {return m_DefaultAddonLFormatinXML;}
+  std::string GetLangDatabaseURL() {return m_LangDatabaseURL;}
+  void SetLangDatabaseURL(std::string const &strLangDatabaseURL) {m_LangDatabaseURL = strLangDatabaseURL;}
 
 private:
   size_t m_CacheExpire;
@@ -81,6 +83,7 @@ private:
   std::string m_strDefTXLFormat;
   std::string m_strLangteamLFormat;
   std::string m_DefaultAddonLFormatinXML;
+  std::string m_LangDatabaseURL;
   bool m_bForceComm;
   bool m_bRebrand;
   bool m_bForceTXUpd;

@@ -42,6 +42,7 @@ CSettings::CSettings()
   m_strDefTXLFormat = DEFAULTTXLFORMAT;
   m_strLangteamLFormat = "$(GUILNAME)";
   m_DefaultAddonLFormatinXML = "$(OLDLCODE)";
+  m_LangDatabaseURL = "https://raw.github.com/xbmc/translations/master/tool/lang-database/kodi-languages.json";
 };
 
 CSettings::~CSettings()

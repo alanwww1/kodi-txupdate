@@ -22,6 +22,7 @@
 #include <string>
 #include <stdio.h>
 #include "Langcodes.h"
+#include "Settings.h"
 #include "Log.h"
 #include "HTTPUtils.h"
 #include "JSONHandler.h"
@@ -37,8 +38,9 @@ CLCodeHandler::CLCodeHandler()
 CLCodeHandler::~CLCodeHandler()
 {}
 
-void CLCodeHandler::Init(std::string strURL)
+void CLCodeHandler::Init()
 {
+  std::string strURL = g_Settings.GetLangDatabaseURL();
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
   std::string strtemp = g_HTTPHandler.GetURLToSTR(strURL);

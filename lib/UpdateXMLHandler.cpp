@@ -103,7 +103,14 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
   if ((pData = pDataRootElement->FirstChildElement("addonxmllangformat")) && (strDefAddonLangFormatinXML = pData->FirstChild()->Value()) != "")
     CLog::Log(logINFO, "UpdXMLHandler: Found addon.xml langformat in kodi-txupdate.xml file: %s",strDefAddonLangFormatinXML.c_str());
   else
-    strDefAddonLangFormatinXML=g_Settings.GetDefaultAddonLFormatinXML();
+    strDefAddonLangFormatinXML = g_Settings.GetDefaultAddonLFormatinXML();
+
+  std::string strDefLangdatabaseURL;
+  if ((pData = pDataRootElement->FirstChildElement("langdatabseurl")) && (strDefLangdatabaseURL = pData->FirstChild()->Value()) != "")
+  {
+    CLog::Log(logINFO, "UpdXMLHandler: Found language database URL in kodi-txupdate.xml file: %s",strDefLangdatabaseURL.c_str());
+    g_Settings.SetLangDatabaseURL(strDefLangdatabaseURL);
+  }
 
   std::string strBaseLcode;
   if ((pData = pDataRootElement->FirstChildElement("baselcode")) && (strBaseLcode = pData->FirstChild()->Value()) != "")
