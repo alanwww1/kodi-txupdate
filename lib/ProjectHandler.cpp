@@ -37,11 +37,13 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
+  printf ("TXresourcelist");
   std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname()
                                                   + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
 
+  printf ("\n\n");
   char cstrtemp[strtemp.size()];
   strcpy(cstrtemp, strtemp.c_str());
 

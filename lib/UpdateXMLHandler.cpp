@@ -91,6 +91,15 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     CLog::Log(logERROR, "UpdXMLHandler: No projectname specified in kodi-txupdate.xml file. Cannot continue. "
     "Please specify the Transifex projectname in the xml file");
 
+  std::string strLongProjName;
+  if ((pData = pDataRootElement->FirstChildElement("longprojectname")) && (strLongProjName = pData->FirstChild()->Value()) != "")
+  {
+    CLog::Log(logINFO, "UpdXMLHandler: Found long projectname in kodi-txupdate.xml file: %s",strLongProjName.c_str());
+    g_Settings.SetProjectnameLong(strLongProjName);
+  }
+  else
+    CLog::Log(logERROR, "UpdXMLHandler: No long projectname specified in kodi-txupdate.xml file. Cannot continue. "
+    "Please specify the Transifex long projectname in the xml file");
 
   std::string strDefTXLangFormat;
   if ((pData = pDataRootElement->FirstChildElement("txlcode")) && (strDefTXLangFormat = pData->FirstChild()->Value()) != "")

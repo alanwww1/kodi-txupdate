@@ -52,12 +52,6 @@ CSettings::~CSettings()
 void CSettings::SetProjectname(string strName)
 {
   m_strProjectName = strName;
-  std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + strName + "/");
-
-  if (strtemp.empty())
-    CLog::Log(logERROR, "CSettings::SetProjectname: error getting long projectname from transifex.net for project urlname: %s", strName.c_str());
-
-  m_strProjectnameLong = g_Json.ParseLongProjectName(strtemp);
 };
 
 string CSettings::GetProjectname()

@@ -42,6 +42,7 @@ public:
   void SetProjectname(std::string strName);
   std::string GetProjectname();
   std::string GetProjectnameLong();
+  void SetProjectnameLong (std::string const &strName) {m_strProjectnameLong = strName;}
   void SetHTTPCacheExpire(size_t exptime);
   size_t GetHTTPCacheExpire();
   void SetMinCompletion(int complperc);

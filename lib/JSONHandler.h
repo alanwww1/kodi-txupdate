@@ -45,7 +45,6 @@ public:
   std::string CreateNewresJSONStrFromPOStr(std::string strTXResname, std::string const &strPO);
   void ParseUploadedStringsData(std::string const &strJSON, size_t &stradded, size_t &strupd);
   void ParseUploadedStrForNewRes(std::string const &strJSON, size_t &stradded);
-  std::string ParseLongProjectName(std::string const &strJSON);
   void AddGeneralRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLeft, const std::string &strRight);
   void AddCustomRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLangformat, const std::string &strLeft, const std::string &strRight);
   void ParseLangDatabaseVersion(const std::string &strJSON, const std::string &strURL);

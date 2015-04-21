@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
       g_File.WriteFileFromStr(WorkingDir + ".httpcache" + DirSepChar + ".dload_merge_status", "fail");
       g_File.WriteFileFromStr(WorkingDir + ".httpcache" + DirSepChar + ".lastdloadtime", "Last download time: " + g_File.GetCurrTime());
 
-      printf("\n");
+      printf("\n\n");
       printf("----------------------------------------\n");
       printf("DOWNLOADING RESOURCES FROM TRANSIFEX.NET\n");
       printf("----------------------------------------\n");

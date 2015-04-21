@@ -57,7 +57,7 @@ void CLCodeHandler::Init()
 
   g_Json.ParseLangDatabaseVersion(strtemp, strURL);
 
-  printf(" Langdatabase\n\n");
+  printf(" Langdatabase");
   strtemp = g_HTTPHandler.GetURLToSTR(strURL);
   if (strtemp.empty())
     CLog::Log(logERROR, "LangCode::Init: error getting available language list from URL %s", strURL.c_str());
