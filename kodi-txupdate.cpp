@@ -214,9 +214,9 @@ int main(int argc, char* argv[])
       if (!bForceUpload && g_File.ReadFileToStrE(WorkingDir + ".httpcache" + DirSepChar + ".dload_merge_status") != "ok")
         CLog::Log(logERROR, "There was no successful download and merge run before. Please (re)run download and merge.");
 
-      if (!bForceUpload && g_File.ReadFileToStrE(WorkingDir + ".httpcache" + DirSepChar + ".last_kodi-txupdate.xml") !=
-          g_File.ReadFileToStrE(WorkingDir + "kodi-txupdate.xml"))
-        CLog::Log(logERROR, "kodi-txupdate.xml file changed since last download and merge. Please (re)run download and merge.");
+//      if (!bForceUpload && g_File.ReadFileToStrE(WorkingDir + ".httpcache" + DirSepChar + ".last_kodi-txupdate.xml") !=
+//          g_File.ReadFileToStrE(WorkingDir + "kodi-txupdate.xml"))
+//        CLog::Log(logERROR, "kodi-txupdate.xml file changed since last download and merge. Please (re)run download and merge.");
 
       printf("\n");
       printf("-----------------------------------------\n");

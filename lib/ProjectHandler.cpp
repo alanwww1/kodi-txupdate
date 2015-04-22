@@ -551,10 +551,13 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
+  printf ("TXresourcelist");
   std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname()
   + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
+
+  printf ("\n\n");
 
   std::list<std::string> listResourceNamesTX = g_Json.ParseResources(strtemp);
 
@@ -572,7 +575,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
     bool bNewResource = false;
 
     strResourceDir = strProjRootDir + strPrefixDir + DirSepChar + strResname + DirSepChar;
-    strLangDir = strResourceDir + "resources" + DirSepChar + "language" + DirSepChar;
+    strLangDir = strResourceDir;
 
     CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Uploading resource: %s, from langdir: %s",itres->first.c_str(), strLangDir.c_str());
     printf ("Uploading files for resource: %s", itres->first.c_str());
@@ -618,7 +621,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
       if (bNewResource && *it == g_Settings.GetSourceLcode()) // Let's not upload the Source language file again
         continue;
       std::string strFilePath = strLangDir + *it + DirSepChar + "strings.po";
-      std::string strLangCode = *it;
+      std::string strLangCode = g_LCodeHandler.GetLangFromLCode(*it, g_Settings.GetDefaultTXLFormat());
 
       bool buploaded = false;
       size_t stradded, strupd;
