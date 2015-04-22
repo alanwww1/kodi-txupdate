@@ -268,8 +268,8 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (!currResData.strUPSAddonURL.empty() && currResData.strUPSAddonURL.find (".github") == std::string::npos)
           CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
       std::string strUPSAddonLangFormatinXML;
-      if (pRootElement->Attribute("addonxmllangformat"))
-        strUPSAddonLangFormatinXML = pRootElement->Attribute("addonxmllangformat");
+      if (pChildAddonURLElement &&  pChildAddonURLElement->Attribute("addonxmllangformat"))
+        strUPSAddonLangFormatinXML = pChildAddonURLElement->Attribute("addonxmllangformat");
       if (strUPSAddonLangFormatinXML != "")
         currResData.strUPSAddonLangFormatinXML = strUPSAddonLangFormatinXML;
       else
@@ -306,8 +306,8 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
                               currResData.strLOCAddonPathRoot, DirSepChar);
       std::string strLOCAddonLangFormatinXML;
-      if (pRootElement->Attribute("addonxmllangformat"))
-        strLOCAddonLangFormatinXML = pRootElement->Attribute("addonxmllangformat");
+      if (pChildLocAddonElement && pChildLocAddonElement->Attribute("addonxmllangformat"))
+        strLOCAddonLangFormatinXML = pChildLocAddonElement->Attribute("addonxmllangformat");
       if (strLOCAddonLangFormatinXML != "")
         currResData.strLOCAddonLangFormatinXML = strLOCAddonLangFormatinXML;
       else
