@@ -36,6 +36,7 @@ public:
   ~CPOHandler();
   bool FetchPOURLToMem(std::string strURL, bool bSkipError);
   bool FetchXMLURLToMem (std::string strURL);
+  bool FetchLangAddonXML (std::string strURL);
   bool ParsePOStrToMem (std::string const &strPOData, std::string const &strFilePath);
   bool WritePOFile(const std::string &strOutputPOFilename);
   bool WriteXMLFile(const std::string &strOutputPOFilename);
@@ -86,4 +87,5 @@ protected:
   size_t m_CommsCntr;
   bool m_bPOIsEnglish;
   bool m_bPOIsUpdateTX;
+  std::string m_strLangAddonXML;
 };

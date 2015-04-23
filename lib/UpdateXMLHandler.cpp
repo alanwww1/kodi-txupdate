@@ -274,6 +274,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         currResData.strUPSAddonLangFormatinXML = strUPSAddonLangFormatinXML;
       else
         currResData.strUPSAddonLangFormatinXML = strDefAddonLangFormatinXML;
+      currResData.bIsLanguageAddon = !currResData.strUPSAddonLangFormat.empty();
 
 
       const TiXmlElement *pChildChglogElement = pChildResElement->FirstChildElement("changelogFormat");

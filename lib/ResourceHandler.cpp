@@ -137,6 +137,12 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
     POHandler.SetIfIsSourceLang(*it == g_Settings.GetSourceLcode());
     printf (" %s", it->c_str());
 
+    if (XMLResdata.bIsLanguageAddon)
+    {
+      std::string strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (XMLResdata.strUPSAddonURL, XMLResdata.strUPSAddonLangFormat, *it);
+      POHandler.FetchLangAddonXML(strLangAddonXMLDloadURL);
+    }
+
     std::string strDloadURL = g_CharsetUtils.ReplaceLanginURL(XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat, *it);
 
     if (XMLResdata.strUPSLangFileName == "strings.xml")

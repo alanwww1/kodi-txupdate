@@ -46,6 +46,7 @@ public:
   std::string strLOCChangelogPath, strLOCChangelogPathRoot, strLOCChangelogName;
 
   std::string strChangelogFormat;
+  bool bIsLanguageAddon;
 };
 
 class CUpdateXMLHandler

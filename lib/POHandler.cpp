@@ -618,3 +618,10 @@ void CPOHandler::ParsePOHeader() // extract nplurals number from the PO file hea
   ss << m_strHeader.substr(pos1, pos2-pos1);
   ss >> m_nplurals;
 }
+
+bool CPOHandler::FetchLangAddonXML(std::string strURL)
+{
+  m_strLangAddonXML = g_HTTPHandler.GetURLToSTR(strURL);
+  if (m_strLangAddonXML.empty())
+    CLog::Log(logERROR, "CPOHandler::FetchLangAddonXML: http error reading XML file from url: %s", strURL.c_str());
+}
