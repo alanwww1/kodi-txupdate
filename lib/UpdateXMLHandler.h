@@ -39,6 +39,7 @@ public:
   std::string strUPSLangURL, strUPSLangURLRoot, strUPSLangFormat, strUPSLangFileName;
   std::string strUPSSourceLangURL;
   std::string strUPSAddonURL, strUPSAddonURLRoot, strUPSAddonLangFormat, strUPSAddonLangFormatinXML, strUPSAddonXMLFilename;
+  std::string strUPSSourceLangAddonURL;
   std::string strUPSChangelogURL, strUPSChangelogURLRoot, strUPSChangelogName;
 
   std::string strLOCLangPath, strLOCLangPathRoot, strLOCLangFormat, strLOCLangFileName;

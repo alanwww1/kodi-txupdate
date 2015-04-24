@@ -134,12 +134,18 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
   for (std::list<std::string>::iterator it = listLangs.begin(); it != listLangs.end(); it++)
   {
     CPOHandler POHandler;
-    POHandler.SetIfIsSourceLang(*it == g_Settings.GetSourceLcode());
+    bool bIsSourceLang = *it == g_Settings.GetSourceLcode();
+    POHandler.SetIfIsSourceLang(bIsSourceLang);
     printf (" %s", it->c_str());
 
     if (XMLResdata.bIsLanguageAddon)
     {
-      std::string strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (XMLResdata.strUPSAddonURL, XMLResdata.strUPSAddonLangFormat, *it);
+      std::string strLangAddonXMLDloadURL;
+      if (!bIsSourceLang)
+        strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (XMLResdata.strUPSAddonURL, XMLResdata.strUPSAddonLangFormat, *it);
+      else
+        strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (XMLResdata.strUPSSourceLangAddonURL, XMLResdata.strUPSAddonLangFormat, *it);
+
       POHandler.FetchLangAddonXML(strLangAddonXMLDloadURL);
     }
 

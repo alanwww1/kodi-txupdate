@@ -619,7 +619,7 @@ void CPOHandler::ParsePOHeader() // extract nplurals number from the PO file hea
   ss >> m_nplurals;
 }
 
-bool CPOHandler::FetchLangAddonXML(std::string strURL)
+void CPOHandler::FetchLangAddonXML(std::string strURL)
 {
   m_strLangAddonXML = g_HTTPHandler.GetURLToSTR(strURL);
   if (m_strLangAddonXML.empty())
