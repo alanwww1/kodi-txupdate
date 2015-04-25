@@ -36,7 +36,8 @@ public:
   ~CPOHandler();
   bool FetchPOURLToMem(std::string strURL, bool bSkipError);
   bool FetchXMLURLToMem (std::string strURL);
-  void FetchLangAddonXML (std::string strURL);
+  void FetchLangAddonXML (const std::string &strURL);
+  void WriteLangAddonXML(const std::string &strPath);
   bool ParsePOStrToMem (std::string const &strPOData, std::string const &strFilePath);
   bool WritePOFile(const std::string &strOutputPOFilename);
   bool WriteXMLFile(const std::string &strOutputPOFilename);

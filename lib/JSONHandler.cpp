@@ -115,7 +115,8 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesTX(std::string strJSON, 
   return listLangs;
 };
 
-std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL, std::string strLangformat)
+std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL, std::string strLangformat,
+                                                               std::string strAddonXMLURL, bool bIsLangAddon)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
@@ -135,10 +136,8 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJS
     if (strType == "unknown")
       CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid JSON data downloaded from Github");
     else if (strType != "dir")
-    {
-      CLog::Log(logWARNING, "CJSONHandler::ParseAvailLanguagesGITHUB: unknown file found in language directory");
       continue;
-    }
+
     lang =JValu.get("name", "unknown").asString();
     if (lang == "unknown")
       CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid JSON data downloaded from Github");
@@ -155,6 +154,12 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJS
       std::string strURLforFile = strURL;
       g_CharsetUtils.replaceAllStrParts(&strURLforFile, strLangformat, strMatchedLangalias);
       g_Fileversion.SetVersionForURL(strURLforFile, strVersion);
+      if (bIsLangAddon)
+      {
+        std::string strURLforAddonFile = strAddonXMLURL;
+        g_CharsetUtils.replaceAllStrParts(&strURLforAddonFile, strLangformat, strMatchedLangalias);
+        g_Fileversion.SetVersionForURL(strURLforAddonFile, strVersion);
+      }
     }
   };
 

@@ -114,7 +114,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
       return true;
   }
 
-  std::list<std::string> listLangs, listGithubLangs;
+  std::list<std::string> listLangs, listGithubLangs, listGithubSRCLangs;
 
   printf(" Langlist");
   strtemp.clear();
@@ -125,9 +125,25 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
   if (strtemp.empty())
     CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting po file list from github.com");
 
-  listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat);
+  listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat,
+                                                     XMLResdata.strUPSAddonURL, XMLResdata.bIsLanguageAddon);
 
-  listLangs=listGithubLangs;
+  listLangs = listGithubLangs;
+  if (!XMLResdata.strUPSSourceLangURL.empty()) // we have a language-addon with different SRC language upstream URL
+  {
+    printf(" LanglistSRC");
+    strtemp.clear();
+    strGitHubURL.clear();
+//TODO Rather use the language directory itself for language addons to have a chance to get the changes of the individual addon.xml files
+    strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(g_CharsetUtils.GetRoot(XMLResdata.strUPSSourceLangURL, XMLResdata.strUPSAddonLangFormat));
+    strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
+    if (strtemp.empty())
+      CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting source language file list from github.com");
+
+    listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSSourceLangURL, XMLResdata.strUPSLangFormat,
+                                                       XMLResdata.strUPSSourceLangAddonURL, XMLResdata.bIsLanguageAddon);
+    listLangs.push_back(g_Settings.GetSourceLcode());
+  }
 
   bool bResult;
 
@@ -149,7 +165,11 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
       POHandler.FetchLangAddonXML(strLangAddonXMLDloadURL);
     }
 
-    std::string strDloadURL = g_CharsetUtils.ReplaceLanginURL(XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat, *it);
+    std::string strDloadURL;
+    if (bIsSourceLang && !XMLResdata.strUPSSourceLangURL.empty()) // If we have a different URL for source language, use that for download
+      strDloadURL = g_CharsetUtils.ReplaceLanginURL(XMLResdata.strUPSSourceLangURL, XMLResdata.strUPSLangFormat, *it);
+    else
+      strDloadURL = g_CharsetUtils.ReplaceLanginURL(XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat, *it);
 
     if (XMLResdata.strUPSLangFileName == "strings.xml")
       bResult = POHandler.FetchXMLURLToMem(strDloadURL);
@@ -172,11 +192,13 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
 
 bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResname, CXMLResdata XMLResdata, bool bTXUpdFile)
 {
-  std::string strPath, strLangFormat;
+  std::string strPath, strLangFormat, strAddonXMLPath;
   if (!bTXUpdFile)
   {
     strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCLangPath;
     strLangFormat = XMLResdata.strLOCLangFormat;
+    if (XMLResdata.bIsLanguageAddon)
+      strAddonXMLPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCAddonPath;
   }
   else
   {
@@ -190,12 +212,13 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
 
   for (T_itmapPOFiles itmapPOFiles = m_mapPOFiles.begin(); itmapPOFiles != m_mapPOFiles.end(); itmapPOFiles++)
   {
-    std::string strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, strLangFormat, itmapPOFiles->first);
+    std::string strPODir, strAddonDir;
+    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, strLangFormat, itmapPOFiles->first);
 
-    if (bTXUpdFile && counter < 20)
+    if (bTXUpdFile && counter < 15)
       printf (" %s", itmapPOFiles->first.c_str());
-    if ((bTXUpdFile && counter == 19) && m_mapPOFiles.size() != 20)
-      printf ("+%i Langs", (int)m_mapPOFiles.size()-19);
+    if ((bTXUpdFile && counter == 14) && m_mapPOFiles.size() != 15)
+      printf ("+%i Langs", (int)m_mapPOFiles.size()-14);
 
     CPOHandler * pPOHandler = &m_mapPOFiles[itmapPOFiles->first];
     if (g_CharsetUtils.bISPOFile(XMLResdata.strLOCLangFileName) || bTXUpdFile)
@@ -204,6 +227,13 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
       pPOHandler->WriteXMLFile(strPODir);
     else
       CLog::Log(logERROR, "ResHandler::WritePOToFiles: unknown local fileformat: %s", XMLResdata.strLOCLangFileName.c_str());
+
+    // Write individual addon.xml files for language-addons
+    if (!strAddonXMLPath.empty())
+    {
+      strAddonDir = g_CharsetUtils.ReplaceLanginURL(strAddonXMLPath, strLangFormat, itmapPOFiles->first);
+      pPOHandler->WriteLangAddonXML(strAddonDir);
+    }
 
     CLog::LogTable(logINFO, "writepo", "\t\t\t%s\t\t%i\t\t%i", itmapPOFiles->first.c_str(), pPOHandler->GetNumEntriesCount(),
               pPOHandler->GetClassEntriesCount());

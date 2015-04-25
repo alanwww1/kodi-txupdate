@@ -619,9 +619,15 @@ void CPOHandler::ParsePOHeader() // extract nplurals number from the PO file hea
   ss >> m_nplurals;
 }
 
-void CPOHandler::FetchLangAddonXML(std::string strURL)
+void CPOHandler::FetchLangAddonXML(const std::string &strURL)
 {
   m_strLangAddonXML = g_HTTPHandler.GetURLToSTR(strURL);
   if (m_strLangAddonXML.empty())
     CLog::Log(logERROR, "CPOHandler::FetchLangAddonXML: http error reading XML file from url: %s", strURL.c_str());
+}
+
+void CPOHandler::WriteLangAddonXML(const std::string &strPath)
+{
+  if (!g_File.WriteFileFromStr(strPath, m_strLangAddonXML));
+    CLog::Log(logERROR, "CPOHandler::WriteLangAddonXML: file write error, to output file: %s", strPath.c_str());
 }

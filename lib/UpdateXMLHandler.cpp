@@ -251,9 +251,13 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (!currResData.strUPSLangURLRoot.empty() && currResData.strUPSLangURLRoot.find (".github") == std::string::npos)
         CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
 
-      const TiXmlElement *pChildURLENElement = pChildResElement->FirstChildElement("upstreamLangEnURL");
-      if (pChildURLENElement && pChildURLENElement->FirstChild())
-        currResData.strUPSSourceLangURL = pChildURLENElement->FirstChild()->Value();
+      const TiXmlElement *pChildURLSRCElement = pChildResElement->FirstChildElement("upstreamLangSRCURL");
+      if (pChildURLSRCElement && pChildURLSRCElement->FirstChild())
+        currResData.strUPSSourceLangURL = pChildURLSRCElement->FirstChild()->Value();
+
+      const TiXmlElement *pChildURLSRCAddonElement = pChildResElement->FirstChildElement("upstreamAddonSRCURL");
+      if (pChildURLSRCAddonElement && pChildURLSRCAddonElement->FirstChild())
+        currResData.strUPSSourceLangAddonURL = pChildURLSRCAddonElement->FirstChild()->Value();
 
       const TiXmlElement *pChildAddonURLElement = pChildResElement->FirstChildElement("upstreamAddonURL");
       if (pChildAddonURLElement && pChildAddonURLElement->FirstChild())
@@ -265,8 +269,6 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
         CLog::Log(logERROR, "UpdXMLHandler: Unable to determine the URL for the addon.xml file for resource %s", strResName.c_str());
       GetParamsFromURLorPath (currResData.strUPSAddonURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
                                 currResData.strUPSAddonURLRoot, '/');
-//TODO
-      currResData.strUPSSourceLangAddonURL="";
       if (!currResData.strUPSAddonURL.empty() && currResData.strUPSAddonURL.find (".github") == std::string::npos)
           CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
       std::string strUPSAddonLangFormatinXML;
