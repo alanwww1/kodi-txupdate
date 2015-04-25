@@ -81,6 +81,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     CLog::Log(logINFO, "UpdXMLHandler: No http cache expire time specified in kodi-txupdate.xml file. Using default value: %iminutes",
               DEFAULTCACHEEXPIRE);
 
+//TODO separate download TX projectname from upload TX projectname to handle project name changes
   std::string strProjName;
   if ((pData = pDataRootElement->FirstChildElement("projectname")) && (strProjName = pData->FirstChild()->Value()) != "")
   {

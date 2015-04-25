@@ -331,7 +331,7 @@ std::string CCharsetUtils::GetLangnameFromURL(std::string strName, std::string s
   if (pos2per == std::string::npos)
     CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
 
-  std::string strPre = strURL.substr(pos1per, pos1-pos1per-1);
+  std::string strPre = strURL.substr(pos1per+1, pos1-pos1per-1);
   std::string strPost = strURL.substr(pos2, pos2per-pos2);
 
   if (strName.find(strPre) != 0 || strName.rfind(strPost) != strName.size()-strPost.size())

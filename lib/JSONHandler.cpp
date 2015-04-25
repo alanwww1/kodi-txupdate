@@ -22,6 +22,7 @@
 #include "JSONHandler.h"
 #include "Log.h"
 #include <list>
+#include <algorithm>
 #include <stdlib.h>
 #include "Settings.h"
 #include "Fileversioning.h"
@@ -241,12 +242,30 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
 
 //TODO error checking
 void CJSONHandler::AddGeneralRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLeft,
-                                  const std::string &strRight)
+                                  std::string strRight)
 {
+  std::string strModifier;
+  size_t pos1, pos2;
+  if ((pos1 = strRight.find("(")) != std::string::npos || pos1 == 0) //we have a modifier
+  {
+    pos2 = strRight.find(")");
+    strModifier = strRight.substr(1, pos2-1);
+    strRight = strRight.substr(pos2+1,strRight.size()-pos2);
+  }
+
   std::map<std::string, CLangcodes>::iterator itmapTXLangs;
   for (itmapTXLangs = mapTXLangs.begin(); itmapTXLangs != mapTXLangs.end(); itmapTXLangs++)
   {
-    itmapTXLangs->second.mapLangdata[strLeft] = itmapTXLangs->second.mapLangdata[strRight];
+    std::string strLangnametoAdd;
+    if (strModifier == "lcase")
+    {
+      strLangnametoAdd = itmapTXLangs->second.mapLangdata[strRight];
+      std::transform(strLangnametoAdd.begin(), strLangnametoAdd.end(), strLangnametoAdd.begin(), ::tolower);
+    }
+    else
+      strLangnametoAdd = itmapTXLangs->second.mapLangdata[strRight];
+
+    itmapTXLangs->second.mapLangdata[strLeft] = strLangnametoAdd;
   }
 }
 
