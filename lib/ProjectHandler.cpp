@@ -70,7 +70,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
     CXMLResdata XMLResdata = mapRes[strResname];
     m_mapResourcesTX[strResname]=ResourceHandler;
     m_mapResourcesTX[strResname].FetchPOFilesTXToMem(XMLResdata, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
-                                              "/resource/" + *it + "/", strResname == "kodi.core");
+                                              "/resource/" + *it + "/");
     CLog::DecIdent(4);
     printf(" )\n");
   }
@@ -177,6 +177,7 @@ bool CProjectHandler::CreateMergedResources()
       CLog::Log(logERROR, "CreateMergedResources: Not able to read addon data for header text");
 
     CAddonXMLEntry * pENAddonXMLEntry;
+    bool bIsResourceLangAddon = m_mapResourcesUpstr[*itResAvail].GetIfIsLangaddon();
 
     if ((pENAddonXMLEntry = GetAddonDataFromXML(&m_mapResourcesUpstr, *itResAvail, g_Settings.GetSourceLcode())) != NULL)
     {
@@ -190,7 +191,7 @@ bool CProjectHandler::CreateMergedResources()
       updTXResHandler.GetXMLHandler()->SetAddonChangelogFile(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonChangelogFile());
       updTXResHandler.GetXMLHandler()->SetAddonLogFilename(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonLogFilename());
     }
-    else if (*itResAvail != "kodi.core")
+    else if (!bIsResourceLangAddon)
       CLog::Log(logERROR, "CreateMergedResources: No Upstream AddonXML file found as source for merging");
 
     std::list<std::string> listMergedLangs = CreateMergedLanguageList(*itResAvail);
@@ -232,7 +233,7 @@ bool CProjectHandler::CreateMergedResources()
                !MergedAddonXMLEntryTX.strDisclaimer.empty())
         bResChangedInAddXMLFromUpstream = true;
 
-      if (*itResAvail != "kodi.core")
+      if (!bIsResourceLangAddon)
       {
         mergedResHandler.GetXMLHandler()->GetMapAddonXMLData()->operator[](*itlang) = MergedAddonXMLEntry;
         updTXResHandler.GetXMLHandler()->GetMapAddonXMLData()->operator[](*itlang) = MergedAddonXMLEntry;
@@ -363,11 +364,18 @@ bool CProjectHandler::CreateMergedResources()
         }
       }
 
-      CPOHandler * pPOHandlerTX;
+      CPOHandler * pPOHandlerTX, * pPOHandlerUpstr;
       pPOHandlerTX = SafeGetPOHandler(m_mapResourcesTX, *itResAvail, strLangCode);
+      pPOHandlerUpstr = SafeGetPOHandler(m_mapResourcesUpstr, *itResAvail, strLangCode);
 
       if (mergedPOHandler.GetNumEntriesCount() !=0 || mergedPOHandler.GetClassEntriesCount() !=0)
       {
+        if (bIsResourceLangAddon && pPOHandlerUpstr) // Copy the individual addon.xml files from upstream to merged resource for language-addons
+          mergedPOHandler.SetLangAddonXMLString(pPOHandlerUpstr->GetLangAddonXMLString());
+        else if (!pPOHandlerUpstr)
+          CLog::Log(logWARNING, "Warning: No addon xml file exist for resource: %s and language: %s\nPlease create one upstream to be able to use this new language",
+                    itResAvail->c_str(), strLangCode.c_str());
+
         mergedPOHandler.SetPreHeader(strResPreHeader);
         mergedPOHandler.SetHeaderNEW(*itlang);
         mergedResHandler.AddPOData(mergedPOHandler, strLangCode);

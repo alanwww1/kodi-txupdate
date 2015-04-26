@@ -46,7 +46,7 @@ CPOHandler* CResourceHandler::GetPOData(std::string strLang)
 
 // Download from Transifex related functions
 
-bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::string strURL, bool bIsKODICore)
+bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::string strURL)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
@@ -60,7 +60,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
   char cstrtemp[strtemp.size()];
   strcpy(cstrtemp, strtemp.c_str());
 
-  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, bIsKODICore, strURL, g_Settings.GetDefaultTXLFormat());
+  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, strURL, g_Settings.GetDefaultTXLFormat());
 
   CPOHandler POHandler;
 
@@ -88,9 +88,11 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
   g_HTTPHandler.ReInit();
   CLog::Log(logINFO, "ResHandler: Starting to load resource from Upsream URL: %s into memory",XMLResdata.strUPSAddonURL.c_str());
 
+  m_bIsLangAddon = !XMLResdata.strUPSAddonLangFormat.empty();
+
   std::string strLangdirPrefix, strGitHubURL, strtemp;
 
-  if (!XMLResdata.strUPSAddonURL.empty() && XMLResdata.strUPSAddonLangFormat.empty()) // kodi core language addon has individual addon.xml files
+  if (!XMLResdata.strUPSAddonURL.empty() && XMLResdata.strUPSAddonLangFormat.empty()) // kodi language-addons have individual addon.xml files
   {
     // We get the version of the addon.xml and changelog.txt files here
     strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(XMLResdata.strUPSAddonURLRoot);
@@ -249,7 +251,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
 
 //TODO handle new language addons where each language has a separate addon.xml file
   // update local addon.xml file
-  if (strResname != "kodi.core" && strPrefixDir == g_Settings.GetMergedLangfilesDir())
+  if (!XMLResdata.bIsLanguageAddon && strPrefixDir == g_Settings.GetMergedLangfilesDir())
   {
     bool bResChangedFromUpstream = !m_lChangedLangsFromUpstream.empty() || !m_lChangedLangsInAddXMLFromUpstream.empty();
     m_AddonXMLHandler.UpdateAddonXMLFile(strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCAddonPath, bResChangedFromUpstream, XMLResdata);

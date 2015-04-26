@@ -44,15 +44,6 @@ enum Boolean
   ISSOURCELANG=true
 };
 
-enum
-{
-  SKIN = 100,
-  ADDON = 101,
-  CORE = 102,
-  ADDON_NOSTRINGS = 103,
-  UNKNOWN = 104
-};
-
 struct CAddonXMLEntry
 {
   std::string strSummary;

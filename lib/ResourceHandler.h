@@ -32,7 +32,7 @@ class CResourceHandler
 public:
   CResourceHandler();
   ~CResourceHandler();
-  bool FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::string strURL, bool bIsXBMCCore);
+  bool FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::string strURL);
   bool FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata);
   bool WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResName, CXMLResdata XMLResdata, bool bTXUpdFile);
   size_t GetLangsCount() const {return m_mapPOFiles.size();}
@@ -45,6 +45,8 @@ public:
   std::list<std::string> GetChangedLangsFromUpstream () {return m_lChangedLangsFromUpstream;}
   void SetChangedLangsInAddXMLFromUpstream (std::list<std::string> lChanged) {m_lChangedLangsInAddXMLFromUpstream = lChanged;}
   std::list<std::string> GetChangedLangsInAddXMLFromUpstream () {return m_lChangedLangsInAddXMLFromUpstream;}
+  void SetIfIsLangAddon (bool bIsLangAddon) {m_bIsLangAddon = bIsLangAddon;}
+  bool GetIfIsLangaddon () {return m_bIsLangAddon;}
 
 protected:
   void CreateMissingDirs(std::string strResRootDir, int resType);
@@ -54,4 +56,5 @@ protected:
   CAddonXMLHandler m_AddonXMLHandler;
   std::list<std::string> m_lChangedLangsFromUpstream;
   std::list<std::string> m_lChangedLangsInAddXMLFromUpstream;
+  bool m_bIsLangAddon;
 };

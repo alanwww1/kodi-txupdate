@@ -628,6 +628,6 @@ void CPOHandler::FetchLangAddonXML(const std::string &strURL)
 
 void CPOHandler::WriteLangAddonXML(const std::string &strPath)
 {
-  if (!g_File.WriteFileFromStr(strPath, m_strLangAddonXML));
+  if (!g_File.WriteFileFromStr(strPath, m_strLangAddonXML))
     CLog::Log(logERROR, "CPOHandler::WriteLangAddonXML: file write error, to output file: %s", strPath.c_str());
 }

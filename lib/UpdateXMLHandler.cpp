@@ -294,7 +294,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       GetParamsFromURLorPath (currResData.strUPSChangelogURL, currResData.strUPSChangelogName,
                                 currResData.strUPSChangelogURLRoot, '/');
 
-//TODO add ability to make it parametric, using id, or name etc.
+//TODO if not defined automatic creation fails for language-addons
       const TiXmlElement *pChildLocLangElement = pChildResElement->FirstChildElement("localLangPath");
       if (pChildLocLangElement && pChildLocLangElement->FirstChild())
         currResData.strLOCLangPath = pChildLocLangElement->FirstChild()->Value();

@@ -44,8 +44,6 @@ public:
   bool FetchAddonXMLFileUpstr (const CXMLResdata &XMLResdata);
   bool UpdateAddonChangelogFile (std::string strFilename, std::string strFormat, bool bUpdate);
   bool FetchAddonChangelogFile (std::string strURL);
-  bool LoadCoreVersion(std::string filename);
-  bool FetchCoreVersionUpstr(std::string strURL);
   std::string GetResHeaderPretext () const {return m_strResourceData;}
   std::map<std::string, CAddonXMLEntry> * GetMapAddonXMLData () {return &m_mapAddonXMLData;}
   void SetMapAddonXMLData (std::map<std::string, CAddonXMLEntry> mapData) {m_mapAddonXMLData = mapData;}
@@ -62,7 +60,6 @@ public:
 
 protected:
   bool ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXmlDocument &xmlAddonXML);
-  bool ProcessCoreVersion(std::string filename, std::string &strBuffer);
   bool GetEncoding(const TiXmlDocument* pDoc, std::string& strEncoding);
   void BumpVersionNumber();
   void UpdateVersionNumber();

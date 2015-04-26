@@ -66,6 +66,8 @@ public:
   void SetIfIsSourceLang(bool bIsENLang) {m_bPOIsEnglish = bIsENLang;}
   void SetIfPOIsUpdTX(bool bIsUpdTX) {m_bPOIsUpdateTX = bIsUpdTX;}
   bool GetIfSourceIsXML () {return m_bIsXMLSource;}
+  void SetLangAddonXMLString(std::string strXMLfile) {m_strLangAddonXML = strXMLfile;}
+  std::string GetLangAddonXMLString () {return m_strLangAddonXML;}
 
 protected:
   void ClearCPOEntry (CPOEntry &entry);
