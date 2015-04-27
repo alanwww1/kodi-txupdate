@@ -631,3 +631,35 @@ void CPOHandler::WriteLangAddonXML(const std::string &strPath)
   if (!g_File.WriteFileFromStr(strPath, m_strLangAddonXML))
     CLog::Log(logERROR, "CPOHandler::WriteLangAddonXML: file write error, to output file: %s", strPath.c_str());
 }
+
+void CPOHandler::BumpLangAddonXMLVersion()
+{
+  size_t pos0, pos1, pos2;
+  pos0 = m_strLangAddonXML.find("<addon");
+  if (pos0 == std::string::npos)
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_strLangCode.c_str());
+
+  pos1 = m_strLangAddonXML.find("version=\"", pos0);
+  if (pos1 == std::string::npos)
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: unable to bump version number for language: %s", m_strLangCode.c_str());
+
+  pos1 += 9;
+  pos2 = m_strLangAddonXML.find("\"", pos1);
+  if (pos2 == std::string::npos)
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: unable to bump version number for language: %s", m_strLangCode.c_str());
+
+  std::string strVersion = m_strLangAddonXML.substr(pos1, pos2-pos1);
+
+  size_t posLastDot = strVersion.find_last_of(".");
+  if (posLastDot == std::string::npos)
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_strLangCode.c_str());
+
+  std::string strLastNumber = strVersion.substr(posLastDot+1);
+  if (strLastNumber.find_first_not_of("0123456789") != std::string::npos)
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_strLangCode.c_str());
+
+  int LastNum = atoi (strLastNumber.c_str());
+  strLastNumber = g_CharsetUtils.IntToStr(LastNum +1);
+  strVersion = strVersion.substr(0, posLastDot +1) +strLastNumber;
+  m_strLangAddonXML = m_strLangAddonXML.substr(0,pos1) + strVersion + m_strLangAddonXML.substr(pos2);
+}

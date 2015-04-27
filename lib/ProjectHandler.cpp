@@ -371,7 +371,11 @@ bool CProjectHandler::CreateMergedResources()
       if (mergedPOHandler.GetNumEntriesCount() !=0 || mergedPOHandler.GetClassEntriesCount() !=0)
       {
         if (bIsResourceLangAddon && pPOHandlerUpstr) // Copy the individual addon.xml files from upstream to merged resource for language-addons
+        {
           mergedPOHandler.SetLangAddonXMLString(pPOHandlerUpstr->GetLangAddonXMLString());
+          if (bResChangedFromUpstream)
+            mergedPOHandler.BumpLangAddonXMLVersion();  // bump minor version number of the language-addon
+        }
         else if (!pPOHandlerUpstr)
           CLog::Log(logWARNING, "Warning: No addon xml file exist for resource: %s and language: %s\nPlease create one upstream to be able to use this new language",
                     itResAvail->c_str(), strLangCode.c_str());

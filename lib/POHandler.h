@@ -55,7 +55,6 @@ public:
   void SetHeader (std::string strHeader) {m_strHeader = strHeader;}
   void SetHeaderNEW (std::string strLangCode);
   std::string GetHeader () {return m_strHeader;}
-
   void SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXMLEntry const &PrevAddonXMLEntry,
                          CAddonXMLEntry const &AddonXMLEntryEN, std::string const &strLang);
   void GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry &AddonXMLEntryEN);
@@ -68,6 +67,7 @@ public:
   bool GetIfSourceIsXML () {return m_bIsXMLSource;}
   void SetLangAddonXMLString(std::string strXMLfile) {m_strLangAddonXML = strXMLfile;}
   std::string GetLangAddonXMLString () {return m_strLangAddonXML;}
+  void BumpLangAddonXMLVersion();
 
 protected:
   void ClearCPOEntry (CPOEntry &entry);
