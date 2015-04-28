@@ -34,7 +34,7 @@ public:
   ~CXMLResdata();
   std::string strName;
 
-  std::string strTXName;
+  std::string strTXName, strTargetTXName;
 
   std::string strUPSLangURL, strUPSLangURLRoot, strUPSLangFormat, strUPSLangFileName;
   std::string strUPSSourceLangURL;

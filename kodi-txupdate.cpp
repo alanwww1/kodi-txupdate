@@ -139,7 +139,6 @@ int main(int argc, char* argv[])
     CProjectHandler TXProject;
 
     g_UpdateXMLHandler.LoadXMLToMem(WorkingDir);
-//TODO make langdatabase URL parametric
     g_LCodeHandler.Init();
 
     if (bDownloadNeeded)

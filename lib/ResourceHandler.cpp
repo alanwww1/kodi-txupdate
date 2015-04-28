@@ -249,7 +249,6 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
   CLog::LogTable(logADDTABLEHEADER, "writepo", "--------------------------------------------------------------\n");
   CLog::LogTable(logCLOSETABLE, "writepo", "");
 
-//TODO handle new language addons where each language has a separate addon.xml file
   // update local addon.xml file
   if (!XMLResdata.bIsLanguageAddon && strPrefixDir == g_Settings.GetMergedLangfilesDir())
   {

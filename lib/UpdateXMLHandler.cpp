@@ -87,16 +87,25 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found projectname in kodi-txupdate.xml file: %s",strProjName.c_str());
     g_Settings.SetProjectname(strProjName);
+    g_Settings.SetTargetProjectname(strProjName);
   }
   else
     CLog::Log(logERROR, "UpdXMLHandler: No projectname specified in kodi-txupdate.xml file. Cannot continue. "
     "Please specify the Transifex projectname in the xml file");
 
+  std::string strTargetProjName;
+  if ((pData = pDataRootElement->FirstChildElement("targetprojectname")) && (strTargetProjName = pData->FirstChild()->Value()) != "")
+  {
+    CLog::Log(logINFO, "UpdXMLHandler: Found target projectname in kodi-txupdate.xml file: %s",strTargetProjName.c_str());
+    g_Settings.SetTargetProjectname(strTargetProjName);
+  }
+
+
   std::string strLongProjName;
   if ((pData = pDataRootElement->FirstChildElement("longprojectname")) && (strLongProjName = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found long projectname in kodi-txupdate.xml file: %s",strLongProjName.c_str());
-    g_Settings.SetProjectnameLong(strLongProjName);
+    g_Settings.SetTargetProjectnameLong(strLongProjName);
   }
   else
     CLog::Log(logERROR, "UpdXMLHandler: No long projectname specified in kodi-txupdate.xml file. Cannot continue. "
@@ -237,9 +246,16 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     {
       const TiXmlElement *pChildTXNameElement = pChildResElement->FirstChildElement("TXname");
       if (pChildTXNameElement && pChildTXNameElement->FirstChild())
+      {
         currResData.strTXName = pChildTXNameElement->FirstChild()->Value();
+        currResData.strTargetTXName =currResData.strTXName;
+      }
       if (currResData.strTXName.empty())
         CLog::Log(logERROR, "UpdXMLHandler: Transifex resource name is empty or missing for resource %s", strResName.c_str());
+
+      const TiXmlElement *pChildTTXNameElement = pChildResElement->FirstChildElement("TargetTXname");
+      if (pChildTTXNameElement && pChildTTXNameElement->FirstChild())
+        currResData.strTargetTXName = pChildTTXNameElement->FirstChild()->Value();
 
       const TiXmlElement *pChildURLElement = pChildResElement->FirstChildElement("upstreamLangURL");
       if (pChildURLElement && pChildURLElement->FirstChild())

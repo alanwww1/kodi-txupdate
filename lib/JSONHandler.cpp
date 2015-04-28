@@ -240,7 +240,6 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
   return mapTXLangs;
 };
 
-//TODO error checking
 void CJSONHandler::AddGeneralRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLeft,
                                   std::string strRight)
 {

@@ -59,7 +59,17 @@ string CSettings::GetProjectname()
   return m_strProjectName;
 };
 
-string CSettings::GetProjectnameLong()
+void CSettings::SetTargetProjectname(string strName)
+{
+  m_strTargetProjectName = strName;
+};
+
+string CSettings::GetTargetProjectname()
+{
+  return m_strTargetProjectName;
+};
+
+string CSettings::GetTargetProjectnameLong()
 {
   return m_strProjectnameLong;
 };

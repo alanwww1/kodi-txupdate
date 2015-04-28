@@ -564,7 +564,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
   printf ("TXresourcelist");
-  std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname()
+  std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname()
   + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
@@ -592,18 +592,18 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
     CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Uploading resource: %s, from langdir: %s",itres->first.c_str(), strLangDir.c_str());
     printf ("Uploading files for resource: %s", itres->first.c_str());
 
-    if (!FindResInList(listResourceNamesTX, itres->second.strTXName))
+    if (!FindResInList(listResourceNamesTX, itres->second.strTargetTXName))
     {
       CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: No resource %s exists on Transifex. Creating it now.", itres->first.c_str());
       // We create the new resource on transifex and also upload the English source file at once
       g_HTTPHandler.Cleanup();
       g_HTTPHandler.ReInit();
       size_t straddednew;
-      g_HTTPHandler.CreateNewResource(itres->second.strTXName,
+      g_HTTPHandler.CreateNewResource(itres->second.strTargetTXName,
                                       strLangDir + g_Settings.GetSourceLcode() + DirSepChar + "strings.po",
-                                      "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() + "/resources/",
-                                      straddednew, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
-                                      "/resource/" + XMLResdata.strTXName + "/translation/" +
+                                      "https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() + "/resources/",
+                                      straddednew, "https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
+                                      "/resource/" + XMLResdata.strTargetTXName + "/translation/" +
                                       g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), g_Settings.GetDefaultTXLFormat()) + "/");
 
       CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Resource %s was succesfully created with %i English strings.",
@@ -613,7 +613,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
       g_HTTPHandler.Cleanup();
       g_HTTPHandler.ReInit();
       bNewResource = true;
-      g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() + "/resources/", "GET");
+      g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() + "/resources/", "GET");
     }
 
     std::list<std::string> listLangCodes = GetLangsFromDir(strLangDir);
@@ -638,19 +638,19 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
       bool buploaded = false;
       size_t stradded, strupd;
       if (strLangCode == g_Settings.GetSourceLcode())
-        g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
-                                                "/resource/" + XMLResdata.strTXName + "/content/",
+        g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
+                                                "/resource/" + XMLResdata.strTargetTXName + "/content/",
                                                 buploaded, stradded, strupd);
       else
-        g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
-                                                "/resource/" + XMLResdata.strTXName + "/translation/" + strLangCode + "/",
+        g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
+                                                "/resource/" + XMLResdata.strTargetTXName + "/translation/" + strLangCode + "/",
                                                 buploaded, stradded, strupd);
       if (buploaded)
       {
         printf ("\tlangcode: %s:\t added strings:%lu, updated strings:%lu\n", strLangCode.c_str(), stradded, strupd);
-        g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
+        g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
                                        "/resource/" + strResname + "/stats/", "GET");
-        g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
+        g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
         "/resource/" + strResname + "/translation/" + strLangCode + "/?file", "GET");
       }
       else

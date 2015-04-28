@@ -473,13 +473,13 @@ void CPOHandler::SetHeaderNEW (std::string strLangCode)
 
   m_strHeader += "msgid \"\"\n";
   m_strHeader += "msgstr \"\"\n";
-  m_strHeader += "\"Project-Id-Version: " + g_Settings.GetProjectnameLong() + "\\n\"\n";
+  m_strHeader += "\"Project-Id-Version: " + g_Settings.GetTargetProjectnameLong() + "\\n\"\n";
   m_strHeader += "\"Report-Msgid-Bugs-To: " + g_Settings.GetSupportEmailAdd() + "\\n\"\n";
   m_strHeader += "\"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"Last-Translator: Kodi Translation Team\\n\"\n";
   m_strHeader += "\"Language-Team: " + g_LCodeHandler.GetLangFromLCode(strLangCode, g_Settings.GetLangteamLFormat()) +
-                 " (http://www.transifex.com/projects/p/" + g_Settings.GetProjectname() +"/language/"
+                 " (http://www.transifex.com/projects/p/" + g_Settings.GetTargetProjectname() +"/language/"
                  + g_LCodeHandler.GetLangFromLCode(strLangCode, g_Settings.GetDefaultTXLFormat()) +"/)" + "\\n\"\n";
   m_strHeader += "\"MIME-Version: 1.0\\n\"\n";
   m_strHeader += "\"Content-Type: text/plain; charset=UTF-8\\n\"\n";
@@ -550,7 +550,7 @@ bool CPOHandler::WriteXMLFile(const std::string &strOutputPOFilename)
 
   strXMLDoc += "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n";
   strXMLDoc += "<!-- Translated using Transifex web application. For support, or if you would like to to help out, please visit your language team! -->\n";
-  strXMLDoc += "<!-- " + m_strLangCode + " language-Team URL: " + "http://www.transifex.com/projects/p/" + g_Settings.GetProjectname() +"/language/"
+  strXMLDoc += "<!-- " + m_strLangCode + " language-Team URL: " + "http://www.transifex.com/projects/p/" + g_Settings.GetTargetProjectname() +"/language/"
   + m_strLangCode +"/ -->\n";
   strXMLDoc += "<!-- Report language file syntax bugs at: " + g_Settings.GetSupportEmailAdd() + " -->\n\n";
   strXMLDoc += "<strings>\n";
