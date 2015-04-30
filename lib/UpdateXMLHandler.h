@@ -48,6 +48,7 @@ public:
 
   std::string strChangelogFormat;
   bool bIsLanguageAddon;
+  bool bHasOnlyAddonXML;
 };
 
 class CUpdateXMLHandler

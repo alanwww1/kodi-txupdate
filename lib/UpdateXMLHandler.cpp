@@ -260,7 +260,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       const TiXmlElement *pChildURLElement = pChildResElement->FirstChildElement("upstreamLangURL");
       if (pChildURLElement && pChildURLElement->FirstChild())
         currResData.strUPSLangURL = pChildURLElement->FirstChild()->Value();
-      if (currResData.strUPSLangURL.empty())
+      if ((currResData.bHasOnlyAddonXML = currResData.strUPSLangURL.empty()))
         CLog::Log(logINFO, "UpdXMLHandler: UpstreamURL entry is empty for resource %s, which means we have no language files for this addon", strResName.c_str());
       else if (!GetParamsFromURLorPath (currResData.strUPSLangURL, currResData.strUPSLangFormat, currResData.strUPSLangFileName,
                                         currResData.strUPSLangURLRoot, '/'))
@@ -305,8 +305,9 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       const TiXmlElement *pChildChglogUElement = pChildResElement->FirstChildElement("upstreamChangelogURL");
       if (pChildChglogUElement && pChildChglogUElement->FirstChild())
         currResData.strUPSChangelogURL = pChildChglogUElement->FirstChild()->Value();
-      else
+      else if (!currResData.strChangelogFormat.empty())
         currResData.strUPSChangelogURL = currResData.strUPSAddonURLRoot + "changelog.txt";
+      if (!currResData.strChangelogFormat.empty())
       GetParamsFromURLorPath (currResData.strUPSChangelogURL, currResData.strUPSChangelogName,
                                 currResData.strUPSChangelogURLRoot, '/');
 
@@ -314,10 +315,10 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       const TiXmlElement *pChildLocLangElement = pChildResElement->FirstChildElement("localLangPath");
       if (pChildLocLangElement && pChildLocLangElement->FirstChild())
         currResData.strLOCLangPath = pChildLocLangElement->FirstChild()->Value();
-      if (currResData.strLOCLangPath.empty())
+      if (currResData.strLOCLangPath.empty() && !currResData.bHasOnlyAddonXML)
         currResData.strLOCLangPath = currResData.strName + currResData.strUPSLangURL.substr(currResData.strUPSAddonURLRoot.size()-1);
-      if (!GetParamsFromURLorPath (currResData.strLOCLangPath, currResData.strLOCLangFormat, currResData.strLOCLangFileName,
-                                        currResData.strLOCLangPathRoot, DirSepChar))
+      if (!currResData.bHasOnlyAddonXML && !GetParamsFromURLorPath (currResData.strLOCLangPath, currResData.strLOCLangFormat,
+          currResData.strLOCLangFileName, currResData.strLOCLangPathRoot, DirSepChar))
         CLog::Log(logERROR, "UpdXMLHandler: Local langpath format is wrong for resource %s", strResName.c_str());
 
       const TiXmlElement *pChildLocAddonElement = pChildResElement->FirstChildElement("localAddonPath");
