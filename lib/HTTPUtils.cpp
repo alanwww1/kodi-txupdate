@@ -373,7 +373,7 @@ bool CHTTPHandler::PutFileToURL(std::string const &strFilePath, std::string cons
 
   CLog::Log(logINFO, "HTTPHandler::PutFileToURL: Uploading file to Transifex: %s", strFilePath.c_str());
 
-  long result = curlPUTPOFileToURL(strFilePath, strURL, stradded, strupd);
+  long result = curlPUTPOFileToURL(strFilePath, strURL, stradded, strupd, true);
   if (result < 200 || result >= 400)
   {
     CLog::Log(logERROR, "HTTPHandler::PutFileToURL: File upload was unsuccessful, http errorcode: %i", result);
@@ -388,7 +388,7 @@ bool CHTTPHandler::PutFileToURL(std::string const &strFilePath, std::string cons
   return true;
 };
 
-long CHTTPHandler::curlPUTPOFileToURL(std::string const &strFilePath, std::string const &cstrURL, size_t &stradded, size_t &strupd)
+long CHTTPHandler::curlPUTPOFileToURL(std::string const &strFilePath, std::string const &cstrURL, size_t &stradded, size_t &strupd, bool bIsPO)
 {
   CURLcode curlResult;
 
@@ -459,6 +459,8 @@ long CHTTPHandler::curlPUTPOFileToURL(std::string const &strFilePath, std::strin
       CLog::Log(logERROR, "HTTPHandler::curlFileToURL finished with error: \ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\nlocaldir: %s",
                 curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), strURL.c_str(), strFilePath.c_str());
 
+    if (!bIsPO)
+      return http_code;
     size_t jsonPos = strServerResp.find_first_of("{");
     if (jsonPos == std::string::npos)
       CLog::Log(logERROR, "HTTPHandler::curlFileToURL no valid Transifex server response received");

@@ -230,27 +230,40 @@ int main(int argc, char* argv[])
     }
     if (bTransferTranslators)
     {
-      g_HTTPHandler.Cleanup();
-      g_HTTPHandler.ReInit(); 
-
       printf("\n%s", KGRN);
       printf("-------------------------------\n");
-      printf("TRANSFERRING TRANSLATION GROUPS\n");
+      printf("GET TRANSLATION GROUPS\n");
       printf("-------------------------------%s\n", RESET);
-
-      printf("TrGroupsList");
 
       if (g_Settings.GetProjectname().empty() || g_Settings.GetTargetProjectname().empty() ||
           g_Settings.GetProjectname() == g_Settings.GetTargetProjectname())
         CLog::Log(logERROR, "Cannot tranfer translators database. Wrong projectname and target projectname,");
 
-      std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/"+ g_Settings.GetProjectname() + "/languages");
-      if (strtemp.empty())
-        CLog::Log(logERROR, "Main: error getting translator groups list for project: %s", g_Settings.GetProjectname().c_str());
+      std::map<std::string, std::string> mapCoordinators, mapReviewers, mapTranslators;
 
-      printf("%s\n", strtemp.c_str());
-      std::map<std::string, std::list<std::string> > mapCoordinators, mapReviewers, mapTranslators;
-      g_Json.ParseTranslatorsDatabase(strtemp, mapCoordinators, mapReviewers, mapTranslators);
+      printf("\n%sCoordinators:%s\n", KGRN, RESET);
+      mapCoordinators = g_LCodeHandler.GetTranslatorsDatabase("coordinators");
+
+      printf("\n%sReviewers:%s\n", KGRN, RESET);
+      mapReviewers = g_LCodeHandler.GetTranslatorsDatabase("reviewers");
+
+      printf("\n%sTranslators:%s\n", KGRN, RESET);
+      mapTranslators = g_LCodeHandler.GetTranslatorsDatabase("translators");
+
+      printf("\n%s", KGRN);
+      printf("-----------------------------\n");
+      printf("PUSH TRANSLATION GROUPS TO TX\n");
+      printf("-----------------------------%s\n", RESET);
+
+      printf("\n%sCoordinators:%s\n", KGRN, RESET);
+      g_LCodeHandler.UploadTranslatorsDatabase(mapCoordinators, "coordinators");
+
+      printf("\n%sReviewers:%s\n", KGRN, RESET);
+      g_LCodeHandler.UploadTranslatorsDatabase(mapReviewers, "reviewers");
+
+      printf("\n%sTranslators:%s\n", KGRN, RESET);
+      g_LCodeHandler.UploadTranslatorsDatabase(mapTranslators, "translators");
+
     }
 
     CLog::SetbWriteSyntaxLog(bDownloadNeeded);

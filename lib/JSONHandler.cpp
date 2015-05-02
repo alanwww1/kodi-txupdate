@@ -406,9 +406,3 @@ void CJSONHandler::ParseLangDatabaseVersion(const std::string &strJSON, const st
     }
   };
 };
-
-void CJSONHandler::ParseTranslatorsDatabase(std::string &strJSON, std::map<std::string, std::list<std::string> > mapCoordinators,
-                              std::map<std::string, std::list<std::string> > mapReviewers, std::map<std::string, std::list<std::string> > mapTranslators)
-{
-  
-}

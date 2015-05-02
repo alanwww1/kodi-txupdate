@@ -136,3 +136,89 @@ void CLCodeHandler::CleanLangform (std::string &strLangform)
   pos2 = strLangform.find_last_not_of(")");
   strLangform = strLangform.substr(pos1, pos2-pos1+1);
 }
+
+std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(std::string strContributorType)
+{
+  std::map<std::string, std::string> mapOfContributors;
+
+  g_HTTPHandler.Cleanup();
+  g_HTTPHandler.ReInit(); 
+
+  for (itmapLCodes = m_mapLCodes.begin(); itmapLCodes != m_mapLCodes.end() ; itmapLCodes++)
+  {
+    std::string strLangCode = itmapLCodes->first;
+    std::string strTXLformat = g_Settings.GetDefaultTXLFormat();
+
+    std::string strJson = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/"+ g_Settings.GetProjectname() + "/language/" +
+                                                     GetLangFromLCode(strLangCode, strTXLformat) + "/" + strContributorType + "/");
+    if (strJson.empty())
+      CLog::Log(logERROR, "CLCodeHandler::GetTranslatorsDatabase: error getting translator groups list for project: %s", g_Settings.GetProjectname().c_str());
+
+    Json::Value root;   // will contains the root value after parsing.
+    Json::Reader reader;
+
+    bool parsingSuccessful = reader.parse(strJson, root );
+    if ( !parsingSuccessful )
+      CLog::Log(logERROR, "CLCodeHandler::GetTranslatorsDatabase: no valid JSON data downloaded from Transifex");
+
+    const Json::Value JRoot = root;
+    const Json::Value JNames = JRoot[strContributorType];
+
+    printf ("\n%s%s%s", KMAG, strLangCode.c_str(), RESET);
+
+    std::list<std::string> listNames;
+
+    for(Json::ValueIterator itr = JNames.begin() ; itr !=JNames.end() ; itr++)
+    {
+      Json::Value JValu = *itr;
+      std::string strName =JValu.asString();
+
+      if (strName == "")
+        CLog::Log(logERROR, "CJSONHandler::ParseTranslatorsDatabase: no valid JSON data downloaded from Github");
+
+      printf ("%s%s%s ", KCYN, strName.c_str(), RESET);
+      listNames.push_back(strName);
+    }
+
+    if (!listNames.empty())
+      mapOfContributors[strLangCode] = strJson;
+  };
+  return mapOfContributors;
+}
+
+void  CLCodeHandler::UploadTranslatorsDatabase(std::map<std::string, std::string> &mapOfContributors,
+                                               std::string strContributorType)
+{
+
+  g_HTTPHandler.Cleanup();
+  g_HTTPHandler.ReInit();
+
+  std::string strTXLformat = g_Settings.GetTargetTXLFormat();
+
+  for (std::map<std::string, std::string>::iterator itmap = mapOfContributors.begin(); itmap !=mapOfContributors.end(); itmap++)
+  {
+    std::string strLangCode = itmap->first;
+    std::string strURLSource = "https://www.transifex.com/api/2/project/"+ g_Settings.GetProjectname() + "/language/" +
+                         GetLangFromLCode(strLangCode, strTXLformat) + "/" + strContributorType + "/";
+
+    std::string strURLTarget = "https://www.transifex.com/api/2/project/"+ g_Settings.GetTargetProjectname() + "/language/" +
+                         GetLangFromLCode(strLangCode, g_Settings.GetTargetTXLFormat()) + "/" + strContributorType + "/";
+
+    std::string strCacheFile = g_HTTPHandler.CacheFileNameFromURL(strURLSource);
+    strCacheFile = g_HTTPHandler.GetCacheDir() + "GET/" + strCacheFile;
+
+    bool bCacheFileExists = g_File.FileExist(strCacheFile);
+
+    if (!bCacheFileExists)
+      CLog::Log(logERROR, "CLCodeHandler::UploadTranslatorsDatabase No previous cachefile exeists for file: %s", strCacheFile.c_str());
+
+
+    printf ("%s%s%s ", KMAG, strLangCode.c_str(), RESET);
+    size_t stradded, strupd;
+    long result = g_HTTPHandler.curlPUTPOFileToURL(strCacheFile, strURLTarget, stradded, strupd, false);
+    if (result < 200 || result >= 400)
+    {
+      CLog::Log(logERROR, "CLCodeHandler::UploadTranslatorsDatabase File upload was unsuccessful, http errorcode: %i", result);
+    }
+  }
+}

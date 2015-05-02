@@ -49,6 +49,8 @@ public:
   std::string GetURLToSTR(std::string strURL);
   void Cleanup();
   void SetCacheDir(std::string strCacheDir);
+  std::string GetCacheDir() {return m_strCacheDir;}
+
   bool LoadCredentials (std::string CredentialsFilename);
   bool PutFileToURL(std::string const &strFilePath, std::string const &strURL, bool &buploaded,
                     size_t &stradded, size_t &strupd);
@@ -57,16 +59,16 @@ public:
   void DeleteCachedFile(std::string const &strURL, std::string strPrefix);
   bool ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pPOHandler2, bool bLangIsEN) const;
   std::string GetGitHUBAPIURL(std::string const & strURL);
+  std::string CacheFileNameFromURL(std::string strURL);
+  long curlPUTPOFileToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd, bool bIsPO);
 
 private:
   CURL *m_curlHandle;
   std::string m_strCacheDir;
   long curlURLToCache(std::string strCacheFile, std::string strURL, std::string &strBuffer);
-  long curlPUTPOFileToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd);
 
   CLoginData GetCredentials (std::string strURL);
   bool ComparePOFiles(std::string strPOFilePath1, std::string strPOFilePath2) const;
-  std::string CacheFileNameFromURL(std::string strURL);
   std::string URLEncode (std::string strURL);
   std::map<std::string, CLoginData> m_mapLoginData;
   std::map<std::string, CLoginData>::iterator itMapLoginData;
