@@ -213,6 +213,8 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
     printf("Languages to update from upstream to upload to Transifex:");
   size_t counter = 0;
 
+  printf ("%s", KCYN);
+
   for (T_itmapPOFiles itmapPOFiles = m_mapPOFiles.begin(); itmapPOFiles != m_mapPOFiles.end(); itmapPOFiles++)
   {
     std::string strPODir, strAddonDir;
@@ -241,6 +243,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
     CLog::LogTable(logINFO, "writepo", "\t\t\t%s\t\t%i\t\t%i", itmapPOFiles->first.c_str(), pPOHandler->GetNumEntriesCount(),
               pPOHandler->GetClassEntriesCount());
   }
+  printf ("%s", RESET);
   if (bTXUpdFile && !m_mapPOFiles.empty())
     printf("\n");
 

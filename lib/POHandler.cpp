@@ -480,11 +480,11 @@ void CPOHandler::SetHeaderNEW (std::string strLangCode)
   m_strHeader += "\"Last-Translator: Kodi Translation Team\\n\"\n";
   m_strHeader += "\"Language-Team: " + g_LCodeHandler.GetLangFromLCode(strLangCode, g_Settings.GetLangteamLFormat()) +
                  " (http://www.transifex.com/projects/p/" + g_Settings.GetTargetProjectname() +"/language/"
-                 + g_LCodeHandler.GetLangFromLCode(strLangCode, g_Settings.GetDefaultTXLFormat()) +"/)" + "\\n\"\n";
+                 + g_LCodeHandler.GetLangFromLCode(strLangCode, g_Settings.GetTargetTXLFormat()) +"/)" + "\\n\"\n";
   m_strHeader += "\"MIME-Version: 1.0\\n\"\n";
   m_strHeader += "\"Content-Type: text/plain; charset=UTF-8\\n\"\n";
   m_strHeader += "\"Content-Transfer-Encoding: 8bit\\n\"\n";
-  m_strHeader +=  "\"Language: " + g_LCodeHandler.GetLangFromLCode(strLangCode, g_Settings.GetDefaultTXLFormat()) + "\\n\"\n";
+  m_strHeader +=  "\"Language: " + g_LCodeHandler.GetLangFromLCode(strLangCode, g_Settings.GetTargetTXLFormat()) + "\\n\"\n";
   m_strHeader +=  "\"Plural-Forms: nplurals=" + strnplurals + "; plural=" + g_LCodeHandler.GetPlurForm(strLangCode) + ";\\n\"\n";
 }
 

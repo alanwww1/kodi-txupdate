@@ -173,3 +173,9 @@ string CSettings::GetDefaultTXLFormat()
 {
   return m_strDefTXLFormat;
 }
+
+string CSettings::GetTargetTXLFormat()
+{
+  return m_strTargTXLFormat;
+}
+

@@ -92,7 +92,7 @@ std::string CHTTPHandler::GetURLToSTR(std::string strURL)
 
   if (!bCacheFileExists || (bCacheFileExpired && (strWebFileVersion == "" || bFileChangedOnWeb)))
   {
-    printf("*");
+    printf("%s*%s", KGRN, RESET);
     g_File.DeleteFile(strCacheFile + ".version");
     g_File.DeleteFile(strCacheFile + ".time");
 
@@ -108,7 +108,10 @@ std::string CHTTPHandler::GetURLToSTR(std::string strURL)
   else
   {
     strBuffer = g_File.ReadFileToStr(strCacheFile);
-    printf (bCacheFileExpired?"-":".");
+    if (bCacheFileExpired)
+      printf ("%s-%s", KCYN, RESET);
+    else
+      printf ("%s.%s", KYEL, RESET);
   }
 
   return strBuffer;

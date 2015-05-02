@@ -21,6 +21,7 @@
 
 #include "Log.h"
 #include "FileUtils/FileUtils.h"
+#include "Settings.h"
 
 static FILE * m_pLogFile;
 static FILE * m_pLogSyntaxFile;
@@ -113,7 +114,7 @@ void CLog::Log(TLogLevel loglevel, const char *format, ... )
       throw 1;
     }
     else
-      printf ("\nWarning log message: %s\n\n", cstrLogMessage);
+      printf ("\n%sWarning log message: %s%s\n\n", KRED, cstrLogMessage, RESET);
   }
 
   return;

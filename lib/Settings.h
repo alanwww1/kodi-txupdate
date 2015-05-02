@@ -26,6 +26,16 @@
 
 #include <string>
 
+#define KNRM  "\x1B[0m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
+#define RESET "\033[0m"
+
 const size_t DEFAULTCACHEEXPIRE = 360; // 6 hours
 const size_t DEFAULTMINCOMPLETION = 10; // %
 const std::string DEFAULTMERGEDLANGDIR = "merged-langfiles";
@@ -33,6 +43,7 @@ const std::string DEFAULTTXUPDLANGDIR = "tempfiles_txupdate";
 const std::string DEFAULTSOURCELCODE = "en_GB";
 const std::string DEFAULTBASELCODE = "$(LCODE)";
 const std::string DEFAULTTXLFORMAT = "$(LCODE)";
+
 
 class CSettings
 {
@@ -67,6 +78,8 @@ public:
   std::string GetBaseLCode();
   std::string GetDefaultTXLFormat();
   void SetDefaultTXLFormat(std::string const &strTXLFormat) {m_strDefTXLFormat = strTXLFormat;}
+  std::string GetTargetTXLFormat();
+  void SetTargetTXLFormat(std::string const &strTXLFormat) {m_strTargTXLFormat = strTXLFormat;}
   void SetLangteamLFormat(std::string const &strLangteamLFormat) {m_strLangteamLFormat = strLangteamLFormat;}
   std::string GetLangteamLFormat() {return m_strLangteamLFormat;}
   std::string GetDefaultAddonLFormatinXML() {return m_DefaultAddonLFormatinXML;}
@@ -85,6 +98,7 @@ private:
   std::string m_strSourceLcode;
   std::string m_strBaseLCode;
   std::string m_strDefTXLFormat;
+  std::string m_strTargTXLFormat;
   std::string m_strLangteamLFormat;
   std::string m_DefaultAddonLFormatinXML;
   std::string m_LangDatabaseURL;

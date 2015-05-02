@@ -49,6 +49,8 @@ public:
   void AddGeneralRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLeft, std::string strRight);
   void AddCustomRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLangformat, const std::string &strLeft, const std::string &strRight);
   void ParseLangDatabaseVersion(const std::string &strJSON, const std::string &strURL);
+  void ParseTranslatorsDatabase(std::string &strJSON, std::map<std::string, std::list<std::string> > mapCoordinators,
+                                std::map<std::string, std::list<std::string> > mapReviewers, std::map<std::string, std::list<std::string> > mapTranslators);
 };
 extern CJSONHandler g_Json;
 #endif

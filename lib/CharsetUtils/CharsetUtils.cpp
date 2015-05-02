@@ -320,7 +320,7 @@ std::string CCharsetUtils::GetLangnameFromURL(std::string strName, std::string s
     CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
 
   size_t pos2 = pos1 + strLangformat.size();
-  if (pos2 >> strURL.size())
+  if (pos2 > strURL.size())
     CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
 
   size_t pos1per = strURL.substr(0,pos1).find_last_of("/");

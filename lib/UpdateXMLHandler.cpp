@@ -111,11 +111,17 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     CLog::Log(logERROR, "UpdXMLHandler: No long projectname specified in kodi-txupdate.xml file. Cannot continue. "
     "Please specify the Transifex long projectname in the xml file");
 
-  std::string strDefTXLangFormat;
-  if ((pData = pDataRootElement->FirstChildElement("txlcode")) && (strDefTXLangFormat = pData->FirstChild()->Value()) != "")
+  std::string strTXLangFormat;
+  if ((pData = pDataRootElement->FirstChildElement("txlcode")) && (strTXLangFormat = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found tx langformat in kodi-txupdate.xml file: %s",strDefTXLangFormat.c_str());
-    g_Settings.SetDefaultTXLFormat(strDefTXLangFormat);
+    CLog::Log(logINFO, "UpdXMLHandler: Found tx langformat in kodi-txupdate.xml file: %s",strTXLangFormat.c_str());
+    g_Settings.SetDefaultTXLFormat(strTXLangFormat);
+  }
+  g_Settings.SetTargetTXLFormat(g_Settings.GetDefaultTXLFormat());
+  if ((pData = pDataRootElement->FirstChildElement("targettxlcode")) && (strTXLangFormat = pData->FirstChild()->Value()) != "")
+  {
+    CLog::Log(logINFO, "UpdXMLHandler: Found target tx langformat in kodi-txupdate.xml file: %s",strTXLangFormat.c_str());
+    g_Settings.SetTargetTXLFormat(strTXLangFormat);
   }
 
   std::string strDefAddonLangFormatinXML;
@@ -125,7 +131,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     strDefAddonLangFormatinXML = g_Settings.GetDefaultAddonLFormatinXML();
 
   std::string strDefLangdatabaseURL;
-  if ((pData = pDataRootElement->FirstChildElement("langdatabseurl")) && (strDefLangdatabaseURL = pData->FirstChild()->Value()) != "")
+  if ((pData = pDataRootElement->FirstChildElement("langdatabaseurl")) && (strDefLangdatabaseURL = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found language database URL in kodi-txupdate.xml file: %s",strDefLangdatabaseURL.c_str());
     g_Settings.SetLangDatabaseURL(strDefLangdatabaseURL);

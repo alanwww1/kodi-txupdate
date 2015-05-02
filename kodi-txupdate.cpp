@@ -35,6 +35,7 @@
 #include "lib/HTTPUtils.h"
 #include "lib/Langcodes.h"
 #include "lib/Settings.h"
+#include "lib/JSONHandler.h"
 
 using namespace std;
 
@@ -77,6 +78,7 @@ int main(int argc, char* argv[])
   bool bDownloadNeeded = false;
   bool bMergeNeeded = false;
   bool bUploadNeeded = false;
+  bool bTransferTranslators = false;
   bool bForceUpload;
 
   if (argv[1])
@@ -111,6 +113,8 @@ int main(int argc, char* argv[])
     }
     else if (strMode == "-u")
       bUploadNeeded = true;
+    else if (strMode == "-ttr")
+      bTransferTranslators = true;
 
     else
     {
@@ -141,7 +145,7 @@ int main(int argc, char* argv[])
     g_UpdateXMLHandler.LoadXMLToMem(WorkingDir);
     g_LCodeHandler.Init();
 
-    if (bDownloadNeeded)
+    if (bDownloadNeeded && !bTransferTranslators)
     {
 //      if (!g_File.FileExist(WorkingDir + ".httpcache" + DirSepChar + ".lastdloadtime") ||
 //          g_File.GetFileAge(WorkingDir + ".httpcache" + DirSepChar + ".lastdloadtime") > g_Settings.GetHTTPCacheExpire() * 60)
@@ -153,10 +157,10 @@ int main(int argc, char* argv[])
       g_File.WriteFileFromStr(WorkingDir + ".httpcache" + DirSepChar + ".dload_merge_status", "fail");
       g_File.WriteFileFromStr(WorkingDir + ".httpcache" + DirSepChar + ".lastdloadtime", "Last download time: " + g_File.GetCurrTime());
 
-      printf("\n\n");
+      printf("\n\n%s", KGRN);
       printf("----------------------------------------\n");
       printf("DOWNLOADING RESOURCES FROM TRANSIFEX.NET\n");
-      printf("----------------------------------------\n");
+      printf("----------------------------------------%s\n", RESET);
 
       CLog::Log(logLINEFEED, "");
       CLog::Log(logINFO, "****************************************");
@@ -165,10 +169,10 @@ int main(int argc, char* argv[])
 
       TXProject.FetchResourcesFromTransifex();
 
-      printf("\n");
+      printf("\n%s", KGRN);
       printf("-----------------------------------\n");
       printf("DOWNLOADING RESOURCES FROM UPSTREAM\n");
-      printf("-----------------------------------\n");
+      printf("-----------------------------------%s\n", RESET);
 
       CLog::Log(logLINEFEED, "");
       CLog::Log(logINFO, "***********************************");
@@ -179,10 +183,10 @@ int main(int argc, char* argv[])
 
       if (bMergeNeeded)
       {
-        printf("\n");
+        printf("\n%s", KGRN);
         printf("-----------------\n");
         printf("MERGING RESOURCES\n");
-        printf("-----------------\n");
+        printf("-----------------%s\n", RESET);
 
         CLog::Log(logLINEFEED, "");
         CLog::Log(logINFO, "*****************");
@@ -191,10 +195,10 @@ int main(int argc, char* argv[])
 
         TXProject.CreateMergedResources();
 
-        printf("\n");
+        printf("\n%s", KGRN);
         printf("--------------------------------------------\n");
         printf("WRITING MERGED AND TXUPDATE RESOURCES TO HDD\n");
-        printf("--------------------------------------------\n");
+        printf("--------------------------------------------%s\n", RESET);
 
         CLog::Log(logLINEFEED, "");
         CLog::Log(logINFO, "********************************************");
@@ -207,7 +211,7 @@ int main(int argc, char* argv[])
       g_File.WriteFileFromStr(WorkingDir + ".httpcache" + DirSepChar + ".dload_merge_status", "ok");
     }
 
-    if (bUploadNeeded)
+    if (bUploadNeeded && !bTransferTranslators)
     {
       CLog::SetbWriteSyntaxLog(false);
       if (!bForceUpload && g_File.ReadFileToStrE(WorkingDir + ".httpcache" + DirSepChar + ".dload_merge_status") != "ok")
@@ -217,23 +221,47 @@ int main(int argc, char* argv[])
 //          g_File.ReadFileToStrE(WorkingDir + "kodi-txupdate.xml"))
 //        CLog::Log(logERROR, "kodi-txupdate.xml file changed since last download and merge. Please (re)run download and merge.");
 
-      printf("\n");
+      printf("\n%s", KGRN);
       printf("-----------------------------------------\n");
       printf("UPLOADING LANGUAGE FILES TO TRANSIFEX.NET\n");
-      printf("-----------------------------------------\n");
+      printf("-----------------------------------------%s\n", RESET);
 
       TXProject.UploadTXUpdateFiles(WorkingDir);
+    }
+    if (bTransferTranslators)
+    {
+      g_HTTPHandler.Cleanup();
+      g_HTTPHandler.ReInit(); 
+
+      printf("\n%s", KGRN);
+      printf("-------------------------------\n");
+      printf("TRANSFERRING TRANSLATION GROUPS\n");
+      printf("-------------------------------%s\n", RESET);
+
+      printf("TrGroupsList");
+
+      if (g_Settings.GetProjectname().empty() || g_Settings.GetTargetProjectname().empty() ||
+          g_Settings.GetProjectname() == g_Settings.GetTargetProjectname())
+        CLog::Log(logERROR, "Cannot tranfer translators database. Wrong projectname and target projectname,");
+
+      std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/"+ g_Settings.GetProjectname() + "/languages");
+      if (strtemp.empty())
+        CLog::Log(logERROR, "Main: error getting translator groups list for project: %s", g_Settings.GetProjectname().c_str());
+
+      printf("%s\n", strtemp.c_str());
+      std::map<std::string, std::list<std::string> > mapCoordinators, mapReviewers, mapTranslators;
+      g_Json.ParseTranslatorsDatabase(strtemp, mapCoordinators, mapReviewers, mapTranslators);
     }
 
     CLog::SetbWriteSyntaxLog(bDownloadNeeded);
 
     if (CLog::GetWarnCount() ==0)
     {
-      printf("\n");
+      printf("\n%s", KGRN);
       printf("--------------------------------------------\n");
       printf("PROCESS FINISHED SUCCESFULLY WITHOUT WARNINGS\n");
-      printf("SYNTAX WARNINGS %i\n", CLog::GetSyntaxWarnCount());
-      printf("--------------------------------------------\n\n");
+      printf("SYNTAX WARNINGS %s%i%s\n", KRED, CLog::GetSyntaxWarnCount(), KGRN);
+      printf("--------------------------------------------%s\n\n", RESET);
     }
     else
     {

@@ -53,7 +53,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   CResourceHandler ResourceHandler;
   for (std::list<std::string>::iterator it = listResourceNamesTX.begin(); it != listResourceNamesTX.end(); it++)
   {
-    printf("Downloading resource from TX: %s (", it->c_str());
+    printf("%s%s%s (", KMAG, it->c_str(), RESET);
     CLog::Log(logLINEFEED, "");
     CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from TRANSIFEX: %s", it->c_str());
     CLog::IncIdent(4);
@@ -86,7 +86,7 @@ bool CProjectHandler::FetchResourcesFromUpstream()
 
   for (std::map<std::string, CXMLResdata>::iterator it = mapRes.begin(); it != mapRes.end(); it++)
   {
-    printf("Downloading resource from Upstream: %s (", it->first.c_str());
+    printf("%s%s%s (", KMAG, it->first.c_str(), RESET);
     CLog::Log(logLINEFEED, "");
     CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from UPSTREAM: %s ******", it->first.c_str());
 
@@ -108,7 +108,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
   g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
   for (T_itmapRes itmapResources = m_mapResMerged.begin(); itmapResources != m_mapResMerged.end(); itmapResources++)
   {
-    printf("Writing merged resources to HDD: %s\n", itmapResources->first.c_str());
+    printf("Writing merged resources to HDD: %s%s%s\n", KMAG, itmapResources->first.c_str(), RESET);
     std::list<std::string> lChangedLangsFromUpstream = m_mapResMerged[itmapResources->first].GetChangedLangsFromUpstream();
     std::list<std::string> lChangedAddXMLLangsFromUpstream = m_mapResMerged[itmapResources->first].GetChangedLangsInAddXMLFromUpstream();
     if (!lChangedAddXMLLangsFromUpstream.empty())
@@ -138,7 +138,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
   g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
   for (T_itmapRes itmapResources = m_mapResUpdateTX.begin(); itmapResources != m_mapResUpdateTX.end(); itmapResources++)
   {
-    printf("Writing update TX resources to HDD: %s\n", itmapResources->first.c_str());
+    printf("Writing update TX resources to HDD: %s%s%s\n", KMAG, itmapResources->first.c_str(), RESET);
     CLog::Log(logLINEFEED, "");
     CLog::Log(logINFO, "ProjHandler: *** Write UpdTX Resource: %s ***", itmapResources->first.c_str());
     CLog::IncIdent(4);
@@ -161,7 +161,7 @@ bool CProjectHandler::CreateMergedResources()
 
   for (std::list<std::string>::iterator itResAvail = listMergedResource.begin(); itResAvail != listMergedResource.end(); itResAvail++)
   {
-    printf("Merging resource: %s\n", itResAvail->c_str());
+    printf("Merging resource: %s%s%s\n", KMAG, itResAvail->c_str(), RESET);
     CLog::SetSyntaxAddon(*itResAvail);
     CLog::Log(logINFO, "CreateMergedResources: Merging resource:%s", itResAvail->c_str());
     CLog::IncIdent(4);
@@ -376,7 +376,7 @@ bool CProjectHandler::CreateMergedResources()
           if (bResChangedFromUpstream)
             mergedPOHandler.BumpLangAddonXMLVersion();  // bump minor version number of the language-addon
         }
-        else if (!pPOHandlerUpstr)
+        else if (bIsResourceLangAddon && !pPOHandlerUpstr)
           CLog::Log(logWARNING, "Warning: No addon xml file exist for resource: %s and language: %s\nPlease create one upstream to be able to use this new language",
                     itResAvail->c_str(), strLangCode.c_str());
 
@@ -590,7 +590,17 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
     strLangDir = strResourceDir;
 
     CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Uploading resource: %s, from langdir: %s",itres->first.c_str(), strLangDir.c_str());
-    printf ("Uploading files for resource: %s", itres->first.c_str());
+    printf ("Uploading files for resource: %s%s%s", KMAG, itres->first.c_str(), RESET);
+
+    std::list<std::string> listLangCodes = GetLangsFromDir(strLangDir);
+
+    if (listLangCodes.empty()) // No update needed for the specific resource (not even an English one)
+    {
+      CLog::Log(logINFO, "CProjectHandler::GetLangsFromDir: no English directory found at langdir: %s,"
+      " skipping upload for this resource.", strLangDir.c_str());
+      printf (", no upload was requested.\n");
+      continue;
+    }
 
     if (!FindResInList(listResourceNamesTX, itres->second.strTargetTXName))
     {
@@ -604,11 +614,11 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
                                       "https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() + "/resources/",
                                       straddednew, "https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
                                       "/resource/" + XMLResdata.strTargetTXName + "/translation/" +
-                                      g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), g_Settings.GetDefaultTXLFormat()) + "/");
+                                      g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), g_Settings.GetTargetTXLFormat()) + "/");
 
-      CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Resource %s was succesfully created with %i English strings.",
+      CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Resource %s was succesfully created with %i Source language strings.",
                 itres->first.c_str(), straddednew);
-      printf (", newly created on Transifex with %lu English strings.\n", straddednew);
+      printf (", newly created on Transifex with %s%lu%s English strings.\n", KGRN, straddednew, RESET);
 
       g_HTTPHandler.Cleanup();
       g_HTTPHandler.ReInit();
@@ -616,42 +626,32 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
       g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() + "/resources/", "GET");
     }
 
-    std::list<std::string> listLangCodes = GetLangsFromDir(strLangDir);
-
-    if (listLangCodes.empty()) // No update needed for the specific resource (not even an English one)
-    {
-      CLog::Log(logINFO, "CProjectHandler::GetLangsFromDir: no English directory found at langdir: %s,"
-                         " skipping upload for this resource.", strLangDir.c_str());
-      printf (", no upload was requested.\n");
-      continue;
-    }
-    else if (!bNewResource)
-      printf("\n");
+    printf ("\n");
 
     for (std::list<std::string>::const_iterator it = listLangCodes.begin(); it!=listLangCodes.end(); it++)
     {
       if (bNewResource && *it == g_Settings.GetSourceLcode()) // Let's not upload the Source language file again
         continue;
       std::string strFilePath = strLangDir + *it + DirSepChar + "strings.po";
-      std::string strLangCode = g_LCodeHandler.GetLangFromLCode(*it, g_Settings.GetDefaultTXLFormat());
+      std::string strLangAlias = g_LCodeHandler.GetLangFromLCode(*it, g_Settings.GetTargetTXLFormat());
 
       bool buploaded = false;
       size_t stradded, strupd;
-      if (strLangCode == g_Settings.GetSourceLcode())
+      if (strLangAlias == g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), g_Settings.GetTargetTXLFormat()))
         g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
                                                 "/resource/" + XMLResdata.strTargetTXName + "/content/",
                                                 buploaded, stradded, strupd);
       else
         g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
-                                                "/resource/" + XMLResdata.strTargetTXName + "/translation/" + strLangCode + "/",
+                                                "/resource/" + XMLResdata.strTargetTXName + "/translation/" + strLangAlias + "/",
                                                 buploaded, stradded, strupd);
       if (buploaded)
       {
-        printf ("\tlangcode: %s:\t added strings:%lu, updated strings:%lu\n", strLangCode.c_str(), stradded, strupd);
+        printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, strLangAlias.c_str(), RESET, KCYN, stradded, RESET, KCYN, strupd, RESET);
         g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
                                        "/resource/" + strResname + "/stats/", "GET");
         g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
-        "/resource/" + strResname + "/translation/" + strLangCode + "/?file", "GET");
+        "/resource/" + strResname + "/translation/" + strLangAlias + "/?file", "GET");
       }
       else
         printf ("\tlangcode: %s:\t no change, skipping.\n", it->c_str());
@@ -761,14 +761,16 @@ void CProjectHandler::PrintChangedLangs(std::list<std::string> lChangedLangs)
 {
   std::list<std::string>::iterator itLangs;
   std::size_t counter = 0;
+  printf ("%s", KCYN);
   for (itLangs = lChangedLangs.begin() ; itLangs != lChangedLangs.end(); itLangs++)
   {
     printf ("%s ", itLangs->c_str());
     counter++;
-    if (counter > 19)
+    if (counter > 10)
     {
-      printf ("+ %i langs ", (int)lChangedLangs.size() - 20);
+      printf ("+ %i langs ", (int)lChangedLangs.size() - 11);
       break;
     }
   }
+  printf ("%s", RESET);
 }
