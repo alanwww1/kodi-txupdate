@@ -47,6 +47,7 @@ public:
   std::string EscapeStringXML(const std::string &strInput);
   std::string ToUTF8(std::string strEncoding, const std::string& str);
   std::string UnWhitespace(std::string strInput);
+  std::string CleanTranslatorlist(std::string strInput);
   std::string stringCharsetToUtf8(const std::string& strCP, std::string strIn);
   bool IsValidUTF8(std::string const &strToCheck);
   size_t GetCharCountInStr(std::string const &strToCheck, unsigned char chrToFInd);

@@ -255,14 +255,7 @@ int main(int argc, char* argv[])
       printf("PUSH TRANSLATION GROUPS TO TX\n");
       printf("-----------------------------%s\n", RESET);
 
-      printf("\n%sCoordinators:%s\n", KGRN, RESET);
-      g_LCodeHandler.UploadTranslatorsDatabase(mapCoordinators, "coordinators");
-
-      printf("\n%sReviewers:%s\n", KGRN, RESET);
-      g_LCodeHandler.UploadTranslatorsDatabase(mapReviewers, "reviewers");
-
-      printf("\n%sTranslators:%s\n", KGRN, RESET);
-      g_LCodeHandler.UploadTranslatorsDatabase(mapTranslators, "translators");
+      g_LCodeHandler.UploadTranslatorsDatabase(mapCoordinators, mapReviewers, mapTranslators);
 
     }
 

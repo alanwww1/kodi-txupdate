@@ -146,6 +146,26 @@ std::string CCharsetUtils::UnWhitespace(std::string strInput)
   return strInput;
 }
 
+// cleaning string of \n and {} characters
+std::string CCharsetUtils::CleanTranslatorlist(std::string strInput)
+{
+  std::string strTarget;
+  bool SpacePassed = false;
+  for (std::string::iterator it = strInput.begin(); it != strInput.end(); it++)
+  {
+    if (*it == ' ' && SpacePassed)
+      continue;
+    if (*it == ' ' && !SpacePassed)
+      SpacePassed = true;
+    else
+      SpacePassed = false;
+
+    if (*it != '{' && *it != '}' && *it != '\n')
+      strTarget += *it;
+  }
+  return strTarget;
+}
+
 std::string CCharsetUtils::ToUTF8(std::string strEncoding, const std::string& str)
 {
   if (strEncoding.empty() || strEncoding == "utf8" || strEncoding == "UTF8" || strEncoding == "utf-8" || strEncoding == "UTF-8")

@@ -652,3 +652,79 @@ std::string CHTTPHandler::GetGitHUBAPIURL(std::string const & strURL)
 
     return strGitHubURL;
 }
+
+
+
+
+bool CHTTPHandler::UploadTranslatorsDatabase(std::string strJson, std::string strURL)
+{
+
+  CURLcode curlResult;
+
+  strURL = URLEncode(strURL);
+
+
+  std::string strServerResp;
+  CLoginData LoginData = GetCredentials(strURL);
+
+  if(m_curlHandle) 
+  {
+    int nretry = 0;
+    bool bSuccess;
+    long http_code = 0;
+    do
+    {
+      Tputstrdata PutStrData;
+      PutStrData.pPOString = &strJson;
+      PutStrData.pos = 0;
+      strServerResp.clear();
+
+      if (nretry > 0)
+        HTTPRetry(nretry);
+
+      struct curl_slist *headers=NULL;
+      headers = curl_slist_append( headers, "Content-Type: application/json");
+      headers = curl_slist_append( headers, "Accept: text/plain");
+
+      curl_easy_setopt(m_curlHandle, CURLOPT_READFUNCTION, Read_CurlData_String);
+      curl_easy_setopt(m_curlHandle, CURLOPT_WRITEFUNCTION, Write_CurlData_String);
+      curl_easy_setopt(m_curlHandle, CURLOPT_URL, strURL.c_str());
+      curl_easy_setopt(m_curlHandle, CURLOPT_POST, 1L);
+      if (!LoginData.strLogin.empty())
+      {
+        curl_easy_setopt(m_curlHandle, CURLOPT_USERNAME, LoginData.strLogin.c_str());
+        curl_easy_setopt(m_curlHandle, CURLOPT_PASSWORD, LoginData.strPassword.c_str());
+      }
+      curl_easy_setopt(m_curlHandle, CURLOPT_FAILONERROR, true);
+      curl_easy_setopt(m_curlHandle, CURLOPT_READDATA, &PutStrData);
+      curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &strServerResp);
+      curl_easy_setopt(m_curlHandle, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)strJson.size());
+      curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT, strUserAgent.c_str());
+      curl_easy_setopt(m_curlHandle, CURLOPT_HTTPHEADER, headers);
+      curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, 0);
+      curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, 0);
+      curl_easy_setopt(m_curlHandle, CURLOPT_VERBOSE, 0);
+      //      curl_easy_setopt(m_curlHandle, CURLOPT_SSLVERSION, 3);
+
+      curlResult = curl_easy_perform(m_curlHandle);
+
+      curl_easy_getinfo (m_curlHandle, CURLINFO_RESPONSE_CODE, &http_code);
+
+      bSuccess = (curlResult == 0 && http_code >= 200 && http_code < 400);
+      nretry++;
+    }
+    while (nretry < 5 && !bSuccess);
+
+//    if (bSuccess)
+//      CLog::Log(logINFO, "CHTTPHandler::CreateNewResource finished with success for resource %s from EN PO file %s to URL %s",
+//                strResname.c_str(), strENPOFilePath.c_str(), strURL.c_str());
+//      else
+//        CLog::Log(logERROR, "CHTTPHandler::CreateNewResource finished with error:\ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\nlocaldir: %s\nREsource: %s",
+//                  curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), strURL.c_str(), strENPOFilePath.c_str(), strResname.c_str());
+
+    return http_code;
+  }
+  else
+    CLog::Log(logERROR, "CHTTPHandler::CreateNewResource failed because Curl was not initalized");
+  return 700;
+};

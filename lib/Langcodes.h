@@ -48,7 +48,9 @@ public:
   std::string VerifyLangCode(std::string LangCode, const std::string &strLangformat);
   void CleanLangform (std::string &strLangform);
   std::map<std::string, std::string>  GetTranslatorsDatabase(std::string strContributorType);
-  void  UploadTranslatorsDatabase(std::map<std::string, std::string> &mapOfContributors, std::string strContributorType);
+  void  UploadTranslatorsDatabase(std::map<std::string, std::string> &mapOfCoordinators,
+                                                 std::map<std::string, std::string> &mapOfReviewers,
+                                                 std::map<std::string, std::string> &mapOfTranslators);
 private:
   std::map <std::string, CLangcodes> m_mapLCodes;
   std::map <std::string, CLangcodes>::iterator itmapLCodes;

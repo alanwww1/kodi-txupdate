@@ -59,10 +59,12 @@ public:
   void DeleteCachedFile(std::string const &strURL, std::string strPrefix);
   bool ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pPOHandler2, bool bLangIsEN) const;
   std::string GetGitHUBAPIURL(std::string const & strURL);
+  bool UploadTranslatorsDatabase(std::string strJson, std::string strURL);
+
+private:
   std::string CacheFileNameFromURL(std::string strURL);
   long curlPUTPOFileToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd, bool bIsPO);
 
-private:
   CURL *m_curlHandle;
   std::string m_strCacheDir;
   long curlURLToCache(std::string strCacheFile, std::string strURL, std::string &strBuffer);
