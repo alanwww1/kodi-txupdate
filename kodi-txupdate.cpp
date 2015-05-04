@@ -80,6 +80,7 @@ int main(int argc, char* argv[])
   bool bUploadNeeded = false;
   bool bTransferTranslators = false;
   bool bForceUpload;
+  bool bInfiniteCacheTime = false;
 
   if (argv[1])
    WorkingDir = argv[1];
@@ -102,8 +103,12 @@ int main(int argc, char* argv[])
     }
     if (strMode == "-d")
       bDownloadNeeded = true;
-    else if (strMode == "-dm" || strMode == "-m")
-      {bDownloadNeeded = true; bMergeNeeded = true;}
+    else if (strMode == "-dm" || strMode == "-m" || strMode == "-dmic")
+      {
+        bDownloadNeeded = true; bMergeNeeded = true;
+        if (strMode == "-dmic")
+          bInfiniteCacheTime = true;
+      }
     else if (strMode == "-dmu")
       {bDownloadNeeded = true; bMergeNeeded = true; bUploadNeeded = true;}
     else if (strMode == "-fu")
@@ -144,6 +149,9 @@ int main(int argc, char* argv[])
 
     g_UpdateXMLHandler.LoadXMLToMem(WorkingDir);
     g_LCodeHandler.Init();
+
+    if (bInfiniteCacheTime)
+      g_Settings.SetHTTPCacheExpire((size_t)-1);
 
     if (bDownloadNeeded && !bTransferTranslators)
     {
