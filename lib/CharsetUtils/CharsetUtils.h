@@ -59,7 +59,6 @@ public:
   std::string ReplaceLanginURL(const std::string &strURL,const std::string &strLangFormat, const std::string &strLCode);
   bool bISPOFile(const std::string strFilename);
   bool bISXMLFile(const std::string strFilename);
-  void MatchTrailingLinefeed(std::string & msgID, std::string & msgStr);
 };
 
 extern CCharsetUtils g_CharsetUtils;
