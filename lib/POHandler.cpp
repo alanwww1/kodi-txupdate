@@ -25,6 +25,7 @@
 #include <list>
 #include <sstream>
 #include "Settings.h"
+#include "CharsetUtils/CharsetUtils.h"
 
 CPOHandler::CPOHandler()
 {
@@ -74,6 +75,8 @@ bool CPOHandler::ProcessPOFile(CPODocument &PODoc)
     PODoc.ParseEntry();
     currEntry = PODoc.GetEntryData();
     currType = PODoc.GetEntryType();
+
+    g_CharsetUtils.MatchTrailingLinefeed(currEntry.msgID, currEntry.msgStr);
 
     if (currType == COMMENT_ENTRY_FOUND)
     {

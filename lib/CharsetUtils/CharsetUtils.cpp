@@ -374,3 +374,26 @@ bool CCharsetUtils::bISXMLFile(const std::string strFilename)
 {
   return (strFilename.find(".xml") != std::string::npos || strFilename.find(".XML") != std::string::npos);
 }
+
+void CCharsetUtils::MatchTrailingLinefeed(std::string & msgID, std::string & msgStr)
+{
+  //Check if trailing Linefeed to match at msgid and masgstr
+  size_t posLFmsgID = msgID.rfind("\\n");
+  size_t posLFmsgSTR = msgStr.rfind("\\n");
+
+  if (posLFmsgID != std::string::npos)
+    posLFmsgID = msgID.size() - posLFmsgID;
+  if (posLFmsgSTR != std::string::npos)
+    posLFmsgSTR = msgStr.size() - posLFmsgSTR;
+
+  if (posLFmsgID == 2 && posLFmsgSTR !=2 ) //we have a trailing linfeed in msgid but not in msgstr
+  {
+    msgStr += "\n";
+    CLog::Log(logWARNING, "Found trailing linefeed in msgid, but not in msgstr. \nmsgid: %s\nmsgstr: %s", msgID.c_str(), msgStr.c_str());
+  }
+  else if (posLFmsgSTR ==2) //we do not have a trailing linfeed in msgid but we have it in msgstr
+  {
+    msgStr = msgStr.substr(0,msgStr.size()-2);
+    CLog::Log(logWARNING, "Not found trailing linefeed in msgid, but found in msgstr. \nmsgid: %s\nmsgstr: %s", msgID.c_str(), msgStr.c_str());
+  }
+}
