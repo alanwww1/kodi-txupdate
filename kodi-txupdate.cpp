@@ -147,11 +147,12 @@ int main(int argc, char* argv[])
 
     CProjectHandler TXProject;
 
-    g_UpdateXMLHandler.LoadXMLToMem(WorkingDir);
-    g_LCodeHandler.Init();
+    g_UpdateXMLHandler.LoadXMLToMem(WorkingDir);   
 
     if (bInfiniteCacheTime)
       g_Settings.SetHTTPCacheExpire((size_t)-1);
+
+    g_LCodeHandler.Init();
 
     if (bDownloadNeeded && !bTransferTranslators)
     {
