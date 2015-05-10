@@ -322,7 +322,9 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (pChildLocLangElement && pChildLocLangElement->FirstChild())
         currResData.strLOCLangPath = pChildLocLangElement->FirstChild()->Value();
       if (currResData.strLOCLangPath.empty() && !currResData.bHasOnlyAddonXML)
-        currResData.strLOCLangPath = currResData.strName + currResData.strUPSLangURL.substr(currResData.strUPSAddonURLRoot.size()-1);
+        currResData.strLOCLangPath = currResData.strUPSLangURL.substr(currResData.strUPSAddonURLRoot.size()-1);
+      if (!currResData.bHasOnlyAddonXML)
+        currResData.strLOCLangPath = currResData.strName + DirSepChar + currResData.strLOCLangPath;
       if (!currResData.bHasOnlyAddonXML && !GetParamsFromURLorPath (currResData.strLOCLangPath, currResData.strLOCLangFormat,
           currResData.strLOCLangFileName, currResData.strLOCLangPathRoot, DirSepChar))
         CLog::Log(logERROR, "UpdXMLHandler: Local langpath format is wrong for resource %s", strResName.c_str());
@@ -331,7 +333,8 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (pChildLocAddonElement && pChildLocAddonElement->FirstChild())
         currResData.strLOCAddonPath = pChildLocAddonElement->FirstChild()->Value();
       if (currResData.strLOCAddonPath.empty())
-        currResData.strLOCAddonPath = currResData.strName + DirSepChar + currResData.strUPSAddonXMLFilename;
+        currResData.strLOCAddonPath = currResData.strUPSAddonXMLFilename;
+      currResData.strLOCAddonPath = currResData.strName + DirSepChar + currResData.strLOCAddonPath;
       GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
                               currResData.strLOCAddonPathRoot, DirSepChar);
       std::string strLOCAddonLangFormatinXML;
