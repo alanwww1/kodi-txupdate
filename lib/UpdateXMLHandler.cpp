@@ -124,11 +124,17 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
     g_Settings.SetTargetTXLFormat(strTXLangFormat);
   }
 
-  std::string strDefAddonLangFormatinXML;
-  if ((pData = pDataRootElement->FirstChildElement("addonxmllangformat")) && (strDefAddonLangFormatinXML = pData->FirstChild()->Value()) != "")
-    CLog::Log(logINFO, "UpdXMLHandler: Found addon.xml langformat in kodi-txupdate.xml file: %s",strDefAddonLangFormatinXML.c_str());
+  std::string strDefUPSAddonLangFormatinXML;
+  if ((pData = pDataRootElement->FirstChildElement("addonxmllangformatupstream")) && (strDefUPSAddonLangFormatinXML = pData->FirstChild()->Value()) != "")
+    CLog::Log(logINFO, "UpdXMLHandler: Found upstream addon.xml langformat in kodi-txupdate.xml file: %s",strDefUPSAddonLangFormatinXML.c_str());
   else
-    strDefAddonLangFormatinXML = g_Settings.GetDefaultAddonLFormatinXML();
+    strDefUPSAddonLangFormatinXML = g_Settings.GetDefaultAddonLFormatinXML();
+
+  std::string strDefLOCAddonLangFormatinXML;
+  if ((pData = pDataRootElement->FirstChildElement("addonxmllangformatlocal")) && (strDefLOCAddonLangFormatinXML = pData->FirstChild()->Value()) != "")
+    CLog::Log(logINFO, "UpdXMLHandler: Found local addon.xml langformat in kodi-txupdate.xml file: %s",strDefLOCAddonLangFormatinXML.c_str());
+  else
+    strDefLOCAddonLangFormatinXML = g_Settings.GetDefaultAddonLFormatinXML();
 
   std::string strDefLangdatabaseURL;
   if ((pData = pDataRootElement->FirstChildElement("langdatabaseurl")) && (strDefLangdatabaseURL = pData->FirstChild()->Value()) != "")
@@ -300,7 +306,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (strUPSAddonLangFormatinXML != "")
         currResData.strUPSAddonLangFormatinXML = strUPSAddonLangFormatinXML;
       else
-        currResData.strUPSAddonLangFormatinXML = strDefAddonLangFormatinXML;
+        currResData.strUPSAddonLangFormatinXML = strDefUPSAddonLangFormatinXML;
       currResData.bIsLanguageAddon = !currResData.strUPSAddonLangFormat.empty();
 
 
@@ -343,7 +349,7 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
       if (strLOCAddonLangFormatinXML != "")
         currResData.strLOCAddonLangFormatinXML = strLOCAddonLangFormatinXML;
       else
-        currResData.strLOCAddonLangFormatinXML = strDefAddonLangFormatinXML;
+        currResData.strLOCAddonLangFormatinXML = strDefLOCAddonLangFormatinXML;
 
       const TiXmlElement *pChildChglogLElement = pChildResElement->FirstChildElement("localChangelogPath");
       if (pChildChglogLElement && pChildChglogLElement->FirstChild())
