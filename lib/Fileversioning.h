@@ -32,7 +32,7 @@ class CFileversion
 public:
   CFileversion();
   ~CFileversion();
-  void SetVersionForURL(std::string const & strURL, std::string const & strVersion);
+  void SetVersionForURL(const std::string& strURL, const std::string& strVersion);
   std::string GetVersionForURL(const std::string& strURL);
 private:
   std::map <std::string, std::string> m_mapVersions;

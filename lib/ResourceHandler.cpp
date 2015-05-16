@@ -131,14 +131,14 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
                                                      XMLResdata.strUPSAddonURL, XMLResdata.bIsLanguageAddon);
 
   listLangs = listGithubLangs;
-  listLangs.sort();
+
   if (!XMLResdata.strUPSSourceLangURL.empty()) // we have a language-addon with different SRC language upstream URL
   {
     printf(" LanglistSRC");
     strtemp.clear();
     strGitHubURL.clear();
 //TODO Rather use the language directory itself for language addons to have a chance to get the changes of the individual addon.xml files
-//TODO load source repository first to not download the outdated language addons
+
     strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(g_CharsetUtils.GetRoot(XMLResdata.strUPSSourceLangURL, XMLResdata.strUPSAddonLangFormat));
     strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
     if (strtemp.empty())
@@ -146,7 +146,12 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
 
     listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSSourceLangURL, XMLResdata.strUPSLangFormat,
                                                        XMLResdata.strUPSSourceLangAddonURL, XMLResdata.bIsLanguageAddon);
+    if (listGithubLangs.size() == 1 && listGithubLangs.front() == g_Settings.GetSourceLcode())
+      listLangs.push_back(g_Settings.GetSourceLcode());
+    else
+      CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: found non source language at source language repository for addon: %s", XMLResdata.strName.c_str());
   }
+  listLangs.sort();
 
   bool bResult;
 
