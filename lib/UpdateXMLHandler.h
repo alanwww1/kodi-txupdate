@@ -49,6 +49,8 @@ public:
   std::string strChangelogFormat;
   bool bIsLanguageAddon;
   bool bHasOnlyAddonXML;
+  bool bDloadFromLocalGitRepo;
+  bool bCopyToLocalGitRepo;
 };
 
 class CUpdateXMLHandler

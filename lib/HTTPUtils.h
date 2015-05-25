@@ -36,6 +36,14 @@ struct CLoginData
   std::string strPassword;
 };
 
+struct CGithubURLData
+{
+  std::string strOwner;
+  std::string strRepo;
+  std::string strPath;
+  std::string strGitBranch;
+};
+
 const std::string strUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1870.2 Safari/537.36";
 
 class CHTTPHandler
@@ -58,7 +66,9 @@ public:
                          std::string const &strURLENTransl);
   void DeleteCachedFile(std::string const &strURL, std::string strPrefix);
   bool ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pPOHandler2, bool bLangIsEN) const;
+  void GetGithubData (const std::string &strURL, CGithubURLData &GithubURLData);
   std::string GetGitHUBAPIURL(std::string const & strURL);
+  void GetGitCloneURL(std::string const & strURL, std::string &strGitHubURL, CGithubURLData &GithubURLData);
   bool UploadTranslatorsDatabase(std::string strJson, std::string strURL);
 
 private:
