@@ -580,7 +580,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
 
-  for (itResData = m_mapResData.begin(); itResData != m_mapResData.end(); itResData++)
+  for (T_itResData itResData = m_mapResData.begin(); itResData != m_mapResData.end(); itResData++)
   {
     std::string strResourceDir, strLangDir;
     CXMLResdata XMLResdata = itResData->second;
@@ -778,7 +778,7 @@ void CProjectHandler::PrintChangedLangs(std::list<std::string> lChangedLangs)
 
 std::string CProjectHandler::GetResNameFromTXResName(std::string const &strTXResName)
 {
-  for (itResData = m_mapResData.begin(); itResData != m_mapResData.end(); itResData++)
+  for (T_itResData itResData = m_mapResData.begin(); itResData != m_mapResData.end(); itResData++)
   {
     if (itResData->second.strTXName == strTXResName)
       return itResData->first;

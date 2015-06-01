@@ -72,5 +72,5 @@ protected:
 
   std::string m_strProjDir;
   std::map<std::string, CXMLResdata> m_mapResData;
-  std::map<std::string, CXMLResdata>::iterator itResData;
+  typedef std::map<std::string, CXMLResdata>::iterator T_itResData;
 };
