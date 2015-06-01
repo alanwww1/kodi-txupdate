@@ -28,8 +28,6 @@
 
 using namespace std;
 
-CUpdateXMLHandler g_UpdateXMLHandler;
-
 CXMLResdata::CXMLResdata()
 {}
 
@@ -42,7 +40,7 @@ CUpdateXMLHandler::CUpdateXMLHandler()
 CUpdateXMLHandler::~CUpdateXMLHandler()
 {};
 
-bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir)
+bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData)
 {
   std::string UpdateXMLFilename = rootDir  + DirSepChar + "kodi-txupdate.xml";
   TiXmlDocument xmlUpdateXML;

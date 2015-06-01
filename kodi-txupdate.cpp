@@ -146,8 +146,8 @@ int main(int argc, char* argv[])
     g_HTTPHandler.SetCacheDir(WorkingDir + ".httpcache");
 
     CProjectHandler TXProject;
-
-    g_UpdateXMLHandler.LoadXMLToMem(WorkingDir);   
+    TXProject.SetProjectDir(WorkingDir);
+    TXProject.LoadUpdXMLToMem();
 
     if (bInfiniteCacheTime)
       g_Settings.SetHTTPCacheExpire((size_t)-1);

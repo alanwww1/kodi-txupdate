@@ -24,18 +24,14 @@
 #include "UpdateXMLHandler.h"
 #include <list>
 
-struct CresourceAvail
-{
-  bool bhasUpstream;
-  bool bhasonTX;
-  bool bhasLocal;
-};
 
 class CProjectHandler
 {
 public:
   CProjectHandler();
   ~CProjectHandler();
+  void SetProjectDir (std::string const &strDir) {m_strProjDir = strDir;}
+  void LoadUpdXMLToMem();
   bool FetchResourcesFromTransifex();
   bool FetchResourcesFromUpstream();
   bool CreateMergedResources();
@@ -72,4 +68,8 @@ protected:
   typedef std::map<std::string, CResourceHandler>::iterator T_itmapRes;
   std::map<std::string, std::string> m_mapResourceNamesTX;
   int m_resCount;
+
+  std::string m_strProjDir;
+  std::map<std::string, CXMLResdata> m_mapResData;
+  std::map<std::string, CXMLResdata>::iterator itResData;
 };

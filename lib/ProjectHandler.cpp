@@ -33,6 +33,12 @@ CProjectHandler::CProjectHandler()
 CProjectHandler::~CProjectHandler()
 {};
 
+void CProjectHandler::LoadUpdXMLToMem();
+{
+  CUpdateXMLHandler UpdateXMLHandler;
+  UpdateXMLHandler.LoadUpdXMLToMem (m_strProjDir, m_mapResData);
+}
+
 bool CProjectHandler::FetchResourcesFromTransifex()
 {
   g_HTTPHandler.Cleanup();
