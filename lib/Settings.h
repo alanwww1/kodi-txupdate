@@ -50,10 +50,7 @@ class CSettings
 public:
   CSettings();
   ~CSettings();
-  void SetProjectname(std::string strName);
-  std::string GetProjectname();
-  void SetTargetProjectname(std::string strName);
-  std::string GetTargetProjectname();
+
   std::string GetTargetProjectnameLong();
   void SetTargetProjectnameLong (std::string const &strName) {m_strProjectnameLong = strName;}
   void SetHTTPCacheExpire(size_t exptime);
@@ -89,8 +86,6 @@ public:
 private:
   size_t m_CacheExpire;
   int m_minComplPercentage;
-  std::string m_strProjectName;
-  std::string m_strTargetProjectName;
   std::string m_strMergedLangfilesDir;
   std::string m_strTXUpdateLangfilesDir;
   std::string m_strSupportEmailAdd;

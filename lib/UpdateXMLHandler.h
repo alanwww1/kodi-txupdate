@@ -32,7 +32,7 @@ class CXMLResdata
 public:
   CXMLResdata();
   ~CXMLResdata();
-  std::string strName;
+  std::string strResName;
 
   std::string strTXName, strTargetTXName;
 
@@ -51,6 +51,9 @@ public:
   bool bHasOnlyAddonXML;
   bool bDloadFromLocalGitRepo;
   bool bCopyToLocalGitRepo;
+
+  std::string strProjectName;
+  std::string strTargetProjectName;
 };
 
 class CUpdateXMLHandler
@@ -65,8 +68,6 @@ private:
                                std::string &strURLRoot, const char strSeparator);
   bool GetParamsFromURLorPath (std::string const &strURL, std::string &strFileName,
                                std::string &strURLRoot, const char strSeparator);
-  std::map<std::string, CXMLResdata> m_mapXMLResdata;
-  std::map<std::string, CXMLResdata>::iterator itXMLResdata;
 };
 
 #endif

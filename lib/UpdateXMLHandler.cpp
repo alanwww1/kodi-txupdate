@@ -78,21 +78,20 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
 
 //TODO separate download TX projectname from upload TX projectname to handle project name changes
   std::string strProjName;
+  std::string strTargetProjName;
   if ((pData = pDataRootElement->FirstChildElement("projectname")) && (strProjName = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found projectname in kodi-txupdate.xml file: %s",strProjName.c_str());
-    g_Settings.SetProjectname(strProjName);
-    g_Settings.SetTargetProjectname(strProjName);
+    strTargetProjName = strProjName;
   }
   else
     CLog::Log(logERROR, "UpdXMLHandler: No projectname specified in kodi-txupdate.xml file. Cannot continue. "
     "Please specify the Transifex projectname in the xml file");
 
-  std::string strTargetProjName;
   if ((pData = pDataRootElement->FirstChildElement("targetprojectname")) && (strTargetProjName = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found target projectname in kodi-txupdate.xml file: %s",strTargetProjName.c_str());
-    g_Settings.SetTargetProjectname(strTargetProjName);
+    strTargetProjName = strTargetProjName;
   }
 
 
@@ -239,12 +238,15 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
   while (pChildResElement && pChildResElement->FirstChild())
   {
     CXMLResdata currResData;
+    currResData.strProjectName = strProjName;
+    currResData.strTargetProjectName = strTargetProjName;
+
     std::string strResName;
     if (!pChildResElement->Attribute("name") || (strResName = pChildResElement->Attribute("name")) == "")
     {
       CLog::Log(logERROR, "UpdXMLHandler: No name specified for resource. Cannot continue. Please specify it.");
     }
-    currResData.strName =strResName;
+    currResData.strResName =strResName;
 
     if (pChildResElement->FirstChild())
     {
@@ -284,8 +286,8 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
       if (pChildAddonURLElement && pChildAddonURLElement->FirstChild())
         currResData.strUPSAddonURL = pChildAddonURLElement->FirstChild()->Value();
       if (currResData.strUPSAddonURL.empty())
-        currResData.strUPSAddonURL = currResData.strUPSLangURL.substr(0,currResData.strUPSLangURL.find(currResData.strName)
-                                                                      + currResData.strName.size()) + "/addon.xml";
+        currResData.strUPSAddonURL = currResData.strUPSLangURL.substr(0,currResData.strUPSLangURL.find(currResData.strResName)
+                                                                      + currResData.strResName.size()) + "/addon.xml";
       if (currResData.strUPSAddonURL.empty())
         CLog::Log(logERROR, "UpdXMLHandler: Unable to determine the URL for the addon.xml file for resource %s", strResName.c_str());
       GetParamsFromURLorPath (currResData.strUPSAddonURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
@@ -322,7 +324,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
       if (currResData.strLOCLangPath.empty() && !currResData.bHasOnlyAddonXML)
         currResData.strLOCLangPath = currResData.strUPSLangURL.substr(currResData.strUPSAddonURLRoot.size()-1);
       if (!currResData.bHasOnlyAddonXML)
-        currResData.strLOCLangPath = currResData.strName + DirSepChar + currResData.strLOCLangPath;
+        currResData.strLOCLangPath = currResData.strResName + DirSepChar + currResData.strLOCLangPath;
       if (!currResData.bHasOnlyAddonXML && !GetParamsFromURLorPath (currResData.strLOCLangPath, currResData.strLOCLangFormat,
           currResData.strLOCLangFileName, currResData.strLOCLangPathRoot, DirSepChar))
         CLog::Log(logERROR, "UpdXMLHandler: Local langpath format is wrong for resource %s", strResName.c_str());
@@ -332,7 +334,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
         currResData.strLOCAddonPath = pChildLocAddonElement->FirstChild()->Value();
       if (currResData.strLOCAddonPath.empty())
         currResData.strLOCAddonPath = currResData.strUPSAddonXMLFilename;
-      currResData.strLOCAddonPath = currResData.strName + DirSepChar + currResData.strLOCAddonPath;
+      currResData.strLOCAddonPath = currResData.strResName + DirSepChar + currResData.strLOCAddonPath;
       GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
                               currResData.strLOCAddonPathRoot, DirSepChar);
       std::string strLOCAddonLangFormatinXML;

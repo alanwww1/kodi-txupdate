@@ -149,7 +149,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
     if (listGithubLangs.size() == 1 && listGithubLangs.front() == g_Settings.GetSourceLcode())
       listLangs.push_back(g_Settings.GetSourceLcode());
     else
-      CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: found non source language at source language repository for addon: %s", XMLResdata.strName.c_str());
+      CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: found non source language at source language repository for addon: %s", XMLResdata.strResName.c_str());
   }
   listLangs.sort();
 
@@ -210,7 +210,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
   }
   else
   {
-    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strName + DirSepChar + g_Settings.GetBaseLCode() + DirSepChar + "strings.po";
+    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strResName + DirSepChar + g_Settings.GetBaseLCode() + DirSepChar + "strings.po";
     strLangFormat = g_Settings.GetBaseLCode();
   }
 
