@@ -40,7 +40,7 @@ CUpdateXMLHandler::CUpdateXMLHandler()
 CUpdateXMLHandler::~CUpdateXMLHandler()
 {};
 
-bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData)
+void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData)
 {
   std::string UpdateXMLFilename = rootDir  + DirSepChar + "kodi-txupdate.xml";
   TiXmlDocument xmlUpdateXML;
@@ -49,7 +49,6 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir, std::map<std::string,
   {
     CLog::Log(logERROR, "UpdXMLHandler: No 'kodi-txupdate.xml' file exists in the specified project dir. Cannot continue. "
                         "Please create one!");
-    return false;
   }
 
   CLog::Log(logINFO, "UpdXMLHandler: Succesfuly found the update.xml file in the specified project directory");
@@ -58,14 +57,12 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir, std::map<std::string,
   if (!pProjectRootElement || pProjectRootElement->NoChildren() || pProjectRootElement->ValueTStr()!="project")
   {
     CLog::Log(logERROR, "UpdXMLHandler: No root element called \"project\" in xml file. Cannot continue. Please create it");
-    return false;
   }
 
   TiXmlElement* pDataRootElement = pProjectRootElement->FirstChildElement("projectdata");
   if (!pDataRootElement || pDataRootElement->NoChildren())
   {
     CLog::Log(logERROR, "UpdXMLHandler: No element called \"projectdata\" in xml file. Cannot continue. Please create it");
-    return false;
   }
 
   TiXmlElement * pData;
@@ -230,14 +227,12 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir, std::map<std::string,
   if (!pRootElement || pRootElement->NoChildren())
   {
     CLog::Log(logERROR, "UpdXMLHandler: No element called \"resources\" in xml file. Cannot continue. Please create it");
-    return false;
   }
 
   const TiXmlElement *pChildResElement = pRootElement->FirstChildElement("resource");
   if (!pChildResElement || pChildResElement->NoChildren())
   {
     CLog::Log(logERROR, "UpdXMLHandler: No xml element called \"resource\" exists in the xml file. Cannot continue. Please create at least one");
-    return false;
   }
 
   std::string strType;
@@ -248,7 +243,6 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir, std::map<std::string,
     if (!pChildResElement->Attribute("name") || (strResName = pChildResElement->Attribute("name")) == "")
     {
       CLog::Log(logERROR, "UpdXMLHandler: No name specified for resource. Cannot continue. Please specify it.");
-      return false;
     }
     currResData.strName =strResName;
 
@@ -357,41 +351,15 @@ bool CUpdateXMLHandler::LoadXMLToMem (std::string rootDir, std::map<std::string,
       GetParamsFromURLorPath (currResData.strLOCChangelogPath, currResData.strLOCChangelogName,
                                 currResData.strLOCChangelogPathRoot, '/');
 
-      m_mapXMLResdata[strResName] = currResData;
+      mapResData[strResName] = currResData;
       CLog::Log(logINFO, "UpdXMLHandler: found resource in update.xml file: %s, Type: %s, SubDir: %s",
                 strResName.c_str(), strType.c_str(), currResData.strLOCAddonPath.c_str());
     }
     pChildResElement = pChildResElement->NextSiblingElement("resource");
   }
 
-  return true;
+  return;
 };
-
-std::string CUpdateXMLHandler::GetResNameFromTXResName(std::string const &strTXResName)
-{
-  for (itXMLResdata = m_mapXMLResdata.begin(); itXMLResdata != m_mapXMLResdata.end(); itXMLResdata++)
-  {
-    if (itXMLResdata->second.strTXName == strTXResName)
-      return itXMLResdata->first;
-  }
-  return "";
-}
-
-std::string CUpdateXMLHandler::IntToStr(int number)
-{
-  std::stringstream ss;//create a stringstream
-  ss << number;//add number to the stream
-  return ss.str();//return a string with the contents of the stream
-};
-
-CXMLResdata CUpdateXMLHandler::GetResData(string strResName)
-{
-  CXMLResdata EmptyXMLResdata;
-  if (m_mapXMLResdata.find(strResName) != m_mapXMLResdata.end())
-    return m_mapXMLResdata[strResName];
-  CLog::Log(logINFO, "UpdXMLHandler::GetResData: unknown resource to find: %s", strResName.c_str());
-  return EmptyXMLResdata;
-}
 
 bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,
                                                  string &strURLRoot, const char strSeparator)

@@ -58,10 +58,8 @@ class CUpdateXMLHandler
 public:
   CUpdateXMLHandler();
   ~CUpdateXMLHandler();
-  bool LoadXMLToMem(std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
-  CXMLResdata GetResData(std::string strResName);
-  const std::map<std::string, CXMLResdata> &GetResMap() const {return m_mapXMLResdata;}
-  std::string GetResNameFromTXResName(std::string const &strTXResName);
+  void LoadUpdXMLToMem(std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
+
 private:
   bool GetParamsFromURLorPath (std::string const &strURL, std::string &strLangFormat, std::string &strFileName,
                                std::string &strURLRoot, const char strSeparator);

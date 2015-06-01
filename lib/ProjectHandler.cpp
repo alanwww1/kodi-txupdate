@@ -33,7 +33,7 @@ CProjectHandler::CProjectHandler()
 CProjectHandler::~CProjectHandler()
 {};
 
-void CProjectHandler::LoadUpdXMLToMem();
+void CProjectHandler::LoadUpdXMLToMem()
 {
   CUpdateXMLHandler UpdateXMLHandler;
   UpdateXMLHandler.LoadUpdXMLToMem (m_strProjDir, m_mapResData);
@@ -54,7 +54,6 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   strcpy(cstrtemp, strtemp.c_str());
 
   std::list<std::string> listResourceNamesTX = g_Json.ParseResources(strtemp);
-  std::map<std::string, CXMLResdata> mapRes = g_UpdateXMLHandler.GetResMap();
 
   CResourceHandler ResourceHandler;
   for (std::list<std::string>::iterator it = listResourceNamesTX.begin(); it != listResourceNamesTX.end(); it++)
@@ -64,7 +63,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
     CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from TRANSIFEX: %s", it->c_str());
     CLog::IncIdent(4);
 
-    std::string strResname = g_UpdateXMLHandler.GetResNameFromTXResName(*it);
+    std::string strResname = GetResNameFromTXResName(*it);
     if (strResname.empty())
     {
       printf(" )\n");
@@ -73,7 +72,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
       continue;
     }
 
-    CXMLResdata XMLResdata = mapRes[strResname];
+    CXMLResdata XMLResdata = m_mapResData[strResname];
     m_mapResourcesTX[strResname]=ResourceHandler;
     m_mapResourcesTX[strResname].FetchPOFilesTXToMem(XMLResdata, "https://www.transifex.com/api/2/project/" + g_Settings.GetProjectname() +
                                               "/resource/" + *it + "/");
@@ -85,12 +84,9 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 
 bool CProjectHandler::FetchResourcesFromUpstream()
 {
-
-  std::map<std::string, CXMLResdata> mapRes = g_UpdateXMLHandler.GetResMap();
-
   CResourceHandler ResourceHandler;
 
-  for (std::map<std::string, CXMLResdata>::iterator it = mapRes.begin(); it != mapRes.end(); it++)
+  for (std::map<std::string, CXMLResdata>::iterator it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {
     printf("%s%s%s (", KMAG, it->first.c_str(), RESET);
     CLog::Log(logLINEFEED, "");
@@ -133,7 +129,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CLog::Log(logLINEFEED, "");
     CLog::Log(logINFO, "ProjHandler: *** Write Merged Resource: %s ***", itmapResources->first.c_str());
     CLog::IncIdent(4);
-    CXMLResdata XMLResdata = g_UpdateXMLHandler.GetResData(itmapResources->first);
+    CXMLResdata XMLResdata = m_mapResData[itmapResources->first];
     m_mapResMerged[itmapResources->first].WritePOToFiles (strProjRootDir, strPrefixDir, itmapResources->first, XMLResdata, false);
     CLog::DecIdent(4);
   }
@@ -148,7 +144,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CLog::Log(logLINEFEED, "");
     CLog::Log(logINFO, "ProjHandler: *** Write UpdTX Resource: %s ***", itmapResources->first.c_str());
     CLog::IncIdent(4);
-    CXMLResdata XMLResdata = g_UpdateXMLHandler.GetResData(itmapResources->first);
+    CXMLResdata XMLResdata = m_mapResData[itmapResources->first];
     m_mapResUpdateTX[itmapResources->first].WritePOToFiles (strProjRootDir, strPrefixDir, itmapResources->first, XMLResdata, true);
     CLog::DecIdent(4);
   }
@@ -579,24 +575,23 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 
   std::list<std::string> listResourceNamesTX = g_Json.ParseResources(strtemp);
 
-  std::map<std::string, CXMLResdata> mapUpdateXMLHandler = g_UpdateXMLHandler.GetResMap();
   std::string strPrefixDir = g_Settings.GetTXUpdateLangfilesDir();
 
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
 
-  for (std::map<std::string, CXMLResdata>::iterator itres = mapUpdateXMLHandler.begin(); itres != mapUpdateXMLHandler.end(); itres++)
+  for (itResData = m_mapResData.begin(); itResData != m_mapResData.end(); itResData++)
   {
     std::string strResourceDir, strLangDir;
-    CXMLResdata XMLResdata = itres->second;
-    std::string strResname = itres->first;
+    CXMLResdata XMLResdata = itResData->second;
+    std::string strResname = itResData->first;
     bool bNewResource = false;
 
     strResourceDir = strProjRootDir + strPrefixDir + DirSepChar + strResname + DirSepChar;
     strLangDir = strResourceDir;
 
-    CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Uploading resource: %s, from langdir: %s",itres->first.c_str(), strLangDir.c_str());
-    printf ("Uploading files for resource: %s%s%s", KMAG, itres->first.c_str(), RESET);
+    CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Uploading resource: %s, from langdir: %s",itResData->first.c_str(), strLangDir.c_str());
+    printf ("Uploading files for resource: %s%s%s", KMAG, itResData->first.c_str(), RESET);
 
     std::list<std::string> listLangCodes = GetLangsFromDir(strLangDir);
 
@@ -608,14 +603,14 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
       continue;
     }
 
-    if (!FindResInList(listResourceNamesTX, itres->second.strTargetTXName))
+    if (!FindResInList(listResourceNamesTX, itResData->second.strTargetTXName))
     {
-      CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: No resource %s exists on Transifex. Creating it now.", itres->first.c_str());
+      CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: No resource %s exists on Transifex. Creating it now.", itResData->first.c_str());
       // We create the new resource on transifex and also upload the English source file at once
       g_HTTPHandler.Cleanup();
       g_HTTPHandler.ReInit();
       size_t straddednew;
-      g_HTTPHandler.CreateNewResource(itres->second.strTargetTXName,
+      g_HTTPHandler.CreateNewResource(itResData->second.strTargetTXName,
                                       strLangDir + g_Settings.GetSourceLcode() + DirSepChar + "strings.po",
                                       "https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() + "/resources/",
                                       straddednew, "https://www.transifex.com/api/2/project/" + g_Settings.GetTargetProjectname() +
@@ -623,7 +618,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
                                       g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), g_Settings.GetTargetTXLFormat()) + "/");
 
       CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Resource %s was succesfully created with %i Source language strings.",
-                itres->first.c_str(), straddednew);
+                itResData->first.c_str(), straddednew);
       printf (", newly created on Transifex with %s%lu%s English strings.\n", KGRN, straddednew, RESET);
 
       g_HTTPHandler.Cleanup();
@@ -779,4 +774,14 @@ void CProjectHandler::PrintChangedLangs(std::list<std::string> lChangedLangs)
     }
   }
   printf ("%s", RESET);
+}
+
+std::string CProjectHandler::GetResNameFromTXResName(std::string const &strTXResName)
+{
+  for (itResData = m_mapResData.begin(); itResData != m_mapResData.end(); itResData++)
+  {
+    if (itResData->second.strTXName == strTXResName)
+      return itResData->first;
+  }
+  return "";
 }
