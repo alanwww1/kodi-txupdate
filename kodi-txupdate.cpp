@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
     TXProject.LoadUpdXMLToMem();
 
     if (bInfiniteCacheTime)
-      g_Settings.SetHTTPCacheExpire((size_t)-1);
+      g_HTTPHandler.SetHTTPCacheExpire ((size_t)-1);
 
     g_LCodeHandler.Init();
 

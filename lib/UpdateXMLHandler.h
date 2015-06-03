@@ -27,6 +27,8 @@
 #include "POUtils/POUtils.h"
 #include <string>
 
+const size_t DEFAULTCACHEEXPIRE = 360; // 6 hours
+
 class CXMLResdata
 {
 public:
@@ -55,6 +57,7 @@ public:
   std::string strProjectName;
   std::string strTargetProjectName;
   std::string strTargetProjectNameLong;
+  size_t iCacheExpire;
 };
 
 class CUpdateXMLHandler

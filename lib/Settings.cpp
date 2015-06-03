@@ -29,7 +29,6 @@ using namespace std;
 
 CSettings::CSettings()
 {
-  m_CacheExpire = DEFAULTCACHEEXPIRE;
   m_minComplPercentage = DEFAULTMINCOMPLETION;
   m_strMergedLangfilesDir = DEFAULTMERGEDLANGDIR;
   m_strTXUpdateLangfilesDir = DEFAULTTXUPDLANGDIR;
@@ -49,16 +48,6 @@ CSettings::~CSettings()
 {
 };
 
-
-void CSettings::SetHTTPCacheExpire(size_t exptime)
-{
-  m_CacheExpire = exptime;
-};
-
-size_t CSettings::GetHTTPCacheExpire()
-{
-  return m_CacheExpire;
-};
 
 void CSettings::SetMinCompletion(int complperc)
 {

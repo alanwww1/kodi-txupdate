@@ -77,7 +77,7 @@ std::string CHTTPHandler::GetURLToSTR(std::string strURL)
   bool bCacheFileExists = g_File.FileExist(strCacheFile);
 
   size_t CacheFileAge = bCacheFileExists ? g_File.GetFileAge(strCacheFile): -1; //in seconds
-  size_t MaxCacheFileAge = g_Settings.GetHTTPCacheExpire() * 60; // in seconds
+  size_t MaxCacheFileAge = m_iHTTPCacheExp * 60; // in seconds
 
   bool bCacheFileExpired = CacheFileAge > MaxCacheFileAge;
 

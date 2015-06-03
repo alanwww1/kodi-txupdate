@@ -36,7 +36,6 @@
 #define KWHT  "\x1B[37m"
 #define RESET "\033[0m"
 
-const size_t DEFAULTCACHEEXPIRE = 360; // 6 hours
 const size_t DEFAULTMINCOMPLETION = 10; // %
 const std::string DEFAULTMERGEDLANGDIR = "merged-langfiles";
 const std::string DEFAULTTXUPDLANGDIR = "tempfiles_txupdate";
@@ -51,9 +50,6 @@ public:
   CSettings();
   ~CSettings();
 
-
-  void SetHTTPCacheExpire(size_t exptime);
-  size_t GetHTTPCacheExpire();
   void SetMinCompletion(int complperc);
   int GetMinCompletion();
   void SetMergedLangfilesDir(std::string const &strMergedLangfilesDir);

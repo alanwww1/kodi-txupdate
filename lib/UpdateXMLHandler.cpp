@@ -24,6 +24,7 @@
 #include "Settings.h"
 #include <stdlib.h>
 #include <sstream>
+#include "HTTPUtils.h"
 
 
 using namespace std;
@@ -67,14 +68,13 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
 
   TiXmlElement * pData;
   std::string strHTTPCacheExp;
+  size_t iHTTPCacheExp = DEFAULTCACHEEXPIRE;
   if ((pData = pDataRootElement->FirstChildElement("http_cache_expire")) && (strHTTPCacheExp = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found http cache expire time in kodi-txupdate.xml file: %s", strHTTPCacheExp.c_str());
-    g_Settings.SetHTTPCacheExpire(strtol(&strHTTPCacheExp[0], NULL, 10));
+    iHTTPCacheExp = strtol(&strHTTPCacheExp[0], NULL, 10);
   }
-  else
-    CLog::Log(logINFO, "UpdXMLHandler: No http cache expire time specified in kodi-txupdate.xml file. Using default value: %iminutes",
-              DEFAULTCACHEEXPIRE);
+  g_HTTPHandler.SetHTTPCacheExpire(iHTTPCacheExp);
 
 //TODO separate download TX projectname from upload TX projectname to handle project name changes
   std::string strProjName;
@@ -93,7 +93,6 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
     CLog::Log(logINFO, "UpdXMLHandler: Found target projectname in kodi-txupdate.xml file: %s",strTargetProjName.c_str());
     strTargetProjName = strTargetProjName;
   }
-
 
   std::string strLongProjName;
   if ((pData = pDataRootElement->FirstChildElement("longprojectname")) && (strLongProjName = pData->FirstChild()->Value()) != "")

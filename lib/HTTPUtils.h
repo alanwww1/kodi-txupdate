@@ -58,6 +58,8 @@ public:
   void Cleanup();
   void SetCacheDir(std::string strCacheDir);
   std::string GetCacheDir() {return m_strCacheDir;}
+  void SetHTTPCacheExpire(size_t iCacheTimeInMins) {m_iHTTPCacheExp = iCacheTimeInMins;}
+  size_t GetHTTPCacheExpire() {return m_iHTTPCacheExp;}
 
   bool LoadCredentials (std::string CredentialsFilename);
   bool PutFileToURL(std::string const &strFilePath, std::string const &strURL, bool &buploaded,
@@ -84,6 +86,7 @@ private:
   std::string URLEncode (std::string strURL);
   std::map<std::string, CLoginData> m_mapLoginData;
   std::map<std::string, CLoginData>::iterator itMapLoginData;
+  size_t m_iHTTPCacheExp;
 };
 
 size_t Write_CurlData_File(void *ptr, size_t size, size_t nmemb, FILE *stream);
