@@ -244,28 +244,7 @@ int main(int argc, char* argv[])
       printf("GET TRANSLATION GROUPS\n");
       printf("-------------------------------%s\n", RESET);
 
-      if (g_Settings.GetProjectname().empty() || g_Settings.GetTargetProjectname().empty() ||
-          g_Settings.GetProjectname() == g_Settings.GetTargetProjectname())
-        CLog::Log(logERROR, "Cannot tranfer translators database. Wrong projectname and target projectname,");
-
-      std::map<std::string, std::string> mapCoordinators, mapReviewers, mapTranslators;
-
-      printf("\n%sCoordinators:%s\n", KGRN, RESET);
-      mapCoordinators = g_LCodeHandler.GetTranslatorsDatabase("coordinators");
-
-      printf("\n%sReviewers:%s\n", KGRN, RESET);
-      mapReviewers = g_LCodeHandler.GetTranslatorsDatabase("reviewers");
-
-      printf("\n%sTranslators:%s\n", KGRN, RESET);
-      mapTranslators = g_LCodeHandler.GetTranslatorsDatabase("translators");
-
-      printf("\n%s", KGRN);
-      printf("-----------------------------\n");
-      printf("PUSH TRANSLATION GROUPS TO TX\n");
-      printf("-----------------------------%s\n", RESET);
-
-      g_LCodeHandler.UploadTranslatorsDatabase(mapCoordinators, mapReviewers, mapTranslators);
-
+      TXProject.MigrateTranslators();
     }
 
     CLog::SetbWriteSyntaxLog(bDownloadNeeded);

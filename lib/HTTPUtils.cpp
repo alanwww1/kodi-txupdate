@@ -364,12 +364,13 @@ bool CHTTPHandler::PutFileToURL(std::string const &strFilePath, std::string cons
   std::string strCacheFile = CacheFileNameFromURL(strURL);
   strCacheFile = m_strCacheDir + "PUT/" + strCacheFile;
 
-  if (g_File.FileExist(strCacheFile) && ComparePOFiles(strCacheFile, strFilePath))
-  {
-    CLog::Log(logINFO, "HTTPHandler::PutFileToURL: not necesarry to upload file as it has not changed from last upload. File: %s",
-              strFilePath.c_str());
-    return true;
-  }
+//TODO check if this is ok to take rip
+//  if (g_File.FileExist(strCacheFile) && ComparePOFiles(strCacheFile, strFilePath))
+//  {
+//    CLog::Log(logINFO, "HTTPHandler::PutFileToURL: not necesarry to upload file as it has not changed from last upload. File: %s",
+//              strFilePath.c_str());
+//    return true;
+//  }
 
   CLog::Log(logINFO, "HTTPHandler::PutFileToURL: Uploading file to Transifex: %s", strFilePath.c_str());
 
@@ -475,13 +476,13 @@ long CHTTPHandler::curlPUTPOFileToURL(std::string const &strFilePath, std::strin
   return 700;
 };
 
-bool CHTTPHandler::ComparePOFiles(std::string strPOFilePath1, std::string strPOFilePath2) const
-{
-  CPOHandler POHandler1, POHandler2;
-  POHandler1.ParsePOStrToMem(g_File.ReadFileToStr(strPOFilePath1), strPOFilePath1);
-  POHandler2.ParsePOStrToMem(g_File.ReadFileToStr(strPOFilePath2), strPOFilePath2);
-  return ComparePOFilesInMem(&POHandler1, &POHandler2, false);
-}
+// bool CHTTPHandler::ComparePOFiles(std::string strPOFilePath1, std::string strPOFilePath2) const
+// {
+//  CPOHandler POHandler1, POHandler2;
+//  POHandler1.ParsePOStrToMem(g_File.ReadFileToStr(strPOFilePath1), strPOFilePath1);
+//  POHandler2.ParsePOStrToMem(g_File.ReadFileToStr(strPOFilePath2), strPOFilePath2);
+//  return ComparePOFilesInMem(&POHandler1, &POHandler2, false);
+//}
 
 bool CHTTPHandler::ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pPOHandler2, bool bLangIsEN) const
 {

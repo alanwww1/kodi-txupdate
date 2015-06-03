@@ -32,6 +32,9 @@ using namespace std;
 CResourceHandler::CResourceHandler()
 {};
 
+CResourceHandler::CResourceHandler(const CXMLResdata& XMLResdata) : m_XMLResData(XMLResdata)
+{};
+
 CResourceHandler::~CResourceHandler()
 {};
 
@@ -62,7 +65,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
 
   std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, strURL, g_Settings.GetDefaultTXLFormat());
 
-  CPOHandler POHandler;
+  CPOHandler POHandler(m_XMLResData);
 
   for (std::list<std::string>::iterator it = listLangsTX.begin(); it != listLangsTX.end(); it++)
   {
@@ -157,7 +160,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
 
   for (std::list<std::string>::iterator it = listLangs.begin(); it != listLangs.end(); it++)
   {
-    CPOHandler POHandler;
+    CPOHandler POHandler(m_XMLResData);
     bool bIsSourceLang = *it == g_Settings.GetSourceLcode();
     POHandler.SetIfIsSourceLang(bIsSourceLang);
     printf (" %s", it->c_str());

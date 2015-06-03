@@ -137,7 +137,7 @@ void CLCodeHandler::CleanLangform (std::string &strLangform)
   strLangform = strLangform.substr(pos1, pos2-pos1+1);
 }
 
-std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(std::string strContributorType)
+std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const std::string& strContributorType, const std::string& strProjectName)
 {
   std::map<std::string, std::string> mapOfContributors;
 
@@ -149,10 +149,10 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(std::s
     std::string strLangCode = itmapLCodes->first;
     std::string strTXLformat = g_Settings.GetDefaultTXLFormat();
 
-    std::string strJson = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/"+ g_Settings.GetProjectname() + "/language/" +
+    std::string strJson = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/"+ strProjectName + "/language/" +
                                                      GetLangFromLCode(strLangCode, strTXLformat) + "/" + strContributorType + "/");
     if (strJson.empty())
-      CLog::Log(logERROR, "CLCodeHandler::GetTranslatorsDatabase: error getting translator groups list for project: %s", g_Settings.GetProjectname().c_str());
+      CLog::Log(logERROR, "CLCodeHandler::GetTranslatorsDatabase: error getting translator groups list for project: %s", strProjectName.c_str());
 
     Json::Value root;   // will contains the root value after parsing.
     Json::Reader reader;
@@ -188,13 +188,14 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(std::s
 
 void  CLCodeHandler::UploadTranslatorsDatabase(std::map<std::string, std::string> &mapOfCoordinators,
                                                std::map<std::string, std::string> &mapOfReviewers,
-                                               std::map<std::string, std::string> &mapOfTranslators)
+                                               std::map<std::string, std::string> &mapOfTranslators,
+                                               const std::string& strTargetProjectName)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
 
   std::string strTXLformat = g_Settings.GetTargetTXLFormat();
-  std::string strURL = "https://www.transifex.com/api/2/project/"+ g_Settings.GetTargetProjectname() + "/languages/?skip_invalid_username";
+  std::string strURL = "https://www.transifex.com/api/2/project/"+ strTargetProjectName + "/languages/?skip_invalid_username";
 
   for (std::map<std::string, std::string>::iterator itmap = mapOfCoordinators.begin(); itmap !=mapOfCoordinators.end(); itmap++)
   {

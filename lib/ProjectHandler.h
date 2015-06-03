@@ -37,6 +37,7 @@ public:
   bool CreateMergedResources();
   bool WriteResourcesToFile(std::string strProjRootDir);
   void UploadTXUpdateFiles(std::string strProjRootDir);
+  void MigrateTranslators();
 
 protected:
   const CPOEntry * SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,

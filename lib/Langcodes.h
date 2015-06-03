@@ -47,10 +47,11 @@ public:
   std::string GetPlurForm(std::string LangToLook);
   std::string VerifyLangCode(std::string LangCode, const std::string &strLangformat);
   void CleanLangform (std::string &strLangform);
-  std::map<std::string, std::string>  GetTranslatorsDatabase(std::string strContributorType);
+  std::map<std::string, std::string>  GetTranslatorsDatabase(const std::string& strContributorType, const std::string& strProjectName);
   void  UploadTranslatorsDatabase(std::map<std::string, std::string> &mapOfCoordinators,
-                                                 std::map<std::string, std::string> &mapOfReviewers,
-                                                 std::map<std::string, std::string> &mapOfTranslators);
+                                  std::map<std::string, std::string> &mapOfReviewers,
+                                  std::map<std::string, std::string> &mapOfTranslators,
+                                  const std::string& strProjectName);
 private:
   std::map <std::string, CLangcodes> m_mapLCodes;
   std::map <std::string, CLangcodes>::iterator itmapLCodes;

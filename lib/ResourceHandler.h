@@ -31,6 +31,7 @@ class CResourceHandler
 {
 public:
   CResourceHandler();
+  CResourceHandler(const CXMLResdata& XMLResdata);
   ~CResourceHandler();
   bool FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::string strURL);
   bool FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata);
@@ -38,7 +39,7 @@ public:
   size_t GetLangsCount() const {return m_mapPOFiles.size();}
   std::string GetLangCodeFromPos(size_t pos) {T_itmapPOFiles it = IterateToMapIndex (m_mapPOFiles.begin(), pos); return it->first;}
   CPOHandler* GetPOData(std::string strLang);
-  void AddPOData(CPOHandler &POHandler, std::string strLang) {m_mapPOFiles[strLang] = POHandler;}
+  void AddPOData(CPOHandler& POHandler, std::string strLang) {m_mapPOFiles[strLang] = POHandler;}
   CAddonXMLHandler * GetXMLHandler () {return &m_AddonXMLHandler;}
   void SetXMLHandler (CAddonXMLHandler XMLHandler) {m_AddonXMLHandler = XMLHandler;}
   void SetChangedLangsFromUpstream (std::list<std::string> lChanged) {m_lChangedLangsFromUpstream = lChanged;}
@@ -57,4 +58,5 @@ protected:
   std::list<std::string> m_lChangedLangsFromUpstream;
   std::list<std::string> m_lChangedLangsInAddXMLFromUpstream;
   bool m_bIsLangAddon;
+  CXMLResdata m_XMLResData;
 };

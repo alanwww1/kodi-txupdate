@@ -24,6 +24,7 @@
 #include "POUtils/POUtils.h"
 #include <map>
 #include "TinyXML/tinyxml.h"
+#include "UpdateXMLHandler.h"
 
 typedef std::map<uint32_t, CPOEntry>::iterator itStrings;
 typedef std::vector<CPOEntry>::iterator itClassicEntries;
@@ -33,6 +34,7 @@ class CPOHandler
 {
 public:
   CPOHandler();
+  CPOHandler(const CXMLResdata& XMLResdata);
   ~CPOHandler();
   bool FetchPOURLToMem(std::string strURL, bool bSkipError);
   bool FetchXMLURLToMem (std::string strURL);
@@ -91,4 +93,5 @@ protected:
   bool m_bPOIsEnglish;
   bool m_bPOIsUpdateTX;
   std::string m_strLangAddonXML;
+  CXMLResdata m_XMLResData;
 };
