@@ -28,6 +28,8 @@
 #include <string>
 
 const size_t DEFAULTCACHEEXPIRE = 360; // 6 hours
+const int DEFAULTMINCOMPLETION = 10; // %
+const std::string DEFAULTMERGEDLANGDIR = "merged-langfiles";
 
 class CXMLResdata
 {
@@ -57,7 +59,8 @@ public:
   std::string strProjectName;
   std::string strTargetProjectName;
   std::string strTargetProjectNameLong;
-  size_t iCacheExpire;
+  std::string strMergedLangfileDir;
+  int iMinComplPercent;
 };
 
 class CUpdateXMLHandler

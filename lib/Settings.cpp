@@ -29,8 +29,6 @@ using namespace std;
 
 CSettings::CSettings()
 {
-  m_minComplPercentage = DEFAULTMINCOMPLETION;
-  m_strMergedLangfilesDir = DEFAULTMERGEDLANGDIR;
   m_strTXUpdateLangfilesDir = DEFAULTTXUPDLANGDIR;
   m_bForceComm = false;
   m_bRebrand = false;
@@ -46,27 +44,6 @@ CSettings::CSettings()
 
 CSettings::~CSettings()
 {
-};
-
-
-void CSettings::SetMinCompletion(int complperc)
-{
-  m_minComplPercentage = complperc;
-};
-
-int CSettings::GetMinCompletion()
-{
-  return m_minComplPercentage;
-};
-
-void CSettings::SetMergedLangfilesDir(std::string const &strMergedLangfilesDir)
-{
-  m_strMergedLangfilesDir = strMergedLangfilesDir;
-};
-
-std::string CSettings::GetMergedLangfilesDir()
-{
-  return m_strMergedLangfilesDir;
 };
 
 void CSettings::SetSupportEmailAdd(std::string const &strEmailAdd)

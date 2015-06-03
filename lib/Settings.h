@@ -36,8 +36,6 @@
 #define KWHT  "\x1B[37m"
 #define RESET "\033[0m"
 
-const size_t DEFAULTMINCOMPLETION = 10; // %
-const std::string DEFAULTMERGEDLANGDIR = "merged-langfiles";
 const std::string DEFAULTTXUPDLANGDIR = "tempfiles_txupdate";
 const std::string DEFAULTSOURCELCODE = "en_GB";
 const std::string DEFAULTBASELCODE = "$(LCODE)";
@@ -50,10 +48,6 @@ public:
   CSettings();
   ~CSettings();
 
-  void SetMinCompletion(int complperc);
-  int GetMinCompletion();
-  void SetMergedLangfilesDir(std::string const &strMergedLangfilesDir);
-  std::string GetMergedLangfilesDir();
   void SetTXUpdateLangfilesDir(std::string const &strTXUpdateLangfilesDir);
   std::string GetTXUpdateLangfilesDir();
   void SetForcePOComments(bool bForceComm);
@@ -79,9 +73,7 @@ public:
   void SetLangDatabaseURL(std::string const &strLangDatabaseURL) {m_LangDatabaseURL = strLangDatabaseURL;}
 
 private:
-  size_t m_CacheExpire;
-  int m_minComplPercentage;
-  std::string m_strMergedLangfilesDir;
+//  size_t m_CacheExpire;
   std::string m_strTXUpdateLangfilesDir;
   std::string m_strSupportEmailAdd;
   std::string m_strSourceLcode;

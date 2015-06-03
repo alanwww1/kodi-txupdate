@@ -63,7 +63,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
   char cstrtemp[strtemp.size()];
   strcpy(cstrtemp, strtemp.c_str());
 
-  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, strURL, g_Settings.GetDefaultTXLFormat());
+  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, strURL, g_Settings.GetDefaultTXLFormat(), m_XMLResData);
 
   CPOHandler POHandler(m_XMLResData);
 
@@ -203,6 +203,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
 
 bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResname, CXMLResdata XMLResdata, bool bTXUpdFile)
 {
+  XMLResdata = m_XMLResData;
   std::string strPath, strLangFormat, strAddonXMLPath;
   if (!bTXUpdFile)
   {
@@ -261,7 +262,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
   CLog::LogTable(logCLOSETABLE, "writepo", "");
 
   // update local addon.xml file
-  if (!XMLResdata.bIsLanguageAddon && strPrefixDir == g_Settings.GetMergedLangfilesDir())
+  if (!XMLResdata.bIsLanguageAddon && strPrefixDir == XMLResdata.strMergedLangfileDir)
   {
     bool bResChangedFromUpstream = !m_lChangedLangsFromUpstream.empty() || !m_lChangedLangsInAddXMLFromUpstream.empty();
     m_AddonXMLHandler.UpdateAddonXMLFile(strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCAddonPath, bResChangedFromUpstream, XMLResdata);

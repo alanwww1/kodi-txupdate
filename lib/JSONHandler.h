@@ -30,6 +30,7 @@
 #include <map>
 #include <list>
 #include "Langcodes.h"
+#include "UpdateXMLHandler.h"
 
 class CJSONHandler
 {
@@ -37,7 +38,7 @@ public:
   CJSONHandler();
   ~CJSONHandler();
   std::list<std::string> ParseResources(std::string strJSON);
-  std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL, const std::string &strTXLangformat);
+  std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL, const std::string &strTXLangformat, const CXMLResdata& XMLResData);
   std::list<std::string> ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL, std::string strLangformat,
                                                    std::string strAddonXMLURL, bool bIsLangAddon);
   void ParseAddonXMLVersionGITHUB(const std::string &strJSON, const std::string &strURL, const std::string &strAddXMLFilename, const std::string &strChlogname);

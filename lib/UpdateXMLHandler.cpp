@@ -142,25 +142,20 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
     CLog::Log(logINFO, "UpdXMLHandler: found base language code format in kodi-txupdate.xml file: %s",strBaseLcode.c_str());
   }
 
+  int iMinComplPercent = DEFAULTMINCOMPLETION;
   std::string strMinCompletion;
   if ((pData = pDataRootElement->FirstChildElement("min_completion")) && (strMinCompletion = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found min completion percentage in kodi-txupdate.xml file: %s", strMinCompletion.c_str());
-    g_Settings.SetMinCompletion(strtol(&strMinCompletion[0], NULL, 10));
+    iMinComplPercent = strtol(&strMinCompletion[0], NULL, 10);
   }
-  else
-    CLog::Log(logINFO, "UpdXMLHandler: No min completion percentage specified in kodi-txupdate.xml file. Using default value: %i%",
-              DEFAULTMINCOMPLETION);
 
-  std::string strMergedLangfileDir;
+  std::string strMergedLangfileDir = DEFAULTMERGEDLANGDIR;
   if ((pData = pDataRootElement->FirstChildElement("merged_langfiledir")) && (strMergedLangfileDir = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found merged language file directory in kodi-txupdate.xml file: %s", strMergedLangfileDir.c_str());
-    g_Settings.SetMergedLangfilesDir(strMergedLangfileDir);
+    strMergedLangfileDir= strMergedLangfileDir;
   }
-  else
-    CLog::Log(logINFO, "UpdXMLHandler: No merged language file directory specified in kodi-txupdate.xml file. Using default value: %s",
-              g_Settings.GetMergedLangfilesDir().c_str());
 
   std::string strSourcelcode;
   if ((pData = pDataRootElement->FirstChildElement("sourcelcode")) && (strSourcelcode = pData->FirstChild()->Value()) != "")
@@ -240,6 +235,8 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
     currResData.strProjectName = strProjName;
     currResData.strTargetProjectName = strTargetProjName;
     currResData.strTargetProjectNameLong = strLongProjName;
+    currResData.iMinComplPercent = iMinComplPercent;
+    currResData.strMergedLangfileDir = strMergedLangfileDir;
 
     std::string strResName;
     if (!pChildResElement->Attribute("name") || (strResName = pChildResElement->Attribute("name")) == "")

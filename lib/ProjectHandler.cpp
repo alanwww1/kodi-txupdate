@@ -108,7 +108,9 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
 {
   std::string strPrefixDir;
 
-  strPrefixDir = g_Settings.GetMergedLangfilesDir();
+  const CXMLResdata& XMLResData = m_mapResData.begin()->second;
+
+  strPrefixDir = XMLResData.strMergedLangfileDir;
   CLog::Log(logINFO, "Deleting merged language file directory");
   g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
   for (T_itmapRes itmapResources = m_mapResMerged.begin(); itmapResources != m_mapResMerged.end(); itmapResources++)
