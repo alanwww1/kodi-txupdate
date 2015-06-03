@@ -51,8 +51,7 @@ public:
   CSettings();
   ~CSettings();
 
-  std::string GetTargetProjectnameLong();
-  void SetTargetProjectnameLong (std::string const &strName) {m_strProjectnameLong = strName;}
+
   void SetHTTPCacheExpire(size_t exptime);
   size_t GetHTTPCacheExpire();
   void SetMinCompletion(int complperc);
@@ -89,7 +88,6 @@ private:
   std::string m_strMergedLangfilesDir;
   std::string m_strTXUpdateLangfilesDir;
   std::string m_strSupportEmailAdd;
-  std::string m_strProjectnameLong;
   std::string m_strSourceLcode;
   std::string m_strBaseLCode;
   std::string m_strDefTXLFormat;

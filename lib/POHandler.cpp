@@ -476,7 +476,7 @@ void CPOHandler::SetHeaderNEW (std::string strLangCode)
 
   m_strHeader += "msgid \"\"\n";
   m_strHeader += "msgstr \"\"\n";
-  m_strHeader += "\"Project-Id-Version: " + g_Settings.GetTargetProjectnameLong() + "\\n\"\n";
+  m_strHeader += "\"Project-Id-Version: " + m_XMLResData.strTargetProjectNameLong + "\\n\"\n";
   m_strHeader += "\"Report-Msgid-Bugs-To: " + g_Settings.GetSupportEmailAdd() + "\\n\"\n";
   m_strHeader += "\"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";

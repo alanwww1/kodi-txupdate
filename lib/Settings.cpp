@@ -50,11 +50,6 @@ CSettings::~CSettings()
 };
 
 
-string CSettings::GetTargetProjectnameLong()
-{
-  return m_strProjectnameLong;
-};
-
 void CSettings::SetHTTPCacheExpire(size_t exptime)
 {
   m_CacheExpire = exptime;

@@ -54,6 +54,7 @@ public:
 
   std::string strProjectName;
   std::string strTargetProjectName;
+  std::string strTargetProjectNameLong;
 };
 
 class CUpdateXMLHandler

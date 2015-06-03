@@ -99,7 +99,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
   if ((pData = pDataRootElement->FirstChildElement("longprojectname")) && (strLongProjName = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found long projectname in kodi-txupdate.xml file: %s",strLongProjName.c_str());
-    g_Settings.SetTargetProjectnameLong(strLongProjName);
+    strLongProjName = strLongProjName;
   }
   else
     CLog::Log(logERROR, "UpdXMLHandler: No long projectname specified in kodi-txupdate.xml file. Cannot continue. "
@@ -240,6 +240,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
     CXMLResdata currResData;
     currResData.strProjectName = strProjName;
     currResData.strTargetProjectName = strTargetProjName;
+    currResData.strTargetProjectNameLong = strLongProjName;
 
     std::string strResName;
     if (!pChildResElement->Attribute("name") || (strResName = pChildResElement->Attribute("name")) == "")
