@@ -28,6 +28,7 @@
 #include "../Langcodes.h"
 #include "../FileUtils/FileUtils.h"
 #include "../CharsetUtils/CharsetUtils.h"
+// #include "../UpdateXMLHandler.h"
 
 enum
 {
@@ -76,6 +77,7 @@ class CPODocument
 {
 public:
   CPODocument();
+  CPODocument(const CXMLResdata& XMLResdata);
   ~CPODocument();
 
   bool SaveFile(const std::string &pofilename);
@@ -113,4 +115,5 @@ protected:
   bool m_bIsUpdateTxDoc;
   int m_previd;
   int m_writtenEntry;
+  CXMLResdata m_XMLResData;
 };

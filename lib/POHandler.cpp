@@ -24,7 +24,6 @@
 #include <algorithm>
 #include <list>
 #include <sstream>
-#include "Settings.h"
 
 CPOHandler::CPOHandler()
 {};
@@ -40,7 +39,7 @@ CPOHandler::~CPOHandler()
 
 bool CPOHandler::FetchPOURLToMem (std::string strURL, bool bSkipError)
 {
-  CPODocument PODoc;
+  CPODocument PODoc(m_XMLResData);
   if (!PODoc.FetchURLToMem(strURL, bSkipError))
     return false;
   return ProcessPOFile(PODoc);
@@ -48,7 +47,7 @@ bool CPOHandler::FetchPOURLToMem (std::string strURL, bool bSkipError)
 
 bool CPOHandler::ParsePOStrToMem (std::string const &strPOData, std::string const &strFilePath)
 {
-  CPODocument PODoc;
+  CPODocument PODoc(m_XMLResData);
   if (!PODoc.ParseStrToMem(strPOData, strFilePath))
     return false;
   return ProcessPOFile(PODoc);
@@ -165,14 +164,14 @@ void CPOHandler::GetXMLComment(std::string strXMLEncoding, const TiXmlNode *pCom
       if (pCommentNode->m_CommentLFPassed)
       {
         std::string strComm = g_CharsetUtils.ToUTF8(strXMLEncoding, g_CharsetUtils.UnWhitespace(pCommentNode->Value()));
-        if (g_Settings.GetRebrand())
+        if (m_XMLResData.bRebrand)
           g_CharsetUtils.reBrandXBMCToKodi(&strComm);
         prevCommEntry.interlineComm.push_back(strComm);
       }
       else
       {
         std::string strComm = g_CharsetUtils.ToUTF8(strXMLEncoding, g_CharsetUtils.UnWhitespace(pCommentNode->Value()));
-        if (g_Settings.GetRebrand())
+        if (m_XMLResData.bRebrand)
           g_CharsetUtils.reBrandXBMCToKodi(&strComm);
         currEntry.extractedComm.push_back(strComm);
       }
@@ -249,7 +248,7 @@ bool CPOHandler::FetchXMLURLToMem (std::string strURL)
         if (m_bPOIsEnglish)
           GetXMLComment(strXMLEncoding, pChildElement->NextSibling(), currEntry);
 
-        if (g_Settings.GetRebrand())
+        if (m_XMLResData.bRebrand)
         {
           g_CharsetUtils.reBrandXBMCToKodi(&currEntry.msgID);
 	  g_CharsetUtils.reBrandXBMCToKodi(&currEntry.msgStr);
@@ -270,7 +269,7 @@ bool CPOHandler::FetchXMLURLToMem (std::string strURL)
 
 bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
 {
-  CPODocument PODoc;
+  CPODocument PODoc(m_XMLResData);
 
   PODoc.SetIfIsEnglish(m_bPOIsEnglish);
   PODoc.SetIfIsUpdDoc(m_bPOIsUpdateTX);
@@ -410,21 +409,21 @@ void CPOHandler::SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXM
   newPOEntryDisc.msgID = AddonXMLEntryEN.strDisclaimer;
   newPOEntrySumm.msgID = AddonXMLEntryEN.strSummary;
 
-  if (strLang != g_Settings.GetSourceLcode())
+  if (strLang != m_XMLResData.strSourceLcode)
   {
-    if (!AddonXMLEntry.strDescription.empty() && (g_Settings.GetForceTXUpdate() || AddonXMLEntry.strDescription != PrevAddonXMLEntry.strDescription))
+    if (!AddonXMLEntry.strDescription.empty() && (m_XMLResData.bForceTXUpd || AddonXMLEntry.strDescription != PrevAddonXMLEntry.strDescription))
       newPOEntryDesc.msgStr = AddonXMLEntry.strDescription;
-    if (!AddonXMLEntry.strDisclaimer.empty() && (g_Settings.GetForceTXUpdate() || AddonXMLEntry.strDisclaimer != PrevAddonXMLEntry.strDisclaimer))
+    if (!AddonXMLEntry.strDisclaimer.empty() && (m_XMLResData.bForceTXUpd || AddonXMLEntry.strDisclaimer != PrevAddonXMLEntry.strDisclaimer))
       newPOEntryDisc.msgStr = AddonXMLEntry.strDisclaimer;
-    if (!AddonXMLEntry.strSummary.empty() && (g_Settings.GetForceTXUpdate() || AddonXMLEntry.strSummary != PrevAddonXMLEntry.strSummary))
+    if (!AddonXMLEntry.strSummary.empty() && (m_XMLResData.bForceTXUpd || AddonXMLEntry.strSummary != PrevAddonXMLEntry.strSummary))
       newPOEntrySumm.msgStr = AddonXMLEntry.strSummary;
   }
 
-  if (!newPOEntryDesc.msgID.empty() && (strLang == g_Settings.GetSourceLcode() || !newPOEntryDesc.msgStr.empty()))
+  if (!newPOEntryDesc.msgID.empty() && (strLang == m_XMLResData.strSourceLcode || !newPOEntryDesc.msgStr.empty()))
     ModifyClassicEntry(POEntryDesc, newPOEntryDesc);
-  if (!newPOEntryDisc.msgID.empty() && (strLang == g_Settings.GetSourceLcode() || !newPOEntryDisc.msgStr.empty()))
+  if (!newPOEntryDisc.msgID.empty() && (strLang == m_XMLResData.strSourceLcode || !newPOEntryDisc.msgStr.empty()))
     ModifyClassicEntry(POEntryDiscl, newPOEntryDisc);
-  if (!newPOEntrySumm.msgID.empty() && (strLang == g_Settings.GetSourceLcode() || !newPOEntrySumm.msgStr.empty()))
+  if (!newPOEntrySumm.msgID.empty() && (strLang == m_XMLResData.strSourceLcode || !newPOEntrySumm.msgStr.empty()))
     ModifyClassicEntry(POEntrySumm, newPOEntrySumm);
   return;
 }
@@ -477,17 +476,17 @@ void CPOHandler::SetHeaderNEW (std::string strLangCode)
   m_strHeader += "msgid \"\"\n";
   m_strHeader += "msgstr \"\"\n";
   m_strHeader += "\"Project-Id-Version: " + m_XMLResData.strTargetProjectNameLong + "\\n\"\n";
-  m_strHeader += "\"Report-Msgid-Bugs-To: " + g_Settings.GetSupportEmailAdd() + "\\n\"\n";
+  m_strHeader += "\"Report-Msgid-Bugs-To: " + m_XMLResData.strSupportEmailAdd + "\\n\"\n";
   m_strHeader += "\"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"Last-Translator: Kodi Translation Team\\n\"\n";
-  m_strHeader += "\"Language-Team: " + g_LCodeHandler.GetLangFromLCode(strLangCode, g_Settings.GetLangteamLFormat()) +
+  m_strHeader += "\"Language-Team: " + g_LCodeHandler.GetLangFromLCode(strLangCode, m_XMLResData.strLangteamLFormat) +
                  " (http://www.transifex.com/projects/p/" + m_XMLResData.strTargetProjectName +"/language/"
-                 + g_LCodeHandler.GetLangFromLCode(strLangCode, g_Settings.GetTargetTXLFormat()) +"/)" + "\\n\"\n";
+                 + g_LCodeHandler.GetLangFromLCode(strLangCode, m_XMLResData.strTargTXLFormat) +"/)" + "\\n\"\n";
   m_strHeader += "\"MIME-Version: 1.0\\n\"\n";
   m_strHeader += "\"Content-Type: text/plain; charset=UTF-8\\n\"\n";
   m_strHeader += "\"Content-Transfer-Encoding: 8bit\\n\"\n";
-  m_strHeader +=  "\"Language: " + g_LCodeHandler.GetLangFromLCode(strLangCode, g_Settings.GetTargetTXLFormat()) + "\\n\"\n";
+  m_strHeader +=  "\"Language: " + g_LCodeHandler.GetLangFromLCode(strLangCode, m_XMLResData.strTargTXLFormat) + "\\n\"\n";
   m_strHeader +=  "\"Plural-Forms: nplurals=" + strnplurals + "; plural=" + g_LCodeHandler.GetPlurForm(strLangCode) + ";\\n\"\n";
 }
 
@@ -555,7 +554,7 @@ bool CPOHandler::WriteXMLFile(const std::string &strOutputPOFilename)
   strXMLDoc += "<!-- Translated using Transifex web application. For support, or if you would like to to help out, please visit your language team! -->\n";
   strXMLDoc += "<!-- " + m_strLangCode + " language-Team URL: " + "http://www.transifex.com/projects/p/" + m_XMLResData.strTargetProjectName +"/language/"
   + m_strLangCode +"/ -->\n";
-  strXMLDoc += "<!-- Report language file syntax bugs at: " + g_Settings.GetSupportEmailAdd() + " -->\n\n";
+  strXMLDoc += "<!-- Report language file syntax bugs at: " + m_XMLResData.strSupportEmailAdd + " -->\n\n";
   strXMLDoc += "<strings>\n";
 
   for (itStrings it = m_mapStrings.begin(); it != m_mapStrings.end(); it++)

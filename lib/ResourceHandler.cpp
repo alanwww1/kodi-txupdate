@@ -25,7 +25,6 @@
 #include "JSONHandler.h"
 #include "HTTPUtils.h"
 #include "Langcodes.h"
-#include "Settings.h"
 
 using namespace std;
 
@@ -63,7 +62,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
   char cstrtemp[strtemp.size()];
   strcpy(cstrtemp, strtemp.c_str());
 
-  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, strURL, g_Settings.GetDefaultTXLFormat(), m_XMLResData);
+  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, strURL, m_XMLResData.strDefTXLFormat, m_XMLResData);
 
   CPOHandler POHandler(m_XMLResData);
 
@@ -72,8 +71,8 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
     printf (" %s", it->c_str());
     m_mapPOFiles[*it] = POHandler;
     CPOHandler * pPOHandler = &m_mapPOFiles[*it];
-    pPOHandler->FetchPOURLToMem(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(*it, g_Settings.GetDefaultTXLFormat()) + "/?file", false);
-    pPOHandler->SetIfIsSourceLang(*it == g_Settings.GetSourceLcode());
+    pPOHandler->FetchPOURLToMem(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat) + "/?file", false);
+    pPOHandler->SetIfIsSourceLang(*it == m_XMLResData.strSourceLcode);
     std::string strLang = *it;
     CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i\t\t%i", strLang.c_str(), pPOHandler->GetNumEntriesCount(),
                             pPOHandler->GetClassEntriesCount());
@@ -149,8 +148,8 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
 
     listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSSourceLangURL, XMLResdata.strUPSLangFormat,
                                                        XMLResdata.strUPSSourceLangAddonURL, XMLResdata.bIsLanguageAddon);
-    if (listGithubLangs.size() == 1 && listGithubLangs.front() == g_Settings.GetSourceLcode())
-      listLangs.push_back(g_Settings.GetSourceLcode());
+    if (listGithubLangs.size() == 1 && listGithubLangs.front() == XMLResdata.strSourceLcode)
+      listLangs.push_back(XMLResdata.strSourceLcode);
     else
       CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: found non source language at source language repository for addon: %s", XMLResdata.strResName.c_str());
   }
@@ -161,7 +160,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
   for (std::list<std::string>::iterator it = listLangs.begin(); it != listLangs.end(); it++)
   {
     CPOHandler POHandler(m_XMLResData);
-    bool bIsSourceLang = *it == g_Settings.GetSourceLcode();
+    bool bIsSourceLang = *it == XMLResdata.strSourceLcode;
     POHandler.SetIfIsSourceLang(bIsSourceLang);
     printf (" %s", it->c_str());
 
@@ -214,8 +213,8 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
   }
   else
   {
-    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strResName + DirSepChar + g_Settings.GetBaseLCode() + DirSepChar + "strings.po";
-    strLangFormat = g_Settings.GetBaseLCode();
+    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strResName + DirSepChar + XMLResdata.strBaseLCode + DirSepChar + "strings.po";
+    strLangFormat = XMLResdata.strBaseLCode;
   }
 
   if (bTXUpdFile && !m_mapPOFiles.empty())

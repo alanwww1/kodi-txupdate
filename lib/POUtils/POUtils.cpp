@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <sstream>
 #include "../HTTPUtils.h"
-#include "../Settings.h"
 
 using namespace std;
 
@@ -60,6 +59,17 @@ bool CPOEntry::operator==(const CPOEntry& poentry) const
 };
 
 CPODocument::CPODocument()
+{
+  m_CursorPos = 0;
+  m_nextEntryPos = 0;
+  m_POfilelength = 0;
+  m_bhasLFWritten = false;
+  m_previd = -1;
+  m_writtenEntry = 0;
+  m_bIsUpdateTxDoc = false;
+};
+
+CPODocument::CPODocument (const CXMLResdata& XMLResdata) : m_XMLResData(XMLResdata)
 {
   m_CursorPos = 0;
   m_nextEntryPos = 0;
@@ -245,7 +255,7 @@ void CPODocument::ParseEntry()
       continue; // we are reading a continous multilne string
     else
     {
-      if (g_Settings.GetRebrand() && pPlaceToParse)
+      if (m_XMLResData.bRebrand && pPlaceToParse)
         g_CharsetUtils.reBrandXBMCToKodi(pPlaceToParse);
       pPlaceToParse= NULL; // end of reading the multiline string
     }
@@ -318,7 +328,7 @@ void CPODocument::ParseEntry()
     else if (HasPrefix(strLine, "#.") && strLine.size() > 2)
     {
       std::string strCommnt = strLine.substr(2);
-      if (g_Settings.GetRebrand())
+      if (m_XMLResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strCommnt);
       if (strCommnt.at(0) != ' ')
       {
@@ -332,7 +342,7 @@ void CPODocument::ParseEntry()
       strLine[1] != ':' && strLine[1] != ' ')
     {
       std::string strCommnt = strLine.substr(1);
-      if (g_Settings.GetRebrand())
+      if (m_XMLResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strCommnt);
       if (strCommnt.substr(0,5) != "empty")
         m_Entry.interlineComm.push_back(strCommnt);
@@ -340,14 +350,14 @@ void CPODocument::ParseEntry()
     else if (HasPrefix(strLine, "# "))
     {
       std::string strCommnt = strLine.substr(2);
-      if (g_Settings.GetRebrand())
+      if (m_XMLResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strCommnt);
       m_Entry.translatorComm.push_back(strCommnt);
     }
     else
       CLog::Log(logWARNING, "POParser: unknown line type found. Failed entry: %s", m_Entry.Content.c_str());
   }
-  if (g_Settings.GetRebrand() && pPlaceToParse)
+  if (m_XMLResData.bRebrand && pPlaceToParse)
     g_CharsetUtils.reBrandXBMCToKodi(pPlaceToParse);
   if ((m_Entry.Type == ID_FOUND || m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND) &&  m_Entry.msgID == "")
   {
@@ -466,7 +476,7 @@ void CPODocument::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
 {
   m_bhasLFWritten = false;
 
-  if ((!m_bIsForeignLang || g_Settings.GetForcePOComments()) && currEntry.Type == ID_FOUND && !m_bIsUpdateTxDoc)
+  if ((!m_bIsForeignLang || m_XMLResData.bForceComm) && currEntry.Type == ID_FOUND && !m_bIsUpdateTxDoc)
   {
     int id = currEntry.numID;
     if (id-m_previd >= 2 && m_previd > -1 && !m_bIsForeignLang)
@@ -482,7 +492,7 @@ void CPODocument::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
   }
   m_bhasLFWritten = false;
 
-  if (!m_bIsForeignLang || g_Settings.GetForcePOComments())
+  if (!m_bIsForeignLang || m_XMLResData.bForceComm)
   {
     WriteMultilineComment(currEntry.translatorComm, "# ");
     WriteMultilineComment(currEntry.extractedComm,  "#.");

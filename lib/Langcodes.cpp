@@ -22,7 +22,6 @@
 #include <string>
 #include <stdio.h>
 #include "Langcodes.h"
-#include "Settings.h"
 #include "Log.h"
 #include "HTTPUtils.h"
 #include "JSONHandler.h"
@@ -38,9 +37,8 @@ CLCodeHandler::CLCodeHandler()
 CLCodeHandler::~CLCodeHandler()
 {}
 
-void CLCodeHandler::Init()
+void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata& XMLResData)
 {
-  std::string strURL = g_Settings.GetLangDatabaseURL();
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit(); 
 
@@ -49,22 +47,22 @@ void CLCodeHandler::Init()
   printf("-----------------------------\n");
 
   // We get the version of the language database files here
-  std::string strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(strURL.substr(0,strURL.find_last_of("/")+1));
+  std::string strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(strLangDatabaseURL.substr(0,strLangDatabaseURL.find_last_of("/")+1));
   printf("Langdatabaseversion");
   std::string strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
   if (strtemp.empty())
-    CLog::Log(logERROR, "CLCodeHandler::Init: error getting language file version from github.com with URL: %s", strURL.c_str());
+    CLog::Log(logERROR, "CLCodeHandler::Init: error getting language file version from github.com with URL: %s", strLangDatabaseURL.c_str());
 
-  g_Json.ParseLangDatabaseVersion(strtemp, strURL);
+  g_Json.ParseLangDatabaseVersion(strtemp, strLangDatabaseURL);
 
   printf(" Langdatabase");
-  strtemp = g_HTTPHandler.GetURLToSTR(strURL);
+  strtemp = g_HTTPHandler.GetURLToSTR(strLangDatabaseURL);
   if (strtemp.empty())
-    CLog::Log(logERROR, "LangCode::Init: error getting available language list from URL %s", strURL.c_str());
+    CLog::Log(logERROR, "LangCode::Init: error getting available language list from URL %s", strLangDatabaseURL.c_str());
 
-  m_mapLCodes = g_Json.ParseTransifexLanguageDatabase(strtemp);
+  m_mapLCodes = g_Json.ParseTransifexLanguageDatabase(strtemp, XMLResData);
 
-  CLog::Log(logINFO, "LCodeHandler: Succesfully fetched %i language codes from URL %s", m_mapLCodes.size(), strURL.c_str());
+  CLog::Log(logINFO, "LCodeHandler: Succesfully fetched %i language codes from URL %s", m_mapLCodes.size(), strLangDatabaseURL.c_str());
 }
 
 int CLCodeHandler::GetnPlurals(std::string LangCode)
@@ -137,7 +135,8 @@ void CLCodeHandler::CleanLangform (std::string &strLangform)
   strLangform = strLangform.substr(pos1, pos2-pos1+1);
 }
 
-std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const std::string& strContributorType, const std::string& strProjectName)
+std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const std::string& strContributorType, const std::string& strProjectName,
+                                                                          const CXMLResdata& XMLResData)
 {
   std::map<std::string, std::string> mapOfContributors;
 
@@ -147,7 +146,7 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const 
   for (itmapLCodes = m_mapLCodes.begin(); itmapLCodes != m_mapLCodes.end() ; itmapLCodes++)
   {
     std::string strLangCode = itmapLCodes->first;
-    std::string strTXLformat = g_Settings.GetDefaultTXLFormat();
+    std::string strTXLformat = XMLResData.strDefTXLFormat;
 
     std::string strJson = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/"+ strProjectName + "/language/" +
                                                      GetLangFromLCode(strLangCode, strTXLformat) + "/" + strContributorType + "/");
@@ -189,18 +188,17 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const 
 void  CLCodeHandler::UploadTranslatorsDatabase(std::map<std::string, std::string> &mapOfCoordinators,
                                                std::map<std::string, std::string> &mapOfReviewers,
                                                std::map<std::string, std::string> &mapOfTranslators,
-                                               const std::string& strTargetProjectName)
+                                               const std::string& strTargetProjectName, const std::string& strTargetTXLFormat)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
 
-  std::string strTXLformat = g_Settings.GetTargetTXLFormat();
   std::string strURL = "https://www.transifex.com/api/2/project/"+ strTargetProjectName + "/languages/?skip_invalid_username";
 
   for (std::map<std::string, std::string>::iterator itmap = mapOfCoordinators.begin(); itmap !=mapOfCoordinators.end(); itmap++)
   {
     std::string strLangCode = itmap->first;
-    std::string strJson = "{\"language_code\": \"" + g_LCodeHandler.GetLangFromLCode(strLangCode, strTXLformat) + "\",";
+    std::string strJson = "{\"language_code\": \"" + g_LCodeHandler.GetLangFromLCode(strLangCode, strTargetTXLFormat) + "\",";
     strJson += mapOfCoordinators[strLangCode];
 
     if (mapOfReviewers.find(strLangCode) != mapOfReviewers.end())

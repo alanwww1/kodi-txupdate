@@ -24,7 +24,6 @@
 #include <vector>
 #include <algorithm>
 #include "HTTPUtils.h"
-#include "Settings.h"
 #include "UpdateXMLHandler.h"
 
 using namespace std;
@@ -57,9 +56,9 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr (const CXMLResdata &XMLResdata)
 return   ProcessAddonXMLFile(XMLResdata, xmlAddonXML);
 }
 
-bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXmlDocument &xmlAddonXML)
+bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResData, TiXmlDocument &xmlAddonXML)
 {
-  std::string AddonXMLFilename = XMLResdata.strUPSAddonURL;
+  std::string AddonXMLFilename = XMLResData.strUPSAddonURL;
   std::string addonXMLEncoding;
   m_strResourceData.clear();
 
@@ -133,14 +132,14 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXml
     if (pChildSummElement->Attribute("lang"))
       strAlias = pChildSummElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormatinXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strUPSAddonLangFormatinXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResData.strUPSAddonLangFormatinXML);
 
     if (pChildSummElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildSummElement->FirstChild()->Value());
             strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
-      if (g_Settings.GetRebrand())
+      if (XMLResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
       m_mapAddonXMLData[strLCode].strSummary = strValue;
     }
@@ -154,14 +153,14 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXml
     if (pChildDescElement->Attribute("lang"))
       strAlias = pChildDescElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormatinXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strUPSAddonLangFormatinXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResData.strUPSAddonLangFormatinXML);
 
     if (pChildDescElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildDescElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
-      if (g_Settings.GetRebrand())
+      if (XMLResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
       m_mapAddonXMLData[strLCode].strDescription = strValue;
     }
@@ -175,14 +174,14 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXml
     if (pChildDisclElement->Attribute("lang"))
       strAlias = pChildDisclElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(g_Settings.GetSourceLcode(), XMLResdata.strUPSAddonLangFormatinXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResdata.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strUPSAddonLangFormatinXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResData.strUPSAddonLangFormatinXML);
 
     if (pChildDisclElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildDisclElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
-      if (g_Settings.GetRebrand())
+      if (XMLResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
       m_mapAddonXMLData[strLCode].strDisclaimer = strValue;
     }

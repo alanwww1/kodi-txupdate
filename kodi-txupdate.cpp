@@ -34,7 +34,6 @@
 #include "lib/ProjectHandler.h"
 #include "lib/HTTPUtils.h"
 #include "lib/Langcodes.h"
-#include "lib/Settings.h"
 #include "lib/JSONHandler.h"
 
 using namespace std;
@@ -152,7 +151,7 @@ int main(int argc, char* argv[])
     if (bInfiniteCacheTime)
       g_HTTPHandler.SetHTTPCacheExpire ((size_t)-1);
 
-    g_LCodeHandler.Init();
+    TXProject.InitLCodeHandler();
 
     if (bDownloadNeeded && !bTransferTranslators)
     {

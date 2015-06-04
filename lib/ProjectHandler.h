@@ -38,6 +38,7 @@ public:
   bool WriteResourcesToFile(std::string strProjRootDir);
   void UploadTXUpdateFiles(std::string strProjRootDir);
   void MigrateTranslators();
+  void InitLCodeHandler();
 
 protected:
   const CPOEntry * SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
@@ -56,9 +57,11 @@ protected:
                                            bool &bResChangedFromUpstream);
   bool FindResInList(std::list<std::string> const &listResourceNamesTX, std::string strTXResName);
   std::list<std::string> GetLangsFromDir(std::string const &strLangDir);
-  void CheckPOEntrySyntax(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN);
-  std::string GetEntryContent(const CPOEntry * pPOEntry, std::string const &strLangCode);
-  void CheckCharCount(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN, char chrToCheck);
+  void CheckPOEntrySyntax(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN,
+                          const CXMLResdata& XMLResData);
+  std::string GetEntryContent(const CPOEntry * pPOEntry, std::string const &strLangCode, const CXMLResdata& XMLResData);
+  void CheckCharCount(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN, char chrToCheck,
+                      const CXMLResdata& XMLResData);
   void PrintChangedLangs(std::list<std::string> lChangedLangs);
   std::string GetResNameFromTXResName(std::string const &strTXResName);
 

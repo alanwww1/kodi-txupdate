@@ -27,6 +27,7 @@
 #include <string>
 #include <map>
 #include <list>
+#include "UpdateXMLHandler.h"
 
 struct CLangcodes
 {
@@ -40,18 +41,19 @@ class CLCodeHandler
 public:
   CLCodeHandler();
   ~CLCodeHandler();
-  void Init();
+  void Init(const std::string strLangDatabaseURL, const CXMLResdata& XMLResData);
   std::string GetLangCodeFromAlias(std::string Alias, std::string AliasForm);
   std::string GetLangFromLCode(std::string LangCode, std::string AliasForm);
   int GetnPlurals(std::string LangToLook);
   std::string GetPlurForm(std::string LangToLook);
   std::string VerifyLangCode(std::string LangCode, const std::string &strLangformat);
   void CleanLangform (std::string &strLangform);
-  std::map<std::string, std::string>  GetTranslatorsDatabase(const std::string& strContributorType, const std::string& strProjectName);
+  std::map<std::string, std::string>  GetTranslatorsDatabase(const std::string& strContributorType, const std::string& strProjectName,
+                                                             const CXMLResdata& XMLResData);
   void  UploadTranslatorsDatabase(std::map<std::string, std::string> &mapOfCoordinators,
                                   std::map<std::string, std::string> &mapOfReviewers,
                                   std::map<std::string, std::string> &mapOfTranslators,
-                                  const std::string& strProjectName);
+                                  const std::string& strProjectName, const std::string& strTargetTXLFormat);
 private:
   std::map <std::string, CLangcodes> m_mapLCodes;
   std::map <std::string, CLangcodes>::iterator itmapLCodes;

@@ -21,7 +21,6 @@
 
 #include "UpdateXMLHandler.h"
 #include "Log.h"
-#include "Settings.h"
 #include <stdlib.h>
 #include <sstream>
 #include "HTTPUtils.h"
@@ -104,39 +103,34 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
     CLog::Log(logERROR, "UpdXMLHandler: No long projectname specified in kodi-txupdate.xml file. Cannot continue. "
     "Please specify the Transifex long projectname in the xml file");
 
-  std::string strTXLangFormat;
+  std::string strTXLangFormat = DEFAULTTXLFORMAT;
   if ((pData = pDataRootElement->FirstChildElement("txlcode")) && (strTXLangFormat = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found tx langformat in kodi-txupdate.xml file: %s",strTXLangFormat.c_str());
-    g_Settings.SetDefaultTXLFormat(strTXLangFormat);
   }
-  g_Settings.SetTargetTXLFormat(g_Settings.GetDefaultTXLFormat());
-  if ((pData = pDataRootElement->FirstChildElement("targettxlcode")) && (strTXLangFormat = pData->FirstChild()->Value()) != "")
+
+  std::string strTargetTXLangFormat = DEFAULTTXLFORMAT;
+  if ((pData = pDataRootElement->FirstChildElement("targettxlcode")) && (strTargetTXLangFormat = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found target tx langformat in kodi-txupdate.xml file: %s",strTXLangFormat.c_str());
-    g_Settings.SetTargetTXLFormat(strTXLangFormat);
   }
 
-  std::string strDefUPSAddonLangFormatinXML;
+  std::string strDefUPSAddonLangFormatinXML = DEFAULTLANGFORMATINADDONXML;
   if ((pData = pDataRootElement->FirstChildElement("addonxmllangformatupstream")) && (strDefUPSAddonLangFormatinXML = pData->FirstChild()->Value()) != "")
     CLog::Log(logINFO, "UpdXMLHandler: Found upstream addon.xml langformat in kodi-txupdate.xml file: %s",strDefUPSAddonLangFormatinXML.c_str());
-  else
-    strDefUPSAddonLangFormatinXML = g_Settings.GetDefaultAddonLFormatinXML();
 
-  std::string strDefLOCAddonLangFormatinXML;
+  std::string strDefLOCAddonLangFormatinXML = DEFAULTLANGFORMATINADDONXML;
   if ((pData = pDataRootElement->FirstChildElement("addonxmllangformatlocal")) && (strDefLOCAddonLangFormatinXML = pData->FirstChild()->Value()) != "")
     CLog::Log(logINFO, "UpdXMLHandler: Found local addon.xml langformat in kodi-txupdate.xml file: %s",strDefLOCAddonLangFormatinXML.c_str());
-  else
-    strDefLOCAddonLangFormatinXML = g_Settings.GetDefaultAddonLFormatinXML();
 
-  std::string strDefLangdatabaseURL;
-  if ((pData = pDataRootElement->FirstChildElement("langdatabaseurl")) && (strDefLangdatabaseURL = pData->FirstChild()->Value()) != "")
+  std::string strLangDatabaseURL = DEFAULTLANGDATABASELINK;
+  if ((pData = pDataRootElement->FirstChildElement("langdatabaseurl")) && (strLangDatabaseURL = pData->FirstChild()->Value()) != "")
   {
-    CLog::Log(logINFO, "UpdXMLHandler: Found language database URL in kodi-txupdate.xml file: %s",strDefLangdatabaseURL.c_str());
-    g_Settings.SetLangDatabaseURL(strDefLangdatabaseURL);
+    CLog::Log(logINFO, "UpdXMLHandler: Found language database URL in kodi-txupdate.xml file: %s",strLangDatabaseURL.c_str());
+    strLangDatabaseURL = strLangDatabaseURL;
   }
 
-  std::string strBaseLcode;
+  std::string strBaseLcode = DEFAULTBASELCODE;
   if ((pData = pDataRootElement->FirstChildElement("baselcode")) && (strBaseLcode = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: found base language code format in kodi-txupdate.xml file: %s",strBaseLcode.c_str());
@@ -157,63 +151,54 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
     strMergedLangfileDir= strMergedLangfileDir;
   }
 
-  std::string strSourcelcode;
+  std::string strSourcelcode = DEFAULTSOURCELCODE;
   if ((pData = pDataRootElement->FirstChildElement("sourcelcode")) && (strSourcelcode = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found sourcelcode in kodi-txupdate.xml file: %s", strSourcelcode.c_str());
-    g_Settings.SetSourceLcode(strSourcelcode);
+    strSourcelcode = strSourcelcode;
   }
-  else
-    CLog::Log(logINFO, "UpdXMLHandler: No source language code specified in kodi-txupdate.xml file. Using default value: %s",
-              g_Settings.GetSourceLcode().c_str());
 
-  std::string strTXUpdatelangfileDir;
+  std::string strTXUpdatelangfileDir = DEFAULTTXUPDLANGDIR;
   if ((pData = pDataRootElement->FirstChildElement("temptxupdate_langfiledir")) && (strTXUpdatelangfileDir = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found temp tx update language file directory in kodi-txupdate.xml file: %s", strTXUpdatelangfileDir.c_str());
-    g_Settings.SetTXUpdateLangfilesDir(strTXUpdatelangfileDir);
+    strTXUpdatelangfileDir = strTXUpdatelangfileDir;
   }
-  else
-    CLog::Log(logINFO, "UpdXMLHandler: No temp tx update language file directory specified in kodi-txupdate.xml file. Using default value: %s",
-              g_Settings.GetTXUpdateLangfilesDir().c_str());
 
-  std::string strSupportEmailAdd;
+  std::string strSupportEmailAdd = DEFAULTSUPPORTMAIL;
   if ((pData = pDataRootElement->FirstChildElement("support_email")) && (strSupportEmailAdd = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found support email address in kodi-txupdate.xml file: %s", strSupportEmailAdd.c_str());
-    g_Settings.SetSupportEmailAdd(strSupportEmailAdd);
+   strSupportEmailAdd = strSupportEmailAdd;
   }
-  else
-    CLog::Log(logINFO, "UpdXMLHandler: No support email address specified in kodi-txupdate.xml file. Using default value: %s",
-              g_Settings.GetSupportEmailAdd().c_str());
 
   std::string strAttr;
+  bool bForcePOComments = false;
   if ((pData = pDataRootElement->FirstChildElement("forcePOComm")) && (strAttr = pData->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Forced PO file comments for non English languages.", strMergedLangfileDir.c_str());
-    g_Settings.SetForcePOComments(true);
+    bForcePOComments = true;
   }
 
+  bool bRebrand =false;
   if ((pData = pDataRootElement->FirstChildElement("rebrand")) && (strAttr = pData->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Rebrand of XBMC strings to Kodi strings turned on.");
-    g_Settings.SetRebrand(true);
+    bRebrand = true;
   }
 
-  std::string strLangteamLFormat;
+  std::string strLangteamLFormat = DEFAULTLANGTEAMLFORMAT;
   if ((pData = pDataRootElement->FirstChildElement("langteamformat")) && (strLangteamLFormat = pData->FirstChild()->Value()) != "")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Found language team format to put into PO files in kodi-txupdate.xml file: %s", strLangteamLFormat.c_str());
-    g_Settings.SetLangteamLFormat(strLangteamLFormat);
+    strLangteamLFormat = strLangteamLFormat;
   }
-  else
-    CLog::Log(logINFO, "UpdXMLHandler: No language team format specified in kodi-txupdate.xml file. Using default value: %s",
-              g_Settings.GetLangteamLFormat().c_str());
 
+  bool bForceTXUpdate = false;
   if ((pData = pDataRootElement->FirstChildElement("ForceTXUpd")) && (strAttr = pData->FirstChild()->Value()) == "true")
   {
     CLog::Log(logINFO, "UpdXMLHandler: Create of TX update files is forced.");
-    g_Settings.SetForceTXUpdate(true);
+    bForceTXUpdate = true;
   }
 
   TiXmlElement* pRootElement = pProjectRootElement->FirstChildElement("resources");
@@ -237,6 +222,17 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
     currResData.strTargetProjectNameLong = strLongProjName;
     currResData.iMinComplPercent = iMinComplPercent;
     currResData.strMergedLangfileDir = strMergedLangfileDir;
+    currResData.strTXUpdateLangfilesDir = strTXUpdatelangfileDir;
+    currResData.bForceTXUpd = bForceTXUpdate;
+    currResData.bRebrand = bRebrand;
+    currResData.bForceComm = bForcePOComments;
+    currResData.strLangteamLFormat = strLangteamLFormat;
+    currResData.strSupportEmailAdd = strSupportEmailAdd;
+    currResData.strSourceLcode = strSourcelcode;
+    currResData.LangDatabaseURL = strLangDatabaseURL;
+    currResData.strTargTXLFormat = strTargetTXLangFormat;
+    currResData.strDefTXLFormat = strTargetTXLangFormat;
+    currResData.strBaseLCode = strBaseLcode;
 
     std::string strResName;
     if (!pChildResElement->Attribute("name") || (strResName = pChildResElement->Attribute("name")) == "")

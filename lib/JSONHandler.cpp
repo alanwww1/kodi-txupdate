@@ -24,7 +24,6 @@
 #include <list>
 #include <algorithm>
 #include <stdlib.h>
-#include "Settings.h"
 #include "Fileversioning.h"
 #include "CharsetUtils/CharsetUtils.h"
 
@@ -167,7 +166,7 @@ std::list<std::string> CJSONHandler::ParseAvailLanguagesGITHUB(std::string strJS
   return listLangs;
 };
 
-std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(std::string strJSON)
+std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(std::string strJSON, const CXMLResdata& XMLResData)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
@@ -197,7 +196,7 @@ std::map<std::string, CLangcodes> CJSONHandler::ParseTransifexLanguageDatabase(s
       std::string langstrKey = itralias.key().asString();
       std::string langstrName = (*itralias).asString();
       LangData.mapLangdata[langstrKey] = langstrName;
-      if ( "$(" + langstrKey + ")" == g_Settings.GetBaseLCode())
+      if ( "$(" + langstrKey + ")" == XMLResData.strBaseLCode)
         strLCode = langstrName;
     }
 

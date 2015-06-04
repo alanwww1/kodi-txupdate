@@ -24,7 +24,6 @@
 #include <curl/easy.h>
 #include "FileUtils/FileUtils.h"
 #include <cctype>
-#include "Settings.h"
 #include "JSONHandler.h"
 #include "Fileversioning.h"
 

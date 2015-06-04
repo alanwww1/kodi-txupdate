@@ -24,12 +24,20 @@
 #pragma once
 
 #include "TinyXML/tinyxml.h"
-#include "POUtils/POUtils.h"
 #include <string>
+#include <map>
 
 const size_t DEFAULTCACHEEXPIRE = 360; // 6 hours
 const int DEFAULTMINCOMPLETION = 10; // %
 const std::string DEFAULTMERGEDLANGDIR = "merged-langfiles";
+const std::string DEFAULTTXUPDLANGDIR = "tempfiles_txupdate";
+const std::string DEFAULTSUPPORTMAIL = "txtranslation@kodi.tv";
+const std::string DEFAULTSOURCELCODE = "en_GB";
+const std::string DEFAULTBASELCODE = "$(LCODE)";
+const std::string DEFAULTTXLFORMAT = "$(LCODE)";
+const std::string DEFAULTLANGTEAMLFORMAT = "$(GUILNAME)";
+const std::string DEFAULTLANGDATABASELINK = "https://raw.github.com/xbmc/translations/master/tool/lang-database/kodi-languages.json";
+const std::string DEFAULTLANGFORMATINADDONXML = "$(OLDLCODE)";
 
 class CXMLResdata
 {
@@ -61,6 +69,17 @@ public:
   std::string strTargetProjectNameLong;
   std::string strMergedLangfileDir;
   int iMinComplPercent;
+  std::string strTXUpdateLangfilesDir;
+  std::string strSupportEmailAdd;
+  std::string strSourceLcode;
+  std::string strBaseLCode;
+  std::string strDefTXLFormat;
+  std::string strTargTXLFormat;
+  std::string strLangteamLFormat;
+  std::string LangDatabaseURL;
+  bool bForceComm;
+  bool bRebrand;
+  bool bForceTXUpd;
 };
 
 class CUpdateXMLHandler

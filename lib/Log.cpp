@@ -21,7 +21,6 @@
 
 #include "Log.h"
 #include "FileUtils/FileUtils.h"
-#include "Settings.h"
 
 static FILE * m_pLogFile;
 static FILE * m_pLogSyntaxFile;
