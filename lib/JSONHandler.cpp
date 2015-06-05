@@ -40,63 +40,6 @@ CJSONHandler::~CJSONHandler()
 
 
 
-
-std::string CJSONHandler::CreateJSONStrFromPOStr(std::string const &strPO)
-{
-  Json::Value root;
-  root["content"] = strPO;
-  root["mimetype"] = std::string("text/x-po");
-  Json::StyledWriter writer;
-  std::string strJSON = writer.write(root);
-  return strJSON;
-};
-
-std::string CJSONHandler::CreateNewresJSONStrFromPOStr(std::string strTXResname, std::string const &strPO)
-{
-  Json::Value root;
-  root["content"] = strPO;
-  root["slug"] = std::string(strTXResname);
-  root["name"] = std::string(strTXResname);
-  root["i18n_type"] = std::string("PO");
-  Json::StyledWriter writer;
-  std::string strJSON = writer.write(root);
-  return strJSON;
-};
-
-void CJSONHandler::ParseUploadedStringsData(std::string const &strJSON, size_t &stradded, size_t &strupd)
-{
-  Json::Value root;   // will contains the root value after parsing.
-  Json::Reader reader;
-
-  bool parsingSuccessful = reader.parse(strJSON, root );
-  if ( !parsingSuccessful )
-  {
-    CLog::Log(logERROR, "JSONHandler::ParseUploadedStringsData: Parse upload tx server response: no valid JSON data");
-    return;
-  }
-
-  stradded = root.get("strings_added", 0).asInt();
-  strupd = root.get("strings_updated", 0).asInt();
-  return;
-};
-
-void CJSONHandler::ParseUploadedStrForNewRes(std::string const &strJSON, size_t &stradded)
-{
-  Json::Value root;   // will contains the root value after parsing.
-  Json::Reader reader;
-
-  bool parsingSuccessful = reader.parse(strJSON, root );
-  if ( !parsingSuccessful )
-  {
-    CLog::Log(logERROR, "JSONHandler::ParseUploadedStrForNewRes: Parse upload tx server response: no valid JSON data");
-    return;
-  }
-
-  stradded = root[0].asInt();
-
-  return;
-};
-
 void CJSONHandler::ParseAddonXMLVersionGITHUB(const std::string &strJSON, const std::string &strURL, const std::string &strAddXMLFilename, const std::string &strChlogname)
 {
   Json::Value root;   // will contains the root value after parsing.

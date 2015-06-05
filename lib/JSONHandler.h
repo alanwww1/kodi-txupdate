@@ -39,10 +39,6 @@ public:
   ~CJSONHandler();
 
   void ParseAddonXMLVersionGITHUB(const std::string &strJSON, const std::string &strURL, const std::string &strAddXMLFilename, const std::string &strChlogname);
-  std::string CreateJSONStrFromPOStr(std::string const &strPO);
-  std::string CreateNewresJSONStrFromPOStr(std::string strTXResname, std::string const &strPO);
-  void ParseUploadedStringsData(std::string const &strJSON, size_t &stradded, size_t &strupd);
-  void ParseUploadedStrForNewRes(std::string const &strJSON, size_t &stradded);
   void ParseLangDatabaseVersion(const std::string &strJSON, const std::string &strURL);
 };
 extern CJSONHandler g_Json;

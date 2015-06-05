@@ -84,6 +84,10 @@ private:
   CLoginData GetCredentials (std::string strURL);
   bool ComparePOFiles(std::string strPOFilePath1, std::string strPOFilePath2) const;
   std::string URLEncode (std::string strURL);
+  std::string CreateNewresJSONStrFromPOStr(std::string strTXResname, std::string const &strPO);
+  void ParseUploadedStringsData(std::string const &strJSON, size_t &stradded, size_t &strupd);
+  void ParseUploadedStrForNewRes(std::string const &strJSON, size_t &stradded);
+
   std::map<std::string, CLoginData> m_mapLoginData;
   std::map<std::string, CLoginData>::iterator itMapLoginData;
   size_t m_iHTTPCacheExp;

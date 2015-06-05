@@ -466,7 +466,7 @@ long CHTTPHandler::curlPUTPOFileToURL(std::string const &strFilePath, std::strin
       CLog::Log(logERROR, "HTTPHandler::curlFileToURL no valid Transifex server response received");
 
     strServerResp = strServerResp.substr(jsonPos);
-    g_Json.ParseUploadedStringsData(strServerResp, stradded, strupd);
+    ParseUploadedStringsData(strServerResp, stradded, strupd);
 
     return http_code;
   }
@@ -534,7 +534,7 @@ bool CHTTPHandler::CreateNewResource(std::string strResname, std::string strENPO
 
   std::string strPO = g_File.ReadFileToStr(strENPOFilePath);
 
-  std::string strPOJson = g_Json.CreateNewresJSONStrFromPOStr(strResname, strPO);
+  std::string strPOJson = CreateNewresJSONStrFromPOStr(strResname, strPO);
 
   std::string strServerResp;
   CLoginData LoginData = GetCredentials(strURL);
@@ -595,7 +595,7 @@ bool CHTTPHandler::CreateNewResource(std::string strResname, std::string strENPO
                 curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), strURL.c_str(), strENPOFilePath.c_str(), strResname.c_str());
 
     g_File.CopyFile(strENPOFilePath, strCacheFile);
-    g_Json.ParseUploadedStrForNewRes(strServerResp, stradded);
+    ParseUploadedStrForNewRes(strServerResp, stradded);
 
     return http_code;
   }
@@ -735,4 +735,50 @@ bool CHTTPHandler::UploadTranslatorsDatabase(std::string strJson, std::string st
   else
     CLog::Log(logERROR, "CHTTPHandler::CreateNewResource failed because Curl was not initalized");
   return 700;
+};
+
+std::string CHTTPHandler::CreateNewresJSONStrFromPOStr(std::string strTXResname, std::string const &strPO)
+{
+  Json::Value root;
+  root["content"] = strPO;
+  root["slug"] = std::string(strTXResname);
+  root["name"] = std::string(strTXResname);
+  root["i18n_type"] = std::string("PO");
+  Json::StyledWriter writer;
+  std::string strJSON = writer.write(root);
+  return strJSON;
+};
+
+void CHTTPHandler::ParseUploadedStringsData(std::string const &strJSON, size_t &stradded, size_t &strupd)
+{
+  Json::Value root;   // will contains the root value after parsing.
+  Json::Reader reader;
+
+  bool parsingSuccessful = reader.parse(strJSON, root );
+  if ( !parsingSuccessful )
+  {
+    CLog::Log(logERROR, "JSONHandler::ParseUploadedStringsData: Parse upload tx server response: no valid JSON data");
+    return;
+  }
+
+  stradded = root.get("strings_added", 0).asInt();
+  strupd = root.get("strings_updated", 0).asInt();
+  return;
+};
+
+void CHTTPHandler::ParseUploadedStrForNewRes(std::string const &strJSON, size_t &stradded)
+{
+  Json::Value root;   // will contains the root value after parsing.
+  Json::Reader reader;
+
+  bool parsingSuccessful = reader.parse(strJSON, root );
+  if ( !parsingSuccessful )
+  {
+    CLog::Log(logERROR, "JSONHandler::ParseUploadedStrForNewRes: Parse upload tx server response: no valid JSON data");
+    return;
+  }
+
+  stradded = root[0].asInt();
+
+  return;
 };
