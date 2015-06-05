@@ -53,7 +53,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   char cstrtemp[strtemp.size()];
   strcpy(cstrtemp, strtemp.c_str());
 
-  std::list<std::string> listResourceNamesTX = g_Json.ParseResources(strtemp);
+  std::list<std::string> listResourceNamesTX = ParseResources(strtemp);
 
   for (std::list<std::string>::iterator it = listResourceNamesTX.begin(); it != listResourceNamesTX.end(); it++)
   {
@@ -584,7 +584,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 
   printf ("\n\n");
 
-  std::list<std::string> listResourceNamesTX = g_Json.ParseResources(strtemp);
+  std::list<std::string> listResourceNamesTX = ParseResources(strtemp);
 
   std::string strPrefixDir = XMLResData.strTXUpdateLangfilesDir;
 
@@ -842,3 +842,31 @@ void CProjectHandler::InitLCodeHandler()
   CXMLResdata XMLResdata = m_mapResData.begin()->second;
   g_LCodeHandler.Init(XMLResdata.LangDatabaseURL, XMLResdata);
 }
+
+std::list<std::string> CProjectHandler::ParseResources(std::string strJSON)
+{
+  Json::Value root;   // will contains the root value after parsing.
+  Json::Reader reader;
+  std::string resName;
+  std::list<std::string> listResources;
+
+  bool parsingSuccessful = reader.parse(strJSON, root );
+  if ( !parsingSuccessful )
+  {
+    CLog::Log(logERROR, "JSONHandler: Parse resource: no valid JSON data");
+    return listResources;
+  }
+
+  for(Json::ValueIterator itr = root.begin() ; itr != root.end() ; itr++)
+  {
+    Json::Value valu = *itr;
+    resName = valu.get("slug", "unknown").asString();
+
+    if (resName.size() == 0 || resName == "unknown")
+      CLog::Log(logERROR, "JSONHandler: Parse resource: no valid JSON data while iterating");
+    listResources.push_back(resName);
+    CLog::Log(logINFO, "JSONHandler: found resource on Transifex server: %s", resName.c_str());
+  };
+  CLog::Log(logINFO, "JSONHandler: Found %i resources at Transifex server", listResources.size());
+  return listResources;
+};

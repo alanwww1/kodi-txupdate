@@ -25,6 +25,8 @@
 #include <string>
 #include <map>
 
+using namespace std;
+
 enum TLogLevel { logERROR, logWARNING, logINFO, logDEBUG, logLINEFEED, logCLOSETABLE, logADDTABLEHEADER };
 
 const std::string listLogTypes[] = {"ERROR", "WARNING", "INFO", "DEBUG"};

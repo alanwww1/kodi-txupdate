@@ -52,6 +52,8 @@ public:
 protected:
   void CreateMissingDirs(std::string strResRootDir, int resType);
   T_itmapPOFiles IterateToMapIndex(T_itmapPOFiles it, size_t index);
+  std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL,
+                                                             const std::string &strTXLangformat, const CXMLResdata& XMLResData);
 
   std::map<std::string, CPOHandler> m_mapPOFiles;
   CAddonXMLHandler m_AddonXMLHandler;

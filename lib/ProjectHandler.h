@@ -65,6 +65,8 @@ protected:
   void PrintChangedLangs(std::list<std::string> lChangedLangs);
   std::string GetResNameFromTXResName(std::string const &strTXResName);
 
+  std::list<std::string> ParseResources(std::string strJSON);
+
   std::map<std::string, CResourceHandler> m_mapResourcesTX;
   std::map<std::string, CResourceHandler> m_mapResourcesUpstr;
 

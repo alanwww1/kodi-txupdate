@@ -25,6 +25,7 @@
 #include "JSONHandler.h"
 #include "HTTPUtils.h"
 #include "Langcodes.h"
+#include "Fileversioning.h"
 
 using namespace std;
 
@@ -62,7 +63,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
   char cstrtemp[strtemp.size()];
   strcpy(cstrtemp, strtemp.c_str());
 
-  std::list<std::string> listLangsTX = g_Json.ParseAvailLanguagesTX(strtemp, strURL, m_XMLResData.strDefTXLFormat, m_XMLResData);
+  std::list<std::string> listLangsTX = ParseAvailLanguagesTX(strtemp, strURL, m_XMLResData.strDefTXLFormat, m_XMLResData);
 
   CPOHandler POHandler(m_XMLResData);
 
@@ -277,3 +278,53 @@ T_itmapPOFiles CResourceHandler::IterateToMapIndex(T_itmapPOFiles it, size_t ind
   for (size_t i = 0; i != index; i++) it++;
   return it;
 }
+
+std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL,
+                                                           const std::string &strTXLangformat, const CXMLResdata& XMLResData)
+{
+  Json::Value root;   // will contains the root value after parsing.
+  Json::Reader reader;
+  std::string LCode;
+  std::list<std::string> listLangs;
+
+  bool parsingSuccessful = reader.parse(strJSON, root );
+  if ( !parsingSuccessful )
+  {
+    CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesTX: no valid JSON data");
+    return listLangs;
+  }
+
+  const Json::Value langs = root;
+  std::string strLangsToFetch;
+  std::string strLangsToDrop;
+
+  for(Json::ValueIterator itr = langs.begin() ; itr != langs.end() ; itr++)
+  {
+    LCode = itr.key().asString();
+    if (LCode == "unknown")
+      CLog::Log(logERROR, "JSONHandler: ParseLangs: no language code in json data. json string:\n %s", strJSON.c_str());
+
+    LCode = g_LCodeHandler.VerifyLangCode(LCode, strTXLangformat);
+
+    if (LCode == "")
+      continue;
+
+    Json::Value valu = *itr;
+    std::string strCompletedPerc = valu.get("completed", "unknown").asString();
+    std::string strModTime = valu.get("last_update", "unknown").asString();
+
+    // we only add language codes to the list which has a minimum ready percentage defined in the xml file
+    // we make an exception with all English derived languages, as they can have only a few srings changed
+    if (LCode.find("en_") != std::string::npos || strtol(&strCompletedPerc[0], NULL, 10) > XMLResData.iMinComplPercent-1)
+    {
+      strLangsToFetch += LCode + ": " + strCompletedPerc + ", ";
+      listLangs.push_back(LCode);
+      g_Fileversion.SetVersionForURL(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(LCode,strTXLangformat) + "/?file", strModTime);
+    }
+    else
+      strLangsToDrop += LCode + ": " + strCompletedPerc + ", ";
+  };
+  CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Fetcehed: %s", strLangsToFetch.c_str());
+  CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Dropped (not enough completion): %s", strLangsToDrop.c_str());
+  return listLangs;
+};
