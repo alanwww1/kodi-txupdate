@@ -41,7 +41,6 @@ lib/ResourceHandler.cpp \
 lib/ProjectHandler.cpp \
 lib/UpdateXMLHandler.cpp \
 lib/AddonXMLHandler.cpp \
-lib/JSONHandler.cpp \
 $(OUTPUT)
 
 OBJS := $(addsuffix .o,$(basename ${SRCS}))
@@ -72,7 +71,6 @@ ProjectHandler.o: ProjectHandler.h ProjectHandler.cpp ResourceHandler.h Resource
 UpdateXMLHandler.o: UpdateXMLHandler.h Log.cpp Log.h tinyxml.o
 HTTPUtils.o: HTTPUtils.h Log.h Log.cpp
 Fileversioning.o: Fileversioning.h HTTPUtils.h HTTPUtils.cpp
-JSONHandler.o: JSONHandler.h JSONHandler.cpp
 AddonXMLHandler.cpp: AddonXMLHandler.h
 
 install:

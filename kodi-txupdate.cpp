@@ -34,7 +34,7 @@
 #include "lib/ProjectHandler.h"
 #include "lib/HTTPUtils.h"
 #include "lib/Langcodes.h"
-#include "lib/JSONHandler.h"
+#include "jsoncpp/json/json.h"
 
 using namespace std;
 

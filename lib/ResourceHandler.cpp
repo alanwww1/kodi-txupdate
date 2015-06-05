@@ -22,10 +22,10 @@
 #include "ResourceHandler.h"
 #include <list>
 #include <algorithm>
-#include "JSONHandler.h"
 #include "HTTPUtils.h"
 #include "Langcodes.h"
 #include "Fileversioning.h"
+#include "jsoncpp/json/json.h"
 
 using namespace std;
 
@@ -105,7 +105,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
       CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting addon.xml file version from github.com");
 
 //TODO separate addon.xml and changelog.txt version parsing as they can be in a different place
-    g_Json.ParseAddonXMLVersionGITHUB(strtemp, XMLResdata.strUPSAddonURLRoot, XMLResdata.strUPSAddonXMLFilename, XMLResdata.strUPSChangelogName);
+    ParseAddonXMLVersionGITHUB(strtemp, XMLResdata.strUPSAddonURLRoot, XMLResdata.strUPSAddonXMLFilename, XMLResdata.strUPSChangelogName);
 
     printf(" Addxml");
     m_AddonXMLHandler.FetchAddonXMLFileUpstr(XMLResdata);
@@ -378,4 +378,42 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesGITHUB(std::string s
   };
 
   return listLangs;
+};
+
+void CResourceHandler::ParseAddonXMLVersionGITHUB(const std::string &strJSON, const std::string &strURL, const std::string &strAddXMLFilename, const std::string &strChlogname)
+{
+  Json::Value root;   // will contains the root value after parsing.
+  Json::Reader reader;
+  std::string strName, strVersion;
+
+  bool parsingSuccessful = reader.parse(strJSON, root );
+  if ( !parsingSuccessful )
+    CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
+
+  const Json::Value JFiles = root;
+
+  for(Json::ValueIterator itr = JFiles.begin() ; itr !=JFiles.end() ; itr++)
+  {
+    Json::Value JValu = *itr;
+    std::string strType =JValu.get("type", "unknown").asString();
+
+    if (strType == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
+
+    strName =JValu.get("name", "unknown").asString();
+
+    if (strName == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
+
+    if (strType == "file" && ((!strAddXMLFilename.empty() && strName == strAddXMLFilename) ||
+      (!strChlogname.empty() && strName == strChlogname)))
+    {
+      strVersion =JValu.get("sha", "unknown").asString();
+
+      if (strVersion == "unknown")
+        CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid sha JSON data downloaded from Github");
+
+      g_Fileversion.SetVersionForURL(strURL + strName, strVersion);
+    }
+  };
 };

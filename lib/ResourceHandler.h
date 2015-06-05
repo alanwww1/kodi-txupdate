@@ -56,6 +56,8 @@ protected:
                                                const std::string &strTXLangformat, const CXMLResdata& XMLResData);
   std::list<std::string> ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL, std::string strLangformat,
                                                                      std::string strAddonXMLURL, bool bIsLangAddon);
+  void ParseAddonXMLVersionGITHUB(const std::string &strJSON, const std::string &strURL,
+                                  const std::string &strAddXMLFilename, const std::string &strChlogname);
   std::map<std::string, CPOHandler> m_mapPOFiles;
   CAddonXMLHandler m_AddonXMLHandler;
   std::list<std::string> m_lChangedLangsFromUpstream;

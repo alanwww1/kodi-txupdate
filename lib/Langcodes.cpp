@@ -24,9 +24,10 @@
 #include "Langcodes.h"
 #include "Log.h"
 #include "HTTPUtils.h"
-#include "JSONHandler.h"
 #include "TinyXML/tinyxml.h"
 #include "algorithm"
+#include "Fileversioning.h"
+#include "jsoncpp/json/json.h"
 
 using namespace std;
 
@@ -54,7 +55,7 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata
   if (strtemp.empty())
     CLog::Log(logERROR, "CLCodeHandler::Init: error getting language file version from github.com with URL: %s", strLangDatabaseURL.c_str());
 
-  g_Json.ParseLangDatabaseVersion(strtemp, strLangDatabaseURL);
+  ParseLangDatabaseVersion(strtemp, strLangDatabaseURL);
 
   printf(" Langdatabase");
   strtemp = g_HTTPHandler.GetURLToSTR(strLangDatabaseURL);
@@ -324,3 +325,41 @@ void CLCodeHandler::AddCustomRule(std::map<std::string, CLangcodes> &mapTXLangs,
 {
   mapTXLangs[strLeft].mapLangdata[strLangformat] = strRight;
 }
+
+void CLCodeHandler::ParseLangDatabaseVersion(const std::string &strJSON, const std::string &strURL)
+{
+  Json::Value root;   // will contains the root value after parsing.
+  Json::Reader reader;
+  std::string strName, strVersion;
+
+  std::string strDatabaseFilename = strURL.substr(strURL.rfind("/")+1,std::string::npos);
+
+  bool parsingSuccessful = reader.parse(strJSON, root );
+  if ( !parsingSuccessful )
+    CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
+
+  const Json::Value JFiles = root;
+
+  for(Json::ValueIterator itr = JFiles.begin() ; itr !=JFiles.end() ; itr++)
+  {
+    Json::Value JValu = *itr;
+    std::string strType =JValu.get("type", "unknown").asString();
+
+    if (strType == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseLangDatabaseVersion: no valid JSON data downloaded from Github");
+
+    strName =JValu.get("name", "unknown").asString();
+
+    if (strName == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseLangDatabaseVersion: no valid JSON data downloaded from Github");
+
+    if (strType == "file" && strName == strDatabaseFilename)
+    {
+      strVersion =JValu.get("sha", "unknown").asString();
+      if (strVersion == "unknown")
+        CLog::Log(logERROR, "CJSONHandler::ParseLangDatabaseVersion: no valid sha JSON data downloaded from Github");
+
+      g_Fileversion.SetVersionForURL(strURL, strVersion);
+    }
+  };
+};

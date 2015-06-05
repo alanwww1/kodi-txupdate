@@ -21,7 +21,6 @@
 
 #include "Fileversioning.h"
 #include "HTTPUtils.h"
-#include "JSONHandler.h"
 
 CFileversion g_Fileversion;
 

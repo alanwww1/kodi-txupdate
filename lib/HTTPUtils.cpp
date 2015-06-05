@@ -24,8 +24,8 @@
 #include <curl/easy.h>
 #include "FileUtils/FileUtils.h"
 #include <cctype>
-#include "JSONHandler.h"
 #include "Fileversioning.h"
+#include "jsoncpp/json/json.h"
 
 
 CHTTPHandler g_HTTPHandler;

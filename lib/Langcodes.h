@@ -59,6 +59,7 @@ private:
   void AddGeneralRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLeft, std::string strRight);
   void AddCustomRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLangformat,
                      const std::string &strLeft, const std::string &strRight);
+  void ParseLangDatabaseVersion(const std::string &strJSON, const std::string &strURL);
 
   std::map <std::string, CLangcodes> m_mapLCodes;
   std::map <std::string, CLangcodes>::iterator itmapLCodes;

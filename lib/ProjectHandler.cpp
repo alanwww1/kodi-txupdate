@@ -22,7 +22,7 @@
 #include "ProjectHandler.h"
 #include <list>
 #include "HTTPUtils.h"
-#include "JSONHandler.h"
+#include "jsoncpp/json/json.h"
 #include <algorithm>
 #include "UpdateXMLHandler.h"
 
