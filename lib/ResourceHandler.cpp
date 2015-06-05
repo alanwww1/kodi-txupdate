@@ -130,7 +130,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
   if (strtemp.empty())
     CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting po file list from github.com");
 
-  listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat,
+  listGithubLangs = ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat,
                                                      XMLResdata.strUPSAddonURL, XMLResdata.bIsLanguageAddon);
 
   listLangs = listGithubLangs;
@@ -147,7 +147,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
     if (strtemp.empty())
       CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting source language file list from github.com");
 
-    listGithubLangs = g_Json.ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSSourceLangURL, XMLResdata.strUPSLangFormat,
+    listGithubLangs = ParseAvailLanguagesGITHUB(strtemp, XMLResdata.strUPSSourceLangURL, XMLResdata.strUPSLangFormat,
                                                        XMLResdata.strUPSSourceLangAddonURL, XMLResdata.bIsLanguageAddon);
     if (listGithubLangs.size() == 1 && listGithubLangs.front() == XMLResdata.strSourceLcode)
       listLangs.push_back(XMLResdata.strSourceLcode);
@@ -326,5 +326,56 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
   };
   CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Fetcehed: %s", strLangsToFetch.c_str());
   CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Dropped (not enough completion): %s", strLangsToDrop.c_str());
+  return listLangs;
+};
+
+std::list<std::string> CResourceHandler::ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL, std::string strLangformat,
+                                                                   std::string strAddonXMLURL, bool bIsLangAddon)
+{
+  Json::Value root;   // will contains the root value after parsing.
+  Json::Reader reader;
+  std::string lang, strVersion;
+  std::list<std::string> listLangs;
+
+  bool parsingSuccessful = reader.parse(strJSON, root );
+  if ( !parsingSuccessful )
+    CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid JSON data downloaded from Github");
+
+  const Json::Value JLangs = root;
+
+  for(Json::ValueIterator itr = JLangs.begin() ; itr !=JLangs.end() ; itr++)
+  {
+    Json::Value JValu = *itr;
+    std::string strType =JValu.get("type", "unknown").asString();
+    if (strType == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid JSON data downloaded from Github");
+    else if (strType != "dir")
+      continue;
+
+    lang =JValu.get("name", "unknown").asString();
+    if (lang == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid JSON data downloaded from Github");
+
+    strVersion =JValu.get("sha", "unknown").asString();
+    if (strVersion == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid sha JSON data downloaded from Github");
+
+    std::string strMatchedLangalias = g_CharsetUtils.GetLangnameFromURL(lang, strURL, strLangformat);
+    std::string strFoundLangCode = g_LCodeHandler.GetLangCodeFromAlias(strMatchedLangalias, strLangformat);
+    if (strFoundLangCode != "")
+    {
+      listLangs.push_back(strFoundLangCode);
+      std::string strURLforFile = strURL;
+      g_CharsetUtils.replaceAllStrParts(&strURLforFile, strLangformat, strMatchedLangalias);
+      g_Fileversion.SetVersionForURL(strURLforFile, strVersion);
+      if (bIsLangAddon)
+      {
+        std::string strURLforAddonFile = strAddonXMLURL;
+        g_CharsetUtils.replaceAllStrParts(&strURLforAddonFile, strLangformat, strMatchedLangalias);
+        g_Fileversion.SetVersionForURL(strURLforAddonFile, strVersion);
+      }
+    }
+  };
+
   return listLangs;
 };

@@ -55,6 +55,11 @@ public:
                                   std::map<std::string, std::string> &mapOfTranslators,
                                   const std::string& strProjectName, const std::string& strTargetTXLFormat);
 private:
+  std::map<std::string, CLangcodes> ParseTransifexLanguageDatabase(std::string strJSON, const CXMLResdata& XMLResData);
+  void AddGeneralRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLeft, std::string strRight);
+  void AddCustomRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLangformat,
+                     const std::string &strLeft, const std::string &strRight);
+
   std::map <std::string, CLangcodes> m_mapLCodes;
   std::map <std::string, CLangcodes>::iterator itmapLCodes;
 };

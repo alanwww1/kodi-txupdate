@@ -37,16 +37,12 @@ class CJSONHandler
 public:
   CJSONHandler();
   ~CJSONHandler();
-  std::list<std::string> ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL, std::string strLangformat,
-                                                   std::string strAddonXMLURL, bool bIsLangAddon);
+
   void ParseAddonXMLVersionGITHUB(const std::string &strJSON, const std::string &strURL, const std::string &strAddXMLFilename, const std::string &strChlogname);
-  std::map<std::string, CLangcodes> ParseTransifexLanguageDatabase(std::string strJSON, const CXMLResdata& XMLResData);
   std::string CreateJSONStrFromPOStr(std::string const &strPO);
   std::string CreateNewresJSONStrFromPOStr(std::string strTXResname, std::string const &strPO);
   void ParseUploadedStringsData(std::string const &strJSON, size_t &stradded, size_t &strupd);
   void ParseUploadedStrForNewRes(std::string const &strJSON, size_t &stradded);
-  void AddGeneralRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLeft, std::string strRight);
-  void AddCustomRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLangformat, const std::string &strLeft, const std::string &strRight);
   void ParseLangDatabaseVersion(const std::string &strJSON, const std::string &strURL);
 };
 extern CJSONHandler g_Json;
