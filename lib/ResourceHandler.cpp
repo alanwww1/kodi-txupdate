@@ -182,9 +182,9 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
     else
       strDloadURL = g_CharsetUtils.ReplaceLanginURL(XMLResdata.strUPSLangURL, XMLResdata.strUPSLangFormat, *it);
 
-    if (XMLResdata.strUPSLangFileName == "strings.xml")
-      bResult = POHandler.FetchXMLURLToMem(strDloadURL);
-    else
+//    if (XMLResdata.strUPSLangFileName == "strings.xml")
+//      bResult = POHandler.FetchXMLURLToMem(strDloadURL);
+//    else
       bResult = POHandler.FetchPOURLToMem(strDloadURL,false);
     if (bResult)
     {
@@ -237,8 +237,8 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
     CPOHandler * pPOHandler = &m_mapPOFiles[itmapPOFiles->first];
     if (g_CharsetUtils.bISPOFile(XMLResdata.strLOCLangFileName) || bTXUpdFile)
       pPOHandler->WritePOFile(strPODir);
-    else if (g_CharsetUtils.bISXMLFile(XMLResdata.strLOCLangFileName))
-      pPOHandler->WriteXMLFile(strPODir);
+//    else if (g_CharsetUtils.bISXMLFile(XMLResdata.strLOCLangFileName))
+//      pPOHandler->WriteXMLFile(strPODir);
     else
       CLog::Log(logERROR, "ResHandler::WritePOToFiles: unknown local fileformat: %s", XMLResdata.strLOCLangFileName.c_str());
 

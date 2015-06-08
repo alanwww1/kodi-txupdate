@@ -87,7 +87,8 @@ bool CPOHandler::ProcessPOFile(CPODocument &PODoc)
       continue;
     }
 
-    if (currType == ID_FOUND || currType == MSGID_FOUND || currType == MSGID_PLURAL_FOUND)
+//    if (currType == ID_FOUND || currType == MSGID_FOUND || currType == MSGID_PLURAL_FOUND)
+    if (currType == MSGID_FOUND || currType == MSGID_PLURAL_FOUND)
     {
       if (bMultipleComment)
         CLog::Log(logWARNING, "POHandler: multiple comment entries found. Using only the last one "
@@ -105,12 +106,12 @@ bool CPOHandler::ProcessPOFile(CPODocument &PODoc)
           currEntry.msgStrPlural.clear(); // in case there is insufficient number of translated plurals we completely clear it
       }
 
-      if (currType == ID_FOUND)
-        m_mapStrings[currEntry.numID] = currEntry;
-      else
-      {
+//      if (currType == ID_FOUND)
+//        m_mapStrings[currEntry.numID] = currEntry;
+//      else
+//      {
         m_vecClassicEntries.push_back(currEntry);
-      }
+//      }
       ClearCPOEntry(currEntry);
     }
   }
@@ -125,8 +126,7 @@ void CPOHandler::ClearCPOEntry (CPOEntry &entry)
   entry.extractedComm.clear();
   entry.translatorComm.clear();
   entry.interlineComm.clear();
-  entry.numID = 0;
-  entry.msgID.clear();
+//  entry.msgID.clear();
   entry.msgStr.clear();
   entry.msgIDPlur.clear();
   entry.msgCtxt.clear();
@@ -185,6 +185,7 @@ void CPOHandler::GetXMLComment(std::string strXMLEncoding, const TiXmlNode *pCom
     m_CommsCntr++;
 }
 
+/*
 bool CPOHandler::FetchXMLURLToMem (std::string strURL)
 {
   std::string strXMLBuffer = g_HTTPHandler.GetURLToSTR(strURL);
@@ -265,7 +266,7 @@ bool CPOHandler::FetchXMLURLToMem (std::string strURL)
   XMLDoc.Clear();
   return true;
 }
-
+*/
 
 bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
 {
@@ -490,6 +491,7 @@ void CPOHandler::SetHeaderNEW (std::string strLangCode)
   m_strHeader +=  "\"Plural-Forms: nplurals=" + strnplurals + "; plural=" + g_LCodeHandler.GetPlurForm(strLangCode) + ";\\n\"\n";
 }
 
+/*
 bool CPOHandler::AddNumPOEntryByID(uint32_t numid, CPOEntry const &POEntry, CPOEntry const &POEntryEN, bool bCopyComments)
 {
   if (m_mapStrings.find(numid) != m_mapStrings.end())
@@ -527,7 +529,7 @@ const CPOEntry* CPOHandler::GetNumPOEntryByIdx(size_t pos) const
   advance(it_mapStrings, pos);
   return &(it_mapStrings->second);
 }
-
+*/
 const CPOEntry* CPOHandler::GetClassicPOEntryByIdx(size_t pos) const
 {
   std::vector<CPOEntry>::const_iterator it_vecPOEntry;
@@ -543,6 +545,7 @@ itStrings CPOHandler::IterateToMapIndex(itStrings it, size_t index)
   return it;
 }
 
+/*
 bool CPOHandler::WriteXMLFile(const std::string &strOutputPOFilename)
 {
   std::string strDir = g_File.GetPath(strOutputPOFilename);
@@ -595,7 +598,7 @@ bool CPOHandler::WriteXMLFile(const std::string &strOutputPOFilename)
 
   return true;
 };
-
+*/
 int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings)
 {
   int num = 0;

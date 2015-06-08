@@ -492,6 +492,7 @@ bool CHTTPHandler::ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pP
   if (pPOHandler1->GetClassEntriesCount() != pPOHandler2->GetClassEntriesCount())
     return false;
 
+/*
   for (size_t POEntryIdx = 0; POEntryIdx != pPOHandler1->GetNumEntriesCount(); POEntryIdx++)
   {
     CPOEntry POEntry1 = *(pPOHandler1->GetNumPOEntryByIdx(POEntryIdx));
@@ -511,6 +512,7 @@ bool CHTTPHandler::ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pP
     if (!(POEntry1 == POEntry2))
       return false;
   }
+*/
 
   for (size_t POEntryIdx = 0; POEntryIdx != pPOHandler1->GetClassEntriesCount(); POEntryIdx++)
   {

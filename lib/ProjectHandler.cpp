@@ -249,6 +249,7 @@ bool CProjectHandler::CreateMergedResources()
         updTXPOHandler.SetAddonMetaData(MergedAddonXMLEntry, MergedAddonXMLEntryTX, *pENAddonXMLEntry, *itlang); // add addonxml data as PO  classic entries
       }
 
+/*
       for (size_t POEntryIdx = 0; pcurrPOHandlerEN && POEntryIdx != pcurrPOHandlerEN->GetNumEntriesCount(); POEntryIdx++)
       {
         size_t numID = pcurrPOHandlerEN->GetNumPOEntryByIdx(POEntryIdx)->numID;
@@ -310,7 +311,7 @@ bool CProjectHandler::CreateMergedResources()
 
       }
 
-
+*/
 
 
       // Handle classic non-id based po entries
@@ -499,6 +500,7 @@ CAddonXMLEntry * const CProjectHandler::GetAddonDataFromXML(std::map<std::string
   return &(pRes->GetXMLHandler()->GetMapAddonXMLData()->operator[](strLangCode));
 }
 
+/*
 const CPOEntry * CProjectHandler::SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
                           std::string &strLangCode, size_t numID)
 {
@@ -509,6 +511,7 @@ const CPOEntry * CProjectHandler::SafeGetPOEntry(std::map<std::string, CResource
   return mapResHandl[strResname].GetPOData(strLangCode)->GetNumPOEntryByID(numID);
 }
 
+*/
 const CPOEntry * CProjectHandler::SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
                                                  std::string &strLangCode, CPOEntry const &currPOEntryEN)
 {
@@ -736,9 +739,10 @@ std::string CProjectHandler::GetEntryContent(const CPOEntry * pPOEntry, std::str
   std::string strReturn;
   strReturn += "\n";
 
-  if (pPOEntry->Type == ID_FOUND)
-    strReturn += "msgctxt \"#" + g_CharsetUtils.IntToStr(pPOEntry->numID) + "\"\n";
-  else if (!pPOEntry->msgCtxt.empty())
+//  if (pPOEntry->Type == ID_FOUND)
+//    strReturn += "msgctxt \"#" + g_CharsetUtils.IntToStr(pPOEntry->numID) + "\"\n";
+//  else
+    if (!pPOEntry->msgCtxt.empty())
     strReturn += "msgctxt \"" + g_CharsetUtils.EscapeStringCPP(pPOEntry->msgCtxt) + "\"\n";
 
   strReturn += "msgid \""  + g_CharsetUtils.EscapeStringCPP(pPOEntry->msgID) +  "\"\n";

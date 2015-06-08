@@ -30,7 +30,6 @@ using namespace std;
 
 CPOEntry::CPOEntry()
 {
-  numID = 0;
   Type = UNKNOWN_FOUND;
 }
 
@@ -51,8 +50,8 @@ bool CPOEntry::operator==(const CPOEntry& poentry) const
     bhasMatch = bhasMatch && (poentry.msgStr == msgStr);
   if (!poentry.msgStrPlural.empty())
     bhasMatch = bhasMatch && (poentry.msgStrPlural == msgStrPlural);
-  if (!poentry.Type == ID_FOUND)
-    bhasMatch = bhasMatch && (poentry.numID == numID);
+//  if (!poentry.Type == ID_FOUND)
+//    bhasMatch = bhasMatch && (poentry.numID == numID);
   if (poentry.Type != UNKNOWN_FOUND && poentry.Type != 0)
     bhasMatch = bhasMatch && (poentry.Type == Type);
   return bhasMatch;
@@ -173,15 +172,15 @@ bool CPODocument::GetNextEntry(bool bSkipError)
 
     if (FindLineStart ("\nmsgid "))
     {
-      if (FindLineStart ("\nmsgctxt \"#"))
-      {
-        size_t ipos = m_Entry.Content.find("\nmsgctxt \"#");
-        if (isdigit(m_Entry.Content[ipos+11]))
-        {
-          m_Entry.Type = ID_FOUND; // we found an entry with a valid numeric id
-          return true;
-        }
-      }
+//      if (FindLineStart ("\nmsgctxt \"#"))
+//      {
+//        size_t ipos = m_Entry.Content.find("\nmsgctxt \"#");
+//        if (isdigit(m_Entry.Content[ipos+11]))
+//        {
+//          m_Entry.Type = ID_FOUND; // we found an entry with a valid numeric id
+//          return true;
+//        }
+//      }
 
       if (FindLineStart ("\nmsgid_plural "))
       {
@@ -225,7 +224,7 @@ void CPODocument::ParseEntry()
   m_Entry.referenceComm.clear();
   m_Entry.interlineComm.clear();
   m_Entry.extractedComm.clear();
-  m_Entry.numID = 0;
+//  m_Entry.numID = 0;
   m_Entry.msgID.clear();
   m_Entry.msgStr.clear();
   m_Entry.msgIDPlur.clear();
@@ -260,7 +259,8 @@ void CPODocument::ParseEntry()
       pPlaceToParse= NULL; // end of reading the multiline string
     }
 
-    if (HasPrefix(strLine, "msgctxt") && !HasPrefix(strLine, "msgctxt \"#") && strLine.size() > 9)
+//    if (HasPrefix(strLine, "msgctxt") && !HasPrefix(strLine, "msgctxt \"#") && strLine.size() > 9)
+    if (HasPrefix(strLine, "msgctxt") && strLine.size() > 9)
     {
       pPlaceToParse = &m_Entry.msgCtxt;
       if (!ReadStringLine(strLine, pPlaceToParse,8))
@@ -311,8 +311,8 @@ void CPODocument::ParseEntry()
       }
     }
 
-    else if (HasPrefix(strLine, "msgctxt \"#") && strLine.size() > 10 && isdigit(strLine[10]))
-      ParseNumID(strLine, 10);
+//    else if (HasPrefix(strLine, "msgctxt \"#") && strLine.size() > 10 && isdigit(strLine[10]))
+//      ParseNumID(strLine, 10);
 
     else if (HasPrefix(strLine, "#:") && strLine.size() > 2)
     {
@@ -359,12 +359,12 @@ void CPODocument::ParseEntry()
   }
   if (m_XMLResData.bRebrand && pPlaceToParse)
     g_CharsetUtils.reBrandXBMCToKodi(pPlaceToParse);
-  if ((m_Entry.Type == ID_FOUND || m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND) &&  m_Entry.msgID == "")
-  {
-    m_Entry.msgID = " ";
-    CLog::Log(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_Entry.Content.c_str());
-    CLog::SyntaxLog(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_Entry.Content.c_str());
-  }
+//  if ((m_Entry.Type == ID_FOUND || m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND) &&  m_Entry.msgID == "")
+//  {
+//    m_Entry.msgID = " ";
+//    CLog::Log(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_Entry.Content.c_str());
+//    CLog::SyntaxLog(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_Entry.Content.c_str());
+//  }
   return;
 };
 
@@ -398,6 +398,7 @@ bool CPODocument::FindLineStart(const std::string &strToFind)
   return true;
 };
 
+/*
 bool CPODocument::ParseNumID(const std::string &strLineToCheck, size_t xIDPos)
 {
   if (isdigit(strLineToCheck.at(xIDPos))) // verify if the first char is digit
@@ -412,6 +413,7 @@ bool CPODocument::ParseNumID(const std::string &strLineToCheck, size_t xIDPos)
   CLog::Log(logWARNING, "POParser: The problematic entry: %s", m_Entry.Content.c_str());
   return false;
 };
+*/
 
 void CPODocument::ConvertLineEnds(const std::string &filename)
 {
@@ -476,6 +478,7 @@ void CPODocument::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
 {
   m_bhasLFWritten = false;
 
+/*
   if ((!m_bIsForeignLang || m_XMLResData.bForceComm) && currEntry.Type == ID_FOUND && !m_bIsUpdateTxDoc)
   {
     int id = currEntry.numID;
@@ -490,6 +493,7 @@ void CPODocument::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
     WriteMultilineComment(currEntry.interlineComm, "#");
     m_previd =id;
   }
+*/
   m_bhasLFWritten = false;
 
   if (!m_bIsForeignLang || m_XMLResData.bForceComm)
@@ -500,9 +504,10 @@ void CPODocument::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
   }
 
   WriteLF();
-  if (currEntry.Type == ID_FOUND)
-    m_strOutBuffer += "msgctxt \"#" + IntToStr(currEntry.numID) + "\"\n";
-  else if (!currEntry.msgCtxt.empty())
+//  if (currEntry.Type == ID_FOUND)
+//    m_strOutBuffer += "msgctxt \"#" + IntToStr(currEntry.numID) + "\"\n";
+//  else
+  if (!currEntry.msgCtxt.empty())
     m_strOutBuffer += "msgctxt \"" + g_CharsetUtils.EscapeStringCPP(currEntry.msgCtxt) + "\"\n";
 
   WriteLF();

@@ -32,7 +32,7 @@
 
 enum
 {
-  ID_FOUND = 200, // We have an entry with a numeric (previously XML) identification number.
+//  ID_FOUND = 200, // We have an entry with a numeric (previously XML) identification number.
   MSGID_FOUND = 201, // We have a classic gettext entry with textual msgid. No numeric ID.
   MSGID_PLURAL_FOUND = 202, // We have a classic gettext entry with textual msgid in plural form.
   COMMENT_ENTRY_FOUND = 203, // We have a separate comment entry
@@ -59,7 +59,7 @@ public:
   CPOEntry();
   ~CPOEntry();
   int Type;
-  uint32_t numID;
+//  uint32_t numID;
   std::string msgCtxt;
   std::string msgID;
   std::string msgIDPlur;
