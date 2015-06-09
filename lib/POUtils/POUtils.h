@@ -32,7 +32,7 @@
 
 enum
 {
-//  ID_FOUND = 200, // We have an entry with a numeric (previously XML) identification number.
+  ID_FOUND = 200, // We have an entry with a numeric (previously XML) identification number.
   MSGID_FOUND = 201, // We have a classic gettext entry with textual msgid. No numeric ID.
   MSGID_PLURAL_FOUND = 202, // We have a classic gettext entry with textual msgid in plural form.
   COMMENT_ENTRY_FOUND = 203, // We have a separate comment entry
@@ -59,7 +59,7 @@ public:
   CPOEntry();
   ~CPOEntry();
   int Type;
-//  uint32_t numID;
+  uint32_t numID;
   std::string msgCtxt;
   std::string msgID;
   std::string msgIDPlur;
@@ -73,47 +73,3 @@ public:
   bool operator == (const CPOEntry &poentry) const;
 };
 
-class CPODocument
-{
-public:
-  CPODocument();
-  CPODocument(const CXMLResdata& XMLResdata);
-  ~CPODocument();
-
-  bool SaveFile(const std::string &pofilename);
-  bool GetNextEntry(bool bSkipError);
-  int GetEntryType() const {return m_Entry.Type;}
-  void ParseEntry();
-  CPOEntry GetEntryData() const {return m_Entry;}
-  void WriteHeader(const std::string &strHeader);
-  void WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals);
-  void SetIfIsEnglish(bool bIsENLang) {m_bIsForeignLang = !bIsENLang;}
-  void SetIfIsUpdDoc(bool bIsUpdTx) {m_bIsUpdateTxDoc = bIsUpdTx;}
-  bool FetchURLToMem(const std::string &strURL, bool bSkipError);
-  bool ParseStrToMem(const std::string &strPOData, std::string const &strFilePath);
-
-protected:
-  std::string IntToStr(int number);
-  std::string UnescapeString(const std::string &strInput);
-  bool FindLineStart(const std::string &strToFind);
-  bool ParseNumID(const std::string &strLineToCheck, size_t xIDPos);
-  void ConvertLineEnds(const std::string &filename);
-  bool ReadStringLine(const std::string &line, std::string * pStrToAppend, int skip);
-  const bool HasPrefix(const std::string &strLine, const std::string &strPrefix);
-  void WriteLF();
-  void WriteMultilineComment(std::vector<std::string> vecCommnts, std::string prefix);
-
-  std::string m_strBuffer;
-  size_t m_POfilelength;
-  size_t m_CursorPos;
-  size_t m_nextEntryPos;
-  CPOEntry m_Entry;
-
-  std::string m_strOutBuffer;
-  bool m_bhasLFWritten;
-  bool m_bIsForeignLang;
-  bool m_bIsUpdateTxDoc;
-  int m_previd;
-  int m_writtenEntry;
-  CXMLResdata m_XMLResData;
-};

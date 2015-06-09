@@ -49,11 +49,11 @@ public:
   bool ModifyClassicEntry (CPOEntry &EntryToFind, CPOEntry EntryNewValue);
   bool DeleteClassicEntry (CPOEntry &EntryToFind);
 
-  const CPOEntry* GetNumPOEntryByID(uint32_t numid);
-  bool AddNumPOEntryByID(uint32_t numid, CPOEntry const &POEntry, CPOEntry const &POEntryEN, bool bCopyComments);
+//  const CPOEntry* GetNumPOEntryByID(uint32_t numid);
+//  bool AddNumPOEntryByID(uint32_t numid, CPOEntry const &POEntry, CPOEntry const &POEntryEN, bool bCopyComments);
   const CPOEntry* GetClassicPOEntryByIdx(size_t pos) const;
 
-  const CPOEntry* GetNumPOEntryByIdx(size_t pos) const;
+//  const CPOEntry* GetNumPOEntryByIdx(size_t pos) const;
   void SetHeader (std::string strHeader) {m_strHeader = strHeader;}
   void SetHeaderNEW (std::string strLangCode);
   std::string GetHeader () {return m_strHeader;}
@@ -61,7 +61,7 @@ public:
                          CAddonXMLEntry const &AddonXMLEntryEN, std::string const &strLang);
   void GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry &AddonXMLEntryEN);
   void SetPreHeader (std::string &strPreText);
-  size_t const GetNumEntriesCount() {return m_mapStrings.size();}
+//  size_t const GetNumEntriesCount() {return m_mapStrings.size();}
   size_t const GetClassEntriesCount() {return m_vecClassicEntries.size();}
   size_t const GetCommntEntriesCount() {return m_CommsCntr;}
   void SetIfIsSourceLang(bool bIsENLang) {m_bPOIsEnglish = bIsENLang;}
@@ -73,7 +73,7 @@ public:
 
 protected:
   void ClearCPOEntry (CPOEntry &entry);
-  bool ProcessPOFile(CPODocument &PODoc);
+  bool ProcessPOFile();
   itStrings IterateToMapIndex(itStrings it, size_t index);
   bool GetXMLEncoding(const TiXmlDocument* pDoc, std::string& strEncoding);
   void GetXMLComment(std::string strXMLEncoding, const TiXmlNode *pCommentNode, CPOEntry &currEntry);
@@ -84,7 +84,7 @@ protected:
   std::string m_strLangCode;
   int m_nplurals;
 
-  std::map<uint32_t, CPOEntry> m_mapStrings;
+//  std::map<uint32_t, CPOEntry> m_mapStrings;
   std::vector<CPOEntry> m_vecClassicEntries;
 
   CPOEntry m_prevCommEntry;
@@ -94,4 +94,45 @@ protected:
   bool m_bPOIsUpdateTX;
   std::string m_strLangAddonXML;
   CXMLResdata m_XMLResData;
+
+
+
+
+
+  bool SaveFile(const std::string &pofilename);
+  bool GetNextEntry(bool bSkipError);
+  int GetEntryType() const {return m_Entry.Type;}
+  void ParseEntry();
+  CPOEntry GetEntryData() const {return m_Entry;}
+  void WriteHeader(const std::string &strHeader);
+  void WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals);
+//  void SetIfIsEnglish(bool bIsENLang) {m_bIsForeignLang = !bIsENLang;}
+//  void SetIfIsUpdDoc(bool bIsUpdTx) {m_bIsUpdateTxDoc = bIsUpdTx;}
+  bool FetchURLToMem(const std::string &strURL, bool bSkipError);
+  bool ParseStrToMem(const std::string &strPOData, std::string const &strFilePath);
+
+
+
+
+  std::string IntToStr(int number);
+  std::string UnescapeString(const std::string &strInput);
+  bool FindLineStart(const std::string &strToFind);
+  bool ParseNumID(const std::string &strLineToCheck, size_t xIDPos);
+  void ConvertLineEnds(const std::string &filename);
+  bool ReadStringLine(const std::string &line, std::string * pStrToAppend, int skip);
+  const bool HasPrefix(const std::string &strLine, const std::string &strPrefix);
+  void WriteLF();
+  void WriteMultilineComment(std::vector<std::string> vecCommnts, std::string prefix);
+  void ClearVariables();
+
+  std::string m_strBuffer;
+  size_t m_POfilelength;
+  size_t m_CursorPos;
+  size_t m_nextEntryPos;
+  CPOEntry m_Entry;
+
+  std::string m_strOutBuffer;
+  bool m_bhasLFWritten;
+  int m_previd;
+  int m_writtenEntry;
 };

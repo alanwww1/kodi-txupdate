@@ -378,7 +378,7 @@ bool CProjectHandler::CreateMergedResources()
       pPOHandlerTX = SafeGetPOHandler(m_mapResourcesTX, *itResAvail, strLangCode);
       pPOHandlerUpstr = SafeGetPOHandler(m_mapResourcesUpstr, *itResAvail, strLangCode);
 
-      if (mergedPOHandler.GetNumEntriesCount() !=0 || mergedPOHandler.GetClassEntriesCount() !=0)
+      if (mergedPOHandler.GetClassEntriesCount() !=0)
       {
         if (bIsResourceLangAddon && pPOHandlerUpstr) // Copy the individual addon.xml files from upstream to merged resource for language-addons
         {
@@ -395,8 +395,7 @@ bool CProjectHandler::CreateMergedResources()
         mergedResHandler.AddPOData(mergedPOHandler, strLangCode);
       }
 
-      if ((updTXPOHandler.GetNumEntriesCount() !=0 || updTXPOHandler.GetClassEntriesCount() !=0) &&
-        (strLangCode != XMLResData.strSourceLcode || XMLResData.bForceTXUpd ||
+      if ((updTXPOHandler.GetClassEntriesCount() !=0) && (strLangCode != XMLResData.strSourceLcode || XMLResData.bForceTXUpd ||
         !g_HTTPHandler.ComparePOFilesInMem(&updTXPOHandler, pPOHandlerTX, strLangCode == XMLResData.strSourceLcode)))
       {
         updTXPOHandler.SetPreHeader(strResPreHeader);
@@ -404,8 +403,7 @@ bool CProjectHandler::CreateMergedResources()
         updTXResHandler.AddPOData(updTXPOHandler, strLangCode);
       }
 
-      CLog::LogTable(logINFO, "merged", "\t\t\t%s\t\t%i\t\t%i\t\t%i\t\t%i", strLangCode.c_str(), mergedPOHandler.GetNumEntriesCount(),
-                     mergedPOHandler.GetClassEntriesCount(), updTXPOHandler.GetNumEntriesCount(), updTXPOHandler.GetClassEntriesCount());
+      CLog::LogTable(logINFO, "merged", "\t\t\t%s\t\t%i\t\t%i", strLangCode.c_str(), mergedPOHandler.GetClassEntriesCount(), updTXPOHandler.GetClassEntriesCount());
 
      //store what languages changed from upstream in strings.po and addon.xml files
      if (bResChangedFromUpstream)

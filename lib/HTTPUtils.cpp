@@ -487,8 +487,8 @@ bool CHTTPHandler::ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pP
 {
   if (!pPOHandler1 || !pPOHandler2)
     return false;
-  if (pPOHandler1->GetNumEntriesCount() != pPOHandler2->GetNumEntriesCount())
-    return false;
+//  if (pPOHandler1->GetNumEntriesCount() != pPOHandler2->GetNumEntriesCount())
+//    return false;
   if (pPOHandler1->GetClassEntriesCount() != pPOHandler2->GetClassEntriesCount())
     return false;
 

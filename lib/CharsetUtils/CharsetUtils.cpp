@@ -374,3 +374,24 @@ bool CCharsetUtils::bISXMLFile(const std::string strFilename)
 {
   return (strFilename.find(".xml") != std::string::npos || strFilename.find(".XML") != std::string::npos);
 }
+
+void CCharsetUtils::ConvertLineEnds(std::string &strBuffer)
+{
+  size_t foundPos = strBuffer.find_first_of("\r");
+  if (foundPos == std::string::npos)
+    return; // We have only Linux style line endings in the file, nothing to do
+
+  std::string strTemp;
+  strTemp.reserve(strBuffer.size());
+  for (std::string::const_iterator it = strBuffer.begin(); it < strBuffer.end(); it++)
+  {
+    if (*it == '\r')
+    {
+      if (it+1 == strBuffer.end() || *(it+1) != '\n')
+        strTemp.push_back('\n'); // convert Mac style line ending and continue
+        continue; // we have Win style line ending so we exclude this CR now
+    }
+    strTemp.push_back(*it);
+  }
+  strBuffer.swap(strTemp);
+};

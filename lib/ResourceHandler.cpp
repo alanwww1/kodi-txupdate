@@ -75,7 +75,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
     pPOHandler->FetchPOURLToMem(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat) + "/?file", false);
     pPOHandler->SetIfIsSourceLang(*it == m_XMLResData.strSourceLcode);
     std::string strLang = *it;
-    CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i\t\t%i", strLang.c_str(), pPOHandler->GetNumEntriesCount(),
+    CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i", strLang.c_str(),
                             pPOHandler->GetClassEntriesCount());
   }
   CLog::LogTable(logADDTABLEHEADER, "txfetch", "--------------------------------------------------------------\n");
@@ -190,7 +190,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
     {
       m_mapPOFiles[*it] = POHandler;
       std::string strLang = *it;
-      CLog::LogTable(logINFO, "upstrFetch", "\t\t\t%s\t\t%i\t\t%i\t\t%i", strLang.c_str(), POHandler.GetNumEntriesCount(),
+      CLog::LogTable(logINFO, "upstrFetch", "\t\t\t%s\t\t%i\t\t%i", strLang.c_str(),
               POHandler.GetClassEntriesCount(), POHandler.GetCommntEntriesCount());
     }
   }
@@ -249,7 +249,7 @@ bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string st
       pPOHandler->WriteLangAddonXML(strAddonDir);
     }
 
-    CLog::LogTable(logINFO, "writepo", "\t\t\t%s\t\t%i\t\t%i", itmapPOFiles->first.c_str(), pPOHandler->GetNumEntriesCount(),
+    CLog::LogTable(logINFO, "writepo", "\t\t\t%s\t\t%i", itmapPOFiles->first.c_str(),
               pPOHandler->GetClassEntriesCount());
   }
   printf ("%s", RESET);
