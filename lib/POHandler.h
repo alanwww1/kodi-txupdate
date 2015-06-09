@@ -79,13 +79,11 @@ public:
   CPOHandler();
   CPOHandler(const CXMLResdata& XMLResdata);
   ~CPOHandler();
-  bool FetchPOURLToMem(std::string strURL, bool bSkipError);
-  bool FetchXMLURLToMem (std::string strURL);
+  bool FetchPOURLToMem(std::string strURL);
   void FetchLangAddonXML (const std::string &strURL);
   void WriteLangAddonXML(const std::string &strPath);
-  bool ParsePOStrToMem (std::string const &strPOData, std::string const &strFilePath);
+  bool ParsePOStrToMem (std::string const &strPOData);
   bool WritePOFile(const std::string &strOutputPOFilename);
-  bool WriteXMLFile(const std::string &strOutputPOFilename);
   bool LookforClassicEntry (CPOEntry &EntryToFind);
   const CPOEntry*  PLookforClassicEntry (CPOEntry &EntryToFind);
   bool AddClassicEntry (CPOEntry EntryToAdd, CPOEntry const &POEntryEN, bool bCopyComments);
@@ -109,7 +107,6 @@ public:
   size_t const GetCommntEntriesCount() {return m_CommsCntr;}
   void SetIfIsSourceLang(bool bIsENLang) {m_bPOIsEnglish = bIsENLang;}
   void SetIfPOIsUpdTX(bool bIsUpdTX) {m_bPOIsUpdateTX = bIsUpdTX;}
-  bool GetIfSourceIsXML () {return m_bIsXMLSource;}
   void SetLangAddonXMLString(std::string strXMLfile) {m_strLangAddonXML = strXMLfile;}
   std::string GetLangAddonXMLString () {return m_strLangAddonXML;}
   void BumpLangAddonXMLVersion();
@@ -143,16 +140,11 @@ protected:
 
 
 
-  bool SaveFile(const std::string &pofilename);
   bool GetNextEntry(bool bSkipError);
   void ParseEntry();
-  void WriteHeader(const std::string &strHeader);
   void WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals);
 //  void SetIfIsEnglish(bool bIsENLang) {m_bIsForeignLang = !bIsENLang;}
 //  void SetIfIsUpdDoc(bool bIsUpdTx) {m_bIsUpdateTxDoc = bIsUpdTx;}
-  bool FetchURLToMem(const std::string &strURL, bool bSkipError);
-  bool ParseStrToMem(const std::string &strPOData, std::string const &strFilePath);
-
 
 
 

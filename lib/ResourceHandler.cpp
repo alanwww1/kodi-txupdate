@@ -75,7 +75,7 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
     printf (" %s", it->c_str());
     m_mapPOFiles[*it] = POHandler;
     CPOHandler * pPOHandler = &m_mapPOFiles[*it];
-    pPOHandler->FetchPOURLToMem(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat) + "/?file", false);
+    pPOHandler->FetchPOURLToMem(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat) + "/?file");
     pPOHandler->SetIfIsSourceLang(*it == m_XMLResData.strSourceLcode);
     std::string strLang = *it;
     CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i", strLang.c_str(),
@@ -188,7 +188,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata)
 //    if (XMLResdata.strUPSLangFileName == "strings.xml")
 //      bResult = POHandler.FetchXMLURLToMem(strDloadURL);
 //    else
-      bResult = POHandler.FetchPOURLToMem(strDloadURL,false);
+      bResult = POHandler.FetchPOURLToMem(strDloadURL);
     if (bResult)
     {
       m_mapPOFiles[*it] = POHandler;

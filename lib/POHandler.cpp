@@ -51,8 +51,8 @@ bool CPOEntry::operator==(const CPOEntry& poentry) const
     bhasMatch = bhasMatch && (poentry.msgStr == msgStr);
   if (!poentry.msgStrPlural.empty())
     bhasMatch = bhasMatch && (poentry.msgStrPlural == msgStrPlural);
-//  if (!poentry.Type == ID_FOUND)
-//    bhasMatch = bhasMatch && (poentry.numID == numID);
+  if (!poentry.Type == ID_FOUND)
+    bhasMatch = bhasMatch && (poentry.numID == numID);
   if (poentry.Type != UNKNOWN_FOUND && poentry.Type != 0)
     bhasMatch = bhasMatch && (poentry.Type == Type);
   return bhasMatch;
@@ -70,26 +70,45 @@ CPOHandler::CPOHandler(const CXMLResdata& XMLResdata) : m_XMLResData(XMLResdata)
 CPOHandler::~CPOHandler()
 {};
 
-bool CPOHandler::FetchPOURLToMem (std::string strURL, bool bSkipError)
+bool CPOHandler::FetchPOURLToMem (std::string strURL)
 {
   ClearVariables();
-  if (!FetchURLToMem(strURL, bSkipError))
-    return false;
+  m_strBuffer = g_HTTPHandler.GetURLToSTR(strURL);
+
   return ProcessPOFile();
 };
 
-bool CPOHandler::ParsePOStrToMem (std::string const &strPOData, std::string const &strFilePath)
+bool CPOHandler::ParsePOStrToMem (std::string const &strPOData)
 {
   ClearVariables();
-  if (!ParseStrToMem(strPOData, strFilePath))
-    return false;
+  m_strBuffer = strPOData;
   return ProcessPOFile();
 };
 
 bool CPOHandler::ProcessPOFile()
 {
-  if (m_Entry.Type != HEADER_FOUND)
-    CLog::Log(logERROR, "POHandler: No valid header found for this language");
+  if (m_strBuffer.empty())
+    CLog::Log(logERROR, "CPODocument::ParseStrToMem: PO file to parse has a zero length.");
+
+  m_strBuffer = "\n" + m_strBuffer;
+  g_CharsetUtils.ConvertLineEnds(m_strBuffer);
+  m_POfilelength = m_strBuffer.size();
+
+  // we make sure, to have an LF at beginning and at end of buffer
+  m_strBuffer[0] = '\n';
+  if (*m_strBuffer.rbegin() != '\n')
+  {
+    m_strBuffer += "\n";
+  }
+  m_POfilelength = m_strBuffer.size();
+
+  if (!GetNextEntry(true) || m_Entry.Type != MSGID_FOUND || m_CurrentEntryText.find("msgid \"\"")  == std::string::npos ||
+      m_CurrentEntryText.find("msgstr \"\"") == std::string::npos)
+  {
+    CLog::Log(logERROR, "POParser: unable to read PO file header.");
+  }
+
+  m_Entry.Type = HEADER_FOUND;
 
   m_strHeader = m_CurrentEntryText.substr(1);
 
@@ -115,8 +134,8 @@ bool CPOHandler::ProcessPOFile()
       continue;
     }
 
-//    if (currType == ID_FOUND || currType == MSGID_FOUND || currType == MSGID_PLURAL_FOUND)
-    if (m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND)
+    if (m_Entry.Type == ID_FOUND || m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND)
+//    if (m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND)
     {
       if (bMultipleComment)
         CLog::Log(logWARNING, "POHandler: multiple comment entries found. Using only the last one "
@@ -163,144 +182,14 @@ void CPOHandler::ClearCPOEntry (CPOEntry &entry)
 };
 
 
-bool CPOHandler::GetXMLEncoding( const TiXmlDocument* pDoc, std::string& strEncoding)
-{
-  const TiXmlNode* pNode=NULL;
-  while ((pNode=pDoc->IterateChildren(pNode)) && pNode->Type()!=TiXmlNode::TINYXML_DECLARATION) {}
-  if (!pNode) return false;
-  const TiXmlDeclaration* pDecl=pNode->ToDeclaration();
-  if (!pDecl) return false;
-  strEncoding=pDecl->Encoding();
-  if (strEncoding.compare("UTF-8") ==0 || strEncoding.compare("UTF8") == 0 ||
-    strEncoding.compare("utf-8") ==0 || strEncoding.compare("utf8") == 0)
-    strEncoding.clear();
-  std::transform(strEncoding.begin(), strEncoding.end(), strEncoding.begin(), ::toupper);
-  return !strEncoding.empty(); // Other encoding then UTF8?
-}
-
-void CPOHandler::GetXMLComment(std::string strXMLEncoding, const TiXmlNode *pCommentNode, CPOEntry &currEntry)
-{
-  int nodeType;
-  CPOEntry prevCommEntry;
-  while (pCommentNode)
-  {
-    nodeType = pCommentNode->Type();
-    if (nodeType == TiXmlNode::TINYXML_ELEMENT)
-      break;
-    if (nodeType == TiXmlNode::TINYXML_COMMENT)
-    {
-      if (pCommentNode->m_CommentLFPassed)
-      {
-        std::string strComm = g_CharsetUtils.ToUTF8(strXMLEncoding, g_CharsetUtils.UnWhitespace(pCommentNode->Value()));
-        if (m_XMLResData.bRebrand)
-          g_CharsetUtils.reBrandXBMCToKodi(&strComm);
-        prevCommEntry.interlineComm.push_back(strComm);
-      }
-      else
-      {
-        std::string strComm = g_CharsetUtils.ToUTF8(strXMLEncoding, g_CharsetUtils.UnWhitespace(pCommentNode->Value()));
-        if (m_XMLResData.bRebrand)
-          g_CharsetUtils.reBrandXBMCToKodi(&strComm);
-        currEntry.extractedComm.push_back(strComm);
-      }
-    }
-    pCommentNode = pCommentNode->NextSibling();
-  }
-  currEntry.interlineComm = m_prevCommEntry.interlineComm;
-  m_prevCommEntry.interlineComm = prevCommEntry.interlineComm;
-
-  if (currEntry.interlineComm.size() != 0)
-    m_CommsCntr++;
-}
-
-/*
-bool CPOHandler::FetchXMLURLToMem (std::string strURL)
-{
-  std::string strXMLBuffer = g_HTTPHandler.GetURLToSTR(strURL);
-  if (strXMLBuffer.empty())
-    CLog::Log(logERROR, "CPOHandler::FetchXMLURLToMem: http error reading XML file from url: %s", strURL.c_str());
-
-  m_bIsXMLSource = true;
-  m_CommsCntr = 0;
-  TiXmlDocument XMLDoc;
-
-  strXMLBuffer.push_back('\n'); // with some addon.xml files, EOF mark is missing. That gives us a TinyXML failure. To avoid, we add an LF
-  g_File.ConvertStrLineEnds(strXMLBuffer);
-  strXMLBuffer += "\n";
-
-  if (!XMLDoc.Parse(strXMLBuffer.c_str(), 0, TIXML_DEFAULT_ENCODING))
-  {
-    CLog::Log(logERROR, "CPOHandler::FetchXMLURLToMem: strings.xml file problem: %s %s\n", XMLDoc.ErrorDesc(), strURL.c_str());
-    return false;
-  }
-
-  std::string strXMLEncoding;
-  GetXMLEncoding(&XMLDoc, strXMLEncoding);
-
-  TiXmlElement* pRootElement = XMLDoc.RootElement();
-  if (!pRootElement || pRootElement->NoChildren() || pRootElement->ValueTStr()!="strings")
-  {
-    CLog::Log(logERROR, "CPOHandler::FetchXMLURLToMem: No root element called: \"strings\" or no child found in input XML file: %s", strURL.c_str());
-    return false;
-  }
-
-  CPOEntry currEntry, commHolder, prevcommHolder;
-
-  if (m_bPOIsEnglish)
-    GetXMLComment(strXMLEncoding, pRootElement->FirstChild(), currEntry);
-
-  const TiXmlElement *pChildElement = pRootElement->FirstChildElement("string");
-  const char* pAttrId = NULL;
-  const char* pValue = NULL;
-  std::string valueString;
-  int id;
-
-  while (pChildElement)
-  {
-    pAttrId=pChildElement->Attribute("id");
-    if (pAttrId && !pChildElement->NoChildren())
-    {
-      id = atoi(pAttrId);
-      if (m_mapStrings.find(id) == m_mapStrings.end())
-      {
-        currEntry.Type = ID_FOUND;
-        pValue = pChildElement->FirstChild()->Value();
-        valueString = pValue;
-        currEntry.numID = id;
-        std::string strUtf8 = g_CharsetUtils.ToUTF8(strXMLEncoding, valueString).c_str();
-
-        if (m_bPOIsEnglish)
-          currEntry.msgID = strUtf8;
-        else
-          currEntry.msgStr = strUtf8;
-
-        if (m_bPOIsEnglish)
-          GetXMLComment(strXMLEncoding, pChildElement->NextSibling(), currEntry);
-
-        if (m_XMLResData.bRebrand)
-        {
-          g_CharsetUtils.reBrandXBMCToKodi(&currEntry.msgID);
-	  g_CharsetUtils.reBrandXBMCToKodi(&currEntry.msgStr);
-        }
-
-        m_mapStrings[id] = currEntry;
-      }
-    }
-    ClearCPOEntry(currEntry);
-
-    pChildElement = pChildElement->NextSiblingElement("string");
-  }
-  // Free up the allocated memory for the XML file
-  XMLDoc.Clear();
-  return true;
-}
-*/
-
 bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
 {
   ClearVariables();
 
-  WriteHeader(m_strHeader);
+    m_bhasLFWritten = false;
+
+  m_strOutBuffer.clear();
+  m_strOutBuffer = m_strHeader;
 
   CPOEntry POEntry;
   POEntry.msgCtxt = "Addon Summary";
@@ -328,7 +217,20 @@ bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
       WritePOEntry(*itclass, m_nplurals);
   }
 
-  SaveFile(strOutputPOFilename);
+  std::string strDir = g_File.GetPath(strOutputPOFilename);
+  g_File.MakeDir(strDir);
+
+  // Initalize the output po document
+  FILE * pPOTFile = fopen (strOutputPOFilename.c_str(),"wb");
+  if (pPOTFile == NULL)
+  {
+    CLog::Log(logERROR, "POParser: Error opening output file: %s\n", strOutputPOFilename.c_str());
+    return false;
+  }
+  if (m_strOutBuffer.find('\x00') != std::string::npos)
+    CLog::Log(logERROR, "CPHandler::SaveFile: Unexpected zero byte in file: %s", strOutputPOFilename.c_str());
+  fprintf(pPOTFile, "%s", m_strOutBuffer.c_str());
+  fclose(pPOTFile);
 
   return true;
 };
@@ -570,60 +472,6 @@ itStrings CPOHandler::IterateToMapIndex(itStrings it, size_t index)
   return it;
 }
 
-/*
-bool CPOHandler::WriteXMLFile(const std::string &strOutputPOFilename)
-{
-  std::string strDir = g_File.GetPath(strOutputPOFilename);
-  g_File.MakeDir(strDir);
-
-  std::string strXMLDoc;
-
-  strXMLDoc += "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n";
-  strXMLDoc += "<!-- Translated using Transifex web application. For support, or if you would like to to help out, please visit your language team! -->\n";
-  strXMLDoc += "<!-- " + m_strLangCode + " language-Team URL: " + "http://www.transifex.com/projects/p/" + m_XMLResData.strTargetProjectName +"/language/"
-  + m_strLangCode +"/ -->\n";
-  strXMLDoc += "<!-- Report language file syntax bugs at: " + m_XMLResData.strSupportEmailAdd + " -->\n\n";
-  strXMLDoc += "<strings>\n";
-
-  for (itStrings it = m_mapStrings.begin(); it != m_mapStrings.end(); it++)
-  {
-    CPOEntry currEntry = it->second;
-
-    if (!currEntry.interlineComm.empty())
-    {
-      if (it != m_mapStrings.begin())
-        strXMLDoc += "\n";
-      for (std::vector<std::string>::iterator itvec = currEntry.interlineComm.begin(); itvec != currEntry.interlineComm.end(); itvec++)
-      {
-        strXMLDoc += "    <!-- " + *itvec + " -->\n";
-      }
-    }
-
-    std::string strEntry;
-    if (m_bPOIsEnglish)
-      strEntry = currEntry.msgID;
-    else
-      strEntry = currEntry.msgStr;
-
-    strXMLDoc += "    <string id=\"" + g_CharsetUtils.IntToStr(currEntry.numID) + "\">" + g_CharsetUtils.EscapeStringXML(strEntry) + "</string>";
-
-    if (!currEntry.extractedComm.empty())
-    {
-      for (std::vector<std::string>::iterator itvec = currEntry.extractedComm.begin(); itvec != currEntry.extractedComm.end(); itvec++)
-      {
-        strXMLDoc += " <!--" + *itvec + " -->";
-      }
-    }
-    strXMLDoc += "\n";
-  }
-
-  strXMLDoc += "</strings>\n";
-
-  g_File.WriteFileFromStr(strOutputPOFilename, strXMLDoc);
-
-  return true;
-};
-*/
 int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings)
 {
   int num = 0;
@@ -706,96 +554,6 @@ void CPOHandler::ClearVariables()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-bool CPOHandler::FetchURLToMem(const std::string &strURL, bool bSkipError)
-{
-  m_strBuffer.clear();
-  m_strBuffer = g_HTTPHandler.GetURLToSTR(strURL);
-  if (m_strBuffer.empty())
-  {
-    if (bSkipError)
-      return false;
-    else
-      CLog::Log(logERROR, "CPODocument::FetchURLToMem: http error reading po file from url: %s", strURL.c_str());
-  }
-
-  m_strBuffer = "\n" + m_strBuffer;
-  g_CharsetUtils.ConvertLineEnds(m_strBuffer);
-  m_POfilelength = m_strBuffer.size();
-
-
-  // we make sure, to have an LF at beginning and at end of buffer
-  m_strBuffer[0] = '\n';
-  if (*m_strBuffer.rbegin() != '\n')
-  {
-    m_strBuffer += "\n";
-  }
-  m_POfilelength = m_strBuffer.size();
-
-  if (GetNextEntry(true) && m_Entry.Type == MSGID_FOUND &&
-    m_CurrentEntryText.find("msgid \"\"")  != std::string::npos &&
-    m_CurrentEntryText.find("msgstr \"\"") != std::string::npos)
-  {
-    m_Entry.Type = HEADER_FOUND;
-    return true;
-  }
-
-  if (bSkipError)
-    CLog::Log(logINFO, "POParser: unable to read PO file header from URL: %s", strURL.c_str());
-  else
-    CLog::Log(logERROR, "POParser: unable to read PO file header from URL: %s", strURL.c_str());
-  return false;
-};
-
-bool CPOHandler::ParseStrToMem(const std::string &strPOData, std::string const &strFilePath)
-{
-  m_strBuffer.clear();
-  m_strBuffer = strPOData;
-  if (m_strBuffer.empty())
-      CLog::Log(logERROR, "CPODocument::ParseStrToMem: PO fle to parse has a zero length for file: %s", strFilePath.c_str());
-
-  m_strBuffer = "\n" + m_strBuffer;
-  g_CharsetUtils.ConvertLineEnds(m_strBuffer);
-  m_POfilelength = m_strBuffer.size();
-
-  // we make sure, to have an LF at beginning and at end of buffer
-  m_strBuffer[0] = '\n';
-  if (*m_strBuffer.rbegin() != '\n')
-  {
-    m_strBuffer += "\n";
-  }
-  m_POfilelength = m_strBuffer.size();
-
-  if (GetNextEntry(true) && m_Entry.Type == MSGID_FOUND &&
-    m_CurrentEntryText.find("msgid \"\"")  != std::string::npos &&
-    m_CurrentEntryText.find("msgstr \"\"") != std::string::npos)
-  {
-    m_Entry.Type = HEADER_FOUND;
-    return true;
-  }
-
-  CLog::Log(logERROR, "POParser: unable to read PO file header from file: %s", strFilePath.c_str());
-  return false;
-};
 
 bool CPOHandler::GetNextEntry(bool bSkipError)
 {
@@ -1058,54 +816,27 @@ bool CPOHandler::ParseNumID(const std::string &strLineToCheck, size_t xIDPos)
 
 // ********* SAVE part
 
-bool CPOHandler::SaveFile(const std::string &pofilename)
-{
-  std::string strDir = g_File.GetPath(pofilename);
-  g_File.MakeDir(strDir);
-
-  // Initalize the output po document
-  FILE * pPOTFile = fopen (pofilename.c_str(),"wb");
-  if (pPOTFile == NULL)
-  {
-    CLog::Log(logERROR, "POParser: Error opening output file: %s\n", pofilename.c_str());
-    return false;
-  }
-  if (m_strOutBuffer.find('\x00') != std::string::npos)
-    CLog::Log(logERROR, "CPHandler::SaveFile: Unexpected zero byte in file: %s", pofilename.c_str());
-  fprintf(pPOTFile, "%s", m_strOutBuffer.c_str());
-  fclose(pPOTFile);
-
-  return true;
-};
-
-void CPOHandler::WriteHeader(const std::string &strHeader)
-{
-  m_bhasLFWritten = false;
-
-  m_strOutBuffer.clear();
-  m_strOutBuffer += strHeader;
-};
 
 void CPOHandler::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
 {
   m_bhasLFWritten = false;
 
-/*
-  if ((!m_bIsForeignLang || m_XMLResData.bForceComm) && currEntry.Type == ID_FOUND && !m_bIsUpdateTxDoc)
+
+  if ((m_bPOIsEnglish || m_XMLResData.bForceComm) && currEntry.Type == ID_FOUND && !m_bPOIsUpdateTX)
   {
     int id = currEntry.numID;
-    if (id-m_previd >= 2 && m_previd > -1 && !m_bIsForeignLang)
+    if (id-m_previd >= 2 && m_previd > -1 && m_bPOIsEnglish)
     {
       WriteLF();
       if (id-m_previd == 2)
-        m_strOutBuffer += "#empty string with id "  + IntToStr(id-1) + "\n";
+        m_strOutBuffer += "#empty string with id "  + g_CharsetUtils.IntToStr(id-1) + "\n";
       if (id-m_previd > 2)
-        m_strOutBuffer += "#empty strings from id " + IntToStr(m_previd+1) + " to " + IntToStr(id-1) + "\n";
+        m_strOutBuffer += "#empty strings from id " + g_CharsetUtils.IntToStr(m_previd+1) + " to " + g_CharsetUtils.IntToStr(id-1) + "\n";
     }
     WriteMultilineComment(currEntry.interlineComm, "#");
     m_previd =id;
   }
-*/
+
   m_bhasLFWritten = false;
 
   if (m_bPOIsEnglish || m_XMLResData.bForceComm)
