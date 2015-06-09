@@ -88,10 +88,10 @@ bool CPOHandler::ParsePOStrToMem (std::string const &strPOData, std::string cons
 
 bool CPOHandler::ProcessPOFile()
 {
-  if (GetEntryType() != HEADER_FOUND)
+  if (m_Entry.Type != HEADER_FOUND)
     CLog::Log(logERROR, "POHandler: No valid header found for this language");
 
-  m_strHeader = GetEntryData().Content.substr(1);
+  m_strHeader = m_CurrentEntryText.substr(1);
 
   ParsePOHeader();
 
@@ -100,51 +100,47 @@ bool CPOHandler::ProcessPOFile()
 
   bool bMultipleComment = false;
   std::vector<std::string> vecILCommnts;
-  CPOEntry currEntry;
-  int currType = UNKNOWN_FOUND;
 
   while ((GetNextEntry(false)))
   {
     ParseEntry();
-    currEntry = GetEntryData();
-    currType = GetEntryType();
 
-    if (currType == COMMENT_ENTRY_FOUND)
+    if (m_Entry.Type == COMMENT_ENTRY_FOUND)
     {
       if (!vecILCommnts.empty())
         bMultipleComment = true;
-      vecILCommnts = currEntry.interlineComm;
+      vecILCommnts = m_Entry.interlineComm;
       if (!bMultipleComment && !vecILCommnts.empty())
         m_CommsCntr++;
       continue;
     }
 
 //    if (currType == ID_FOUND || currType == MSGID_FOUND || currType == MSGID_PLURAL_FOUND)
-    if (currType == MSGID_FOUND || currType == MSGID_PLURAL_FOUND)
+    if (m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND)
     {
       if (bMultipleComment)
         CLog::Log(logWARNING, "POHandler: multiple comment entries found. Using only the last one "
-        "before the real entry. Entry after comments: %s", currEntry.Content.c_str());
-      if (!currEntry.interlineComm.empty())
+        "before the real entry. Entry after comments: %s", m_CurrentEntryText.c_str());
+      if (!m_Entry.interlineComm.empty())
         CLog::Log(logWARNING, "POParser: interline comments (eg. #comment) is not alowed inside "
-        "a real po entry. Cleaned it. Problematic entry: %s", currEntry.Content.c_str());
-      currEntry.interlineComm = vecILCommnts;
+        "a real po entry. Cleaned it. Problematic entry: %s", m_CurrentEntryText.c_str());
+      m_Entry.interlineComm = vecILCommnts;
       bMultipleComment = false;
       vecILCommnts.clear();
 
-      if (!currEntry.msgIDPlur.empty())
+      if (!m_Entry.msgIDPlur.empty())
       {
-        if (GetPluralNumOfVec(currEntry.msgStrPlural) != m_nplurals)
-          currEntry.msgStrPlural.clear(); // in case there is insufficient number of translated plurals we completely clear it
+        if (GetPluralNumOfVec(m_Entry.msgStrPlural) != m_nplurals)
+          m_Entry.msgStrPlural.clear(); // in case there is insufficient number of translated plurals we completely clear it
       }
 
 //      if (currType == ID_FOUND)
 //        m_mapStrings[currEntry.numID] = currEntry;
 //      else
 //      {
-        m_vecClassicEntries.push_back(currEntry);
+        m_vecClassicEntries.push_back(m_Entry);
 //      }
-      ClearCPOEntry(currEntry);
+      ClearCPOEntry(m_Entry);
     }
   }
 
@@ -163,7 +159,7 @@ void CPOHandler::ClearCPOEntry (CPOEntry &entry)
   entry.msgIDPlur.clear();
   entry.msgCtxt.clear();
   entry.Type = UNKNOWN_FOUND;
-  entry.Content.clear();
+  m_CurrentEntryText.clear();
 };
 
 
@@ -756,8 +752,8 @@ bool CPOHandler::FetchURLToMem(const std::string &strURL, bool bSkipError)
   m_POfilelength = m_strBuffer.size();
 
   if (GetNextEntry(true) && m_Entry.Type == MSGID_FOUND &&
-    m_Entry.Content.find("msgid \"\"")  != std::string::npos &&
-    m_Entry.Content.find("msgstr \"\"") != std::string::npos)
+    m_CurrentEntryText.find("msgid \"\"")  != std::string::npos &&
+    m_CurrentEntryText.find("msgstr \"\"") != std::string::npos)
   {
     m_Entry.Type = HEADER_FOUND;
     return true;
@@ -790,8 +786,8 @@ bool CPOHandler::ParseStrToMem(const std::string &strPOData, std::string const &
   m_POfilelength = m_strBuffer.size();
 
   if (GetNextEntry(true) && m_Entry.Type == MSGID_FOUND &&
-    m_Entry.Content.find("msgid \"\"")  != std::string::npos &&
-    m_Entry.Content.find("msgstr \"\"") != std::string::npos)
+    m_CurrentEntryText.find("msgid \"\"")  != std::string::npos &&
+    m_CurrentEntryText.find("msgstr \"\"") != std::string::npos)
   {
     m_Entry.Type = HEADER_FOUND;
     return true;
@@ -811,7 +807,7 @@ bool CPOHandler::GetNextEntry(bool bSkipError)
       m_nextEntryPos = m_POfilelength-1;
 
     // now we read the actual entry into a temp string for further processing
-    m_Entry.Content.assign(m_strBuffer, m_CursorPos, m_nextEntryPos - m_CursorPos +1);
+    m_CurrentEntryText.assign(m_strBuffer, m_CursorPos, m_nextEntryPos - m_CursorPos +1);
     size_t oldCursorPos = m_CursorPos;
     m_CursorPos = m_nextEntryPos+1; // jump cursor to the second LF character
 
@@ -819,8 +815,8 @@ bool CPOHandler::GetNextEntry(bool bSkipError)
     {
 //      if (FindLineStart ("\nmsgctxt \"#"))
 //      {
-//        size_t ipos = m_Entry.Content.find("\nmsgctxt \"#");
-//        if (isdigit(m_Entry.Content[ipos+11]))
+//        size_t ipos = m_CurrentEntryText.find("\nmsgctxt \"#");
+//        if (isdigit(m_CurrentEntryText[ipos+11]))
 //        {
 //          m_Entry.Type = ID_FOUND; // we found an entry with a valid numeric id
 //          return true;
@@ -838,10 +834,10 @@ bool CPOHandler::GetNextEntry(bool bSkipError)
     }
     if (FindLineStart ("\n#"))
     {
-      size_t ipos = m_Entry.Content.find("\n#");
-      if (m_Entry.Content[ipos+2] != ' ' && m_Entry.Content[ipos+2] != '.' &&
-          m_Entry.Content[ipos+2] != ':' && m_Entry.Content[ipos+2] != ',' &&
-          m_Entry.Content[ipos+2] != '|')
+      size_t ipos = m_CurrentEntryText.find("\n#");
+      if (m_CurrentEntryText[ipos+2] != ' ' && m_CurrentEntryText[ipos+2] != '.' &&
+          m_CurrentEntryText[ipos+2] != ':' && m_CurrentEntryText[ipos+2] != ',' &&
+          m_CurrentEntryText[ipos+2] != '|')
       {
         m_Entry.Type = COMMENT_ENTRY_FOUND; // we found a pluralized entry
         return true;
@@ -849,11 +845,11 @@ bool CPOHandler::GetNextEntry(bool bSkipError)
     }
     if (m_nextEntryPos != m_POfilelength-1 && !bSkipError)
     {
-      if (m_Entry.Content.find_first_not_of("\n") == std::string::npos)
+      if (m_CurrentEntryText.find_first_not_of("\n") == std::string::npos)
         CLog::Log(logINFO, "POParser: Empty line(s) found at position: %i, ignored.", oldCursorPos);
       else
         CLog::Log(logWARNING, "POParser: unknown entry found at position %i, Failed entry: %s", oldCursorPos,
-                  m_Entry.Content.substr(0,m_Entry.Content.size()-1).c_str());
+                  m_CurrentEntryText.substr(0,m_CurrentEntryText.size()-1).c_str());
     }
   }
   while (m_nextEntryPos != m_POfilelength-1);
@@ -880,11 +876,11 @@ void CPOHandler::ParseEntry()
   std::string strLine;
   std::string * pPlaceToParse = NULL;
 
-  while ((NextLineStart = m_Entry.Content.find('\n', LineCursor)) != std::string::npos)
+  while ((NextLineStart = m_CurrentEntryText.find('\n', LineCursor)) != std::string::npos)
   {
 
     std::string strTemp;
-    strTemp.assign(m_Entry.Content, LineCursor, NextLineStart - LineCursor +1);
+    strTemp.assign(m_CurrentEntryText, LineCursor, NextLineStart - LineCursor +1);
     size_t strStart = strTemp.find_first_not_of("\n \t");
     size_t strEnd = strTemp.find_last_not_of("\n \t");
 
@@ -910,7 +906,7 @@ void CPOHandler::ParseEntry()
       pPlaceToParse = &m_Entry.msgCtxt;
       if (!ReadStringLine(strLine, pPlaceToParse,8))
       {
-        CLog::Log(logWARNING, "POParser: wrong msgctxt format. Failed entry: %s", m_Entry.Content.c_str());
+        CLog::Log(logWARNING, "POParser: wrong msgctxt format. Failed entry: %s", m_CurrentEntryText.c_str());
         pPlaceToParse = NULL;
       }
     }
@@ -920,7 +916,7 @@ void CPOHandler::ParseEntry()
       pPlaceToParse = &m_Entry.msgIDPlur;
       if (!ReadStringLine(strLine, pPlaceToParse,13))
       {
-        CLog::Log(logWARNING, "POParser: wrong msgid_plural format. Failed entry: %s", m_Entry.Content.c_str());
+        CLog::Log(logWARNING, "POParser: wrong msgid_plural format. Failed entry: %s", m_CurrentEntryText.c_str());
         pPlaceToParse = NULL;
       }
     }
@@ -930,7 +926,7 @@ void CPOHandler::ParseEntry()
       pPlaceToParse = &m_Entry.msgID;
       if (!ReadStringLine(strLine, pPlaceToParse,6))
       {
-        CLog::Log(logWARNING, "POParser: wrong msgid format. Failed entry: %s", m_Entry.Content.c_str());
+        CLog::Log(logWARNING, "POParser: wrong msgid format. Failed entry: %s", m_CurrentEntryText.c_str());
         pPlaceToParse = NULL;
       }
     }
@@ -941,7 +937,7 @@ void CPOHandler::ParseEntry()
       pPlaceToParse = &m_Entry.msgStrPlural[m_Entry.msgStrPlural.size()-1];
       if (!ReadStringLine(strLine, pPlaceToParse,10))
       {
-        CLog::Log(logWARNING, "POParser: wrong msgstr[] format. Failed entry: %s", m_Entry.Content.c_str());
+        CLog::Log(logWARNING, "POParser: wrong msgstr[] format. Failed entry: %s", m_CurrentEntryText.c_str());
         pPlaceToParse = NULL;
       }
     }
@@ -951,7 +947,7 @@ void CPOHandler::ParseEntry()
       pPlaceToParse = &m_Entry.msgStr;
       if (!ReadStringLine(strLine, pPlaceToParse,7))
       {
-        CLog::Log(logWARNING, "POParser: wrong msgstr format. Failed entry: %s", m_Entry.Content.c_str());
+        CLog::Log(logWARNING, "POParser: wrong msgstr format. Failed entry: %s", m_CurrentEntryText.c_str());
         pPlaceToParse = NULL;
       }
     }
@@ -964,7 +960,7 @@ void CPOHandler::ParseEntry()
       if (strCommnt.at(0) != ' ')
       {
         strCommnt = " " + strCommnt;
-        CLog::SyntaxLog(logWARNING, "POParser: Wrong comment format. Space needed. Failed entry: %s", m_Entry.Content.c_str());
+        CLog::SyntaxLog(logWARNING, "POParser: Wrong comment format. Space needed. Failed entry: %s", m_CurrentEntryText.c_str());
       }
       m_Entry.referenceComm.push_back(strCommnt);
     }
@@ -977,7 +973,7 @@ void CPOHandler::ParseEntry()
       if (strCommnt.at(0) != ' ')
       {
         strCommnt = " " + strCommnt;
-        CLog::SyntaxLog(logWARNING, "POParser: Wrong comment format. Space needed. Failed entry: %s", m_Entry.Content.c_str());
+        CLog::SyntaxLog(logWARNING, "POParser: Wrong comment format. Space needed. Failed entry: %s", m_CurrentEntryText.c_str());
       }
       m_Entry.extractedComm.push_back(strCommnt);
     }
@@ -999,15 +995,15 @@ void CPOHandler::ParseEntry()
       m_Entry.translatorComm.push_back(strCommnt);
     }
     else
-      CLog::Log(logWARNING, "POParser: unknown line type found. Failed entry: %s", m_Entry.Content.c_str());
+      CLog::Log(logWARNING, "POParser: unknown line type found. Failed entry: %s", m_CurrentEntryText.c_str());
   }
   if (m_XMLResData.bRebrand && pPlaceToParse)
     g_CharsetUtils.reBrandXBMCToKodi(pPlaceToParse);
   if ((m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND) &&  m_Entry.msgID == "")
   {
     m_Entry.msgID = " ";
-    CLog::Log(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_Entry.Content.c_str());
-    CLog::SyntaxLog(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_Entry.Content.c_str());
+    CLog::Log(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_CurrentEntryText.c_str());
+    CLog::SyntaxLog(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_CurrentEntryText.c_str());
   }
   return;
 };
@@ -1036,7 +1032,7 @@ const bool CPOHandler::HasPrefix(const std::string &strLine, const std::string &
 bool CPOHandler::FindLineStart(const std::string &strToFind)
 {
 
-  if (m_Entry.Content.find(strToFind) == std::string::npos)
+  if (m_CurrentEntryText.find(strToFind) == std::string::npos)
     return false; // if we don't find the string or if we don't have at least one char after it
 
   return true;
@@ -1054,7 +1050,7 @@ bool CPOHandler::ParseNumID(const std::string &strLineToCheck, size_t xIDPos)
 
   CLog::Log(logWARNING, "POParser: Found numeric id descriptor, but no valid id can be read, "
          "entry was handled as normal msgid entry");
-  CLog::Log(logWARNING, "POParser: The problematic entry: %s", m_Entry.Content.c_str());
+  CLog::Log(logWARNING, "POParser: The problematic entry: %s", m_CurrentEntryText.c_str());
   return false;
 };
 

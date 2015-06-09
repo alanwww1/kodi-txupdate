@@ -67,7 +67,6 @@ public:
   std::vector<std::string> referenceComm;   // #: reference
   std::vector<std::string> translatorComm;  // # translator comment
   std::vector<std::string> interlineComm;   // #comment between lines
-  std::string Content;
   bool operator == (const CPOEntry &poentry) const;
 };
 
@@ -125,6 +124,7 @@ protected:
   void ParsePOHeader();
 
   std::string m_strHeader;
+  std::string m_CurrentEntryText;
   std::string m_strLangCode;
   int m_nplurals;
 
@@ -145,9 +145,7 @@ protected:
 
   bool SaveFile(const std::string &pofilename);
   bool GetNextEntry(bool bSkipError);
-  int GetEntryType() const {return m_Entry.Type;}
   void ParseEntry();
-  CPOEntry GetEntryData() const {return m_Entry;}
   void WriteHeader(const std::string &strHeader);
   void WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals);
 //  void SetIfIsEnglish(bool bIsENLang) {m_bIsForeignLang = !bIsENLang;}
