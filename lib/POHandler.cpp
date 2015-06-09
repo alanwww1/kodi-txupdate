@@ -661,6 +661,9 @@ void CPOHandler::ParseEntry()
 //    if (HasPrefix(strLine, "msgctxt") && !HasPrefix(strLine, "msgctxt \"#") && strLine.size() > 9)
     if (HasPrefix(strLine, "msgctxt") && strLine.size() > 9)
     {
+      if (HasPrefix(strLine, "msgctxt \"#") && strLine.size() > 10 && isdigit(strLine[10]))
+        ParseNumID(strLine, 10);
+
       pPlaceToParse = &m_Entry.msgCtxt;
       if (!ReadStringLine(strLine, pPlaceToParse,8))
       {
@@ -709,9 +712,6 @@ void CPOHandler::ParseEntry()
         pPlaceToParse = NULL;
       }
     }
-    else if (HasPrefix(strLine, "msgctxt \"#") && strLine.size() > 10 && isdigit(strLine[10]))
-      ParseNumID(strLine, 10);
-
     else if (HasPrefix(strLine, "#:") && strLine.size() > 2)
     {
       std::string strCommnt = strLine.substr(2);
@@ -755,6 +755,7 @@ void CPOHandler::ParseEntry()
     else
       CLog::Log(logWARNING, "POParser: unknown line type found. Failed entry: %s", m_CurrentEntryText.c_str());
   }
+
   if (m_XMLResData.bRebrand && pPlaceToParse)
     g_CharsetUtils.reBrandXBMCToKodi(pPlaceToParse);
   if ((m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND) &&  m_Entry.msgID == "")
