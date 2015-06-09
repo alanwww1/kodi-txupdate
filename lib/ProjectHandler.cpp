@@ -25,6 +25,10 @@
 #include "jsoncpp/json/json.h"
 #include <algorithm>
 #include "UpdateXMLHandler.h"
+#include "Log.h"
+#include "CharsetUtils/CharsetUtils.h"
+#include "FileUtils/FileUtils.h"
+#include "Langcodes.h"
 
 CProjectHandler::CProjectHandler()
 {};

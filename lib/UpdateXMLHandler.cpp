@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <sstream>
 #include "HTTPUtils.h"
+#include "CharsetUtils/CharsetUtils.h"
+#include "FileUtils/FileUtils.h"
 
 
 using namespace std;

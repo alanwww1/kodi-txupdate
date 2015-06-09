@@ -24,6 +24,39 @@
 #include <algorithm>
 #include <list>
 #include <sstream>
+#include "CharsetUtils/CharsetUtils.h"
+#include "Log.h"
+#include "Langcodes.h"
+#include "FileUtils/FileUtils.h"
+
+CPOEntry::CPOEntry()
+{
+  Type = UNKNOWN_FOUND;
+}
+
+CPOEntry::~CPOEntry()
+{}
+
+
+bool CPOEntry::operator==(const CPOEntry& poentry) const
+{
+  bool bhasMatch = true;
+  if (!poentry.msgCtxt.empty())
+    bhasMatch = bhasMatch && (poentry.msgCtxt == msgCtxt);
+  if (!poentry.msgID.empty())
+    bhasMatch = bhasMatch && (poentry.msgID == msgID);
+  if (!poentry.msgIDPlur.empty())
+    bhasMatch = bhasMatch && (poentry.msgIDPlur == msgIDPlur);
+  if (!poentry.msgStr.empty())
+    bhasMatch = bhasMatch && (poentry.msgStr == msgStr);
+  if (!poentry.msgStrPlural.empty())
+    bhasMatch = bhasMatch && (poentry.msgStrPlural == msgStrPlural);
+//  if (!poentry.Type == ID_FOUND)
+//    bhasMatch = bhasMatch && (poentry.numID == numID);
+  if (poentry.Type != UNKNOWN_FOUND && poentry.Type != 0)
+    bhasMatch = bhasMatch && (poentry.Type == Type);
+  return bhasMatch;
+};
 
 CPOHandler::CPOHandler()
 {};
@@ -986,7 +1019,7 @@ bool CPOHandler::ReadStringLine(const std::string &line, std::string * pStrToApp
   std::string strToAppend;
   strToAppend.append(line, skip + 1, linesize - skip - 2);
   if (!g_CharsetUtils.IsValidUTF8(strToAppend))
-    CLog::Log(logERROR, "POUtils::ReadStringLine: wrong utf8 sequence found in string: %s", strToAppend.c_str());
+    CLog::Log(logERROR, "POHandler::ReadStringLine: wrong utf8 sequence found in string: %s", strToAppend.c_str());
   pStrToAppend->append(g_CharsetUtils.UnescapeCPPString(strToAppend));
   return true;
 };

@@ -21,14 +21,58 @@
  */
 #pragma once
 
-#include "POUtils/POUtils.h"
 #include <map>
 #include "TinyXML/tinyxml.h"
 #include "UpdateXMLHandler.h"
+#include <vector>
+#include <stdint.h>
+#include <stdio.h>
+
+enum
+{
+  ID_FOUND = 200, // We have an entry with a numeric (previously XML) identification number.
+  MSGID_FOUND = 201, // We have a classic gettext entry with textual msgid. No numeric ID.
+  MSGID_PLURAL_FOUND = 202, // We have a classic gettext entry with textual msgid in plural form.
+  COMMENT_ENTRY_FOUND = 203, // We have a separate comment entry
+  HEADER_FOUND = 204, // We have a header entry
+  UNKNOWN_FOUND = 205 // Unknown entrytype found
+};
+
+enum Boolean
+{
+  ISSOURCELANG=true
+};
+
+struct CAddonXMLEntry
+{
+  std::string strSummary;
+  std::string strDescription;
+  std::string strDisclaimer;
+};
+
+// Struct to collect all important data of the current processed entry.
+class CPOEntry
+{
+public:
+  CPOEntry();
+  ~CPOEntry();
+  int Type;
+  uint32_t numID;
+  std::string msgCtxt;
+  std::string msgID;
+  std::string msgIDPlur;
+  std::string msgStr;
+  std::vector<std::string> msgStrPlural;
+  std::vector<std::string> extractedComm;   // #. extracted comment
+  std::vector<std::string> referenceComm;   // #: reference
+  std::vector<std::string> translatorComm;  // # translator comment
+  std::vector<std::string> interlineComm;   // #comment between lines
+  std::string Content;
+  bool operator == (const CPOEntry &poentry) const;
+};
 
 typedef std::map<uint32_t, CPOEntry>::iterator itStrings;
 typedef std::vector<CPOEntry>::iterator itClassicEntries;
-
 
 class CPOHandler
 {

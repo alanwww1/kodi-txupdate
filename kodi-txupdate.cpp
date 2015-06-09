@@ -35,6 +35,8 @@
 #include "lib/HTTPUtils.h"
 #include "lib/Langcodes.h"
 #include "jsoncpp/json/json.h"
+#include "lib/Log.h"
+#include "lib/FileUtils/FileUtils.h"
 
 using namespace std;
 

@@ -28,6 +28,7 @@
 #include "algorithm"
 #include "Fileversioning.h"
 #include "jsoncpp/json/json.h"
+#include "CharsetUtils/CharsetUtils.h"
 
 using namespace std;
 
