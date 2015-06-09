@@ -571,15 +571,15 @@ bool CPOHandler::GetNextEntry(bool bSkipError)
 
     if (FindLineStart ("\nmsgid "))
     {
-//      if (FindLineStart ("\nmsgctxt \"#"))
-//      {
-//        size_t ipos = m_CurrentEntryText.find("\nmsgctxt \"#");
-//        if (isdigit(m_CurrentEntryText[ipos+11]))
-//        {
-//          m_Entry.Type = ID_FOUND; // we found an entry with a valid numeric id
-//          return true;
-//        }
-//      }
+      if (FindLineStart ("\nmsgctxt \"#"))
+      {
+        size_t ipos = m_CurrentEntryText.find("\nmsgctxt \"#");
+        if (isdigit(m_CurrentEntryText[ipos+11]))
+        {
+          m_Entry.Type = ID_FOUND; // we found an entry with a valid numeric id
+          return true;
+        }
+      }
 
       if (FindLineStart ("\nmsgid_plural "))
       {
