@@ -126,7 +126,7 @@ void CPOHandler::ClearCPOEntry (CPOEntry &entry)
   entry.extractedComm.clear();
   entry.translatorComm.clear();
   entry.interlineComm.clear();
-//  entry.msgID.clear();
+  entry.msgID.clear();
   entry.msgStr.clear();
   entry.msgIDPlur.clear();
   entry.msgCtxt.clear();
