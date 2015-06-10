@@ -30,12 +30,12 @@
 
 enum
 {
-  ID_FOUND = 200, // We have an entry with a numeric (previously XML) identification number.
-  MSGID_FOUND = 201, // We have a classic gettext entry with textual msgid. No numeric ID.
-  MSGID_PLURAL_FOUND = 202, // We have a classic gettext entry with textual msgid in plural form.
-  COMMENT_ENTRY_FOUND = 203, // We have a separate comment entry
-  HEADER_FOUND = 204, // We have a header entry
-  UNKNOWN_FOUND = 205 // Unknown entrytype found
+  NUMID = 200, // We have an entry with a numeric (previously XML) identification number.
+  MSGID = 201, // We have a classic gettext entry with textual msgid. No numeric ID.
+  MSGID_PLURAL = 202, // We have a classic gettext entry with textual msgid in plural form.
+  COMMENT_ENTRY = 203, // We have a separate comment entry
+  HEADER = 204, // We have a header entry
+  UNKNOWN = 205 // Unknown entrytype found
 };
 
 enum Boolean
@@ -70,9 +70,6 @@ public:
   bool operator == (const CPOEntry &poentry) const;
 };
 
-typedef std::map<uint32_t, CPOEntry>::iterator itStrings;
-typedef std::vector<CPOEntry>::iterator itClassicEntries;
-
 class CPOHandler
 {
 public:
@@ -92,7 +89,7 @@ public:
 
 //  const CPOEntry* GetNumPOEntryByID(uint32_t numid);
 //  bool AddNumPOEntryByID(uint32_t numid, CPOEntry const &POEntry, CPOEntry const &POEntryEN, bool bCopyComments);
-  const CPOEntry* GetClassicPOEntryByIdx(size_t pos) const;
+  const CPOEntry* GetClassicPOEntryByIdx(size_t pos);
 
 //  const CPOEntry* GetNumPOEntryByIdx(size_t pos) const;
   void SetHeader (std::string strHeader) {m_strHeader = strHeader;}
@@ -103,7 +100,7 @@ public:
   void GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry &AddonXMLEntryEN);
   void SetPreHeader (std::string &strPreText);
 //  size_t const GetNumEntriesCount() {return m_mapStrings.size();}
-  size_t const GetClassEntriesCount() {return m_vecClassicEntries.size();}
+  size_t const GetClassEntriesCount() {return m_mapPOData.size();}
   size_t const GetCommntEntriesCount() {return m_CommsCntr;}
   void SetIfIsSourceLang(bool bIsENLang) {m_bPOIsEnglish = bIsENLang;}
   void SetIfPOIsUpdTX(bool bIsUpdTX) {m_bPOIsUpdateTX = bIsUpdTX;}
@@ -114,11 +111,11 @@ public:
 protected:
   void ClearCPOEntry (CPOEntry &entry);
   bool ProcessPOFile();
-  itStrings IterateToMapIndex(itStrings it, size_t index);
   bool GetXMLEncoding(const TiXmlDocument* pDoc, std::string& strEncoding);
   void GetXMLComment(std::string strXMLEncoding, const TiXmlNode *pCommentNode, CPOEntry &currEntry);
   int GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings);
   void ParsePOHeader();
+  void AddPOEntryToMaps (const CPOEntry& Entry);
 
   std::string m_strHeader;
   std::string m_CurrentEntryText;
@@ -126,7 +123,15 @@ protected:
   int m_nplurals;
 
 //  std::map<uint32_t, CPOEntry> m_mapStrings;
-  std::vector<CPOEntry> m_vecClassicEntries;
+//  std::vector<CPOEntry> m_vecClassicEntries;
+  std::map <unsigned long long, CPOEntry> m_mapPOData;
+  std::map <std::string, unsigned long long> m_mapClassicDataIndex;
+  std::map <size_t, unsigned long long> m_mapSequenceIndex;
+
+typedef std::map <unsigned long long, CPOEntry>::iterator itPOData;
+typedef std::map <std::string, unsigned long long>::iterator itClassicPOData;
+typedef std::map <size_t, unsigned long long>::iterator itSequenceIndex;
+//typedef std::vector<CPOEntry>::iterator itClassicEntries;
 
   CPOEntry m_prevCommEntry;
   bool m_bIsXMLSource;

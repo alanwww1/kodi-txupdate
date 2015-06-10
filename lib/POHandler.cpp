@@ -31,7 +31,7 @@
 
 CPOEntry::CPOEntry()
 {
-  Type = UNKNOWN_FOUND;
+  Type = UNKNOWN;
 }
 
 CPOEntry::~CPOEntry()
@@ -51,9 +51,9 @@ bool CPOEntry::operator==(const CPOEntry& poentry) const
     bhasMatch = bhasMatch && (poentry.msgStr == msgStr);
   if (!poentry.msgStrPlural.empty())
     bhasMatch = bhasMatch && (poentry.msgStrPlural == msgStrPlural);
-  if (!poentry.Type == ID_FOUND)
+  if (!poentry.Type == NUMID)
     bhasMatch = bhasMatch && (poentry.numID == numID);
-  if (poentry.Type != UNKNOWN_FOUND && poentry.Type != 0)
+  if (poentry.Type != UNKNOWN && poentry.Type != 0)
     bhasMatch = bhasMatch && (poentry.Type == Type);
   return bhasMatch;
 };
@@ -102,19 +102,21 @@ bool CPOHandler::ProcessPOFile()
   }
   m_POfilelength = m_strBuffer.size();
 
-  if (!GetNextEntry(true) || m_Entry.Type != MSGID_FOUND || m_CurrentEntryText.find("msgid \"\"")  == std::string::npos ||
+  if (!GetNextEntry(true) || m_Entry.Type != MSGID || m_CurrentEntryText.find("msgid \"\"")  == std::string::npos ||
       m_CurrentEntryText.find("msgstr \"\"") == std::string::npos)
   {
     CLog::Log(logERROR, "POParser: unable to read PO file header.");
   }
 
-  m_Entry.Type = HEADER_FOUND;
+  m_Entry.Type = HEADER;
 
   m_strHeader = m_CurrentEntryText.substr(1);
 
   ParsePOHeader();
 
-  m_vecClassicEntries.clear();
+  m_mapPOData.clear();
+  m_mapSequenceIndex.clear();
+  m_mapClassicDataIndex.clear();
   m_CommsCntr = 0;
 
   bool bMultipleComment = false;
@@ -124,7 +126,7 @@ bool CPOHandler::ProcessPOFile()
   {
     ParseEntry();
 
-    if (m_Entry.Type == COMMENT_ENTRY_FOUND)
+    if (m_Entry.Type == COMMENT_ENTRY)
     {
       if (!vecILCommnts.empty())
         bMultipleComment = true;
@@ -134,7 +136,7 @@ bool CPOHandler::ProcessPOFile()
       continue;
     }
 
-    if (m_Entry.Type == ID_FOUND || m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND)
+    if (m_Entry.Type == NUMID || m_Entry.Type == MSGID || m_Entry.Type == MSGID_PLURAL)
 //    if (m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND)
     {
       if (bMultipleComment)
@@ -153,12 +155,8 @@ bool CPOHandler::ProcessPOFile()
           m_Entry.msgStrPlural.clear(); // in case there is insufficient number of translated plurals we completely clear it
       }
 
-//      if (currType == ID_FOUND)
-//        m_mapStrings[currEntry.numID] = currEntry;
-//      else
-//      {
-        m_vecClassicEntries.push_back(m_Entry);
-//      }
+      AddPOEntryToMaps(m_Entry);
+
       ClearCPOEntry(m_Entry);
     }
   }
@@ -177,7 +175,7 @@ void CPOHandler::ClearCPOEntry (CPOEntry &entry)
   entry.msgStr.clear();
   entry.msgIDPlur.clear();
   entry.msgCtxt.clear();
-  entry.Type = UNKNOWN_FOUND;
+  entry.Type = UNKNOWN;
   m_CurrentEntryText.clear();
 };
 
@@ -191,30 +189,9 @@ bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
   m_strOutBuffer.clear();
   m_strOutBuffer = m_strHeader;
 
-  CPOEntry POEntry;
-  POEntry.msgCtxt = "Addon Summary";
-  if (LookforClassicEntry(POEntry))
-    WritePOEntry(POEntry, m_nplurals);
-
-  ClearCPOEntry(POEntry);
-  POEntry.msgCtxt = "Addon Description";
-  if (LookforClassicEntry(POEntry))
-    WritePOEntry(POEntry, m_nplurals);
-
-  ClearCPOEntry(POEntry);
-  POEntry.msgCtxt = "Addon Disclaimer";
-  if (LookforClassicEntry(POEntry))
-    WritePOEntry(POEntry, m_nplurals);
-
-//  for (itStrings it = m_mapStrings.begin(); it != m_mapStrings.end(); it++)
-//  {
-//    WritePOEntry(it->second, m_nplurals);
-//  }
-
-  for (itClassicEntries itclass = m_vecClassicEntries.begin(); itclass != m_vecClassicEntries.end(); itclass++)
+  for (itPOData it = m_mapPOData.begin(); it != m_mapPOData.end(); it++)
   {
-    if (itclass->msgCtxt != "Addon Summary" && itclass->msgCtxt != "Addon Description" && itclass->msgCtxt != "Addon Disclaimer")
-      WritePOEntry(*itclass, m_nplurals);
+    WritePOEntry(it->second, m_nplurals);
   }
 
   std::string strDir = g_File.GetPath(strOutputPOFilename);
@@ -239,39 +216,73 @@ bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
 
 bool CPOHandler::LookforClassicEntry (CPOEntry &EntryToFind)
 {
-  for (itClassicEntries it = m_vecClassicEntries.begin(); it != m_vecClassicEntries.end(); it++)
+
+  if (EntryToFind.Type == NUMID)
   {
-    if (*it == EntryToFind)
+    itPOData it = m_mapPOData.find(EntryToFind.numID + 0x100);
+    if (it == m_mapPOData.end())
+      return false;
+    if (it->second == EntryToFind)
     {
-      EntryToFind = *it;
+      EntryToFind = it->second;
       return true;
     }
+    else
+      return false;
   }
-  return false;
+  else
+  {
+    std::string sKeyToFind = EntryToFind.msgCtxt;
+    if (!EntryToFind.msgID.empty())
+      sKeyToFind += "|" + EntryToFind.msgID;
+
+    itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
+    if (it == m_mapClassicDataIndex.end())
+      return false;
+    if (m_mapPOData[it->second] == EntryToFind)
+    {
+      EntryToFind = m_mapPOData[it->second];
+      return true;
+    }
+    else
+      return false;
+  }
 }
 
 const CPOEntry*  CPOHandler::PLookforClassicEntry (CPOEntry &EntryToFind)
 {
-  for (itClassicEntries it = m_vecClassicEntries.begin(); it != m_vecClassicEntries.end(); it++)
+  if (EntryToFind.Type == NUMID)
   {
-    if (*it == EntryToFind)
+    itPOData it = m_mapPOData.find(EntryToFind.numID + 0x100);
+    if (it == m_mapPOData.end())
+      return NULL;
+    if (it->second == EntryToFind)
     {
-      EntryToFind = *it;
-      return &(*it);
+      return &(it->second);
     }
+    else
+      return NULL;
   }
-  return NULL;
+  else
+  {
+    std::string sKeyToFind = EntryToFind.msgCtxt;
+    if (!EntryToFind.msgID.empty())
+      sKeyToFind += "|" + EntryToFind.msgID;
+
+    itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
+    if (it == m_mapClassicDataIndex.end())
+      return NULL;
+    if (m_mapPOData[it->second] == EntryToFind)
+    {
+      return &(m_mapPOData[it->second]);
+    }
+    else
+      return NULL;
+  }
 }
 
 bool CPOHandler::AddClassicEntry (CPOEntry EntryToAdd, CPOEntry const &POEntryEN, bool bCopyComments)
 {
-  CPOEntry EntryToFind;
-  EntryToFind.msgCtxt = EntryToAdd.msgCtxt;
-  EntryToFind.msgID = EntryToAdd.msgID;
-  EntryToFind.msgIDPlur = EntryToAdd.msgIDPlur;
-  if (LookforClassicEntry(EntryToFind))  // The entry already exists
-    return false;
-
   if (bCopyComments)
   {
     EntryToAdd.extractedComm = POEntryEN.extractedComm;
@@ -287,33 +298,79 @@ bool CPOHandler::AddClassicEntry (CPOEntry EntryToAdd, CPOEntry const &POEntryEN
     EntryToAdd.translatorComm.clear();
   }
 
-  m_vecClassicEntries.push_back(EntryToAdd);
+  AddPOEntryToMaps(EntryToAdd);
   return true;
 };
 
-bool CPOHandler::ModifyClassicEntry (CPOEntry &EntryToFind, CPOEntry EntryNewValue)
+void CPOHandler::AddPOEntryToMaps (const CPOEntry& Entry)
 {
-  for (itClassicEntries it = m_vecClassicEntries.begin(); it != m_vecClassicEntries.end(); it++)
+  // store m_entry content in memory maps, separating the way it is stored for numid, msgid and addon data types
+  // we also create two additional index maps for faster sequencial lookup and classic entry lookup
+  size_t iEntryCounter = m_mapPOData.size();
+
+  if (Entry.Type == NUMID)
   {
-    if (*it == EntryToFind)
-    {
-      *it = EntryNewValue;
-      return true;
-    }
+    unsigned long long iKey = Entry.numID + 0x100;
+    if (m_mapPOData.find(iKey) != m_mapPOData.end())
+      CLog::Log(logERROR, "POParser: duplicated numeric entry in PO file.");
+    m_mapPOData[iKey] = Entry;
+    m_mapSequenceIndex[iEntryCounter] = iKey;
   }
-  m_vecClassicEntries.push_back(EntryNewValue);
-  return false;
+  else if (Entry.msgCtxt == "Addon Summary")
+  {
+    if (m_mapPOData.find(0) != m_mapPOData.end())
+      CLog::Log(logERROR, "POParser: duplicated \"Addon Summary\" entry in PO file.");
+    m_mapPOData[0] = Entry;
+    m_mapClassicDataIndex["Addon Summary"] = 0;
+    m_mapClassicDataIndex["Addon Summary|" + Entry.msgID] = 0;
+    m_mapSequenceIndex[iEntryCounter] = 0;
+  }
+  else if (Entry.msgCtxt == "Addon Description")
+  {
+    if (m_mapPOData.find(1) != m_mapPOData.end())
+      CLog::Log(logERROR, "POParser: duplicated \"Addon Description\" entry in PO file.");
+    m_mapPOData[1] = Entry;
+    m_mapClassicDataIndex["Addon Description"] = 0;
+    m_mapClassicDataIndex["Addon Description|" + Entry.msgID] = 0;
+    m_mapSequenceIndex[iEntryCounter] = 1;
+  }
+  else if (Entry.msgCtxt == "Addon Disclaimer")
+  {
+    if (m_mapPOData.find(2) != m_mapPOData.end())
+      CLog::Log(logERROR, "POParser: duplicated \"Addon Disclaimer\" entry in PO file.");
+    m_mapPOData[2] = Entry;
+    m_mapClassicDataIndex["Addon Disclaimer"] = 0;
+    m_mapClassicDataIndex["Addon Disclaimer|" + Entry.msgID] = 0;
+    m_mapSequenceIndex[iEntryCounter] = 2;
+  }
+  else
+  {
+    unsigned long long iKey = iEntryCounter + 0x10000000000;
+    if (m_mapPOData.find(iKey) != m_mapPOData.end())
+      CLog::Log(logERROR, "POParser: duplicated classic PO entry in PO file.");
+    m_mapPOData[iKey] = Entry;
+    m_mapClassicDataIndex[Entry.msgCtxt + "|" + Entry.msgID] = 0;
+    m_mapSequenceIndex[iEntryCounter] = iKey;
+  }
 }
 
-bool CPOHandler::DeleteClassicEntry (CPOEntry &EntryToFind)
+bool CPOHandler::ModifyClassicEntry (CPOEntry &EntryToFind, CPOEntry EntryNewValue)
 {
-  for (itClassicEntries it = m_vecClassicEntries.begin(); it != m_vecClassicEntries.end(); it++)
+
+  std::string sKeyToFind = EntryToFind.msgCtxt;
+  if (!EntryToFind.msgID.empty())
+    sKeyToFind += "|" + EntryToFind.msgID;
+
+  itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
+  if (it == m_mapClassicDataIndex.end())
   {
-    if (*it == EntryToFind)
-    {
-      m_vecClassicEntries.erase(it);
-      return true;
-    }
+    AddPOEntryToMaps(EntryNewValue);
+    return false;
+  }
+  if (m_mapPOData[it->second] == EntryToFind)
+  {
+    m_mapPOData[it->second] = EntryNewValue;
+    return true;
   }
   return false;
 }
@@ -322,9 +379,9 @@ void CPOHandler::SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXM
                                    CAddonXMLEntry const &AddonXMLEntryEN, std::string const &strLang)
 {
   CPOEntry POEntryDesc, POEntryDiscl, POEntrySumm;
-  POEntryDesc.Type = MSGID_FOUND;
-  POEntryDiscl.Type = MSGID_FOUND;
-  POEntrySumm.Type = MSGID_FOUND;
+  POEntryDesc.Type = MSGID;
+  POEntryDiscl.Type = MSGID;
+  POEntrySumm.Type = MSGID;
   POEntryDesc.msgCtxt = "Addon Description";
   POEntryDiscl.msgCtxt = "Addon Disclaimer";
   POEntrySumm.msgCtxt = "Addon Summary";
@@ -457,19 +514,14 @@ const CPOEntry* CPOHandler::GetNumPOEntryByIdx(size_t pos) const
   return &(it_mapStrings->second);
 }
 */
-const CPOEntry* CPOHandler::GetClassicPOEntryByIdx(size_t pos) const
+const CPOEntry* CPOHandler::GetClassicPOEntryByIdx(size_t pos)
 {
-  std::vector<CPOEntry>::const_iterator it_vecPOEntry;
-  it_vecPOEntry = m_vecClassicEntries.begin();
-  advance(it_vecPOEntry, pos);
-  return &(*it_vecPOEntry);
-}
+  itSequenceIndex itseq = m_mapSequenceIndex.find(pos);
+  if (itseq == m_mapSequenceIndex.end())
+    CLog::Log(logERROR, "CPOHandler::GetClassicPOEntryByIdx: not found entry at position: %i", pos);
 
-itStrings CPOHandler::IterateToMapIndex(itStrings it, size_t index)
-{
-  for (size_t i = 0; i != index; i++)
-    it++;
-  return it;
+  itPOData it = m_mapPOData.find(itseq->second);
+  return &(it->second);
 }
 
 int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings)
@@ -576,18 +628,18 @@ bool CPOHandler::GetNextEntry(bool bSkipError)
         size_t ipos = m_CurrentEntryText.find("\nmsgctxt \"#");
         if (isdigit(m_CurrentEntryText[ipos+11]))
         {
-          m_Entry.Type = ID_FOUND; // we found an entry with a valid numeric id
+          m_Entry.Type = NUMID; // we found an entry with a valid numeric id
           return true;
         }
       }
 
       if (FindLineStart ("\nmsgid_plural "))
       {
-        m_Entry.Type = MSGID_PLURAL_FOUND; // we found a pluralized entry
+        m_Entry.Type = MSGID_PLURAL; // we found a pluralized entry
         return true;
       }
 
-      m_Entry.Type = MSGID_FOUND; // we found a normal entry, with no numeric id
+      m_Entry.Type = MSGID; // we found a normal entry, with no numeric id
       return true;
     }
     if (FindLineStart ("\n#"))
@@ -597,7 +649,7 @@ bool CPOHandler::GetNextEntry(bool bSkipError)
           m_CurrentEntryText[ipos+2] != ':' && m_CurrentEntryText[ipos+2] != ',' &&
           m_CurrentEntryText[ipos+2] != '|')
       {
-        m_Entry.Type = COMMENT_ENTRY_FOUND; // we found a pluralized entry
+        m_Entry.Type = COMMENT_ENTRY; // we found a pluralized entry
         return true;
       }
     }
@@ -758,7 +810,7 @@ void CPOHandler::ParseEntry()
 
   if (m_XMLResData.bRebrand && pPlaceToParse)
     g_CharsetUtils.reBrandXBMCToKodi(pPlaceToParse);
-  if ((m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND) &&  m_Entry.msgID == "")
+  if ((m_Entry.Type == MSGID || m_Entry.Type == MSGID_PLURAL) &&  m_Entry.msgID == "")
   {
     m_Entry.msgID = " ";
     CLog::Log(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_CurrentEntryText.c_str());
@@ -823,7 +875,7 @@ void CPOHandler::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
   m_bhasLFWritten = false;
 
 
-  if ((m_bPOIsEnglish || m_XMLResData.bForceComm) && currEntry.Type == ID_FOUND && !m_bPOIsUpdateTX)
+  if ((m_bPOIsEnglish || m_XMLResData.bForceComm) && currEntry.Type == NUMID && !m_bPOIsUpdateTX)
   {
     int id = currEntry.numID;
     if (id-m_previd >= 2 && m_previd > -1 && m_bPOIsEnglish)
