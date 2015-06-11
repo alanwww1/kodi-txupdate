@@ -160,7 +160,7 @@ bool CPOHandler::ProcessPOFile()
       ClearCPOEntry(m_Entry);
     }
   }
-
+  m_strBuffer.clear();
   return true;
 };
 
@@ -330,8 +330,8 @@ void CPOHandler::AddPOEntryToMaps (const CPOEntry& Entry)
     if (m_mapPOData.find(1) != m_mapPOData.end())
       CLog::Log(logERROR, "POParser: duplicated \"Addon Description\" entry in PO file.");
     m_mapPOData[1] = Entry;
-    m_mapClassicDataIndex["Addon Description"] = 0;
-    m_mapClassicDataIndex["Addon Description|" + Entry.msgID] = 0;
+    m_mapClassicDataIndex["Addon Description"] = 1;
+    m_mapClassicDataIndex["Addon Description|" + Entry.msgID] = 1;
     m_mapSequenceIndex[iEntryCounter] = 1;
   }
   else if (Entry.msgCtxt == "Addon Disclaimer")
@@ -339,8 +339,8 @@ void CPOHandler::AddPOEntryToMaps (const CPOEntry& Entry)
     if (m_mapPOData.find(2) != m_mapPOData.end())
       CLog::Log(logERROR, "POParser: duplicated \"Addon Disclaimer\" entry in PO file.");
     m_mapPOData[2] = Entry;
-    m_mapClassicDataIndex["Addon Disclaimer"] = 0;
-    m_mapClassicDataIndex["Addon Disclaimer|" + Entry.msgID] = 0;
+    m_mapClassicDataIndex["Addon Disclaimer"] = 2;
+    m_mapClassicDataIndex["Addon Disclaimer|" + Entry.msgID] = 2;
     m_mapSequenceIndex[iEntryCounter] = 2;
   }
   else

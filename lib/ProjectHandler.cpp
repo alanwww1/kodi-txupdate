@@ -329,7 +329,7 @@ bool CProjectHandler::CreateMergedResources()
         pPOEntryTX = SafeGetPOEntry(m_mapResourcesTX, *itResAvail, strLangCode, currPOEntryEN);
         pPOEntryUpstr = SafeGetPOEntry(m_mapResourcesUpstr, *itResAvail, strLangCode, currPOEntryEN);
 
-        CheckPOEntrySyntax(pPOEntryTX, strLangCode, pcurrPOEntryEN, XMLResData);
+//        CheckPOEntrySyntax(pPOEntryTX, strLangCode, pcurrPOEntryEN, XMLResData);
 
         if (strLangCode == XMLResData.strSourceLcode)
         {
@@ -522,6 +522,8 @@ const CPOEntry * CProjectHandler::SafeGetPOEntry(std::map<std::string, CResource
   POEntryToFind.msgCtxt = currPOEntryEN.msgCtxt;
   POEntryToFind.msgID = currPOEntryEN.msgID;
   POEntryToFind.msgIDPlur = currPOEntryEN.msgIDPlur;
+  if (POEntryToFind.Type == NUMID)
+    POEntryToFind.numID = currPOEntryEN.numID;
 
   if (mapResHandl.find(strResname) == mapResHandl.end())
     return NULL;
