@@ -58,7 +58,11 @@ protected:
                                                                      std::string strAddonXMLURL, bool bIsLangAddon);
   void ParseAddonXMLVersionGITHUB(const std::string &strJSON, const std::string &strURL,
                                   const std::string &strAddXMLFilename, const std::string &strChlogname);
-  std::map<std::string, CPOHandler> m_mapPOFiles;
+  std::map<std::string, CPOHandler> m_mapUPS;
+  std::map<std::string, CPOHandler> m_mapTRX;
+  std::map<std::string, CPOHandler> m_mapUPD;
+  std::map<std::string, CPOHandler> m_mapMRG;
+
   CAddonXMLHandler m_AddonXMLHandler;
   std::list<std::string> m_lChangedLangsFromUpstream;
   std::list<std::string> m_lChangedLangsInAddXMLFromUpstream;

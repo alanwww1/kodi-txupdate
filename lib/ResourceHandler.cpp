@@ -72,14 +72,16 @@ bool CResourceHandler::FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::s
 
   for (std::list<std::string>::iterator it = listLangsTX.begin(); it != listLangsTX.end(); it++)
   {
-    printf (" %s", it->c_str());
-    m_mapPOFiles[*it] = POHandler;
-    CPOHandler * pPOHandler = &m_mapPOFiles[*it];
-    pPOHandler->FetchPOURLToMem(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat) + "/?file");
-    pPOHandler->SetIfIsSourceLang(*it == m_XMLResData.strSourceLcode);
+    const std::string& sLangName = *it;
+    printf (" %s", sLangName.c_str());
+    m_mapTRX[sLangName] = POHandler;
+
+    CPOHandler& POHandler = m_mapTRX[sLangName];
+
+    POHandler.FetchPOURLToMem(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat) + "/?file");
+    POHandler.SetIfIsSourceLang(*it == m_XMLResData.strSourceLcode);
     std::string strLang = *it;
-    CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i", strLang.c_str(),
-                            pPOHandler->GetClassEntriesCount());
+    CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i", strLang.c_str(), POHandler.GetClassEntriesCount());
   }
   CLog::LogTable(logADDTABLEHEADER, "txfetch", "--------------------------------------------------------------\n");
   CLog::LogTable(logADDTABLEHEADER, "txfetch", "FetchPOFilesTX:\tLang\t\tIDEntry\t\tClassEntry\n");

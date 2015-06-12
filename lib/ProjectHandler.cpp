@@ -48,14 +48,12 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   g_HTTPHandler.ReInit();
   printf ("TXresourcelist");
 
-  const std::string& strProjectName = m_mapResData.begin()->second.strProjectName; //TODO handle different projectnames accross the update xml file
-  std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + strProjectName + "/resources/");
+  const std::string& sProjectName = m_mapResData.begin()->second.strProjectName; //TODO handle different projectnames accross the update xml file
+  std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + sProjectName + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
 
   printf ("\n\n");
-  char cstrtemp[strtemp.size()];
-  strcpy(cstrtemp, strtemp.c_str());
 
   std::list<std::string> listResourceNamesTX = ParseResources(strtemp);
 
@@ -75,12 +73,11 @@ bool CProjectHandler::FetchResourcesFromTransifex()
       continue;
     }
 
-    CXMLResdata XMLResdata = m_mapResData[strResname];
-    CResourceHandler ResourceHandler(XMLResdata);
+    const CXMLResdata& XMLResData = m_mapResData[strResname];
+    CResourceHandler NewResHandler(XMLResData);
 
-    m_mapResourcesTX[strResname]=ResourceHandler;
-    m_mapResourcesTX[strResname].FetchPOFilesTXToMem(XMLResdata, "https://www.transifex.com/api/2/project/" + strProjectName +
-                                              "/resource/" + *it + "/");
+    m_mapResources[strResname] = NewResHandler;
+    m_mapResources[strResname].FetchPOFilesTXToMem("https://www.transifex.com/api/2/project/" + sProjectName + "/resource/" + *it + "/");
     CLog::DecIdent(4);
     printf(" )\n");
   }
@@ -92,15 +89,21 @@ bool CProjectHandler::FetchResourcesFromUpstream()
   for (std::map<std::string, CXMLResdata>::iterator it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {
     const CXMLResdata& XMLResData = it->second;
-    CResourceHandler ResourceHandler(XMLResData);
+    const std::string& sResName = it->first;
 
-    printf("%s%s%s (", KMAG, it->first.c_str(), RESET);
+    printf("%s%s%s (", KMAG, sResName.c_str(), RESET);
     CLog::Log(logLINEFEED, "");
-    CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from UPSTREAM: %s ******", it->first.c_str());
+    CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from UPSTREAM: %s ******", sResName.c_str());
 
     CLog::IncIdent(4);
-    m_mapResourcesUpstr[it->first] = ResourceHandler;
-    m_mapResourcesUpstr[it->first].FetchPOFilesUpstreamToMem(XMLResData);
+
+    if (m_mapResources[sResName] == m_mapResources.end()) // if it was not created in the map (by TX pull), make a new entry
+    {
+      CResourceHandler NewResHandler(XMLResData);
+      m_mapResources[sResName] = NewResHandler;
+    }
+
+    m_mapResources[sResName].FetchPOFilesUpstreamToMem(XMLResData);
     CLog::DecIdent(4);
     printf(" )\n");
   }

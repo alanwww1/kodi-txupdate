@@ -67,11 +67,7 @@ protected:
 
   std::list<std::string> ParseResources(std::string strJSON);
 
-  std::map<std::string, CResourceHandler> m_mapResourcesTX;
-  std::map<std::string, CResourceHandler> m_mapResourcesUpstr;
-
-  std::map<std::string, CResourceHandler> m_mapResMerged;
-  std::map<std::string, CResourceHandler> m_mapResUpdateTX;
+  std::map<std::string, CResourceHandler> m_mapResources;
   typedef std::map<std::string, CResourceHandler>::iterator T_itmapRes;
   std::map<std::string, std::string> m_mapResourceNamesTX;
   int m_resCount;
