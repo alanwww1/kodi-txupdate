@@ -44,6 +44,7 @@ void CProjectHandler::LoadUpdXMLToMem()
 
 bool CProjectHandler::FetchResourcesFromTransifex()
 {
+/*
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
   printf ("TXresourcelist");
@@ -55,29 +56,32 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 
   printf ("\n\n");
 
-  std::list<std::string> listResourceNamesTX = ParseResources(strtemp);
+  std::list<std::string> listResourceNamesTX = ParseResources(strtemp); */
 
-  for (std::list<std::string>::iterator it = listResourceNamesTX.begin(); it != listResourceNamesTX.end(); it++)
+  for (T_itResData it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {
-    printf("%s%s%s (", KMAG, it->c_str(), RESET);
+    const std::string& sResName = it->second.strResName;
+
+    printf("%s%s%s (", KMAG, sResName.c_str(), RESET);
     CLog::Log(logLINEFEED, "");
-    CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from TRANSIFEX: %s", it->c_str());
+    CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from TRANSIFEX: %s", sResName.c_str());
     CLog::IncIdent(4);
 
-    std::string strResname = GetResNameFromTXResName(*it);
-    if (strResname.empty())
+/*    std::string sResname = GetResNameFromTXResName(sTXResName);
+    if (sResname.empty())
     {
       printf(" )\n");
-      CLog::Log(logWARNING, "ProjHandler: found resource on Transifex which is not in kodi-txupdate.xml: %s", it->c_str());
+      CLog::Log(logWARNING, "ProjHandler: found resource on Transifex which is not in kodi-txupdate.xml: %s", sTXResName.c_str());
       CLog::DecIdent(4);
       continue;
     }
+*/
 
-    const CXMLResdata& XMLResData = m_mapResData[strResname];
+    const CXMLResdata& XMLResData = m_mapResData[sResName];
     CResourceHandler NewResHandler(XMLResData);
 
-    m_mapResources[strResname] = NewResHandler;
-    m_mapResources[strResname].FetchPOFilesTXToMem("https://www.transifex.com/api/2/project/" + sProjectName + "/resource/" + *it + "/");
+    m_mapResources[sResName] = NewResHandler;
+    m_mapResources[sResName].FetchPOFilesTXToMem();
     CLog::DecIdent(4);
     printf(" )\n");
   }
@@ -97,13 +101,13 @@ bool CProjectHandler::FetchResourcesFromUpstream()
 
     CLog::IncIdent(4);
 
-    if (m_mapResources[sResName] == m_mapResources.end()) // if it was not created in the map (by TX pull), make a new entry
+    if (m_mapResources.find(sResName) == m_mapResources.end()) // if it was not created in the map (by TX pull), make a new entry
     {
       CResourceHandler NewResHandler(XMLResData);
       m_mapResources[sResName] = NewResHandler;
     }
 
-    m_mapResources[sResName].FetchPOFilesUpstreamToMem(XMLResData);
+    m_mapResources[sResName].FetchPOFilesUpstreamToMem();
     CLog::DecIdent(4);
     printf(" )\n");
   }
@@ -111,7 +115,7 @@ bool CProjectHandler::FetchResourcesFromUpstream()
 };
 
 bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
-{
+{ /*
   std::string strPrefixDir;
 
   //TODO
@@ -120,7 +124,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
   strPrefixDir = XMLResData.strMergedLangfileDir;
   CLog::Log(logINFO, "Deleting merged language file directory");
   g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
-  for (T_itmapRes itmapResources = m_mapResMerged.begin(); itmapResources != m_mapResMerged.end(); itmapResources++)
+  for (T_itmapRes itmapResources = m_mapResources.begin(); itmapResources != m_mapResources.end(); itmapResources++)
   {
     printf("Writing merged resources to HDD: %s%s%s\n", KMAG, itmapResources->first.c_str(), RESET);
     std::list<std::string> lChangedLangsFromUpstream = m_mapResMerged[itmapResources->first].GetChangedLangsFromUpstream();
@@ -160,12 +164,13 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     m_mapResUpdateTX[itmapResources->first].WritePOToFiles (strProjRootDir, strPrefixDir, itmapResources->first, XMLResdata, true);
     CLog::DecIdent(4);
   }
-
+*/
   return true;
 };
 
 bool CProjectHandler::CreateMergedResources()
 {
+/*
   CLog::Log(logINFO, "CreateMergedResources started");
 
   std::list<std::string> listMergedResource = CreateResourceList();
@@ -255,70 +260,6 @@ bool CProjectHandler::CreateMergedResources()
         updTXResHandler.GetXMLHandler()->GetMapAddonXMLData()->operator[](*itlang) = MergedAddonXMLEntry;
         updTXPOHandler.SetAddonMetaData(MergedAddonXMLEntry, MergedAddonXMLEntryTX, *pENAddonXMLEntry, *itlang); // add addonxml data as PO  classic entries
       }
-
-/*
-      for (size_t POEntryIdx = 0; pcurrPOHandlerEN && POEntryIdx != pcurrPOHandlerEN->GetNumEntriesCount(); POEntryIdx++)
-      {
-        size_t numID = pcurrPOHandlerEN->GetNumPOEntryByIdx(POEntryIdx)->numID;
-
-        CPOEntry currPOEntryEN = *(pcurrPOHandlerEN->GetNumPOEntryByIdx(POEntryIdx));
-        currPOEntryEN.msgStr.clear();
-        CPOEntry* pcurrPOEntryEN = &currPOEntryEN;
-
-        pPOEntryTX = SafeGetPOEntry(m_mapResourcesTX, *itResAvail, strLangCode, numID);
-        pPOEntryUpstr = SafeGetPOEntry(m_mapResourcesUpstr, *itResAvail, strLangCode, numID);
-
-        CheckPOEntrySyntax(pPOEntryTX, strLangCode, pcurrPOEntryEN, XMLResData);
-
-        if (strLangCode == XMLResData.strSourceLcode) // Source language entry
-        {
-          mergedPOHandler.AddNumPOEntryByID(numID, *pcurrPOEntryEN, *pcurrPOEntryEN, true);
-          updTXPOHandler.AddNumPOEntryByID(numID, *pcurrPOEntryEN, *pcurrPOEntryEN, true);
-        }
-        //1. Tx entry single
-        else if (pPOEntryTX && pcurrPOEntryEN->msgIDPlur.empty() && !pPOEntryTX->msgStr.empty() &&
-                 pPOEntryTX->msgID == pcurrPOEntryEN->msgID)
-        {
-          mergedPOHandler.AddNumPOEntryByID(numID, *pPOEntryTX, *pcurrPOEntryEN, true);
-          if (XMLResData.bForceTXUpd)
-            updTXPOHandler.AddNumPOEntryByID(numID, *pPOEntryTX, *pcurrPOEntryEN, true);
-          //Check if the string is new on TX or changed from the upstream one -> Addon version bump later
-          if ((!pPOEntryUpstr || pPOEntryUpstr->msgStr.empty() ||
-              (!pPOEntryUpstr->msgID.empty() && pPOEntryUpstr->msgID != pcurrPOEntryEN->msgID)) &&
-              (!pPOEntryUpstr || pPOEntryUpstr->msgStr != pPOEntryTX->msgStr))
-              bResChangedFromUpstream = true;
-        }
-        //2. Tx entry plural
-        else if (pPOEntryTX && !pcurrPOEntryEN->msgIDPlur.empty() && !pPOEntryTX->msgStrPlural.empty() &&
-                 pPOEntryTX->msgIDPlur == pcurrPOEntryEN->msgIDPlur)
-        {
-          mergedPOHandler.AddNumPOEntryByID(numID, *pPOEntryTX, *pcurrPOEntryEN, true);
-          if (XMLResData.bForceTXUpd)
-            updTXPOHandler.AddNumPOEntryByID(numID, *pPOEntryTX, *pcurrPOEntryEN, true);
-          //Check if the string is new on TX or changed from the upstream one -> Addon version bump later
-          if ((!pPOEntryUpstr || pPOEntryUpstr->msgStrPlural.empty() ||
-              (!pPOEntryUpstr->msgID.empty() && pPOEntryUpstr->msgID != pcurrPOEntryEN->msgID)) &&
-              (!pPOEntryUpstr || pPOEntryUpstr->msgStrPlural != pPOEntryTX->msgStrPlural))
-              bResChangedFromUpstream = true;
-        }
-        //3. Upstr entry single
-        else if (pPOEntryUpstr && pcurrPOEntryEN->msgIDPlur.empty() && !pPOEntryUpstr->msgStr.empty() &&
-                (pPOEntryUpstr->msgID.empty() || pPOEntryUpstr->msgID == pcurrPOEntryEN->msgID)) //if it is empty it is from a strings.xml file
-        {
-          mergedPOHandler.AddNumPOEntryByID(numID, *pPOEntryUpstr, *pcurrPOEntryEN, true);
-          updTXPOHandler.AddNumPOEntryByID(numID, *pPOEntryUpstr, *pcurrPOEntryEN, false);
-        }
-        //4. Upstr entry plural
-        else if (pPOEntryUpstr && !pcurrPOEntryEN->msgIDPlur.empty() && !pPOEntryUpstr->msgStrPlural.empty() &&
-                 pPOEntryUpstr->msgIDPlur == pcurrPOEntryEN->msgIDPlur)
-        {
-          mergedPOHandler.AddNumPOEntryByID(numID, *pPOEntryUpstr, *pcurrPOEntryEN, true);
-          updTXPOHandler.AddNumPOEntryByID(numID, *pPOEntryUpstr, *pcurrPOEntryEN, false);
-        }
-
-      }
-
-*/
 
 
       // Handle classic non-id based po entries
@@ -432,9 +373,10 @@ bool CProjectHandler::CreateMergedResources()
       m_mapResUpdateTX[*itResAvail] = updTXResHandler;
     CLog::DecIdent(4);
   }
+*/
   return true;
 }
-
+/*
 std::list<std::string> CProjectHandler::CreateMergedLanguageList(std::string strResname)
 {
   std::list<std::string> listMergedLangs;
@@ -504,19 +446,8 @@ CAddonXMLEntry * const CProjectHandler::GetAddonDataFromXML(std::map<std::string
 
   return &(pRes->GetXMLHandler()->GetMapAddonXMLData()->operator[](strLangCode));
 }
-
-/*
-const CPOEntry * CProjectHandler::SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
-                          std::string &strLangCode, size_t numID)
-{
-  if (mapResHandl.find(strResname) == mapResHandl.end())
-    return NULL;
-  if (!mapResHandl[strResname].GetPOData(strLangCode))
-    return NULL;
-  return mapResHandl[strResname].GetPOData(strLangCode)->GetNumPOEntryByID(numID);
-}
-
 */
+/*
 const CPOEntry * CProjectHandler::SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
                                                  std::string &strLangCode, CPOEntry const &currPOEntryEN)
 {
@@ -692,7 +623,8 @@ bool CProjectHandler::FindResInList(std::list<std::string> const &listResourceNa
   }
   return false;
 }
-
+*/
+/*
 std::list<std::string> CProjectHandler::GetLangsFromDir(std::string const &strLangDir)
 {
   //TODO
@@ -725,7 +657,8 @@ std::list<std::string> CProjectHandler::GetLangsFromDir(std::string const &strLa
 
   return listDirs;
 };
-
+*/
+/*
 void CProjectHandler::CheckPOEntrySyntax(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN,
                                          const CXMLResdata& XMLResData)
 {
@@ -816,7 +749,7 @@ std::string CProjectHandler::GetResNameFromTXResName(std::string const &strTXRes
   }
   return "";
 }
-
+*/
 void CProjectHandler::MigrateTranslators()
 {
   //TODO

@@ -84,6 +84,8 @@ public:
   bool LookforClassicEntry (CPOEntry &EntryToFind);
   const CPOEntry*  PLookforClassicEntry (CPOEntry &EntryToFind);
   bool AddClassicEntry (CPOEntry EntryToAdd, CPOEntry const &POEntryEN, bool bCopyComments);
+  void AddAddonXMLEntries (const CAddonXMLEntry& AddonXMLEntry, const CAddonXMLEntry& AddonXMLEntrySRC);
+
   bool ModifyClassicEntry (CPOEntry &EntryToFind, CPOEntry EntryNewValue);
   bool DeleteClassicEntry (CPOEntry &EntryToFind);
 
@@ -128,9 +130,9 @@ protected:
   std::map <std::string, unsigned long long> m_mapClassicDataIndex;
   std::map <size_t, unsigned long long> m_mapSequenceIndex;
 
-typedef std::map <unsigned long long, CPOEntry>::iterator itPOData;
-typedef std::map <std::string, unsigned long long>::iterator itClassicPOData;
-typedef std::map <size_t, unsigned long long>::iterator itSequenceIndex;
+  typedef std::map <unsigned long long, CPOEntry>::iterator itPOData;
+  typedef std::map <std::string, unsigned long long>::iterator itClassicPOData;
+  typedef std::map <size_t, unsigned long long>::iterator itSequenceIndex;
 //typedef std::vector<CPOEntry>::iterator itClassicEntries;
 
   CPOEntry m_prevCommEntry;

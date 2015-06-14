@@ -29,6 +29,8 @@
 #include "CharsetUtils/CharsetUtils.h"
 #include "Log.h"
 #include "Langcodes.h"
+#include "Fileversioning.h"
+#include "jsoncpp/json/json.h"
 
 using namespace std;
 
@@ -38,9 +40,36 @@ CAddonXMLHandler::CAddonXMLHandler()
 CAddonXMLHandler::~CAddonXMLHandler()
 {};
 
-bool CAddonXMLHandler::FetchAddonXMLFileUpstr (const CXMLResdata &XMLResdata)
+void CAddonXMLHandler::FetchAddonDataFiles()
 {
-  std::string strURL = XMLResdata.strUPSAddonURL;
+  std::string sGitHubURL, sTemp;
+
+  if (m_XMLResData.strUPSAddonURL.empty() || !m_XMLResData.strUPSAddonLangFormat.empty())
+    return; // kodi language-addons have individual addon.xml files
+
+  // We get the version of the addon.xml and changelog.txt files here
+  sGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(m_XMLResData.strUPSAddonURLRoot);
+  printf(" Dir");
+  sTemp = g_HTTPHandler.GetURLToSTR(sGitHubURL);
+  if (sTemp.empty())
+    CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting addon.xml file version from github.com");
+
+  //TODO separate addon.xml and changelog.txt version parsing as they can be in a different place
+  ParseAddonXMLVersionGITHUB(sTemp);
+
+  printf(" Addxml");
+  FetchAddonXMLFileUpstr();
+  if (!m_XMLResData.strUPSChangelogURL.empty())
+  {
+    printf(" Chlog");
+    FetchAddonChangelogFile();
+  }
+}
+
+
+bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
+{
+  std::string strURL = m_XMLResData.strUPSAddonURL;
   TiXmlDocument xmlAddonXML;
 
   std::string strXMLFile = g_HTTPHandler.GetURLToSTR(strURL);
@@ -57,12 +86,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr (const CXMLResdata &XMLResdata)
     return false;
   }
 
-return   ProcessAddonXMLFile(XMLResdata, xmlAddonXML);
-}
-
-bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResData, TiXmlDocument &xmlAddonXML)
-{
-  std::string AddonXMLFilename = XMLResData.strUPSAddonURL;
+  std::string AddonXMLFilename = m_XMLResData.strUPSAddonURL;
   std::string addonXMLEncoding;
   m_strResourceData.clear();
 
@@ -136,14 +160,14 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResData, TiXml
     if (pChildSummElement->Attribute("lang"))
       strAlias = pChildSummElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strUPSAddonLangFormatinXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResData.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.strSourceLcode, m_XMLResData.strUPSAddonLangFormatinXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.strUPSAddonLangFormatinXML);
 
     if (pChildSummElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildSummElement->FirstChild()->Value());
             strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
-      if (XMLResData.bRebrand)
+      if (m_XMLResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
       m_mapAddonXMLData[strLCode].strSummary = strValue;
     }
@@ -157,14 +181,14 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResData, TiXml
     if (pChildDescElement->Attribute("lang"))
       strAlias = pChildDescElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strUPSAddonLangFormatinXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResData.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.strSourceLcode, m_XMLResData.strUPSAddonLangFormatinXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.strUPSAddonLangFormatinXML);
 
     if (pChildDescElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildDescElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
-      if (XMLResData.bRebrand)
+      if (m_XMLResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
       m_mapAddonXMLData[strLCode].strDescription = strValue;
     }
@@ -178,14 +202,14 @@ bool CAddonXMLHandler::ProcessAddonXMLFile (const CXMLResdata &XMLResData, TiXml
     if (pChildDisclElement->Attribute("lang"))
       strAlias = pChildDisclElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strUPSAddonLangFormatinXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, XMLResData.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.strSourceLcode, m_XMLResData.strUPSAddonLangFormatinXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.strUPSAddonLangFormatinXML);
 
     if (pChildDisclElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildDisclElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
-      if (XMLResData.bRebrand)
+      if (m_XMLResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
       m_mapAddonXMLData[strLCode].strDisclaimer = strValue;
     }
@@ -385,9 +409,9 @@ bool CAddonXMLHandler::UpdateAddonChangelogFile (std::string strFilename, std::s
   return g_File.WriteFileFromStr(strFilename, m_strChangelogFile.c_str());
 }
 
-bool CAddonXMLHandler::FetchAddonChangelogFile (std::string strURL)
+bool CAddonXMLHandler::FetchAddonChangelogFile ()
 {
-  std::string strChangelogFile = g_HTTPHandler.GetURLToSTR(strURL);
+  std::string strChangelogFile = g_HTTPHandler.GetURLToSTR(m_XMLResData.strUPSChangelogURL);
 
   g_File.ConvertStrLineEnds(strChangelogFile);
 
@@ -477,4 +501,40 @@ std::string CAddonXMLHandler::CstrToString(const char * StrToConv)
   return strIN;
 }
 
+void CAddonXMLHandler::ParseAddonXMLVersionGITHUB(const std::string &strJSON)
+{
+  Json::Value root;   // will contains the root value after parsing.
+  Json::Reader reader;
+  std::string strName, strVersion;
 
+  bool parsingSuccessful = reader.parse(strJSON, root );
+  if ( !parsingSuccessful )
+    CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
+
+  const Json::Value JFiles = root;
+
+  for(Json::ValueIterator itr = JFiles.begin() ; itr !=JFiles.end() ; itr++)
+  {
+    Json::Value JValu = *itr;
+    std::string strType =JValu.get("type", "unknown").asString();
+
+    if (strType == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
+
+    strName =JValu.get("name", "unknown").asString();
+
+    if (strName == "unknown")
+      CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
+
+    if (strType == "file" && ((!m_XMLResData.strUPSAddonXMLFilename.empty() && strName == m_XMLResData.strUPSAddonXMLFilename) ||
+      (!m_XMLResData.strUPSChangelogName.empty() && strName == m_XMLResData.strUPSChangelogName)))
+    {
+      strVersion =JValu.get("sha", "unknown").asString();
+
+      if (strVersion == "unknown")
+        CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid sha JSON data downloaded from Github");
+
+      g_Fileversion.SetVersionForURL(m_XMLResData.strUPSAddonURLRoot + strName, strVersion);
+    }
+  };
+};

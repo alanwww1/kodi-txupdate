@@ -112,7 +112,17 @@ bool CPOHandler::ProcessPOFile()
 
   m_strHeader = m_CurrentEntryText.substr(1);
 
-  ParsePOHeader();
+  // extract nplurals number from the PO file header
+  size_t pos1, pos2;
+  pos1 = m_strHeader.find("nplurals=",0)+9;
+  if (pos1 == std::string::npos)
+    CLog::Log(logERROR, "POHandler: No valid nplurals entry found in PO header");
+  pos2 = m_strHeader.find(";",pos1);
+  if (pos2 == std::string::npos)
+    CLog::Log(logERROR, "POHandler: No valid nplurals entry found in PO header");
+  std::stringstream ss;//create a stringstream
+  ss << m_strHeader.substr(pos1, pos2-pos1);
+  ss >> m_nplurals;
 
   m_mapPOData.clear();
   m_mapSequenceIndex.clear();
@@ -300,6 +310,33 @@ bool CPOHandler::AddClassicEntry (CPOEntry EntryToAdd, CPOEntry const &POEntryEN
 
   AddPOEntryToMaps(EntryToAdd);
   return true;
+};
+void CPOHandler::AddAddonXMLEntries (const CAddonXMLEntry& AddonXMLEntry, const CAddonXMLEntry& AddonXMLEntrySRC)
+{
+  CPOEntry EntryToAdd;
+  EntryToAdd.Type = MSGID;
+
+  if (!AddonXMLEntry.strSummary.empty())
+  {
+    EntryToAdd.msgCtxt = "Addon Summary";
+    EntryToAdd.msgID = AddonXMLEntrySRC.strSummary;
+    EntryToAdd.msgStr = AddonXMLEntry.strSummary;
+    AddPOEntryToMaps(EntryToAdd);
+  }
+  if (!AddonXMLEntry.strDescription.empty())
+  {
+    EntryToAdd.msgCtxt = "Addon Description";
+    EntryToAdd.msgID = AddonXMLEntrySRC.strDescription;
+    EntryToAdd.msgStr = AddonXMLEntry.strDescription;
+    AddPOEntryToMaps(EntryToAdd);
+  }
+  if (!AddonXMLEntry.strDisclaimer.empty())
+  {
+    EntryToAdd.msgCtxt = "Addon Disclaimer";
+    EntryToAdd.msgID = AddonXMLEntrySRC.strDisclaimer;
+    EntryToAdd.msgStr = AddonXMLEntry.strDisclaimer;
+    AddPOEntryToMaps(EntryToAdd);
+  }
 };
 
 void CPOHandler::AddPOEntryToMaps (const CPOEntry& Entry)
@@ -533,20 +570,6 @@ int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings)
       num++;
   }
   return num;
-}
-
-void CPOHandler::ParsePOHeader() // extract nplurals number from the PO file header
-{
-  size_t pos1, pos2;
-  pos1 = m_strHeader.find("nplurals=",0)+9;
-  if (pos1 == std::string::npos)
-    CLog::Log(logERROR, "POHandler: No valid nplurals entry found in PO header");
-  pos2 = m_strHeader.find(";",pos1);
-  if (pos2 == std::string::npos)
-    CLog::Log(logERROR, "POHandler: No valid nplurals entry found in PO header");
-  std::stringstream ss;//create a stringstream
-  ss << m_strHeader.substr(pos1, pos2-pos1);
-  ss >> m_nplurals;
 }
 
 void CPOHandler::FetchLangAddonXML(const std::string &strURL)

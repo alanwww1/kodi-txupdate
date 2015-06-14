@@ -33,13 +33,13 @@ public:
   CResourceHandler();
   CResourceHandler(const CXMLResdata& XMLResdata);
   ~CResourceHandler();
-  bool FetchPOFilesTXToMem(const CXMLResdata &XMLResdata, std::string strURL);
-  bool FetchPOFilesUpstreamToMem(const CXMLResdata &XMLResdata);
+  bool FetchPOFilesTXToMem();
+  bool FetchPOFilesUpstreamToMem();
   bool WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResName, CXMLResdata XMLResdata, bool bTXUpdFile);
-  size_t GetLangsCount() const {return m_mapPOFiles.size();}
-  std::string GetLangCodeFromPos(size_t pos) {T_itmapPOFiles it = IterateToMapIndex (m_mapPOFiles.begin(), pos); return it->first;}
+//  size_t GetLangsCount() const {return m_mapPOFiles.size();}
+//  std::string GetLangCodeFromPos(size_t pos) {T_itmapPOFiles it = IterateToMapIndex (m_mapPOFiles.begin(), pos); return it->first;}
   CPOHandler* GetPOData(std::string strLang);
-  void AddPOData(CPOHandler& POHandler, std::string strLang) {m_mapPOFiles[strLang] = POHandler;}
+//  void AddPOData(CPOHandler& POHandler, std::string strLang) {m_mapPOFiles[strLang] = POHandler;}
   CAddonXMLHandler * GetXMLHandler () {return &m_AddonXMLHandler;}
   void SetXMLHandler (CAddonXMLHandler XMLHandler) {m_AddonXMLHandler = XMLHandler;}
   void SetChangedLangsFromUpstream (std::list<std::string> lChanged) {m_lChangedLangsFromUpstream = lChanged;}
@@ -52,12 +52,8 @@ public:
 protected:
   void CreateMissingDirs(std::string strResRootDir, int resType);
   T_itmapPOFiles IterateToMapIndex(T_itmapPOFiles it, size_t index);
-  std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL,
-                                               const std::string &strTXLangformat, const CXMLResdata& XMLResData);
-  std::list<std::string> ParseAvailLanguagesGITHUB(std::string strJSON, std::string strURL, std::string strLangformat,
-                                                                     std::string strAddonXMLURL, bool bIsLangAddon);
-  void ParseAddonXMLVersionGITHUB(const std::string &strJSON, const std::string &strURL,
-                                  const std::string &strAddXMLFilename, const std::string &strChlogname);
+  std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL);
+  std::list<std::string> GetAvailLangsGITHUB();
   std::map<std::string, CPOHandler> m_mapUPS;
   std::map<std::string, CPOHandler> m_mapTRX;
   std::map<std::string, CPOHandler> m_mapUPD;

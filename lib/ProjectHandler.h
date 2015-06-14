@@ -41,7 +41,7 @@ public:
   void InitLCodeHandler();
 
 protected:
-  const CPOEntry * SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
+/*  const CPOEntry * SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
                                   std::string &strLangCode, size_t numID);
   const CPOEntry * SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
                                   std::string &strLangCode, CPOEntry const &currPOEntryEN);
@@ -49,7 +49,6 @@ protected:
                                 std::string &strLangCode);
   std::list<std::string> CreateMergedLanguageList(std::string strResname);
   std::map<std::string, CResourceHandler> * ChoosePrefResMap(std::string strResname);
-  std::list<std::string> CreateResourceList();
   CAddonXMLEntry * const GetAddonDataFromXML(std::map<std::string, CResourceHandler> * pmapRes,
                                              const std::string &strResname, const std::string &strLangCode) const;
   void MergeAddonXMLEntry(CAddonXMLEntry const &EntryToMerge, CAddonXMLEntry &MergedAddonXMLEntry,
@@ -62,7 +61,7 @@ protected:
   std::string GetEntryContent(const CPOEntry * pPOEntry, std::string const &strLangCode, const CXMLResdata& XMLResData);
   void CheckCharCount(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN, char chrToCheck,
                       const CXMLResdata& XMLResData);
-  void PrintChangedLangs(std::list<std::string> lChangedLangs);
+  void PrintChangedLangs(std::list<std::string> lChangedLangs); */
   std::string GetResNameFromTXResName(std::string const &strTXResName);
 
   std::list<std::string> ParseResources(std::string strJSON);

@@ -40,14 +40,20 @@ class CAddonXMLHandler
 public:
   CAddonXMLHandler();
   ~CAddonXMLHandler();
+  void SetXMLReasData (const CXMLResdata& XMLResData) {m_XMLResData = XMLResData;}
   bool UpdateAddonXMLFile (std::string strAddonXMLFilename, bool bUpdateVersion, const CXMLResdata &XMLResdata);
-  bool FetchAddonXMLFileUpstr (const CXMLResdata &XMLResdata);
   bool UpdateAddonChangelogFile (std::string strFilename, std::string strFormat, bool bUpdate);
-  bool FetchAddonChangelogFile (std::string strURL);
+  bool FetchAddonChangelogFile ();
+  void FetchAddonDataFiles();
   std::string GetResHeaderPretext () const {return m_strResourceData;}
-  std::map<std::string, CAddonXMLEntry> * GetMapAddonXMLData () {return &m_mapAddonXMLData;}
-  void SetMapAddonXMLData (std::map<std::string, CAddonXMLEntry> mapData) {m_mapAddonXMLData = mapData;}
+ // std::map<std::string, CAddonXMLEntry> * GetMapAddonXMLData () {return &m_mapAddonXMLData;}
+  const std::map<std::string, CAddonXMLEntry>& GetMapAddonXMLData () {return m_mapAddonXMLData;}
+  void SetMapAddonXMLData (const std::map<std::string, CAddonXMLEntry>& mapData) {m_mapAddonXMLData = mapData;}
   std::string GetStrAddonXMLFile() const {return m_strAddonXMLFile;}
+  void SetAddonXMLEntry (const CAddonXMLEntry& AddonXMLEntry, const std::string& sLang) {m_mapAddonXMLData[sLang] = AddonXMLEntry;}
+  const CAddonXMLEntry& GetAddonXMLEntry(const std::string& sLang) const {return m_mapAddonXMLData.at(sLang);}
+  bool FindAddonXMLEntry(const std::string& sLang) const {return m_mapAddonXMLData.find(sLang) != m_mapAddonXMLData.end();}
+
   void SetStrAddonXMLFile(std::string const &strAddonXMLFile) {m_strAddonXMLFile = strAddonXMLFile;}
   std::string GetAddonVersion () const {return m_strAddonVersion;}
   void SetAddonVersion(std::string const &strAddonVersion) {m_strAddonVersion = strAddonVersion;}
@@ -59,10 +65,12 @@ public:
   void SetAddonMetadata(COtherAddonMetadata const &MetaData) {m_AddonMetadata = MetaData;}
 
 protected:
-  bool ProcessAddonXMLFile (const CXMLResdata &XMLResdata, TiXmlDocument &xmlAddonXML);
+  bool FetchAddonXMLFileUpstr ();
+
   bool GetEncoding(const TiXmlDocument* pDoc, std::string& strEncoding);
   void BumpVersionNumber();
   void UpdateVersionNumber();
+  void ParseAddonXMLVersionGITHUB(const std::string &strJSON);
   std::string CstrToString(const char * StrToEscape);
   std::string GetXMLEntry (std::string const &strprefix, size_t &pos1, size_t &pos2);
   void CleanWSBetweenXMLEntries (std::string &strXMLString);
@@ -74,4 +82,5 @@ protected:
   std::string m_strChangelogFile;
   std::string m_strLogFilename;
   COtherAddonMetadata m_AddonMetadata;
+  CXMLResdata m_XMLResData;
 };
