@@ -69,9 +69,6 @@ bool CResourceHandler::FetchPOFilesTXToMem()
   if (strtemp.empty())
     CLog::Log(logERROR, "ResHandler::FetchPOFilesTXToMem: error getting po file list from transifex.net");
 
-  char cstrtemp[strtemp.size()];
-  strcpy(cstrtemp, strtemp.c_str());
-
   std::list<std::string> listLCodesTX = ParseAvailLanguagesTX(strtemp, strURL);
 
   CPOHandler newPOHandler(m_XMLResData);
@@ -143,7 +140,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
       strDloadURL = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.strUPSLangURL, m_XMLResData.strUPSLangFormat, sLCode);
 
     POHandler.FetchPOURLToMem(strDloadURL);
-    if (m_AddonXMLHandler.FindAddonXMLEntry(sLCode));
+    if (m_AddonXMLHandler.FindAddonXMLEntry(sLCode))
       POHandler.AddAddonXMLEntries(m_AddonXMLHandler.GetAddonXMLEntry(sLCode), m_AddonXMLHandler.GetAddonXMLEntry(m_XMLResData.strSourceLcode));
 
     m_mapUPS[sLCode] = POHandler;
@@ -154,6 +151,21 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   CLog::LogTable(logADDTABLEHEADER, "upstrFetch", "-----------------------------------------------------------------------------\n");
   CLog::LogTable(logCLOSETABLE, "upstrFetch", "");
   return true;
+}
+
+void CResourceHandler::MergeResource()
+{
+  std::list<std::string> listMergedLangs = CreateMergedLangList();
+  const CPOHandler& POHandlSRC = m_mapUPS.at(m_XMLResData.strSourceLcode);
+  for (std::list<std::string>::iterator itlang = listMergedLangs.begin(); itlang != listMergedLangs.end(); itlang++)
+  {
+    const std::string& sLCode = *itlang;
+    if (sLCode == m_XMLResData.strSourceLcode)
+    {
+      m_mapMRG[sLCode] = POHandlSRC;
+      //TODO check if SRC file differs for TRX and UPS files
+    }
+  }
 }
 
 bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResname, CXMLResdata XMLResdata, bool bTXUpdFile)
@@ -340,4 +352,28 @@ std::list<std::string> CResourceHandler::GetAvailLangsGITHUB()
 
   return listLangs;
 };
+
+std::list<std::string> CResourceHandler::CreateMergedLangList()
+{
+  std::list<std::string> listMergedLangs;
+
+  for (T_itmapPOFiles it = m_mapUPS.begin(); it != m_mapUPS.end(); it++)
+  {
+    const std::string& sLCode = it->first;
+
+    if (std::find(listMergedLangs.begin(), listMergedLangs.end(), sLCode) == listMergedLangs.end())
+      listMergedLangs.push_back(sLCode);
+  }
+
+  for (T_itmapPOFiles it = m_mapTRX.begin(); it != m_mapTRX.end(); it++)
+  {
+    const std::string& sLCode = it->first;
+
+    if (std::find(listMergedLangs.begin(), listMergedLangs.end(), sLCode) == listMergedLangs.end())
+      listMergedLangs.push_back(sLCode);
+  }
+
+  return listMergedLangs;
+}
+
 

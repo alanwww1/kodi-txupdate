@@ -75,7 +75,7 @@ protected:
   std::string GetXMLEntry (std::string const &strprefix, size_t &pos1, size_t &pos2);
   void CleanWSBetweenXMLEntries (std::string &strXMLString);
   std::map<std::string, CAddonXMLEntry> m_mapAddonXMLData;
-  std::map<std::string, CAddonXMLEntry>::iterator itAddonXMLData;
+typedef std::map<std::string, CAddonXMLEntry>::iterator T_itAddonXMLData;
   std::string m_strResourceData;
   std::string m_strAddonXMLFile;
   std::string m_strAddonVersion;

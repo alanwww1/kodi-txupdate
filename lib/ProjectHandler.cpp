@@ -49,7 +49,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   g_HTTPHandler.ReInit();
   printf ("TXresourcelist");
 
-  const std::string& sProjectName = m_mapResData.begin()->second.strProjectName; //TODO handle different projectnames accross the update xml file
+  const std::string& sProjectName = m_mapResData.begin()->second.strProjectName;
   std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + sProjectName + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
@@ -57,7 +57,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   printf ("\n\n");
 
   std::list<std::string> listResourceNamesTX = ParseResources(strtemp); */
-
+//TODO collect out txprojectnames, check all resources in them, if we need to download
   for (T_itResData it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {
     const std::string& sResName = it->second.strResName;
@@ -115,7 +115,8 @@ bool CProjectHandler::FetchResourcesFromUpstream()
 };
 
 bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
-{ /*
+{
+/*
   std::string strPrefixDir;
 
   //TODO
@@ -126,6 +127,13 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
   g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
   for (T_itmapRes itmapResources = m_mapResources.begin(); itmapResources != m_mapResources.end(); itmapResources++)
   {
+    const CResourceHandler ResHandler = it->first;
+    const CXMLResdata& XMLResData = ResHandler.;
+
+    strPrefixDir = XMLResData.strMergedLangfileDir;
+    CLog::Log(logINFO, "Deleting merged language file directory");
+    g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
+
     printf("Writing merged resources to HDD: %s%s%s\n", KMAG, itmapResources->first.c_str(), RESET);
     std::list<std::string> lChangedLangsFromUpstream = m_mapResMerged[itmapResources->first].GetChangedLangsFromUpstream();
     std::list<std::string> lChangedAddXMLLangsFromUpstream = m_mapResMerged[itmapResources->first].GetChangedLangsInAddXMLFromUpstream();
@@ -170,23 +178,19 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
 
 bool CProjectHandler::CreateMergedResources()
 {
-/*
+
   CLog::Log(logINFO, "CreateMergedResources started");
 
-  std::list<std::string> listMergedResource = CreateResourceList();
-
-  m_mapResMerged.clear();
-  m_mapResUpdateTX.clear();
-
-  for (std::list<std::string>::iterator itResAvail = listMergedResource.begin(); itResAvail != listMergedResource.end(); itResAvail++)
+  for (T_itmapRes it = m_mapResources.begin(); it != m_mapResources.end(); it++)
   {
-    CXMLResdata XMLResData = m_mapResData[*itResAvail];
+    const std::string& sResName = it->first;
+    const CResourceHandler& ResHandler = it->second;
 
-    printf("Merging resource: %s%s%s\n", KMAG, itResAvail->c_str(), RESET);
-    CLog::SetSyntaxAddon(*itResAvail);
-    CLog::Log(logINFO, "CreateMergedResources: Merging resource:%s", itResAvail->c_str());
-    CLog::IncIdent(4);
+    printf("Merging resource: %s%s%s\n", KMAG, sResName.c_str(), RESET);
 
+    ResHandler.MergeResource();
+
+    /*
     CResourceHandler mergedResHandler(XMLResData), updTXResHandler(XMLResData);
     std::list<std::string> lAddXMLLangsChgedFromUpstream, lLangsChgedFromUpstream;
 

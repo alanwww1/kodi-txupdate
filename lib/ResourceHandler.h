@@ -35,6 +35,7 @@ public:
   ~CResourceHandler();
   bool FetchPOFilesTXToMem();
   bool FetchPOFilesUpstreamToMem();
+  void MergeResource();
   bool WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResName, CXMLResdata XMLResdata, bool bTXUpdFile);
 //  size_t GetLangsCount() const {return m_mapPOFiles.size();}
 //  std::string GetLangCodeFromPos(size_t pos) {T_itmapPOFiles it = IterateToMapIndex (m_mapPOFiles.begin(), pos); return it->first;}
@@ -54,6 +55,7 @@ protected:
   T_itmapPOFiles IterateToMapIndex(T_itmapPOFiles it, size_t index);
   std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL);
   std::list<std::string> GetAvailLangsGITHUB();
+  std::list<std::string> CreateMergedLangList();
   std::map<std::string, CPOHandler> m_mapUPS;
   std::map<std::string, CPOHandler> m_mapTRX;
   std::map<std::string, CPOHandler> m_mapUPD;
