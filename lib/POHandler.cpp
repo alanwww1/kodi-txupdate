@@ -58,6 +58,23 @@ bool CPOEntry::operator==(const CPOEntry& poentry) const
   return bhasMatch;
 };
 
+bool CPOEntry::MatchMsgid(const CPOEntry& poentry) const
+{
+  bool bhasMatch = true;
+  if (!poentry.msgCtxt.empty())
+    bhasMatch = bhasMatch && (poentry.msgCtxt == msgCtxt);
+  if (!poentry.msgID.empty())
+    bhasMatch = bhasMatch && (poentry.msgID == msgID);
+  if (!poentry.msgIDPlur.empty())
+    bhasMatch = bhasMatch && (poentry.msgIDPlur == msgIDPlur);
+  if (!poentry.Type == NUMID)
+    bhasMatch = bhasMatch && (poentry.numID == numID);
+  if (poentry.Type != UNKNOWN && poentry.Type != 0)
+    bhasMatch = bhasMatch && (poentry.Type == Type);
+  return bhasMatch;
+};
+
+
 CPOHandler::CPOHandler()
 {};
 
@@ -224,7 +241,7 @@ bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
 
 // Data manipulation functions
 
-bool CPOHandler::FindEntry (CPOEntry &EntryToFind)
+bool CPOHandler::FindEntry (const CPOEntry &EntryToFind)
 {
 
   if (EntryToFind.Type == NUMID)
@@ -232,9 +249,9 @@ bool CPOHandler::FindEntry (CPOEntry &EntryToFind)
     T_itPOData it = m_mapPOData.find(EntryToFind.numID + 0x100);
     if (it == m_mapPOData.end())
       return false;
-    if (it->second == EntryToFind)
+    if (it->second.MatchMsgid(EntryToFind))
     {
-      EntryToFind = it->second;
+      m_itLastFound = it;
       return true;
     }
     else
@@ -249,9 +266,9 @@ bool CPOHandler::FindEntry (CPOEntry &EntryToFind)
     T_itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
     if (it == m_mapClassicDataIndex.end())
       return false;
-    if (m_mapPOData[it->second] == EntryToFind)
+    if (m_mapPOData[it->second].MatchMsgid(EntryToFind))
     {
-      EntryToFind = m_mapPOData[it->second];
+      m_itLastFound = m_mapPOData.find(it->second);
       return true;
     }
     else
@@ -449,7 +466,7 @@ void CPOHandler::SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXM
     ModifyClassicEntry(POEntrySumm, newPOEntrySumm);
   return;
 }
-
+/*
 void CPOHandler::GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry &AddonXMLEntryEN)
 {
   CAddonXMLEntry newAddonXMLEntry, newENAddonXMLEntry;
@@ -480,6 +497,7 @@ void CPOHandler::GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry
   AddonXMLEntryEN = newENAddonXMLEntry;
   return;
 }
+*/
 
 void CPOHandler::SetPreHeader (std::string &strPreText)
 {

@@ -68,6 +68,7 @@ public:
   std::vector<std::string> translatorComm;  // # translator comment
   std::vector<std::string> interlineComm;   // #comment between lines
   bool operator == (const CPOEntry &poentry) const;
+  bool MatchMsgid(const CPOEntry& poentry) const;
 };
 
 class CPOHandler
@@ -90,11 +91,13 @@ public:
   void WriteLangAddonXML(const std::string &strPath);
   bool ParsePOStrToMem (std::string const &strPOData);
   bool WritePOFile(const std::string &strOutputPOFilename);
-  bool FindEntry (CPOEntry &EntryToFind);
+  bool FindEntry (const CPOEntry &EntryToFind);
+  T_itPOData GetItFoundEntry() {return m_itLastFound;}
   const CPOEntry*  PLookforClassicEntry (CPOEntry &EntryToFind);
   bool AddClassicEntry (CPOEntry EntryToAdd, CPOEntry const &POEntryEN, bool bCopyComments);
-  void AddAddonXMLEntries (const CAddonXMLEntry& AddonXMLEntry, const CAddonXMLEntry& AddonXMLEntrySRC);
 
+  void AddAddonXMLEntries (const CAddonXMLEntry& AddonXMLEntry, const CAddonXMLEntry& AddonXMLEntrySRC);
+  void AddItEntry (T_itPOData it) {m_mapItPOData[it->first] = it;}
   bool ModifyClassicEntry (CPOEntry &EntryToFind, CPOEntry EntryNewValue);
   bool DeleteClassicEntry (CPOEntry &EntryToFind);
 
@@ -108,7 +111,7 @@ public:
   std::string GetHeader () {return m_strHeader;}
   void SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXMLEntry const &PrevAddonXMLEntry,
                          CAddonXMLEntry const &AddonXMLEntryEN, std::string const &strLang);
-  void GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry &AddonXMLEntryEN);
+//  void GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry &AddonXMLEntryEN);
   void SetPreHeader (std::string &strPreText);
 //  size_t const GetNumEntriesCount() {return m_mapStrings.size();}
   size_t const GetClassEntriesCount() {return m_mapPOData.size();}
@@ -139,6 +142,7 @@ protected:
 //  std::map<uint32_t, CPOEntry> m_mapStrings;
 //  std::vector<CPOEntry> m_vecClassicEntries;
   std::map <unsigned long long, CPOEntry> m_mapPOData;
+  std::map <unsigned long long, T_itPOData> m_mapItPOData;
   std::map <std::string, unsigned long long> m_mapClassicDataIndex;
   std::map <size_t, unsigned long long> m_mapSequenceIndex;
 
@@ -151,6 +155,7 @@ protected:
   bool m_bPOIsUpdateTX;
   std::string m_strLangAddonXML;
   CXMLResdata m_XMLResData;
+  T_itPOData m_itLastFound;
 
 
 

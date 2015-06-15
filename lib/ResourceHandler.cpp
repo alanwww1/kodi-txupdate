@@ -197,7 +197,7 @@ void CResourceHandler::MergeResource()
     CPOHandler& POHandlUPS = m_mapUPS.at(sLCode);
 
     // Let's iterate by the UPSTREAM source PO file for this resource
-    for (itSRCUPSPO; itSRCUPSPO != itSRCUPSPOEnd; itSRCUPSPO++)
+    for (; itSRCUPSPO != itSRCUPSPOEnd; itSRCUPSPO++)
     {
       CPOEntry EntrySRC = itSRCUPSPO->second;
 
@@ -206,11 +206,21 @@ void CResourceHandler::MergeResource()
 
       if (bisInTRX)
       {
-        
+        T_itPOData itPOTRX = POHandlTRX.GetItFoundEntry();
+        m_mapMRG[sLCode].AddItEntry(itPOTRX);
       }
+      else if (bisInUPS)
+      {
+        T_itPOData itPOUPS = POHandlUPS.GetItFoundEntry();
+        m_mapMRG[sLCode].AddItEntry(itPOUPS);
+        m_mapUPD[sLCode].AddItEntry(itPOUPS);
+      }
+
+
     }
 
   }
+  return;
 }
 
 bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResname, CXMLResdata XMLResdata, bool bTXUpdFile)
