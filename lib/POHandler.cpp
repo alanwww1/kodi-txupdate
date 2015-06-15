@@ -199,7 +199,7 @@ bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
   m_strOutBuffer.clear();
   m_strOutBuffer = m_strHeader;
 
-  for (itPOData it = m_mapPOData.begin(); it != m_mapPOData.end(); it++)
+  for (T_itPOData it = m_mapPOData.begin(); it != m_mapPOData.end(); it++)
   {
     WritePOEntry(it->second, m_nplurals);
   }
@@ -224,12 +224,12 @@ bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
 
 // Data manipulation functions
 
-bool CPOHandler::LookforClassicEntry (CPOEntry &EntryToFind)
+bool CPOHandler::FindEntry (CPOEntry &EntryToFind)
 {
 
   if (EntryToFind.Type == NUMID)
   {
-    itPOData it = m_mapPOData.find(EntryToFind.numID + 0x100);
+    T_itPOData it = m_mapPOData.find(EntryToFind.numID + 0x100);
     if (it == m_mapPOData.end())
       return false;
     if (it->second == EntryToFind)
@@ -246,7 +246,7 @@ bool CPOHandler::LookforClassicEntry (CPOEntry &EntryToFind)
     if (!EntryToFind.msgID.empty())
       sKeyToFind += "|" + EntryToFind.msgID;
 
-    itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
+    T_itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
     if (it == m_mapClassicDataIndex.end())
       return false;
     if (m_mapPOData[it->second] == EntryToFind)
@@ -263,7 +263,7 @@ const CPOEntry*  CPOHandler::PLookforClassicEntry (CPOEntry &EntryToFind)
 {
   if (EntryToFind.Type == NUMID)
   {
-    itPOData it = m_mapPOData.find(EntryToFind.numID + 0x100);
+    T_itPOData it = m_mapPOData.find(EntryToFind.numID + 0x100);
     if (it == m_mapPOData.end())
       return NULL;
     if (it->second == EntryToFind)
@@ -279,7 +279,7 @@ const CPOEntry*  CPOHandler::PLookforClassicEntry (CPOEntry &EntryToFind)
     if (!EntryToFind.msgID.empty())
       sKeyToFind += "|" + EntryToFind.msgID;
 
-    itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
+    T_itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
     if (it == m_mapClassicDataIndex.end())
       return NULL;
     if (m_mapPOData[it->second] == EntryToFind)
@@ -398,7 +398,7 @@ bool CPOHandler::ModifyClassicEntry (CPOEntry &EntryToFind, CPOEntry EntryNewVal
   if (!EntryToFind.msgID.empty())
     sKeyToFind += "|" + EntryToFind.msgID;
 
-  itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
+  T_itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
   if (it == m_mapClassicDataIndex.end())
   {
     AddPOEntryToMaps(EntryNewValue);
@@ -455,7 +455,7 @@ void CPOHandler::GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry
   CAddonXMLEntry newAddonXMLEntry, newENAddonXMLEntry;
   CPOEntry POEntry;
   POEntry.msgCtxt = "Addon Summary";
-  if (LookforClassicEntry(POEntry))
+  if (FindEntry(POEntry))
   {
     newAddonXMLEntry.strSummary = POEntry.msgStr;
     newENAddonXMLEntry.strSummary = POEntry.msgID;
@@ -463,7 +463,7 @@ void CPOHandler::GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry
 
   ClearCPOEntry(POEntry);
   POEntry.msgCtxt = "Addon Description";
-  if (LookforClassicEntry(POEntry))
+  if (FindEntry(POEntry))
   {
     newAddonXMLEntry.strDescription = POEntry.msgStr;
     newENAddonXMLEntry.strDescription = POEntry.msgID;
@@ -471,7 +471,7 @@ void CPOHandler::GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry
 
   ClearCPOEntry(POEntry);
   POEntry.msgCtxt = "Addon Disclaimer";
-  if (LookforClassicEntry(POEntry))
+  if (FindEntry(POEntry))
   {
     newAddonXMLEntry.strDisclaimer = POEntry.msgStr;
     newENAddonXMLEntry.strDisclaimer = POEntry.msgID;
@@ -553,11 +553,11 @@ const CPOEntry* CPOHandler::GetNumPOEntryByIdx(size_t pos) const
 */
 const CPOEntry* CPOHandler::GetClassicPOEntryByIdx(size_t pos)
 {
-  itSequenceIndex itseq = m_mapSequenceIndex.find(pos);
+  T_itSequenceIndex itseq = m_mapSequenceIndex.find(pos);
   if (itseq == m_mapSequenceIndex.end())
     CLog::Log(logERROR, "CPOHandler::GetClassicPOEntryByIdx: not found entry at position: %i", pos);
 
-  itPOData it = m_mapPOData.find(itseq->second);
+  T_itPOData it = m_mapPOData.find(itseq->second);
   return &(it->second);
 }
 

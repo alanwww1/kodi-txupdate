@@ -153,18 +153,63 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   return true;
 }
 
+bool CResourceHandler::ComparePOFiles(CPOHandler& POHandler1, CPOHandler& POHandler2)
+{
+  if (POHandler1.GetClassEntriesCount() != POHandler2.GetClassEntriesCount())
+    return false;
+
+  T_itPOData itPO1 = POHandler1.GetPOMapBeginIterator();
+  T_itPOData itPO2 = POHandler2.GetPOMapBeginIterator();
+  T_itPOData itPOEnd1 = POHandler1.GetPOMapEndIterator();
+
+  while (itPO1 != itPOEnd1)
+  {
+    if (!(itPO1->second == itPO2->second))
+      return false;
+    itPO2++;
+    itPO1++;
+  }
+  return true;
+}
+
 void CResourceHandler::MergeResource()
 {
   std::list<std::string> listMergedLangs = CreateMergedLangList();
-  const CPOHandler& POHandlSRC = m_mapUPS.at(m_XMLResData.strSourceLcode);
+  CPOHandler& POHandlUPSSRC = m_mapUPS.at(m_XMLResData.strSourceLcode);
+  CPOHandler& POHandlTRXSRC = m_mapTRX.at(m_XMLResData.strSourceLcode);
   for (std::list<std::string>::iterator itlang = listMergedLangs.begin(); itlang != listMergedLangs.end(); itlang++)
   {
     const std::string& sLCode = *itlang;
+
+    // check if lcode is the source lcode. If so we don't iterate through the entries.
+    // We just check if it has changed from the last uploaded one
     if (sLCode == m_XMLResData.strSourceLcode)
     {
-      m_mapMRG[sLCode] = POHandlSRC;
-      //TODO check if SRC file differs for TRX and UPS files
+      m_mapMRG[sLCode] = POHandlUPSSRC;                        // if we have a souece lcode, merged po file should be the upstream one
+      if (!ComparePOFiles(POHandlTRXSRC, POHandlUPSSRC))       // if the source po file differs from the one at transifex we need tu update it
+        m_mapUPD[sLCode] = POHandlUPSSRC;
+      continue;
     }
+
+    T_itPOData itSRCUPSPO = POHandlUPSSRC.GetPOMapBeginIterator();
+    T_itPOData itSRCUPSPOEnd = POHandlUPSSRC.GetPOMapEndIterator();
+    CPOHandler& POHandlTRX = m_mapTRX.at(sLCode);
+    CPOHandler& POHandlUPS = m_mapUPS.at(sLCode);
+
+    // Let's iterate by the UPSTREAM source PO file for this resource
+    for (itSRCUPSPO; itSRCUPSPO != itSRCUPSPOEnd; itSRCUPSPO++)
+    {
+      CPOEntry EntrySRC = itSRCUPSPO->second;
+
+      bool bisInUPS = POHandlUPS.FindEntry(EntrySRC);
+      bool bisInTRX = POHandlTRX.FindEntry(EntrySRC);
+
+      if (bisInTRX)
+      {
+        
+      }
+    }
+
   }
 }
 

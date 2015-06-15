@@ -53,6 +53,7 @@ public:
 protected:
   void CreateMissingDirs(std::string strResRootDir, int resType);
   T_itmapPOFiles IterateToMapIndex(T_itmapPOFiles it, size_t index);
+  bool ComparePOFiles(CPOHandler& POHandler1, CPOHandler& POHandler2);
   std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL);
   std::list<std::string> GetAvailLangsGITHUB();
   std::list<std::string> CreateMergedLangList();
@@ -60,6 +61,8 @@ protected:
   std::map<std::string, CPOHandler> m_mapTRX;
   std::map<std::string, CPOHandler> m_mapUPD;
   std::map<std::string, CPOHandler> m_mapMRG;
+
+  typedef std::map <unsigned long long, CPOEntry>::iterator T_itPOData;
 
   CAddonXMLHandler m_AddonXMLHandler;
   std::list<std::string> m_lChangedLangsFromUpstream;

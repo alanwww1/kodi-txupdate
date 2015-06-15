@@ -76,12 +76,21 @@ public:
   CPOHandler();
   CPOHandler(const CXMLResdata& XMLResdata);
   ~CPOHandler();
+  typedef std::map <unsigned long long, CPOEntry>::iterator T_itPOData;
+  typedef std::map <std::string, unsigned long long>::iterator T_itClassicPOData;
+  typedef std::map <size_t, unsigned long long>::iterator T_itSequenceIndex;
+
+/* void InitMapPOIteration(){m_itPOData = m_mapPOData.begin++;}
+  bool IncPOIterator(){m_itPOData++; return m_itPOData != m_mapPOData.end();}
+  CPOEntry& GetItPOEntry(){return m_itPOData->second;}
+*/
+
   bool FetchPOURLToMem(std::string strURL);
   void FetchLangAddonXML (const std::string &strURL);
   void WriteLangAddonXML(const std::string &strPath);
   bool ParsePOStrToMem (std::string const &strPOData);
   bool WritePOFile(const std::string &strOutputPOFilename);
-  bool LookforClassicEntry (CPOEntry &EntryToFind);
+  bool FindEntry (CPOEntry &EntryToFind);
   const CPOEntry*  PLookforClassicEntry (CPOEntry &EntryToFind);
   bool AddClassicEntry (CPOEntry EntryToAdd, CPOEntry const &POEntryEN, bool bCopyComments);
   void AddAddonXMLEntries (const CAddonXMLEntry& AddonXMLEntry, const CAddonXMLEntry& AddonXMLEntrySRC);
@@ -104,6 +113,9 @@ public:
 //  size_t const GetNumEntriesCount() {return m_mapStrings.size();}
   size_t const GetClassEntriesCount() {return m_mapPOData.size();}
   size_t const GetCommntEntriesCount() {return m_CommsCntr;}
+  std::map <unsigned long long, CPOEntry>::iterator GetPOMapBeginIterator() {return m_mapPOData.begin();}
+  std::map <unsigned long long, CPOEntry>::iterator GetPOMapEndIterator() {return m_mapPOData.end();}
+
   void SetIfIsSourceLang(bool bIsENLang) {m_bPOIsEnglish = bIsENLang;}
   void SetIfPOIsUpdTX(bool bIsUpdTX) {m_bPOIsUpdateTX = bIsUpdTX;}
   void SetLangAddonXMLString(std::string strXMLfile) {m_strLangAddonXML = strXMLfile;}
@@ -130,9 +142,6 @@ protected:
   std::map <std::string, unsigned long long> m_mapClassicDataIndex;
   std::map <size_t, unsigned long long> m_mapSequenceIndex;
 
-  typedef std::map <unsigned long long, CPOEntry>::iterator itPOData;
-  typedef std::map <std::string, unsigned long long>::iterator itClassicPOData;
-  typedef std::map <size_t, unsigned long long>::iterator itSequenceIndex;
 //typedef std::vector<CPOEntry>::iterator itClassicEntries;
 
   CPOEntry m_prevCommEntry;
@@ -176,4 +185,5 @@ protected:
   bool m_bhasLFWritten;
   int m_previd;
   int m_writtenEntry;
+  T_itPOData m_itPOData;
 };

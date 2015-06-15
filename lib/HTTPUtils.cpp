@@ -518,7 +518,7 @@ bool CHTTPHandler::ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pP
   {
     const CPOEntry * POEntry1 = pPOHandler1->GetClassicPOEntryByIdx(POEntryIdx);
     CPOEntry POEntryToFind = *POEntry1;
-    if (!pPOHandler2->LookforClassicEntry(POEntryToFind))
+    if (!pPOHandler2->FindEntry(POEntryToFind))
       return false;
   }
   return true;
