@@ -187,6 +187,20 @@ void CResourceHandler::MergeResource()
 
     // check if lcode is the source lcode. If so we don't iterate through the entries.
     // We just check if it has changed from the last uploaded one
+    bool bWriteUPDFileSRC = false;
+    if (sLCode == m_XMLResData.strSourceLcode)
+    {
+      if (m_mapTRX.find(m_XMLResData.strSourceLcode) != m_mapTRX.end())
+      {
+        CPOHandler& POHandlTRXSRC = m_mapTRX.at(m_XMLResData.strSourceLcode);
+        if (!ComparePOFiles(POHandlTRXSRC, POHandlUPSSRC))       // if the source po file differs from the one at transifex we need to update it
+          bWriteUPDFileSRC = true;
+      }
+      else
+        bWriteUPDFileSRC = true;
+    }
+
+    /*
     if (sLCode == m_XMLResData.strSourceLcode)
     {
       m_mapMRG[sLCode] = POHandlUPSSRC;                        // if we have a souece lcode, merged po file should be the upstream one
@@ -200,6 +214,7 @@ void CResourceHandler::MergeResource()
       m_mapUPD[sLCode] = POHandlUPSSRC;
       continue;
     }
+    */
 
     T_itPOData itSRCUPSPO = POHandlUPSSRC.GetPOMapBeginIterator();
     T_itPOData itSRCUPSPOEnd = POHandlUPSSRC.GetPOMapEndIterator();
@@ -212,7 +227,7 @@ void CResourceHandler::MergeResource()
       bool bisInUPS = FindUPSEntry(sLCode, EntrySRC);
       bool bisInTRX = FindTRXEntry(sLCode, EntrySRC);
 
-      if (bisInTRX)
+      if (bisInTRX || (sLCode == m_XMLResData.strSourceLcode && !bWriteUPDFileSRC))
       {
         T_itPOData itPOTRX = GetUPSItFoundEntry();
         m_mapMRG[sLCode].AddItEntry(itPOTRX);
@@ -225,15 +240,15 @@ void CResourceHandler::MergeResource()
       }
     }
 
-    // Pass Resource data to the newly created PO classes for later use (PO file creation)
-    if (m_mapMRG.find(sLCode) != m_mapMRG.end())
-    {
-      CPOHandler& MRGPOHandler = m_mapMRG[sLCode];
-      MRGPOHandler.SetXMLReasData(m_XMLResData);
-      MRGPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
-      MRGPOHandler.SetPOType(MERGEDPO);
-      MRGPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
-    }
+    //Pass Resource data to the newly created PO classes for later use (PO file creation)
+    CPOHandler& MRGPOHandler = m_mapMRG[sLCode];
+    MRGPOHandler.SetXMLReasData(m_XMLResData);
+    MRGPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
+    MRGPOHandler.SetPOType(MERGEDPO);
+    MRGPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
+    if (m_XMLResData.bIsLanguageAddon)
+      MRGPOHandler.SetLangAddonXMLString(m_mapUPS[sLCode].GetLangAddonXMLString());
+
     if (m_mapUPD.find(sLCode) != m_mapUPD.end())
     {
       CPOHandler& UPDPOHandler = m_mapMRG[sLCode];

@@ -85,6 +85,7 @@ public:
   CPOHandler(const CXMLResdata& XMLResdata);
   ~CPOHandler();
   typedef std::map <unsigned long long, CPOEntry>::iterator T_itPOData;
+  typedef std::map <unsigned long long, T_itPOData>::iterator T_itPOItData;
   typedef std::map <std::string, unsigned long long>::iterator T_itClassicPOData;
   typedef std::map <size_t, unsigned long long>::iterator T_itSequenceIndex;
 
@@ -129,8 +130,8 @@ public:
 
   void SetIfIsSourceLang(bool bIsSRCLang) {m_bIsSRCLang = bIsSRCLang;}
   void SetPOType(int type) {m_POType = type;}
-  void SetLangAddonXMLString(std::string strXMLfile) {m_strLangAddonXML = strXMLfile;}
-  std::string GetLangAddonXMLString () {return m_strLangAddonXML;}
+  void SetLangAddonXMLString(const std::string& strXMLfile) {m_strLangAddonXML = strXMLfile;}
+  std::string& GetLangAddonXMLString () {return m_strLangAddonXML;}
   void BumpLangAddonXMLVersion();
 
 protected:

@@ -214,10 +214,21 @@ bool CPOHandler::WritePOFile(const std::string& strOutputPOFilename)
 
   m_strOutBuffer.clear();
   m_strOutBuffer = m_strHeader;
-
-  for (T_itPOData it = m_mapPOData.begin(); it != m_mapPOData.end(); it++)
+/*
+  if (m_bIsSRCLang)
   {
-    WritePOEntry(it->second);
+    for (T_itPOData it = m_mapPOData.begin(); it != m_mapPOData.end(); it++)
+    {
+      WritePOEntry(it->second);
+    }
+  }
+  else
+*/
+  for (T_itPOItData it = m_mapItPOData.begin(); it != m_mapItPOData.end(); it++)
+  {
+    T_itPOData& itPOEntry = it->second;
+    CPOEntry& POEntry = itPOEntry->second;
+    WritePOEntry(POEntry);
   }
 
   std::string strDir = g_File.GetPath(strOutputPOFilename);
