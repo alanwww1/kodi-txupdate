@@ -116,27 +116,23 @@ bool CProjectHandler::FetchResourcesFromUpstream()
 
 bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
 {
-/*
-  std::string strPrefixDir;
 
-  //TODO
-  const CXMLResdata& XMLResData = m_mapResData.begin()->second;
+//  std::string strPrefixDir;
 
-  strPrefixDir = XMLResData.strMergedLangfileDir;
   CLog::Log(logINFO, "Deleting merged language file directory");
-  g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
+//  g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
   for (T_itmapRes itmapResources = m_mapResources.begin(); itmapResources != m_mapResources.end(); itmapResources++)
   {
-    const CResourceHandler ResHandler = it->first;
-    const CXMLResdata& XMLResData = ResHandler.;
+//    const std::string& sResName = itmapResources->first;
+    CResourceHandler& ResHandler = itmapResources->second;
+//    const CXMLResdata& XMLResdata = m_mapResData[sResName];
 
-    strPrefixDir = XMLResData.strMergedLangfileDir;
-    CLog::Log(logINFO, "Deleting merged language file directory");
-    g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
 
+    /*
     printf("Writing merged resources to HDD: %s%s%s\n", KMAG, itmapResources->first.c_str(), RESET);
     std::list<std::string> lChangedLangsFromUpstream = m_mapResMerged[itmapResources->first].GetChangedLangsFromUpstream();
     std::list<std::string> lChangedAddXMLLangsFromUpstream = m_mapResMerged[itmapResources->first].GetChangedLangsInAddXMLFromUpstream();
+
     if (!lChangedAddXMLLangsFromUpstream.empty())
     {
       printf("    Changed Langs in addon.xml file from upstream: ");
@@ -149,16 +145,17 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
       PrintChangedLangs(lChangedLangsFromUpstream);
       printf ("\n");
     }
+    */
 
     CLog::Log(logLINEFEED, "");
     CLog::Log(logINFO, "ProjHandler: *** Write Merged Resource: %s ***", itmapResources->first.c_str());
     CLog::IncIdent(4);
-    CXMLResdata XMLResdata = m_mapResData[itmapResources->first];
-    m_mapResMerged[itmapResources->first].WritePOToFiles (strProjRootDir, strPrefixDir, itmapResources->first, XMLResdata, false);
+
+    ResHandler.WritePOToFiles (true);
     CLog::DecIdent(4);
   }
   printf ("\n\n");
-
+/*
   strPrefixDir = XMLResData.strTXUpdateLangfilesDir;
   CLog::Log(logINFO, "Deleting tx update language file directory");
   g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
@@ -726,7 +723,7 @@ void CProjectHandler::CheckCharCount(const CPOEntry * pPOEntry, std::string cons
       }
   }
 }
-
+*/
 void CProjectHandler::PrintChangedLangs(std::list<std::string> lChangedLangs)
 {
   std::list<std::string>::iterator itLangs;
@@ -744,7 +741,7 @@ void CProjectHandler::PrintChangedLangs(std::list<std::string> lChangedLangs)
   }
   printf ("%s", RESET);
 }
-
+/*
 std::string CProjectHandler::GetResNameFromTXResName(std::string const &strTXResName)
 {
   for (T_itResData itResData = m_mapResData.begin(); itResData != m_mapResData.end(); itResData++)

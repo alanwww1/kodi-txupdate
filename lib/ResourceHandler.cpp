@@ -98,22 +98,23 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
+  bool bHasLanguageFiles = !m_XMLResData.strUPSLangURL.empty();
 
   m_AddonXMLHandler.FetchAddonDataFiles();
 
-  if (m_XMLResData.strUPSLangURL.empty())
-    return true;
+  std::set<std::string> listLangs;
+  if (bHasLanguageFiles)
+  {
+    printf(" Langlist");
+    listLangs = GetAvailLangsGITHUB();
+  }
 
-  std::list<std::string> listLangs;
-  printf(" Langlist");
-  listLangs = GetAvailLangsGITHUB();
+  m_AddonXMLHandler.AddAddonXMLLangsToList(listLangs); // Add languages that are only in the addon.xml file
 
   if (!m_XMLResData.strUPSSourceLangURL.empty()) // we have a language-addon with different SRC language upstream URL
-    listLangs.push_back(m_XMLResData.strSourceLcode);
+    listLangs.insert(m_XMLResData.strSourceLcode);
 
-  listLangs.sort();
-
-  for (std::list<std::string>::iterator it = listLangs.begin(); it != listLangs.end(); it++)
+  for (std::set<std::string>::iterator it = listLangs.begin(); it != listLangs.end(); it++)
   {
     CPOHandler POHandler(m_XMLResData);
     const std::string& sLCode = *it;
@@ -122,7 +123,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     POHandler.SetIfIsSourceLang(bIsSourceLang);
     printf (" %s", sLCode.c_str());
 
-    if (m_XMLResData.bIsLanguageAddon)
+    if (bHasLanguageFiles && m_XMLResData.bIsLanguageAddon) // Download individual addon.xml files for language-addons
     {
       std::string strLangAddonXMLDloadURL;
       if (!bIsSourceLang)
@@ -133,13 +134,17 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
       POHandler.FetchLangAddonXML(strLangAddonXMLDloadURL);
     }
 
-    std::string strDloadURL;
-    if (bIsSourceLang && !m_XMLResData.strUPSSourceLangURL.empty()) // If we have a different URL for source language, use that for download
-      strDloadURL = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.strUPSSourceLangURL, m_XMLResData.strUPSLangFormat, sLCode);
-    else
-      strDloadURL = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.strUPSLangURL, m_XMLResData.strUPSLangFormat, sLCode);
+    if (bHasLanguageFiles) // Download language file from upstream for language sLCode
+    {
+      std::string strDloadURL;
+      if (bIsSourceLang && !m_XMLResData.strUPSSourceLangURL.empty()) // If we have a different URL for source language, use that for download
+        strDloadURL = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.strUPSSourceLangURL, m_XMLResData.strUPSLangFormat, sLCode);
+      else
+        strDloadURL = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.strUPSLangURL, m_XMLResData.strUPSLangFormat, sLCode);
 
-    POHandler.FetchPOURLToMem(strDloadURL);
+      POHandler.FetchPOURLToMem(strDloadURL);
+    }
+
     if (m_AddonXMLHandler.FindAddonXMLEntry(sLCode))
       POHandler.AddAddonXMLEntries(m_AddonXMLHandler.GetAddonXMLEntry(sLCode), m_AddonXMLHandler.GetAddonXMLEntry(m_XMLResData.strSourceLcode));
 
@@ -176,7 +181,6 @@ void CResourceHandler::MergeResource()
 {
   std::list<std::string> listMergedLangs = CreateMergedLangList();
   CPOHandler& POHandlUPSSRC = m_mapUPS.at(m_XMLResData.strSourceLcode);
-  CPOHandler& POHandlTRXSRC = m_mapTRX.at(m_XMLResData.strSourceLcode);
   for (std::list<std::string>::iterator itlang = listMergedLangs.begin(); itlang != listMergedLangs.end(); itlang++)
   {
     const std::string& sLCode = *itlang;
@@ -186,113 +190,189 @@ void CResourceHandler::MergeResource()
     if (sLCode == m_XMLResData.strSourceLcode)
     {
       m_mapMRG[sLCode] = POHandlUPSSRC;                        // if we have a souece lcode, merged po file should be the upstream one
-      if (!ComparePOFiles(POHandlTRXSRC, POHandlUPSSRC))       // if the source po file differs from the one at transifex we need tu update it
-        m_mapUPD[sLCode] = POHandlUPSSRC;
+      if (m_mapTRX.find(m_XMLResData.strSourceLcode) != m_mapTRX.end())
+      {
+        CPOHandler& POHandlTRXSRC = m_mapTRX.at(m_XMLResData.strSourceLcode);
+        if (!ComparePOFiles(POHandlTRXSRC, POHandlUPSSRC))       // if the source po file differs from the one at transifex we need to update it
+          m_mapUPD[sLCode] = POHandlUPSSRC;
+        continue;
+      }
+      m_mapUPD[sLCode] = POHandlUPSSRC;
       continue;
     }
 
     T_itPOData itSRCUPSPO = POHandlUPSSRC.GetPOMapBeginIterator();
     T_itPOData itSRCUPSPOEnd = POHandlUPSSRC.GetPOMapEndIterator();
-    CPOHandler& POHandlTRX = m_mapTRX.at(sLCode);
-    CPOHandler& POHandlUPS = m_mapUPS.at(sLCode);
 
     // Let's iterate by the UPSTREAM source PO file for this resource
     for (; itSRCUPSPO != itSRCUPSPOEnd; itSRCUPSPO++)
     {
-      CPOEntry EntrySRC = itSRCUPSPO->second;
+      CPOEntry& EntrySRC = itSRCUPSPO->second;
 
-      bool bisInUPS = POHandlUPS.FindEntry(EntrySRC);
-      bool bisInTRX = POHandlTRX.FindEntry(EntrySRC);
+      bool bisInUPS = FindUPSEntry(sLCode, EntrySRC);
+      bool bisInTRX = FindTRXEntry(sLCode, EntrySRC);
 
       if (bisInTRX)
       {
-        T_itPOData itPOTRX = POHandlTRX.GetItFoundEntry();
+        T_itPOData itPOTRX = GetUPSItFoundEntry();
         m_mapMRG[sLCode].AddItEntry(itPOTRX);
       }
       else if (bisInUPS)
       {
-        T_itPOData itPOUPS = POHandlUPS.GetItFoundEntry();
+        T_itPOData itPOUPS = GetTRXItFoundEntry();
         m_mapMRG[sLCode].AddItEntry(itPOUPS);
         m_mapUPD[sLCode].AddItEntry(itPOUPS);
       }
-
-
     }
 
+    // Pass Resource data to the newly created PO classes for later use (PO file creation)
+    if (m_mapMRG.find(sLCode) != m_mapMRG.end())
+    {
+      CPOHandler& MRGPOHandler = m_mapMRG[sLCode];
+      MRGPOHandler.SetXMLReasData(m_XMLResData);
+      MRGPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
+      MRGPOHandler.SetPOType(MERGEDPO);
+      MRGPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
+    }
+    if (m_mapUPD.find(sLCode) != m_mapUPD.end())
+    {
+      CPOHandler& UPDPOHandler = m_mapMRG[sLCode];
+      UPDPOHandler.SetXMLReasData(m_XMLResData);
+      UPDPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
+      UPDPOHandler.SetPOType(UPDATEPO);
+      UPDPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
+    }
   }
   return;
 }
 
-bool CResourceHandler::WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResname, CXMLResdata XMLResdata, bool bTXUpdFile)
+// Check if there is a POHandler existing in mapUPS for language code sLCode.
+// If so, store it as last found POHandler iterator and store last sLCode.
+// If a POHandler exist, try to find a PO entry in it.
+bool CResourceHandler::FindUPSEntry(const std::string sLCode, CPOEntry &EntryToFind)
 {
-  /*
-  XMLResdata = m_XMLResData;
-  std::string strPath, strLangFormat, strAddonXMLPath;
-  if (!bTXUpdFile)
+  if (m_lastUPSLCode == sLCode)
   {
-    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCLangPath;
-    strLangFormat = XMLResdata.strLOCLangFormat;
-    if (XMLResdata.bIsLanguageAddon)
-      strAddonXMLPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCAddonPath;
+    if (!m_bLastUPSHandlerFound)
+      return false;
+    else
+      return m_lastUPSIterator->second.FindEntry(EntryToFind);
+  }
+
+  m_lastUPSLCode = sLCode;
+  m_lastUPSIterator = m_mapUPS.find(sLCode);
+  if (m_lastUPSIterator == m_mapUPS.end())
+  {
+    m_bLastUPSHandlerFound = false;
+    return false;
   }
   else
   {
-    strPath = strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strResName + DirSepChar + XMLResdata.strBaseLCode + DirSepChar + "strings.po";
-    strLangFormat = XMLResdata.strBaseLCode;
+    m_bLastUPSHandlerFound = true;
+    return m_lastUPSIterator->second.FindEntry(EntryToFind);
+  }
+}
+
+// Check if there is a POHandler existing in mapUPS for language code sLCode.
+// If so, store it as last found POHandler iterator and store last sLCode.
+// If a POHandler exist, try to find a PO entry in it.
+bool CResourceHandler::FindTRXEntry(const std::string sLCode, CPOEntry &EntryToFind)
+{
+  if (m_lastTRXLCode == sLCode)
+  {
+    if (!m_bLastTRXHandlerFound)
+      return false;
+    else
+      return m_lastTRXIterator->second.FindEntry(EntryToFind);
   }
 
-  if (bTXUpdFile && !m_mapPOFiles.empty())
+  m_lastTRXLCode = sLCode;
+  m_lastTRXIterator = m_mapUPS.find(sLCode);
+  if (m_lastTRXIterator == m_mapUPS.end())
+  {
+    m_bLastTRXHandlerFound = false;
+    return false;
+  }
+  else
+  {
+    m_bLastTRXHandlerFound = true;
+    return m_lastTRXIterator->second.FindEntry(EntryToFind);
+  }
+}
+
+// Read iterator to the last found entry stored by function FindUPSEntry.
+T_itPOData CResourceHandler::GetUPSItFoundEntry()
+{
+  return m_lastUPSIterator->second.GetItFoundEntry();
+}
+
+// Read iterator to the last found entry stored by function FindTRXEntry.
+T_itPOData CResourceHandler::GetTRXItFoundEntry()
+{
+  return m_lastTRXIterator->second.GetItFoundEntry();
+}
+
+bool CResourceHandler::WritePOToFiles(bool bMRGOrUPD)
+{
+
+  std::string strPath, strLangFormat, strAddonXMLPath;
+  if (bMRGOrUPD)
+  {
+    strPath = m_XMLResData.strProjRootdir + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCLangPath;
+    strLangFormat = m_XMLResData.strLOCLangFormat;
+
+    if (m_XMLResData.bIsLanguageAddon)
+      strAddonXMLPath = m_XMLResData.strProjRootdir + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCAddonPath;
+  }
+  else
+  {
+    strPath = m_XMLResData.strProjRootdir + m_XMLResData.strTXUpdateLangfilesDir + DirSepChar + m_XMLResData.strResName + DirSepChar + m_XMLResData.strBaseLCode + DirSepChar + "strings.po";
+    strLangFormat = m_XMLResData.strBaseLCode;
+  }
+
+  if (!bMRGOrUPD && !m_mapUPD.empty())
     printf("Languages to update from upstream to upload to Transifex:");
   size_t counter = 0;
 
   printf ("%s", KCYN);
 
-  for (T_itmapPOFiles itmapPOFiles = m_mapPOFiles.begin(); itmapPOFiles != m_mapPOFiles.end(); itmapPOFiles++)
+  for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
   {
+    const std::string& sLCode = itmapPOFiles->first;
     std::string strPODir, strAddonDir;
-    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, strLangFormat, itmapPOFiles->first);
+    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, strLangFormat, sLCode);
 
-    if (bTXUpdFile && counter < 15)
-      printf (" %s", itmapPOFiles->first.c_str());
-    if ((bTXUpdFile && counter == 14) && m_mapPOFiles.size() != 15)
-      printf ("+%i Langs", (int)m_mapPOFiles.size()-14);
+    if (!bMRGOrUPD && counter < 15)
+      printf (" %s", sLCode.c_str());
+    if ((!bMRGOrUPD && counter == 14) && m_mapUPD.size() != 15)
+      printf ("+%i Langs", (int)m_mapUPD.size()-14);
 
-    CPOHandler * pPOHandler = &m_mapPOFiles[itmapPOFiles->first];
-    if (g_CharsetUtils.bISPOFile(XMLResdata.strLOCLangFileName) || bTXUpdFile)
-      pPOHandler->WritePOFile(strPODir);
-//    else if (g_CharsetUtils.bISXMLFile(XMLResdata.strLOCLangFileName))
-//      pPOHandler->WriteXMLFile(strPODir);
-    else
-      CLog::Log(logERROR, "ResHandler::WritePOToFiles: unknown local fileformat: %s", XMLResdata.strLOCLangFileName.c_str());
+    CPOHandler& POHandler = m_mapMRG.at(sLCode);
+
+    POHandler.WritePOFile(strPODir);
 
     // Write individual addon.xml files for language-addons
     if (!strAddonXMLPath.empty())
     {
-      strAddonDir = g_CharsetUtils.ReplaceLanginURL(strAddonXMLPath, strLangFormat, itmapPOFiles->first);
-      pPOHandler->WriteLangAddonXML(strAddonDir);
+      strAddonDir = g_CharsetUtils.ReplaceLanginURL(strAddonXMLPath, strLangFormat, sLCode);
+      POHandler.WriteLangAddonXML(strAddonDir);
     }
-
-    CLog::LogTable(logINFO, "writepo", "\t\t\t%s\t\t%i", itmapPOFiles->first.c_str(),
-              pPOHandler->GetClassEntriesCount());
   }
+
   printf ("%s", RESET);
-  if (bTXUpdFile && !m_mapPOFiles.empty())
+  if (!bMRGOrUPD && !m_mapMRG.empty())
     printf("\n");
 
-  CLog::LogTable(logADDTABLEHEADER, "writepo", "--------------------------------------------------------------\n");
-  CLog::LogTable(logADDTABLEHEADER, "writepo", "WritePOFiles:\tLang\t\tIDEntry\t\tClassEntry\n");
-  CLog::LogTable(logADDTABLEHEADER, "writepo", "--------------------------------------------------------------\n");
-  CLog::LogTable(logCLOSETABLE, "writepo", "");
-
-  // update local addon.xml file
-  if (!XMLResdata.bIsLanguageAddon && strPrefixDir == XMLResdata.strMergedLangfileDir)
+   // update local addon.xml file
+  if (!m_XMLResData.bIsLanguageAddon && bMRGOrUPD)
   {
     bool bResChangedFromUpstream = !m_lChangedLangsFromUpstream.empty() || !m_lChangedLangsInAddXMLFromUpstream.empty();
-    m_AddonXMLHandler.UpdateAddonXMLFile(strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCAddonPath, bResChangedFromUpstream, XMLResdata);
-    if (!XMLResdata.strChangelogFormat.empty())
-      m_AddonXMLHandler.UpdateAddonChangelogFile(strProjRootDir + strPrefixDir + DirSepChar + XMLResdata.strLOCChangelogPath, XMLResdata.strChangelogFormat, bResChangedFromUpstream);
+    m_AddonXMLHandler.UpdateAddonXMLFile(m_XMLResData.strProjRootdir + DirSepChar + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCAddonPath, bResChangedFromUpstream);
+
+    if (!m_XMLResData.strChangelogFormat.empty())
+      m_AddonXMLHandler.UpdateAddonChangelogFile(m_XMLResData.strProjRootdir + DirSepChar + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCChangelogPath, m_XMLResData.strChangelogFormat, bResChangedFromUpstream);
   }
-*/
+
   return true;
 }
 
@@ -351,7 +431,7 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
   return listLangs;
 };
 
-std::list<std::string> CResourceHandler::GetAvailLangsGITHUB()
+std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
 {
   std::string sJson, sGitHubURL;
   sGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(m_XMLResData.strUPSLangURLRoot);
@@ -363,7 +443,7 @@ std::list<std::string> CResourceHandler::GetAvailLangsGITHUB()
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
   std::string lang, strVersion;
-  std::list<std::string> listLangs;
+  std::set<std::string> listLangs;
 
   bool parsingSuccessful = reader.parse(sJson, root );
   if ( !parsingSuccessful )
@@ -392,7 +472,7 @@ std::list<std::string> CResourceHandler::GetAvailLangsGITHUB()
     std::string strFoundLangCode = g_LCodeHandler.GetLangCodeFromAlias(strMatchedLangalias, m_XMLResData.strUPSLangFormat);
     if (strFoundLangCode != "")
     {
-      listLangs.push_back(strFoundLangCode);
+      listLangs.insert(strFoundLangCode);
       std::string strURLforFile = m_XMLResData.strUPSLangURL;
       g_CharsetUtils.replaceAllStrParts(&strURLforFile, m_XMLResData.strUPSLangFormat, strMatchedLangalias);
       g_Fileversion.SetVersionForURL(strURLforFile, strVersion);

@@ -26,6 +26,7 @@
 #include <list>
 
 typedef std::map<std::string, CPOHandler>::iterator T_itmapPOFiles;
+typedef std::map <unsigned long long, CPOEntry>::iterator T_itPOData;
 
 class CResourceHandler
 {
@@ -36,10 +37,13 @@ public:
   bool FetchPOFilesTXToMem();
   bool FetchPOFilesUpstreamToMem();
   void MergeResource();
-  bool WritePOToFiles(std::string strProjRootDir, std::string strPrefixDir, std::string strResName, CXMLResdata XMLResdata, bool bTXUpdFile);
+  bool WritePOToFiles(bool bMRGOrUPD);
 //  size_t GetLangsCount() const {return m_mapPOFiles.size();}
 //  std::string GetLangCodeFromPos(size_t pos) {T_itmapPOFiles it = IterateToMapIndex (m_mapPOFiles.begin(), pos); return it->first;}
   CPOHandler* GetPOData(std::string strLang);
+  bool FindUPSEntry(const CPOEntry &EntryToFind);
+  bool FindSRCEntry(const CPOEntry &EntryToFind);
+
 //  void AddPOData(CPOHandler& POHandler, std::string strLang) {m_mapPOFiles[strLang] = POHandler;}
   CAddonXMLHandler * GetXMLHandler () {return &m_AddonXMLHandler;}
   void SetXMLHandler (CAddonXMLHandler XMLHandler) {m_AddonXMLHandler = XMLHandler;}
@@ -51,22 +55,34 @@ public:
   bool GetIfIsLangaddon () {return m_bIsLangAddon;}
 
 protected:
+
   void CreateMissingDirs(std::string strResRootDir, int resType);
   T_itmapPOFiles IterateToMapIndex(T_itmapPOFiles it, size_t index);
   bool ComparePOFiles(CPOHandler& POHandler1, CPOHandler& POHandler2);
   std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL);
-  std::list<std::string> GetAvailLangsGITHUB();
+  std::set<std::string> GetAvailLangsGITHUB();
   std::list<std::string> CreateMergedLangList();
+  bool FindUPSEntry(const std::string sLCode, CPOEntry &EntryToFind);
+  bool FindTRXEntry(const std::string sLCode, CPOEntry &EntryToFind);
+  T_itPOData GetUPSItFoundEntry();
+  T_itPOData GetTRXItFoundEntry();
+
   std::map<std::string, CPOHandler> m_mapUPS;
   std::map<std::string, CPOHandler> m_mapTRX;
   std::map<std::string, CPOHandler> m_mapUPD;
   std::map<std::string, CPOHandler> m_mapMRG;
 
-  typedef std::map <unsigned long long, CPOEntry>::iterator T_itPOData;
 
   CAddonXMLHandler m_AddonXMLHandler;
   std::list<std::string> m_lChangedLangsFromUpstream;
   std::list<std::string> m_lChangedLangsInAddXMLFromUpstream;
   bool m_bIsLangAddon;
   CXMLResdata m_XMLResData;
+
+  bool m_bLastUPSHandlerFound;
+  bool m_bLastTRXHandlerFound;
+  T_itmapPOFiles m_lastUPSIterator;
+  T_itmapPOFiles m_lastTRXIterator;
+  std::string m_lastUPSLCode;
+  std::string m_lastTRXLCode;
 };

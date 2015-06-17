@@ -38,6 +38,13 @@ enum
   UNKNOWN = 205 // Unknown entrytype found
 };
 
+enum
+{
+  UNKNOWNPO  = 0, // Type not set yet
+  MERGEDPO = 1, // This POHandler contains merged entries from upstream and transifex
+  UPDATEPO = 2, // This POHandler only contains entries to be uploaded to transifex
+};
+
 enum Boolean
 {
   ISSOURCELANG=true
@@ -85,7 +92,7 @@ public:
   bool IncPOIterator(){m_itPOData++; return m_itPOData != m_mapPOData.end();}
   CPOEntry& GetItPOEntry(){return m_itPOData->second;}
 */
-
+  void SetXMLReasData (const CXMLResdata& XMLResData) {m_XMLResData = XMLResData;}
   bool FetchPOURLToMem(std::string strURL);
   void FetchLangAddonXML (const std::string &strURL);
   void WriteLangAddonXML(const std::string &strPath);
@@ -106,21 +113,22 @@ public:
   const CPOEntry* GetClassicPOEntryByIdx(size_t pos);
 
 //  const CPOEntry* GetNumPOEntryByIdx(size_t pos) const;
-  void SetHeader (std::string strHeader) {m_strHeader = strHeader;}
-  void SetHeaderNEW (std::string strLangCode);
+  void CreateHeader (const std::string &strPreText, const std::string& sLCode);
+//  void SetHeader (std::string strHeader) {m_strHeader = strHeader;}
+//  void SetHeaderNEW (std::string strLangCode);
   std::string GetHeader () {return m_strHeader;}
   void SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXMLEntry const &PrevAddonXMLEntry,
                          CAddonXMLEntry const &AddonXMLEntryEN, std::string const &strLang);
 //  void GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry &AddonXMLEntryEN);
-  void SetPreHeader (std::string &strPreText);
+//  void SetPreHeader (std::string &strPreText);
 //  size_t const GetNumEntriesCount() {return m_mapStrings.size();}
   size_t const GetClassEntriesCount() {return m_mapPOData.size();}
   size_t const GetCommntEntriesCount() {return m_CommsCntr;}
   std::map <unsigned long long, CPOEntry>::iterator GetPOMapBeginIterator() {return m_mapPOData.begin();}
   std::map <unsigned long long, CPOEntry>::iterator GetPOMapEndIterator() {return m_mapPOData.end();}
 
-  void SetIfIsSourceLang(bool bIsENLang) {m_bPOIsEnglish = bIsENLang;}
-  void SetIfPOIsUpdTX(bool bIsUpdTX) {m_bPOIsUpdateTX = bIsUpdTX;}
+  void SetIfIsSourceLang(bool bIsSRCLang) {m_bIsSRCLang = bIsSRCLang;}
+  void SetPOType(int type) {m_POType = type;}
   void SetLangAddonXMLString(std::string strXMLfile) {m_strLangAddonXML = strXMLfile;}
   std::string GetLangAddonXMLString () {return m_strLangAddonXML;}
   void BumpLangAddonXMLVersion();
@@ -130,14 +138,14 @@ protected:
   bool ProcessPOFile();
   bool GetXMLEncoding(const TiXmlDocument* pDoc, std::string& strEncoding);
   void GetXMLComment(std::string strXMLEncoding, const TiXmlNode *pCommentNode, CPOEntry &currEntry);
-  int GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings);
+  unsigned int GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings);
   void ParsePOHeader();
   void AddPOEntryToMaps (const CPOEntry& Entry);
 
   std::string m_strHeader;
   std::string m_CurrentEntryText;
-  std::string m_strLangCode;
-  int m_nplurals;
+  std::string m_sLCode;
+  unsigned int m_nplurals;
 
 //  std::map<uint32_t, CPOEntry> m_mapStrings;
 //  std::vector<CPOEntry> m_vecClassicEntries;
@@ -149,10 +157,11 @@ protected:
 //typedef std::vector<CPOEntry>::iterator itClassicEntries;
 
   CPOEntry m_prevCommEntry;
-  bool m_bIsXMLSource;
+//  bool m_bIsXMLSource;
   size_t m_CommsCntr;
-  bool m_bPOIsEnglish;
-  bool m_bPOIsUpdateTX;
+  bool m_bIsSRCLang;
+  int m_POType;
+//  bool m_bPOIsUpdateTX;
   std::string m_strLangAddonXML;
   CXMLResdata m_XMLResData;
   T_itPOData m_itLastFound;
@@ -163,7 +172,7 @@ protected:
 
   bool GetNextEntry(bool bSkipError);
   void ParseEntry();
-  void WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals);
+  void WritePOEntry(const CPOEntry &currEntry);
 //  void SetIfIsEnglish(bool bIsENLang) {m_bIsForeignLang = !bIsENLang;}
 //  void SetIfIsUpdDoc(bool bIsUpdTx) {m_bIsUpdateTxDoc = bIsUpdTx;}
 

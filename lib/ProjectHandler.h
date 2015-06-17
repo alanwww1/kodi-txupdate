@@ -60,8 +60,8 @@ protected:
                           const CXMLResdata& XMLResData);
   std::string GetEntryContent(const CPOEntry * pPOEntry, std::string const &strLangCode, const CXMLResdata& XMLResData);
   void CheckCharCount(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN, char chrToCheck,
-                      const CXMLResdata& XMLResData);
-  void PrintChangedLangs(std::list<std::string> lChangedLangs); */
+                      const CXMLResdata& XMLResData); */
+  void PrintChangedLangs(std::list<std::string> lChangedLangs);
   std::string GetResNameFromTXResName(std::string const &strTXResName);
 
   std::list<std::string> ParseResources(std::string strJSON);

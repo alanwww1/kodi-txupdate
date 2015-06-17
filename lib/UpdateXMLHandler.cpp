@@ -219,6 +219,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
   while (pChildResElement && pChildResElement->FirstChild())
   {
     CXMLResdata currResData;
+    currResData.strProjRootdir = rootDir;
     currResData.strProjectName = strProjName;
     currResData.strTargetProjectName = strTargetProjName;
     currResData.strTargetProjectNameLong = strLongProjName;

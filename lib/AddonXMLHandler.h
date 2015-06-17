@@ -23,6 +23,7 @@
 #include "POHandler.h"
 #include "TinyXML/tinyxml.h"
 #include "UpdateXMLHandler.h"
+#include <set>
 
 struct COtherAddonMetadata
 {
@@ -41,13 +42,14 @@ public:
   CAddonXMLHandler();
   ~CAddonXMLHandler();
   void SetXMLReasData (const CXMLResdata& XMLResData) {m_XMLResData = XMLResData;}
-  bool UpdateAddonXMLFile (std::string strAddonXMLFilename, bool bUpdateVersion, const CXMLResdata &XMLResdata);
+  bool UpdateAddonXMLFile (std::string strAddonXMLFilename, bool bUpdateVersion);
   bool UpdateAddonChangelogFile (std::string strFilename, std::string strFormat, bool bUpdate);
   bool FetchAddonChangelogFile ();
   void FetchAddonDataFiles();
   std::string GetResHeaderPretext () const {return m_strResourceData;}
  // std::map<std::string, CAddonXMLEntry> * GetMapAddonXMLData () {return &m_mapAddonXMLData;}
   const std::map<std::string, CAddonXMLEntry>& GetMapAddonXMLData () {return m_mapAddonXMLData;}
+  void AddAddonXMLLangsToList(std::set<std::string>& listLangs);
   void SetMapAddonXMLData (const std::map<std::string, CAddonXMLEntry>& mapData) {m_mapAddonXMLData = mapData;}
   std::string GetStrAddonXMLFile() const {return m_strAddonXMLFile;}
   void SetAddonXMLEntry (const CAddonXMLEntry& AddonXMLEntry, const std::string& sLang) {m_mapAddonXMLData[sLang] = AddonXMLEntry;}

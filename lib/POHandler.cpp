@@ -80,8 +80,7 @@ CPOHandler::CPOHandler()
 
 CPOHandler::CPOHandler(const CXMLResdata& XMLResdata) : m_XMLResData(XMLResdata)
 {
-  m_bIsXMLSource = false;
-  m_bPOIsUpdateTX = false;
+  m_POType = UNKNOWNPO;
 };
 
 CPOHandler::~CPOHandler()
@@ -207,7 +206,7 @@ void CPOHandler::ClearCPOEntry (CPOEntry &entry)
 };
 
 
-bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
+bool CPOHandler::WritePOFile(const std::string& strOutputPOFilename)
 {
   ClearVariables();
 
@@ -218,7 +217,7 @@ bool CPOHandler::WritePOFile(const std::string &strOutputPOFilename)
 
   for (T_itPOData it = m_mapPOData.begin(); it != m_mapPOData.end(); it++)
   {
-    WritePOEntry(it->second, m_nplurals);
+    WritePOEntry(it->second);
   }
 
   std::string strDir = g_File.GetPath(strOutputPOFilename);
@@ -499,17 +498,14 @@ void CPOHandler::GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry
 }
 */
 
-void CPOHandler::SetPreHeader (std::string &strPreText)
+void CPOHandler::CreateHeader (const std::string &strPreText, const std::string& sLCode)
 {
   m_strHeader = "# Kodi Media Center language file\n";
   m_strHeader += strPreText;
-}
 
-void CPOHandler::SetHeaderNEW (std::string strLangCode)
-{
-  m_strLangCode = strLangCode;
+  m_sLCode = sLCode;
   std::stringstream ss;//create a stringstream
-  m_nplurals = g_LCodeHandler.GetnPlurals(strLangCode);
+  m_nplurals = g_LCodeHandler.GetnPlurals(sLCode);
   ss << m_nplurals;
   std::string strnplurals = ss.str();
 
@@ -520,14 +516,14 @@ void CPOHandler::SetHeaderNEW (std::string strLangCode)
   m_strHeader += "\"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"Last-Translator: Kodi Translation Team\\n\"\n";
-  m_strHeader += "\"Language-Team: " + g_LCodeHandler.GetLangFromLCode(strLangCode, m_XMLResData.strLangteamLFormat) +
+  m_strHeader += "\"Language-Team: " + g_LCodeHandler.GetLangFromLCode(sLCode, m_XMLResData.strLangteamLFormat) +
                  " (http://www.transifex.com/projects/p/" + m_XMLResData.strTargetProjectName +"/language/"
-                 + g_LCodeHandler.GetLangFromLCode(strLangCode, m_XMLResData.strTargTXLFormat) +"/)" + "\\n\"\n";
+                 + g_LCodeHandler.GetLangFromLCode(sLCode, m_XMLResData.strTargTXLFormat) +"/)" + "\\n\"\n";
   m_strHeader += "\"MIME-Version: 1.0\\n\"\n";
   m_strHeader += "\"Content-Type: text/plain; charset=UTF-8\\n\"\n";
   m_strHeader += "\"Content-Transfer-Encoding: 8bit\\n\"\n";
-  m_strHeader +=  "\"Language: " + g_LCodeHandler.GetLangFromLCode(strLangCode, m_XMLResData.strTargTXLFormat) + "\\n\"\n";
-  m_strHeader +=  "\"Plural-Forms: nplurals=" + strnplurals + "; plural=" + g_LCodeHandler.GetPlurForm(strLangCode) + ";\\n\"\n";
+  m_strHeader +=  "\"Language: " + g_LCodeHandler.GetLangFromLCode(sLCode, m_XMLResData.strTargTXLFormat) + "\\n\"\n";
+  m_strHeader +=  "\"Plural-Forms: nplurals=" + strnplurals + "; plural=" + g_LCodeHandler.GetPlurForm(sLCode) + ";\\n\"\n";
 }
 
 /*
@@ -579,7 +575,7 @@ const CPOEntry* CPOHandler::GetClassicPOEntryByIdx(size_t pos)
   return &(it->second);
 }
 
-int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings)
+unsigned int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings)
 {
   int num = 0;
   for (std::vector<std::string>::iterator it = vecPluralStrings.begin(); it != vecPluralStrings.end(); it++)
@@ -608,26 +604,26 @@ void CPOHandler::BumpLangAddonXMLVersion()
   size_t pos0, pos1, pos2;
   pos0 = m_strLangAddonXML.find("<addon");
   if (pos0 == std::string::npos)
-    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_strLangCode.c_str());
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_sLCode.c_str());
 
   pos1 = m_strLangAddonXML.find("version=\"", pos0);
   if (pos1 == std::string::npos)
-    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: unable to bump version number for language: %s", m_strLangCode.c_str());
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: unable to bump version number for language: %s", m_sLCode.c_str());
 
   pos1 += 9;
   pos2 = m_strLangAddonXML.find("\"", pos1);
   if (pos2 == std::string::npos)
-    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: unable to bump version number for language: %s", m_strLangCode.c_str());
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: unable to bump version number for language: %s", m_sLCode.c_str());
 
   std::string strVersion = m_strLangAddonXML.substr(pos1, pos2-pos1);
 
   size_t posLastDot = strVersion.find_last_of(".");
   if (posLastDot == std::string::npos)
-    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_strLangCode.c_str());
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_sLCode.c_str());
 
   std::string strLastNumber = strVersion.substr(posLastDot+1);
   if (strLastNumber.find_first_not_of("0123456789") != std::string::npos)
-    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_strLangCode.c_str());
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_sLCode.c_str());
 
   int LastNum = atoi (strLastNumber.c_str());
   strLastNumber = g_CharsetUtils.IntToStr(LastNum +1);
@@ -911,15 +907,15 @@ bool CPOHandler::ParseNumID(const std::string &strLineToCheck, size_t xIDPos)
 // ********* SAVE part
 
 
-void CPOHandler::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
+void CPOHandler::WritePOEntry(const CPOEntry &currEntry)
 {
   m_bhasLFWritten = false;
 
 
-  if ((m_bPOIsEnglish || m_XMLResData.bForceComm) && currEntry.Type == NUMID && !m_bPOIsUpdateTX)
+  if ((m_bIsSRCLang || m_XMLResData.bForceComm) && currEntry.Type == NUMID && m_POType == MERGEDPO)
   {
     int id = currEntry.numID;
-    if (id-m_previd >= 2 && m_previd > -1 && m_bPOIsEnglish)
+    if (id-m_previd >= 2 && m_previd > -1 && m_bIsSRCLang)
     {
       WriteLF();
       if (id-m_previd == 2)
@@ -933,7 +929,7 @@ void CPOHandler::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
 
   m_bhasLFWritten = false;
 
-  if (m_bPOIsEnglish || m_XMLResData.bForceComm)
+  if (m_bIsSRCLang || m_XMLResData.bForceComm)
   {
     WriteMultilineComment(currEntry.translatorComm, "# ");
     WriteMultilineComment(currEntry.extractedComm,  "#.");
@@ -952,9 +948,9 @@ void CPOHandler::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
   if (!currEntry.msgIDPlur.empty())
   {
     m_strOutBuffer += "msgid_plural \""  + g_CharsetUtils.EscapeStringCPP(currEntry.msgIDPlur) +  "\"\n";
-    if (!m_bPOIsEnglish)
+    if (!m_bIsSRCLang)
     { // we have a plural entry with non English strings
-      for (unsigned int n = 0 ; n != nplurals ; n++)
+      for (unsigned int n = 0 ; n != m_nplurals ; n++)
       {
         std::string strValue;
         if (n < currEntry.msgStrPlural.size())
@@ -968,7 +964,7 @@ void CPOHandler::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
     }
     else
     { // we have a plural entry with English strings
-      for (unsigned int n = 0 ; n != nplurals ; n++)
+      for (unsigned int n = 0 ; n != m_nplurals ; n++)
       {
         std::stringstream ss;//create a stringstream
         ss << n;
@@ -979,7 +975,7 @@ void CPOHandler::WritePOEntry(const CPOEntry &currEntry, unsigned int nplurals)
   }
   else
   {
-    if (!m_bPOIsEnglish)
+    if (!m_bIsSRCLang)
       m_strOutBuffer += "msgstr \"" + g_CharsetUtils.EscapeStringCPP(currEntry.msgStr) + "\"\n";
     else
       m_strOutBuffer += "msgstr \"\"\n";

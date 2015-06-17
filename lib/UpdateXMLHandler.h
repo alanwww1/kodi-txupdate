@@ -65,6 +65,7 @@ public:
   bool bCopyToLocalGitRepo;
 
   std::string strProjectName;
+  std::string strProjRootdir;
   std::string strTargetProjectName;
   std::string strTargetProjectNameLong;
   std::string strMergedLangfileDir;
