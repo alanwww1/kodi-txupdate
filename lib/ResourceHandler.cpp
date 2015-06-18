@@ -220,7 +220,15 @@ void CResourceHandler::MergeResource()
       bool bisInUPS = FindUPSEntry(sLCode, EntrySRC);
       bool bisInTRX = FindTRXEntry(sLCode, EntrySRC);
 
-      if (bisInTRX || (sLCode == m_XMLResData.strSourceLcode && !bWriteUPDFileSRC))
+      if (sLCode == m_XMLResData.strSourceLcode)
+      {
+        T_itPOData itPOUPS = GetUPSItFoundEntry();
+        m_mapMRG[sLCode].AddItEntry(itPOUPS);
+        if (bWriteUPDFileSRC)
+          m_mapUPD[sLCode].AddItEntry(itPOUPS);
+      }
+      //We have non-source language. Let's treat it that way
+      else if (bisInTRX)
       {
         T_itPOData itPOTRX = GetTRXItFoundEntry();
         m_mapMRG[sLCode].AddItEntry(itPOTRX);
