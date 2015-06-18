@@ -181,7 +181,9 @@ bool CPOHandler::ProcessPOFile()
           m_Entry.msgStrPlural.clear(); // in case there is insufficient number of translated plurals we completely clear it
       }
 
-      AddPOEntryToMaps(m_Entry);
+      // Only add entry if it has a translation or if the entry is from the source language
+      if (m_bIsSRCLang || !m_Entry.msgStr.empty() || !m_Entry.msgStrPlural.empty())
+        AddPOEntryToMaps(m_Entry);
 
       ClearCPOEntry(m_Entry);
     }

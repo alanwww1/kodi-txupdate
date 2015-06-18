@@ -94,6 +94,8 @@ public:
   CPOEntry& GetItPOEntry(){return m_itPOData->second;}
 */
   void SetXMLReasData (const CXMLResdata& XMLResData) {m_XMLResData = XMLResData;}
+  void SetLCode (const std::string& sLCode) {m_sLCode = sLCode;}
+
   bool FetchPOURLToMem(std::string strURL);
   void FetchLangAddonXML (const std::string &strURL);
   void WriteLangAddonXML(const std::string &strPath);

@@ -80,6 +80,9 @@ bool CResourceHandler::FetchPOFilesTXToMem()
     m_mapTRX[sLCode] = newPOHandler;
 
     CPOHandler& POHandler = m_mapTRX[sLCode];
+    POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
+    POHandler.SetLCode(sLCode);
+
 
     std::string sLangNameTX = g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat);
     POHandler.FetchPOURLToMem(strURL + "translation/" + sLangNameTX + "/?file");
@@ -121,6 +124,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
     bool bIsSourceLang = sLCode == m_XMLResData.strSourceLcode;
     POHandler.SetIfIsSourceLang(bIsSourceLang);
+    POHandler.SetLCode(sLCode);
     printf (" %s", sLCode.c_str());
 
     if (bHasLanguageFiles && m_XMLResData.bIsLanguageAddon) // Download individual addon.xml files for language-addons
@@ -200,21 +204,10 @@ void CResourceHandler::MergeResource()
         bWriteUPDFileSRC = true;
     }
 
-    /*
-    if (sLCode == m_XMLResData.strSourceLcode)
-    {
-      m_mapMRG[sLCode] = POHandlUPSSRC;                        // if we have a souece lcode, merged po file should be the upstream one
-      if (m_mapTRX.find(m_XMLResData.strSourceLcode) != m_mapTRX.end())
-      {
-        CPOHandler& POHandlTRXSRC = m_mapTRX.at(m_XMLResData.strSourceLcode);
-        if (!ComparePOFiles(POHandlTRXSRC, POHandlUPSSRC))       // if the source po file differs from the one at transifex we need to update it
-          m_mapUPD[sLCode] = POHandlUPSSRC;
-        continue;
-      }
-      m_mapUPD[sLCode] = POHandlUPSSRC;
-      continue;
-    }
-    */
+//    if (sLCode == "fr_FR")
+//    {
+//      sleep(1);
+//    }
 
     T_itPOData itSRCUPSPO = POHandlUPSSRC.GetPOMapBeginIterator();
     T_itPOData itSRCUPSPOEnd = POHandlUPSSRC.GetPOMapEndIterator();
@@ -229,12 +222,12 @@ void CResourceHandler::MergeResource()
 
       if (bisInTRX || (sLCode == m_XMLResData.strSourceLcode && !bWriteUPDFileSRC))
       {
-        T_itPOData itPOTRX = GetUPSItFoundEntry();
+        T_itPOData itPOTRX = GetTRXItFoundEntry();
         m_mapMRG[sLCode].AddItEntry(itPOTRX);
       }
       else if (bisInUPS)
       {
-        T_itPOData itPOUPS = GetTRXItFoundEntry();
+        T_itPOData itPOUPS = GetUPSItFoundEntry();
         m_mapMRG[sLCode].AddItEntry(itPOUPS);
         m_mapUPD[sLCode].AddItEntry(itPOUPS);
       }
@@ -302,8 +295,8 @@ bool CResourceHandler::FindTRXEntry(const std::string sLCode, CPOEntry &EntryToF
   }
 
   m_lastTRXLCode = sLCode;
-  m_lastTRXIterator = m_mapUPS.find(sLCode);
-  if (m_lastTRXIterator == m_mapUPS.end())
+  m_lastTRXIterator = m_mapTRX.find(sLCode);
+  if (m_lastTRXIterator == m_mapTRX.end())
   {
     m_bLastTRXHandlerFound = false;
     return false;
@@ -329,6 +322,23 @@ T_itPOData CResourceHandler::GetTRXItFoundEntry()
 
 bool CResourceHandler::WritePOToFiles(bool bMRGOrUPD)
 {
+
+  printf ("%s", RESET);
+  if (!bMRGOrUPD && !m_mapMRG.empty())
+    printf("\n");
+
+   // update local addon.xml file and changelog.txt
+  if (!m_XMLResData.bIsLanguageAddon && bMRGOrUPD)
+  {
+    bool bResChangedFromUpstream = !m_lChangedLangsFromUpstream.empty() || !m_lChangedLangsInAddXMLFromUpstream.empty();
+    m_AddonXMLHandler.UpdateAddonXMLFile(m_XMLResData.strProjRootdir + DirSepChar + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCAddonPath, bResChangedFromUpstream);
+
+    if (!m_XMLResData.strChangelogFormat.empty())
+      m_AddonXMLHandler.UpdateAddonChangelogFile(m_XMLResData.strProjRootdir + DirSepChar + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCChangelogPath, m_XMLResData.strChangelogFormat, bResChangedFromUpstream);
+  }
+
+  if (m_XMLResData.bHasOnlyAddonXML)
+    return true;
 
   std::string strPath, strLangFormat, strAddonXMLPath;
   if (bMRGOrUPD)
@@ -374,19 +384,6 @@ bool CResourceHandler::WritePOToFiles(bool bMRGOrUPD)
     }
   }
 
-  printf ("%s", RESET);
-  if (!bMRGOrUPD && !m_mapMRG.empty())
-    printf("\n");
-
-   // update local addon.xml file
-  if (!m_XMLResData.bIsLanguageAddon && bMRGOrUPD)
-  {
-    bool bResChangedFromUpstream = !m_lChangedLangsFromUpstream.empty() || !m_lChangedLangsInAddXMLFromUpstream.empty();
-    m_AddonXMLHandler.UpdateAddonXMLFile(m_XMLResData.strProjRootdir + DirSepChar + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCAddonPath, bResChangedFromUpstream);
-
-    if (!m_XMLResData.strChangelogFormat.empty())
-      m_AddonXMLHandler.UpdateAddonChangelogFile(m_XMLResData.strProjRootdir + DirSepChar + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCChangelogPath, m_XMLResData.strChangelogFormat, bResChangedFromUpstream);
-  }
 
   return true;
 }
