@@ -55,6 +55,7 @@ public:
   void SetMapAddonXMLData (const std::map<std::string, CAddonXMLEntry>& mapData) {m_mapAddonXMLData = mapData;}
   std::string GetStrAddonXMLFile() const {return m_strAddonXMLFile;}
   void SetAddonXMLEntry (const CAddonXMLEntry& AddonXMLEntry, const std::string& sLang) {m_mapAddonXMLData[sLang] = AddonXMLEntry;}
+  void ClearAllAddonXMLEntries () {m_mapAddonXMLData.clear();}
   const CAddonXMLEntry& GetAddonXMLEntry(const std::string& sLang) const {return m_mapAddonXMLData.at(sLang);}
   bool FindAddonXMLEntry(const std::string& sLang) const {return m_mapAddonXMLData.find(sLang) != m_mapAddonXMLData.end();}
 

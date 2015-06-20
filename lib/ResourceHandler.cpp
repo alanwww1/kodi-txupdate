@@ -381,7 +381,7 @@ void CResourceHandler::WriteUpdatePOFiles(const std::string& strPath)
 //    if ((!bMRGOrUPD && counter == 14) && m_mapUPD.size() != 15)
 //      printf ("+%i Langs", (int)m_mapUPD.size()-14);
 
-    CPOHandler& POHandler = m_mapMRG.at(sLCode);
+    CPOHandler& POHandler = m_mapUPD.at(sLCode);
 
     POHandler.WritePOFile(strPODir);
   }
@@ -396,9 +396,8 @@ void CResourceHandler::GenerateMergedPOFiles()
 //  if (!bMRGOrUPD && !m_mapMRG.empty())
 //    printf("\n");
 
-   // generate local merged addon.xml file
   if (!m_XMLResData.bIsLanguageAddon)
-    m_AddonXMLHandler.GenerateAddonXMLFile(false);
+    m_AddonXMLHandler.ClearAllAddonXMLEntries();
 
 //  if (!bMRGOrUPD && !m_mapUPD.empty())
 //    printf("Languages to update from upstream to upload to Transifex:");
@@ -413,7 +412,14 @@ void CResourceHandler::GenerateMergedPOFiles()
     CPOHandler& POHandler = m_mapMRG.at(sLCode);
 
     POHandler.GeneratePOFile();
+
+    if (!m_XMLResData.bIsLanguageAddon)
+      m_AddonXMLHandler.SetAddonXMLEntry(POHandler.GetAddonXMLEntry(), sLCode);
   }
+
+  if (!m_XMLResData.bIsLanguageAddon)
+    m_AddonXMLHandler.GenerateAddonXMLFile(false);
+
 
   return;
 }

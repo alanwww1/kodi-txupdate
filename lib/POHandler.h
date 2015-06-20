@@ -121,7 +121,7 @@ public:
 //  void SetHeader (std::string strHeader) {m_strHeader = strHeader;}
 //  void SetHeaderNEW (std::string strLangCode);
   std::string GetHeader () {return m_strHeader;}
-  CAddonXMLEntry GetHAddonXMLEnry () {return m_AddonXMLEntry;}
+  CAddonXMLEntry GetAddonXMLEntry () {return m_AddonXMLEntry;}
   void SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXMLEntry const &PrevAddonXMLEntry,
                          CAddonXMLEntry const &AddonXMLEntryEN, std::string const &strLang);
 //  void GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry &AddonXMLEntryEN);
