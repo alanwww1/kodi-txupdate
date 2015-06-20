@@ -37,7 +37,12 @@ public:
   bool FetchPOFilesTXToMem();
   bool FetchPOFilesUpstreamToMem();
   void MergeResource();
-  bool WritePOToFiles(bool bMRGOrUPD);
+
+  void GenerateMergedPOFiles();
+  void GenerateUpdatePOFiles();
+  void WriteMergedPOFiles(const std::string& strPath);
+  void WriteUpdatePOFiles(const std::string& strPath);
+
 //  size_t GetLangsCount() const {return m_mapPOFiles.size();}
 //  std::string GetLangCodeFromPos(size_t pos) {T_itmapPOFiles it = IterateToMapIndex (m_mapPOFiles.begin(), pos); return it->first;}
   CPOHandler* GetPOData(std::string strLang);

@@ -123,9 +123,9 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
 //  g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
   for (T_itmapRes itmapResources = m_mapResources.begin(); itmapResources != m_mapResources.end(); itmapResources++)
   {
-//    const std::string& sResName = itmapResources->first;
+    const std::string& sResName = itmapResources->first;
     CResourceHandler& ResHandler = itmapResources->second;
-//    const CXMLResdata& XMLResdata = m_mapResData[sResName];
+    const CXMLResdata& XMLResData = m_mapResData[sResName];
 
 
     /*
@@ -151,7 +151,17 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CLog::Log(logINFO, "ProjHandler: *** Write Merged Resource: %s ***", itmapResources->first.c_str());
     CLog::IncIdent(4);
 
-    ResHandler.WritePOToFiles (true);
+    std::string sPathUpdate = XMLResData.strProjRootdir + XMLResData.strTXUpdateLangfilesDir + DirSepChar + XMLResData.strResName + DirSepChar + XMLResData.strBaseLCode + DirSepChar + "strings.po";
+    ResHandler.GenerateUpdatePOFiles ();
+    ResHandler.WriteUpdatePOFiles (sPathUpdate);
+
+    std::string sAddonXMLPath = XMLResData.strProjRootdir + DirSepChar + XMLResData.strMergedLangfileDir + DirSepChar + XMLResData.strLOCAddonPath;
+    std::string sChangeLogPath =  XMLResData.strProjRootdir + DirSepChar + XMLResData.strMergedLangfileDir + DirSepChar + XMLResData.strLOCChangelogPath;
+    std::string sLangPath  = XMLResData.strProjRootdir + XMLResData.strMergedLangfileDir + DirSepChar + XMLResData.strLOCLangPath;
+    std::string sLangAddonXMLPath = XMLResData.strProjRootdir + XMLResData.strMergedLangfileDir + DirSepChar + XMLResData.strLOCAddonPath;
+    ResHandler.GenerateMergedPOFiles ();
+    ResHandler.WriteMergedPOFiles (sAddonXMLPath, sLangAddonXMLPath, sChangeLogPath, sLangPath);
+
     CLog::DecIdent(4);
   }
   printf ("\n\n");

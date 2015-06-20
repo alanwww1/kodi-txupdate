@@ -100,7 +100,8 @@ public:
   void FetchLangAddonXML (const std::string &strURL);
   void WriteLangAddonXML(const std::string &strPath);
   bool ParsePOStrToMem (std::string const &strPOData);
-  bool WritePOFile(const std::string &strOutputPOFilename);
+  void GeneratePOFile();
+  void WritePOFile(const std::string &strOutputPOFilename);
   bool FindEntry (const CPOEntry &EntryToFind);
   T_itPOData GetItFoundEntry() {return m_itLastFound;}
   const CPOEntry*  PLookforClassicEntry (CPOEntry &EntryToFind);
@@ -120,6 +121,7 @@ public:
 //  void SetHeader (std::string strHeader) {m_strHeader = strHeader;}
 //  void SetHeaderNEW (std::string strLangCode);
   std::string GetHeader () {return m_strHeader;}
+  CAddonXMLEntry GetHAddonXMLEnry () {return m_AddonXMLEntry;}
   void SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXMLEntry const &PrevAddonXMLEntry,
                          CAddonXMLEntry const &AddonXMLEntryEN, std::string const &strLang);
 //  void GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry &AddonXMLEntryEN);
@@ -203,4 +205,5 @@ protected:
   int m_previd;
   int m_writtenEntry;
   T_itPOData m_itPOData;
+  CAddonXMLEntry m_AddonXMLEntry;
 };

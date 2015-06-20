@@ -204,11 +204,6 @@ void CResourceHandler::MergeResource()
         bWriteUPDFileSRC = true;
     }
 
-//    if (sLCode == "fr_FR")
-//    {
-//      sleep(1);
-//    }
-
     T_itPOData itSRCUPSPO = POHandlUPSSRC.GetPOMapBeginIterator();
     T_itPOData itSRCUPSPOEnd = POHandlUPSSRC.GetPOMapEndIterator();
 
@@ -328,43 +323,85 @@ T_itPOData CResourceHandler::GetTRXItFoundEntry()
   return m_lastTRXIterator->second.GetItFoundEntry();
 }
 
-bool CResourceHandler::WritePOToFiles(bool bMRGOrUPD)
+void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sChangeLogPath, const std::string& sLangPath )
 {
-
-  printf ("%s", RESET);
-  if (!bMRGOrUPD && !m_mapMRG.empty())
-    printf("\n");
-
-   // update local addon.xml file and changelog.txt
-  if (!m_XMLResData.bIsLanguageAddon && bMRGOrUPD)
+  if (!m_XMLResData.bIsLanguageAddon)
   {
-    bool bResChangedFromUpstream = !m_lChangedLangsFromUpstream.empty() || !m_lChangedLangsInAddXMLFromUpstream.empty();
-    m_AddonXMLHandler.UpdateAddonXMLFile(m_XMLResData.strProjRootdir + DirSepChar + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCAddonPath, bResChangedFromUpstream);
-
+    m_AddonXMLHandler.WriteAddonXMLFile(sAddonXMLPath);
     if (!m_XMLResData.strChangelogFormat.empty())
-      m_AddonXMLHandler.UpdateAddonChangelogFile(m_XMLResData.strProjRootdir + DirSepChar + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCChangelogPath, m_XMLResData.strChangelogFormat, bResChangedFromUpstream);
+      m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath, m_XMLResData.strChangelogFormat, false);
   }
 
   if (m_XMLResData.bHasOnlyAddonXML)
-    return true;
+    return;
 
-  std::string strPath, strLangFormat, strAddonXMLPath;
-  if (bMRGOrUPD)
+
+//  if (bMRGOrUPD)
+//  {
+
+  //  else
+//  {
+//    strPath = m_XMLResData.strProjRootdir + m_XMLResData.strTXUpdateLangfilesDir + DirSepChar + m_XMLResData.strResName + DirSepChar + m_XMLResData.strBaseLCode + DirSepChar + "strings.po";
+//    strLangFormat = m_XMLResData.strBaseLCode;
+  for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
   {
-    strPath = m_XMLResData.strProjRootdir + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCLangPath;
-    strLangFormat = m_XMLResData.strLOCLangFormat;
+    const std::string& sLCode = itmapPOFiles->first;
+    std::string strPODir, strAddonDir;
+    strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, m_XMLResData.strLOCLangFormat, sLCode);
 
+//    if (!bMRGOrUPD && counter < 15)
+//      printf (" %s", sLCode.c_str());
+//    if ((!bMRGOrUPD && counter == 14) && m_mapUPD.size() != 15)
+//      printf ("+%i Langs", (int)m_mapUPD.size()-14);
+
+    CPOHandler& POHandler = m_mapMRG.at(sLCode);
+
+    POHandler.WritePOFile(strPODir);
+
+    // Write individual addon.xml files for language-addons
     if (m_XMLResData.bIsLanguageAddon)
-      strAddonXMLPath = m_XMLResData.strProjRootdir + m_XMLResData.strMergedLangfileDir + DirSepChar + m_XMLResData.strLOCAddonPath;
+    {
+      strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPath, m_XMLResData.strLOCLangFormat, sLCode);
+      POHandler.WriteLangAddonXML(strAddonDir);
+    }
   }
-  else
-  {
-    strPath = m_XMLResData.strProjRootdir + m_XMLResData.strTXUpdateLangfilesDir + DirSepChar + m_XMLResData.strResName + DirSepChar + m_XMLResData.strBaseLCode + DirSepChar + "strings.po";
-    strLangFormat = m_XMLResData.strBaseLCode;
-  }
+ return;
+}
 
-  if (!bMRGOrUPD && !m_mapUPD.empty())
-    printf("Languages to update from upstream to upload to Transifex:");
+void CResourceHandler::WriteUpdatePOFiles(const std::string& strPath)
+{
+  for (T_itmapPOFiles itmapPOFiles = m_mapUPD.begin(); itmapPOFiles != m_mapUPD.end(); itmapPOFiles++)
+  {
+    const std::string& sLCode = itmapPOFiles->first;
+    std::string strPODir;
+    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, m_XMLResData.strBaseLCode, sLCode);
+
+//    if (!bMRGOrUPD && counter < 15)
+//      printf (" %s", sLCode.c_str());
+//    if ((!bMRGOrUPD && counter == 14) && m_mapUPD.size() != 15)
+//      printf ("+%i Langs", (int)m_mapUPD.size()-14);
+
+    CPOHandler& POHandler = m_mapMRG.at(sLCode);
+
+    POHandler.WritePOFile(strPODir);
+  }
+  return;
+}
+
+
+void CResourceHandler::GenerateMergedPOFiles()
+{
+
+  printf ("%s", RESET);
+//  if (!bMRGOrUPD && !m_mapMRG.empty())
+//    printf("\n");
+
+   // generate local merged addon.xml file
+  if (!m_XMLResData.bIsLanguageAddon)
+    m_AddonXMLHandler.GenerateAddonXMLFile(false);
+
+//  if (!bMRGOrUPD && !m_mapUPD.empty())
+//    printf("Languages to update from upstream to upload to Transifex:");
   size_t counter = 0;
 
   printf ("%s", KCYN);
@@ -372,28 +409,38 @@ bool CResourceHandler::WritePOToFiles(bool bMRGOrUPD)
   for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
   {
     const std::string& sLCode = itmapPOFiles->first;
-    std::string strPODir, strAddonDir;
-    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, strLangFormat, sLCode);
-
-    if (!bMRGOrUPD && counter < 15)
-      printf (" %s", sLCode.c_str());
-    if ((!bMRGOrUPD && counter == 14) && m_mapUPD.size() != 15)
-      printf ("+%i Langs", (int)m_mapUPD.size()-14);
 
     CPOHandler& POHandler = m_mapMRG.at(sLCode);
 
-    POHandler.WritePOFile(strPODir);
-
-    // Write individual addon.xml files for language-addons
-    if (!strAddonXMLPath.empty())
-    {
-      strAddonDir = g_CharsetUtils.ReplaceLanginURL(strAddonXMLPath, strLangFormat, sLCode);
-      POHandler.WriteLangAddonXML(strAddonDir);
-    }
+    POHandler.GeneratePOFile();
   }
 
+  return;
+}
 
-  return true;
+void CResourceHandler::GenerateUpdatePOFiles()
+{
+
+  printf ("%s", RESET);
+//  if (!bMRGOrUPD && !m_mapMRG.empty())
+//    printf("\n");
+
+  if (!m_mapUPD.empty())
+    printf("Languages to update from upstream to upload to Transifex:");
+  size_t counter = 0;
+
+  printf ("%s", KCYN);
+
+  for (T_itmapPOFiles itmapPOFiles = m_mapUPD.begin(); itmapPOFiles != m_mapUPD.end(); itmapPOFiles++)
+  {
+    const std::string& sLCode = itmapPOFiles->first;
+
+    CPOHandler& POHandler = m_mapUPD.at(sLCode);
+
+    POHandler.GeneratePOFile();
+  }
+
+  return;
 }
 
 T_itmapPOFiles CResourceHandler::IterateToMapIndex(T_itmapPOFiles it, size_t index)

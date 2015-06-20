@@ -42,8 +42,10 @@ public:
   CAddonXMLHandler();
   ~CAddonXMLHandler();
   void SetXMLReasData (const CXMLResdata& XMLResData) {m_XMLResData = XMLResData;}
-  bool UpdateAddonXMLFile (std::string strAddonXMLFilename, bool bUpdateVersion);
-  bool UpdateAddonChangelogFile (std::string strFilename, std::string strFormat, bool bUpdate);
+  void GenerateAddonXMLFile (bool bUpdateVersion);
+  void WriteAddonXMLFile (std::string strAddonXMLFilename);
+
+  bool WriteAddonChangelogFile (std::string strFilename, std::string strFormat, bool bUpdate);
   bool FetchAddonChangelogFile ();
   void FetchAddonDataFiles();
   std::string GetResHeaderPretext () const {return m_strResourceData;}

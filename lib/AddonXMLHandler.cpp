@@ -291,8 +291,12 @@ void CAddonXMLHandler::AddAddonXMLLangsToList(std::set<std::string>& listLangs)
   }
 }
 
+void CAddonXMLHandler::WriteAddonXMLFile (std::string strAddonXMLFilename)
+{
+  g_File.WriteFileFromStr(strAddonXMLFilename, m_strAddonXMLFile.c_str());
+}
 
-bool CAddonXMLHandler::UpdateAddonXMLFile (std::string strAddonXMLFilename, bool bUpdateVersion)
+void CAddonXMLHandler::GenerateAddonXMLFile (bool bUpdateVersion)
 {
   if (bUpdateVersion)
     UpdateVersionNumber();
@@ -306,14 +310,14 @@ bool CAddonXMLHandler::UpdateAddonXMLFile (std::string strAddonXMLFilename, bool
     posS1 = posE1;
     strXMLEntry = GetXMLEntry("<extension", posS1, posE1);
     if (posS1 == std::string::npos)
-      CLog::Log(logERROR, "AddonXMLHandler: UpdateAddonXML file problem: %s\n", strAddonXMLFilename.c_str());
+      CLog::Log(logERROR, "AddonXMLHandler: UpdateAddonXML file generate problem.\n");
   }
   while (strXMLEntry.find("point") == std::string::npos || strXMLEntry.find("xbmc.addon.metadata") == std::string::npos);
 
   posS2 = posE1+1;
   GetXMLEntry("</extension", posS2, posE2);
   if (posS2 == std::string::npos)
-  CLog::Log(logERROR, "AddonXMLHandler: UpdateAddonXML file problem: %s\n", strAddonXMLFilename.c_str());
+  CLog::Log(logERROR, "AddonXMLHandler: UpdateAddonXML file generate problem.\n");
 
   size_t posMetaDataStart = posE1 +1;
   size_t posMetaDataEnd = m_strAddonXMLFile.find_last_not_of("\t ", posS2-1);
@@ -389,7 +393,6 @@ bool CAddonXMLHandler::UpdateAddonXMLFile (std::string strAddonXMLFilename, bool
   }
 
   m_strAddonXMLFile.replace(posMetaDataStart, posMetaDataEnd -posMetaDataStart +1, strNewMetadata);
-  return g_File.WriteFileFromStr(strAddonXMLFilename, m_strAddonXMLFile.c_str());
 }
 
 std::string CAddonXMLHandler::GetXMLEntry (std::string const &strprefix, size_t &pos1, size_t &pos2)
@@ -399,7 +402,7 @@ std::string CAddonXMLHandler::GetXMLEntry (std::string const &strprefix, size_t 
   return m_strAddonXMLFile.substr(pos1, pos2 - pos1 +1);
 }
 
-bool CAddonXMLHandler::UpdateAddonChangelogFile (std::string strFilename, std::string strFormat, bool bUpdate)
+bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::string strFormat, bool bUpdate)
 {
   size_t pos1;
   if ((pos1 = strFormat.find("%i")) != std::string::npos)

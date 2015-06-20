@@ -208,7 +208,7 @@ void CPOHandler::ClearCPOEntry (CPOEntry &entry)
 };
 
 
-bool CPOHandler::WritePOFile(const std::string& strOutputPOFilename)
+void CPOHandler::GeneratePOFile()
 {
   ClearVariables();
 
@@ -230,25 +230,37 @@ bool CPOHandler::WritePOFile(const std::string& strOutputPOFilename)
   {
     T_itPOData& itPOEntry = it->second;
     CPOEntry& POEntry = itPOEntry->second;
-    WritePOEntry(POEntry);
-  }
 
+    if (m_POType == MERGEDPO && it->first < 3) // we have a merged po file, where we don' write addo.xml strings into the PO file
+    {
+      if (it->first == 0)
+        m_AddonXMLEntry.strSummary = POEntry.msgStr;
+      else if (it->first == 1)
+        m_AddonXMLEntry.strDescription = POEntry.msgStr;
+      else if (it->first == 2)
+        m_AddonXMLEntry.strDisclaimer = POEntry.msgStr;
+    }
+    else
+      WritePOEntry(POEntry);
+  }
+}
+
+void CPOHandler::WritePOFile(const std::string& strOutputPOFilename)
+{
   std::string strDir = g_File.GetPath(strOutputPOFilename);
   g_File.MakeDir(strDir);
 
   // Initalize the output po document
   FILE * pPOTFile = fopen (strOutputPOFilename.c_str(),"wb");
   if (pPOTFile == NULL)
-  {
     CLog::Log(logERROR, "POParser: Error opening output file: %s\n", strOutputPOFilename.c_str());
-    return false;
-  }
+
   if (m_strOutBuffer.find('\x00') != std::string::npos)
     CLog::Log(logERROR, "CPHandler::SaveFile: Unexpected zero byte in file: %s", strOutputPOFilename.c_str());
   fprintf(pPOTFile, "%s", m_strOutBuffer.c_str());
   fclose(pPOTFile);
 
-  return true;
+  return;
 };
 
 // Data manipulation functions
