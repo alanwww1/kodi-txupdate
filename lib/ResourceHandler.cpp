@@ -185,12 +185,15 @@ void CResourceHandler::MergeResource()
 {
   std::list<std::string> listMergedLangs = CreateMergedLangList();
   CPOHandler& POHandlUPSSRC = m_mapUPS.at(m_XMLResData.strSourceLcode);
+  bool bResChangedFromUPS = false;
+
   for (std::list<std::string>::iterator itlang = listMergedLangs.begin(); itlang != listMergedLangs.end(); itlang++)
   {
     const std::string& sLCode = *itlang;
+    bool bPOChangedFromUPS = false;
 
-    // check if lcode is the source lcode. If so we don't iterate through the entries.
-    // We just check if it has changed from the last uploaded one
+    // check if lcode is the source lcode. If so we check if it has changed from the last uploaded one
+    // if it has has changed set flag that we need to write a complete update PO file for the SRC language
     bool bWriteUPDFileSRC = false;
     if (sLCode == m_XMLResData.strSourceLcode)
     {
@@ -227,6 +230,15 @@ void CResourceHandler::MergeResource()
       {
         T_itPOData itPOTRX = GetTRXItFoundEntry();
         m_mapMRG[sLCode].AddItEntry(itPOTRX);
+
+        if (!bisInUPS) // check if this is a new translation at transifex, if so make changed flag true
+          bPOChangedFromUPS = true;
+        else
+        {
+          T_itPOData itPOUPS = GetUPSItFoundEntry();
+          bPOChangedFromUPS = bPOChangedFromUPS || (itPOTRX->second.msgStr != itPOUPS->second.msgStr) ||
+                              (itPOTRX->second.msgStrPlural != itPOUPS->second.msgStrPlural);
+        }
       }
       else if (bisInUPS)
       {
@@ -245,6 +257,13 @@ void CResourceHandler::MergeResource()
     if (m_XMLResData.bIsLanguageAddon)
       MRGPOHandler.SetLangAddonXMLString(m_mapUPS[sLCode].GetLangAddonXMLString());
 
+    if (bPOChangedFromUPS)
+    {
+      if (m_XMLResData.bIsLanguageAddon)
+        MRGPOHandler.BumpLangAddonXMLVersion();
+      bResChangedFromUPS = true;
+    }
+
     if (m_mapUPD.find(sLCode) != m_mapUPD.end())
     {
       CPOHandler& UPDPOHandler = m_mapUPD[sLCode];
@@ -254,6 +273,8 @@ void CResourceHandler::MergeResource()
       UPDPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
     }
   }
+  if (bResChangedFromUPS && !m_XMLResData.bIsLanguageAddon)
+    m_AddonXMLHandler.SetBumpAddonVersion();
   return;
 }
 
@@ -329,7 +350,7 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
   {
     m_AddonXMLHandler.WriteAddonXMLFile(sAddonXMLPath);
     if (!m_XMLResData.strChangelogFormat.empty())
-      m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath, m_XMLResData.strChangelogFormat, false);
+      m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath, m_XMLResData.strChangelogFormat);
   }
 
   if (m_XMLResData.bHasOnlyAddonXML)
@@ -418,7 +439,7 @@ void CResourceHandler::GenerateMergedPOFiles()
   }
 
   if (!m_XMLResData.bIsLanguageAddon)
-    m_AddonXMLHandler.GenerateAddonXMLFile(false);
+    m_AddonXMLHandler.GenerateAddonXMLFile();
 
 
   return;

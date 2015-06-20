@@ -36,7 +36,9 @@
 using namespace std;
 
 CAddonXMLHandler::CAddonXMLHandler()
-{};
+{
+  m_bBumpAddoXMLVersion = false;
+};
 
 CAddonXMLHandler::~CAddonXMLHandler()
 {};
@@ -296,9 +298,9 @@ void CAddonXMLHandler::WriteAddonXMLFile (std::string strAddonXMLFilename)
   g_File.WriteFileFromStr(strAddonXMLFilename, m_strAddonXMLFile.c_str());
 }
 
-void CAddonXMLHandler::GenerateAddonXMLFile (bool bUpdateVersion)
+void CAddonXMLHandler::GenerateAddonXMLFile ()
 {
-  if (bUpdateVersion)
+  if (m_bBumpAddoXMLVersion)
     UpdateVersionNumber();
 
   std::string strXMLEntry;
@@ -402,7 +404,7 @@ std::string CAddonXMLHandler::GetXMLEntry (std::string const &strprefix, size_t 
   return m_strAddonXMLFile.substr(pos1, pos2 - pos1 +1);
 }
 
-bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::string strFormat, bool bUpdate)
+bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::string strFormat)
 {
   size_t pos1;
   if ((pos1 = strFormat.find("%i")) != std::string::npos)
@@ -416,7 +418,7 @@ bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::st
   if ((pos1 = strFormat.find("%M")) != std::string::npos)
     strFormat.replace(pos1, 2, g_File.GetCurrMonthText().c_str());
 
-  if  (bUpdate)
+  if  (m_bBumpAddoXMLVersion)
     m_strChangelogFile = strFormat + m_strChangelogFile;
 
   return g_File.WriteFileFromStr(strFilename, m_strChangelogFile.c_str());

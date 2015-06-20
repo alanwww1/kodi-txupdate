@@ -42,10 +42,11 @@ public:
   CAddonXMLHandler();
   ~CAddonXMLHandler();
   void SetXMLReasData (const CXMLResdata& XMLResData) {m_XMLResData = XMLResData;}
-  void GenerateAddonXMLFile (bool bUpdateVersion);
+  void SetBumpAddonVersion () {m_bBumpAddoXMLVersion = true;}
+  void GenerateAddonXMLFile ();
   void WriteAddonXMLFile (std::string strAddonXMLFilename);
 
-  bool WriteAddonChangelogFile (std::string strFilename, std::string strFormat, bool bUpdate);
+  bool WriteAddonChangelogFile (std::string strFilename, std::string strFormat);
   bool FetchAddonChangelogFile ();
   void FetchAddonDataFiles();
   std::string GetResHeaderPretext () const {return m_strResourceData;}
@@ -86,6 +87,7 @@ typedef std::map<std::string, CAddonXMLEntry>::iterator T_itAddonXMLData;
   std::string m_strAddonVersion;
   std::string m_strChangelogFile;
   std::string m_strLogFilename;
+  bool m_bBumpAddoXMLVersion;
   COtherAddonMetadata m_AddonMetadata;
   CXMLResdata m_XMLResData;
 };
