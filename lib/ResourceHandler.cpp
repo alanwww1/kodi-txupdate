@@ -247,7 +247,7 @@ void CResourceHandler::MergeResource()
 
     if (m_mapUPD.find(sLCode) != m_mapUPD.end())
     {
-      CPOHandler& UPDPOHandler = m_mapMRG[sLCode];
+      CPOHandler& UPDPOHandler = m_mapUPD[sLCode];
       UPDPOHandler.SetXMLReasData(m_XMLResData);
       UPDPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
       UPDPOHandler.SetPOType(UPDATEPO);
@@ -323,7 +323,7 @@ T_itPOData CResourceHandler::GetTRXItFoundEntry()
   return m_lastTRXIterator->second.GetItFoundEntry();
 }
 
-void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sChangeLogPath, const std::string& sLangPath )
+void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sChangeLogPath, const std::string& sLangPath)
 {
   if (!m_XMLResData.bIsLanguageAddon)
   {

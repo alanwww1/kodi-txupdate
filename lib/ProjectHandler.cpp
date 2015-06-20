@@ -155,10 +155,11 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     ResHandler.GenerateUpdatePOFiles ();
     ResHandler.WriteUpdatePOFiles (sPathUpdate);
 
-    std::string sAddonXMLPath = XMLResData.strProjRootdir + DirSepChar + XMLResData.strMergedLangfileDir + DirSepChar + XMLResData.strLOCAddonPath;
-    std::string sChangeLogPath =  XMLResData.strProjRootdir + DirSepChar + XMLResData.strMergedLangfileDir + DirSepChar + XMLResData.strLOCChangelogPath;
-    std::string sLangPath  = XMLResData.strProjRootdir + XMLResData.strMergedLangfileDir + DirSepChar + XMLResData.strLOCLangPath;
-    std::string sLangAddonXMLPath = XMLResData.strProjRootdir + XMLResData.strMergedLangfileDir + DirSepChar + XMLResData.strLOCAddonPath;
+    std::string sMergedLangDir = XMLResData.strProjRootdir + DirSepChar + XMLResData.strMergedLangfileDir + DirSepChar;
+    std::string sAddonXMLPath = sMergedLangDir + XMLResData.strLOCAddonPath;
+    std::string sChangeLogPath =  sMergedLangDir + XMLResData.strLOCChangelogPath;
+    std::string sLangPath  = sMergedLangDir + XMLResData.strLOCLangPath;
+    std::string sLangAddonXMLPath = sMergedLangDir + XMLResData.strLOCAddonPath;
     ResHandler.GenerateMergedPOFiles ();
     ResHandler.WriteMergedPOFiles (sAddonXMLPath, sLangAddonXMLPath, sChangeLogPath, sLangPath);
 

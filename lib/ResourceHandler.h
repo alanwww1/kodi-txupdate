@@ -40,7 +40,7 @@ public:
 
   void GenerateMergedPOFiles();
   void GenerateUpdatePOFiles();
-  void WriteMergedPOFiles(const std::string& strPath);
+  void WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sChangeLogPath, const std::string& sLangPath);
   void WriteUpdatePOFiles(const std::string& strPath);
 
 //  size_t GetLangsCount() const {return m_mapPOFiles.size();}
