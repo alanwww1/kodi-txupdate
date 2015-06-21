@@ -635,3 +635,54 @@ void CResourceHandler::PrintChangedLangs(std::list<std::string> lChangedLangs)
   }
   printf ("%s", RESET);
 }
+
+void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
+{
+  g_HTTPHandler.Cleanup();
+  g_HTTPHandler.ReInit();
+  printf ("TXresourcelist");
+
+  //TODO
+  const std::string& strTargetProjectName = m_XMLResData.strTargetProjectName;
+
+
+  printf ("Uploading files for resource: %s%s%s", KMAG, m_XMLResData.strResName.c_str(), RESET);
+
+
+  if (m_mapUPD.empty()) // No update needed for the specific resource (not even an English one)
+  {
+    printf (", no upload was necesarry.\n");
+    return;
+  }
+
+  if (bNewResourceOnTRX)
+  {
+    // We create the new resource on transifex and also upload the English source file at once
+
+    m_mapUPD.at(m_XMLResData.strSourceLcode).CreateNewResource();
+
+    g_HTTPHandler.Cleanup();
+    g_HTTPHandler.ReInit();
+
+    //TODO change directory to the right location of the cache file (even if it is different)
+    g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/", "GET");
+  }
+
+  printf ("\n");
+
+  // Upload the source file in case there is one to update
+  if (m_mapUPD.find(m_XMLResData.strSourceLcode) != m_mapUPD.end() && !bNewResourceOnTRX)
+    m_mapUPD.at(m_XMLResData.strSourceLcode).PutSRCFileToTRX();
+
+
+  for (T_itmapPOFiles it = m_mapUPD.begin(); it!=m_mapUPD.end(); it++)
+  {
+    const std::string& sLCode = it->first;
+    CPOHandler& POHandler = it->second;
+
+    if (sLCode == m_XMLResData.strSourceLcode) // Let's not upload the Source language file again
+      continue;
+
+    POHandler.PutTranslFileToTRX();
+  }
+}

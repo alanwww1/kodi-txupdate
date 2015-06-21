@@ -214,7 +214,7 @@ int main(int argc, char* argv[])
       printf("UPLOADING LANGUAGE FILES TO TRANSIFEX.NET\n");
       printf("-----------------------------------------%s\n", RESET);
 
-//      TXProject.UploadTXUpdateFiles(WorkingDir);
+      TXProject.UploadTXUpdateFiles(WorkingDir);
     }
     if (bTransferTranslators)
     {

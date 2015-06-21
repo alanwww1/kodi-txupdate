@@ -1036,3 +1036,51 @@ void CPOHandler::WriteMultilineComment(std::vector<std::string> vecCommnts, std:
   }
   return;
 };
+
+void CPOHandler::CreateNewResource()
+{
+  g_HTTPHandler.Cleanup();
+  g_HTTPHandler.ReInit();
+
+  size_t iAddedNew;
+  g_HTTPHandler.CreateNewResource(m_strOutBuffer, m_XMLResData, iAddedNew);
+  printf (", newly created on Transifex with %s%lu%s English strings.\n", KGRN, iAddedNew, RESET);
+}
+
+void CPOHandler::PutSRCFileToTRX()
+{
+  g_HTTPHandler.Cleanup();
+  g_HTTPHandler.ReInit();
+
+  bool bUploaded;
+  size_t iAddedNew, iUpdated;
+  g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
+  "/resource/" + m_XMLResData.strTargetTXName + "/content/", bUploaded, iAddedNew, iUpdated);
+
+  if (bUploaded)
+    printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
+  else
+    printf ("\tlangcode: %s:\t no change, skipping.\n", m_sLCode.c_str());
+}
+
+void CPOHandler::PutTranslFileToTRX()
+{
+  g_HTTPHandler.Cleanup();
+  g_HTTPHandler.ReInit();
+
+  bool bUploaded;
+  size_t iAddedNew, iUpdated;
+  g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
+                             "/resource/" + m_XMLResData.strTargetTXName + "/translation/"
+                             + g_LCodeHandler.GetLangFromLCode(m_sLCode, m_XMLResData.strTargTXLFormat) + "/", bUploaded, iAddedNew, iUpdated);
+  if (bUploaded)
+    printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
+  else
+    printf ("\tlangcode: %s:\t no change, skipping.\n", m_sLCode.c_str());
+
+  g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
+                                 "/resource/" + m_XMLResData.strResName + "/stats/", "GET");
+  g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
+                                 "/resource/" + m_XMLResData.strResName + "/translation/" +
+                                 g_LCodeHandler.GetLangFromLCode(m_sLCode, m_XMLResData.strTargTXLFormat) + "/?file", "GET");
+}

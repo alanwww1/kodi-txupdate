@@ -26,6 +26,7 @@
 #include <cctype>
 #include "Fileversioning.h"
 #include "jsoncpp/json/json.h"
+#include "Langcodes.h"
 
 
 CHTTPHandler g_HTTPHandler;
@@ -356,8 +357,8 @@ std::string CHTTPHandler::URLEncode (std::string strURL)
 
 
 
-bool CHTTPHandler::PutFileToURL(std::string const &strFilePath, std::string const &strURL, bool &buploaded,
-                                size_t &stradded, size_t &strupd)
+bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &strURL, bool &bUploaded,
+                                size_t &iAddedNew, size_t &iUpdated)
 {
   std::string strBuffer;
   std::string strCacheFile = CacheFileNameFromURL(strURL);
@@ -371,9 +372,8 @@ bool CHTTPHandler::PutFileToURL(std::string const &strFilePath, std::string cons
 //    return true;
 //  }
 
-  CLog::Log(logINFO, "HTTPHandler::PutFileToURL: Uploading file to Transifex: %s", strFilePath.c_str());
 
-  long result = curlPUTPOFileToURL(strFilePath, strURL, stradded, strupd, true);
+  long result = curlPUTPOStrToURL(sPOFile, strURL, iAddedNew, iUpdated, true);
   if (result < 200 || result >= 400)
   {
     CLog::Log(logERROR, "HTTPHandler::PutFileToURL: File upload was unsuccessful, http errorcode: %i", result);
@@ -381,14 +381,14 @@ bool CHTTPHandler::PutFileToURL(std::string const &strFilePath, std::string cons
   }
 
   CLog::Log(logINFO, "HTTPHandler::PutFileToURL: File upload was successful so creating a copy at the .httpcache directory");
-  g_File.CopyFile(strFilePath, strCacheFile);
+//  g_File.CopyFile(strFilePath, strCacheFile);
 
-  buploaded = true;
+  bUploaded = true;
 
   return true;
 };
 
-long CHTTPHandler::curlPUTPOFileToURL(std::string const &strFilePath, std::string const &cstrURL, size_t &stradded, size_t &strupd, bool bIsPO)
+long CHTTPHandler::curlPUTPOStrToURL(std::string const &strFilePath, std::string const &cstrURL, size_t &stradded, size_t &strupd, bool bIsPO)
 {
   CURLcode curlResult;
 
@@ -524,24 +524,28 @@ bool CHTTPHandler::ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pP
   return true;
 }
 
-bool CHTTPHandler::CreateNewResource(std::string strResname, std::string strENPOFilePath, std::string strURL, size_t &stradded,
-                                     std::string const &strURLENTransl)
+bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResdata& XMLResData, size_t &iAddedNew)
 {
-  std::string strCacheFile = CacheFileNameFromURL(strURLENTransl);
-  strCacheFile = m_strCacheDir + "PUT/" + strCacheFile;
+
+  std::string sURLCreateRes = "https://www.transifex.com/api/2/project/" + XMLResData.strTargetProjectName + "/resources/";
+
+  std::string sURLSRCRes = "https://www.transifex.com/api/2/project/" + XMLResData.strTargetProjectName + "/resource/" +
+                           XMLResData.strTargetTXName + "/translation/" +
+                           g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strTargetTXName) + "/";
+
+  std::string sCacheFile = CacheFileNameFromURL(sURLSRCRes);
+  sCacheFile = m_strCacheDir + "PUT/" + sCacheFile;
 
   CURLcode curlResult;
 
-  strURL = URLEncode(strURL);
+  sURLCreateRes = URLEncode(sURLCreateRes);
 
-  std::string strPO = g_File.ReadFileToStr(strENPOFilePath);
-
-  std::string strPOJson = CreateNewresJSONStrFromPOStr(strResname, strPO);
+  std::string strPOJson = CreateNewresJSONStrFromPOStr(XMLResData.strResName, sPOFile);
 
   std::string strServerResp;
-  CLoginData LoginData = GetCredentials(strURL);
+  CLoginData LoginData = GetCredentials(sURLCreateRes);
 
-  if(m_curlHandle) 
+  if(m_curlHandle)
   {
     int nretry = 0;
     bool bSuccess;
@@ -562,7 +566,7 @@ bool CHTTPHandler::CreateNewResource(std::string strResname, std::string strENPO
 
       curl_easy_setopt(m_curlHandle, CURLOPT_READFUNCTION, Read_CurlData_String);
       curl_easy_setopt(m_curlHandle, CURLOPT_WRITEFUNCTION, Write_CurlData_String);
-      curl_easy_setopt(m_curlHandle, CURLOPT_URL, strURL.c_str());
+      curl_easy_setopt(m_curlHandle, CURLOPT_URL, sURLCreateRes.c_str());
       curl_easy_setopt(m_curlHandle, CURLOPT_POST, 1L);
       if (!LoginData.strLogin.empty())
       {
@@ -578,7 +582,6 @@ bool CHTTPHandler::CreateNewResource(std::string strResname, std::string strENPO
       curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, 0);
       curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, 0);
       curl_easy_setopt(m_curlHandle, CURLOPT_VERBOSE, 0);
-//      curl_easy_setopt(m_curlHandle, CURLOPT_SSLVERSION, 3);
 
       curlResult = curl_easy_perform(m_curlHandle);
 
@@ -591,19 +594,21 @@ bool CHTTPHandler::CreateNewResource(std::string strResname, std::string strENPO
 
     if (bSuccess)
       CLog::Log(logINFO, "CHTTPHandler::CreateNewResource finished with success for resource %s from EN PO file %s to URL %s",
-                strResname.c_str(), strENPOFilePath.c_str(), strURL.c_str());
+                XMLResData.strResName.c_str(), sURLSRCRes.c_str(), sURLCreateRes.c_str());
     else
       CLog::Log(logERROR, "CHTTPHandler::CreateNewResource finished with error:\ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\nlocaldir: %s\nREsource: %s",
-                curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), strURL.c_str(), strENPOFilePath.c_str(), strResname.c_str());
+                curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), sURLCreateRes.c_str(),
+                sURLSRCRes.c_str(), XMLResData.strResName.c_str());
 
-    g_File.CopyFile(strENPOFilePath, strCacheFile);
-    ParseUploadedStrForNewRes(strServerResp, stradded);
+    g_File.CopyFile(sURLCreateRes, sCacheFile);
+    ParseUploadedStrForNewRes(strServerResp, iAddedNew);
 
-    return http_code;
+    return true;
   }
   else
     CLog::Log(logERROR, "CHTTPHandler::CreateNewResource failed because Curl was not initalized");
-  return 700;
+
+  return false;
 };
 
 void CHTTPHandler::DeleteCachedFile (std::string const &strURL, std::string strPrefix)

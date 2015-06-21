@@ -195,327 +195,7 @@ bool CProjectHandler::CreateMergedResources()
     ResHandler.MergeResource();
   }
 
-    /*
-    CResourceHandler mergedResHandler(XMLResData), updTXResHandler(XMLResData);
-    std::list<std::string> lAddXMLLangsChgedFromUpstream, lLangsChgedFromUpstream;
-
-    // Get available pretext for Resource Header. we use the upstream one
-    std::string strResPreHeader;
-    if (m_mapResourcesUpstr.find(*itResAvail) != m_mapResourcesUpstr.end())
-      strResPreHeader = m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetResHeaderPretext();
-    else
-      CLog::Log(logERROR, "CreateMergedResources: Not able to read addon data for header text");
-
-    CAddonXMLEntry * pENAddonXMLEntry;
-    bool bIsResourceLangAddon = m_mapResourcesUpstr[*itResAvail].GetIfIsLangaddon();
-
-    if ((pENAddonXMLEntry = GetAddonDataFromXML(&m_mapResourcesUpstr, *itResAvail, XMLResData.strSourceLcode)) != NULL)
-    {
-      mergedResHandler.GetXMLHandler()->SetStrAddonXMLFile(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetStrAddonXMLFile());
-      mergedResHandler.GetXMLHandler()->SetAddonVersion(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonVersion());
-      mergedResHandler.GetXMLHandler()->SetAddonChangelogFile(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonChangelogFile());
-      mergedResHandler.GetXMLHandler()->SetAddonLogFilename(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonLogFilename());
-      mergedResHandler.GetXMLHandler()->SetAddonMetadata(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonMetaData());
-      updTXResHandler.GetXMLHandler()->SetStrAddonXMLFile(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetStrAddonXMLFile());
-      updTXResHandler.GetXMLHandler()->SetAddonVersion(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonVersion());
-      updTXResHandler.GetXMLHandler()->SetAddonChangelogFile(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonChangelogFile());
-      updTXResHandler.GetXMLHandler()->SetAddonLogFilename(m_mapResourcesUpstr[*itResAvail].GetXMLHandler()->GetAddonLogFilename());
-    }
-    else if (!bIsResourceLangAddon)
-      CLog::Log(logERROR, "CreateMergedResources: No Upstream AddonXML file found as source for merging");
-
-    std::list<std::string> listMergedLangs = CreateMergedLanguageList(*itResAvail);
-
-    CPOHandler * pcurrPOHandlerEN = m_mapResourcesUpstr[*itResAvail].GetPOData(XMLResData.strSourceLcode);
-
-    for (std::list<std::string>::iterator itlang = listMergedLangs.begin(); itlang != listMergedLangs.end(); itlang++)
-    {
-      CLog::SetSyntaxLang(*itlang);
-      std::string strLangCode = *itlang;
-      CPOHandler mergedPOHandler(XMLResData), updTXPOHandler (XMLResData);
-      const CPOEntry* pPOEntryTX;
-      const CPOEntry* pPOEntryUpstr;
-      bool bResChangedInAddXMLFromUpstream = false; bool bResChangedFromUpstream = false;
-
-      mergedPOHandler.SetIfIsSourceLang(strLangCode == XMLResData.strSourceLcode);
-      updTXPOHandler.SetIfIsSourceLang(strLangCode == XMLResData.strSourceLcode);
-      updTXPOHandler.SetIfPOIsUpdTX(true);
-
-      CAddonXMLEntry MergedAddonXMLEntry, MergedAddonXMLEntryTX;
-      CAddonXMLEntry * pAddonXMLEntry;
-
-      // Get addon.xml file translatable strings from Transifex to the merged Entry
-      if (m_mapResourcesTX.find(*itResAvail) != m_mapResourcesTX.end() && m_mapResourcesTX[*itResAvail].GetPOData(*itlang))
-      {
-        CAddonXMLEntry AddonXMLEntryInPO, AddonENXMLEntryInPO;
-        m_mapResourcesTX[*itResAvail].GetPOData(*itlang)->GetAddonMetaData(AddonXMLEntryInPO, AddonENXMLEntryInPO);
-        MergeAddonXMLEntry(AddonXMLEntryInPO, MergedAddonXMLEntry, *pENAddonXMLEntry, AddonENXMLEntryInPO, false,
-                           bResChangedInAddXMLFromUpstream);
-      }
-      // Save these strings from Transifex for later use
-      MergedAddonXMLEntryTX = MergedAddonXMLEntry;
-
-      // Get the addon.xml file translatable strings from upstream merged into the merged entry
-      if ((pAddonXMLEntry = GetAddonDataFromXML(&m_mapResourcesUpstr, *itResAvail, *itlang)) != NULL)
-        MergeAddonXMLEntry(*pAddonXMLEntry, MergedAddonXMLEntry, *pENAddonXMLEntry,
-                           *GetAddonDataFromXML(&m_mapResourcesUpstr, *itResAvail, XMLResData.strSourceLcode), true, bResChangedInAddXMLFromUpstream);
-      else if (!MergedAddonXMLEntryTX.strDescription.empty() || !MergedAddonXMLEntryTX.strSummary.empty() ||
-               !MergedAddonXMLEntryTX.strDisclaimer.empty())
-        bResChangedInAddXMLFromUpstream = true;
-
-      if (!bIsResourceLangAddon)
-      {
-        mergedResHandler.GetXMLHandler()->GetMapAddonXMLData()->operator[](*itlang) = MergedAddonXMLEntry;
-        updTXResHandler.GetXMLHandler()->GetMapAddonXMLData()->operator[](*itlang) = MergedAddonXMLEntry;
-        updTXPOHandler.SetAddonMetaData(MergedAddonXMLEntry, MergedAddonXMLEntryTX, *pENAddonXMLEntry, *itlang); // add addonxml data as PO  classic entries
-      }
-
-
-      // Handle classic non-id based po entries
-      for (size_t POEntryIdx = 0; pcurrPOHandlerEN && POEntryIdx != pcurrPOHandlerEN->GetClassEntriesCount(); POEntryIdx++)
-      {
-
-        CPOEntry currPOEntryEN = *(pcurrPOHandlerEN->GetClassicPOEntryByIdx(POEntryIdx));
-        currPOEntryEN.msgStr.clear();
-        CPOEntry* pcurrPOEntryEN = &currPOEntryEN;
-
-        pPOEntryTX = SafeGetPOEntry(m_mapResourcesTX, *itResAvail, strLangCode, currPOEntryEN);
-        pPOEntryUpstr = SafeGetPOEntry(m_mapResourcesUpstr, *itResAvail, strLangCode, currPOEntryEN);
-
-//        CheckPOEntrySyntax(pPOEntryTX, strLangCode, pcurrPOEntryEN, XMLResData);
-
-        if (strLangCode == XMLResData.strSourceLcode)
-        {
-          mergedPOHandler.AddClassicEntry(*pcurrPOEntryEN, *pcurrPOEntryEN, true);
-          updTXPOHandler.AddClassicEntry(*pcurrPOEntryEN, *pcurrPOEntryEN, true);
-        }
-        else if (pPOEntryTX && pcurrPOEntryEN->msgIDPlur.empty() && !pPOEntryTX->msgStr.empty()) // Tx entry single
-        {
-          mergedPOHandler.AddClassicEntry(*pPOEntryTX, *pcurrPOEntryEN, true);
-          if (XMLResData.bForceTXUpd)
-            updTXPOHandler.AddClassicEntry(*pPOEntryTX, *pcurrPOEntryEN, true);
-          //Check if the string is new on TX or changed from the upstream one -> Addon version bump later
-          if (!pPOEntryUpstr || pPOEntryUpstr->msgStr.empty())
-          {
-            CPOEntry POEntryToCompare = *pPOEntryTX;
-            POEntryToCompare.msgIDPlur.clear();
-            POEntryToCompare.Type = 0;
-            if (!pPOEntryUpstr || !(*pPOEntryUpstr == POEntryToCompare))
-              bResChangedFromUpstream = true;
-          }
-        }
-        else if (pPOEntryTX && !pcurrPOEntryEN->msgIDPlur.empty() && !pPOEntryTX->msgStrPlural.empty()) // Tx entry plural
-        {
-          mergedPOHandler.AddClassicEntry(*pPOEntryTX, *pcurrPOEntryEN, true);
-          if (XMLResData.bForceTXUpd)
-            updTXPOHandler.AddClassicEntry(*pPOEntryTX, *pcurrPOEntryEN, true);
-          //Check if the string is new on TX or changed from the upstream one -> Addon version bump later
-          if (!pPOEntryUpstr || pPOEntryUpstr->msgStrPlural.empty())
-          {
-            CPOEntry POEntryToCompare = *pPOEntryTX;
-            POEntryToCompare.msgID.clear();
-            POEntryToCompare.Type = 0;
-            if (!pPOEntryUpstr || !(*pPOEntryUpstr == POEntryToCompare))
-              bResChangedFromUpstream = true;
-          }
-        }
-        else if (pPOEntryUpstr && pcurrPOEntryEN->msgIDPlur.empty() && !pPOEntryUpstr->msgStr.empty()) // Upstr entry single
-        {
-          mergedPOHandler.AddClassicEntry(*pPOEntryUpstr, *pcurrPOEntryEN, true);
-          updTXPOHandler.AddClassicEntry(*pPOEntryUpstr, *pcurrPOEntryEN, false);
-        }
-        else if (pPOEntryUpstr && !pcurrPOEntryEN->msgIDPlur.empty() && !pPOEntryUpstr->msgStrPlural.empty()) // Upstr entry plural
-        {
-          mergedPOHandler.AddClassicEntry(*pPOEntryUpstr, *pcurrPOEntryEN, true);
-          updTXPOHandler.AddClassicEntry(*pPOEntryUpstr, *pcurrPOEntryEN, false);
-        }
-      }
-
-      CPOHandler * pPOHandlerTX, * pPOHandlerUpstr;
-      pPOHandlerTX = SafeGetPOHandler(m_mapResourcesTX, *itResAvail, strLangCode);
-      pPOHandlerUpstr = SafeGetPOHandler(m_mapResourcesUpstr, *itResAvail, strLangCode);
-
-      if (mergedPOHandler.GetClassEntriesCount() !=0)
-      {
-        if (bIsResourceLangAddon && pPOHandlerUpstr) // Copy the individual addon.xml files from upstream to merged resource for language-addons
-        {
-          mergedPOHandler.SetLangAddonXMLString(pPOHandlerUpstr->GetLangAddonXMLString());
-          if (bResChangedFromUpstream)
-            mergedPOHandler.BumpLangAddonXMLVersion();  // bump minor version number of the language-addon
-        }
-        else if (bIsResourceLangAddon && !pPOHandlerUpstr)
-          CLog::Log(logWARNING, "Warning: No addon xml file exist for resource: %s and language: %s\nPlease create one upstream to be able to use this new language",
-                    itResAvail->c_str(), strLangCode.c_str());
-
-        mergedPOHandler.SetPreHeader(strResPreHeader);
-        mergedPOHandler.SetHeaderNEW(*itlang);
-        mergedResHandler.AddPOData(mergedPOHandler, strLangCode);
-      }
-
-      if ((updTXPOHandler.GetClassEntriesCount() !=0) && (strLangCode != XMLResData.strSourceLcode || XMLResData.bForceTXUpd ||
-        !g_HTTPHandler.ComparePOFilesInMem(&updTXPOHandler, pPOHandlerTX, strLangCode == XMLResData.strSourceLcode)))
-      {
-        updTXPOHandler.SetPreHeader(strResPreHeader);
-        updTXPOHandler.SetHeaderNEW(*itlang);
-        updTXResHandler.AddPOData(updTXPOHandler, strLangCode);
-      }
-
-      CLog::LogTable(logINFO, "merged", "\t\t\t%s\t\t%i\t\t%i", strLangCode.c_str(), mergedPOHandler.GetClassEntriesCount(), updTXPOHandler.GetClassEntriesCount());
-
-     //store what languages changed from upstream in strings.po and addon.xml files
-     if (bResChangedFromUpstream)
-       lLangsChgedFromUpstream.push_back(strLangCode);
-     if (bResChangedInAddXMLFromUpstream)
-       lAddXMLLangsChgedFromUpstream.push_back(strLangCode);
-    }
-    CLog::LogTable(logADDTABLEHEADER, "merged", "--------------------------------------------------------------------------------------------\n");
-    CLog::LogTable(logADDTABLEHEADER, "merged", "MergedPOHandler:\tLang\t\tmergedID\tmergedClass\tupdID\t\tupdClass\n");
-    CLog::LogTable(logADDTABLEHEADER, "merged", "--------------------------------------------------------------------------------------------\n");
-    CLog::LogTable(logCLOSETABLE, "merged",   "");
-
-    mergedResHandler.SetChangedLangsFromUpstream(lLangsChgedFromUpstream);
-    mergedResHandler.SetChangedLangsInAddXMLFromUpstream(lAddXMLLangsChgedFromUpstream);
-
-    if (mergedResHandler.GetLangsCount() != 0 || !mergedResHandler.GetXMLHandler()->GetMapAddonXMLData()->empty())
-      m_mapResMerged[*itResAvail] = mergedResHandler;
-    if (updTXResHandler.GetLangsCount() != 0 || !updTXResHandler.GetXMLHandler()->GetMapAddonXMLData()->empty())
-      m_mapResUpdateTX[*itResAvail] = updTXResHandler;
-    CLog::DecIdent(4);
-  }
-*/
   return true;
-}
-/*
-std::list<std::string> CProjectHandler::CreateMergedLanguageList(std::string strResname)
-{
-  std::list<std::string> listMergedLangs;
-
-  if (m_mapResourcesTX.find(strResname) != m_mapResourcesTX.end())
-  {
-
-    // Add languages exist in transifex PO files
-    for (size_t i =0; i != m_mapResourcesTX[strResname].GetLangsCount(); i++)
-    {
-      std::string strMLCode = m_mapResourcesTX[strResname].GetLangCodeFromPos(i);
-      if (std::find(listMergedLangs.begin(), listMergedLangs.end(), strMLCode) == listMergedLangs.end())
-        listMergedLangs.push_back(strMLCode);
-    }
-  }
-
-  if (m_mapResourcesUpstr.find(strResname) != m_mapResourcesUpstr.end())
-  {
-
-    // Add languages exist in upstream PO or XML files
-    for (size_t i =0; i != m_mapResourcesUpstr[strResname].GetLangsCount(); i++)
-    {
-      std::string strMLCode = m_mapResourcesUpstr[strResname].GetLangCodeFromPos(i);
-      if (std::find(listMergedLangs.begin(), listMergedLangs.end(), strMLCode) == listMergedLangs.end())
-        listMergedLangs.push_back(strMLCode);
-    }
-
-    // Add languages only exist in addon.xml files
-    std::map<std::string, CAddonXMLEntry> * pMapUpstAddonXMLData = m_mapResourcesUpstr[strResname].GetXMLHandler()->GetMapAddonXMLData();
-    for (std::map<std::string, CAddonXMLEntry>::iterator it = pMapUpstAddonXMLData->begin(); it != pMapUpstAddonXMLData->end(); it++)
-    {
-      if (std::find(listMergedLangs.begin(), listMergedLangs.end(), it->first) == listMergedLangs.end())
-        listMergedLangs.push_back(it->first);
-    }
-  }
-
-  return listMergedLangs;
-}
-
-std::list<std::string> CProjectHandler::CreateResourceList()
-{
-  std::list<std::string> listMergedResources;
-  for (T_itmapRes it = m_mapResourcesUpstr.begin(); it != m_mapResourcesUpstr.end(); it++)
-  {
-    if (std::find(listMergedResources.begin(), listMergedResources.end(), it->first) == listMergedResources.end())
-      listMergedResources.push_back(it->first);
-  }
-
-  for (T_itmapRes it = m_mapResourcesTX.begin(); it != m_mapResourcesTX.end(); it++)
-  {
-    if (std::find(listMergedResources.begin(), listMergedResources.end(), it->first) == listMergedResources.end())
-      listMergedResources.push_back(it->first);
-  }
-
-  return listMergedResources;
-}
-
-CAddonXMLEntry * const CProjectHandler::GetAddonDataFromXML(std::map<std::string, CResourceHandler> * pmapRes,
-                                                            const std::string &strResname, const std::string &strLangCode) const
-{
-  if (pmapRes->find(strResname) == pmapRes->end())
-    return NULL;
-
-  CResourceHandler * pRes = &(pmapRes->operator[](strResname));
-  if (pRes->GetXMLHandler()->GetMapAddonXMLData()->find(strLangCode) == pRes->GetXMLHandler()->GetMapAddonXMLData()->end())
-    return NULL;
-
-  return &(pRes->GetXMLHandler()->GetMapAddonXMLData()->operator[](strLangCode));
-}
-*/
-/*
-const CPOEntry * CProjectHandler::SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
-                                                 std::string &strLangCode, CPOEntry const &currPOEntryEN)
-{
-  CPOEntry POEntryToFind;
-  POEntryToFind.Type = currPOEntryEN.Type;
-  POEntryToFind.msgCtxt = currPOEntryEN.msgCtxt;
-  POEntryToFind.msgID = currPOEntryEN.msgID;
-  POEntryToFind.msgIDPlur = currPOEntryEN.msgIDPlur;
-  if (POEntryToFind.Type == NUMID)
-    POEntryToFind.numID = currPOEntryEN.numID;
-
-  if (mapResHandl.find(strResname) == mapResHandl.end())
-    return NULL;
-  if (!mapResHandl[strResname].GetPOData(strLangCode))
-    return NULL;
-  return mapResHandl[strResname].GetPOData(strLangCode)->PLookforClassicEntry(POEntryToFind);
-}
-
-CPOHandler * CProjectHandler::SafeGetPOHandler(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
-                                                 std::string &strLangCode)
-{
-  if (mapResHandl.find(strResname) == mapResHandl.end())
-    return NULL;
-  return mapResHandl[strResname].GetPOData(strLangCode);
-}
-
-void CProjectHandler::MergeAddonXMLEntry(CAddonXMLEntry const &EntryToMerge, CAddonXMLEntry &MergedAddonXMLEntry,
-                                         CAddonXMLEntry const &SourceENEntry, CAddonXMLEntry const &CurrENEntry, bool UpstrToMerge,
-                                         bool &bResChangedFromUpstream)
-{
-  if (!EntryToMerge.strDescription.empty() && MergedAddonXMLEntry.strDescription.empty() &&
-      CurrENEntry.strDescription == SourceENEntry.strDescription)
-    MergedAddonXMLEntry.strDescription = EntryToMerge.strDescription;
-  else if (UpstrToMerge && !MergedAddonXMLEntry.strDescription.empty() &&
-           EntryToMerge.strDescription != MergedAddonXMLEntry.strDescription &&
-           CurrENEntry.strDescription == SourceENEntry.strDescription)
-  {
-    bResChangedFromUpstream = true;
-  }
-
-  if (!EntryToMerge.strDisclaimer.empty() && MergedAddonXMLEntry.strDisclaimer.empty() &&
-      CurrENEntry.strDisclaimer == SourceENEntry.strDisclaimer)
-    MergedAddonXMLEntry.strDisclaimer = EntryToMerge.strDisclaimer;
-  else if (UpstrToMerge && !MergedAddonXMLEntry.strDisclaimer.empty() &&
-           EntryToMerge.strDisclaimer != MergedAddonXMLEntry.strDisclaimer &&
-           CurrENEntry.strDisclaimer == SourceENEntry.strDisclaimer)
-  {
-    bResChangedFromUpstream = true;
-  }
-
-  if (!EntryToMerge.strSummary.empty() && MergedAddonXMLEntry.strSummary.empty() &&
-      CurrENEntry.strSummary == SourceENEntry.strSummary)
-    MergedAddonXMLEntry.strSummary = EntryToMerge.strSummary;
-    else if (UpstrToMerge && !MergedAddonXMLEntry.strSummary.empty() &&
-           EntryToMerge.strSummary != MergedAddonXMLEntry.strSummary &&
-           CurrENEntry.strSummary == SourceENEntry.strSummary)
-  {
-    bResChangedFromUpstream = true;
-  }
 }
 
 void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
@@ -525,8 +205,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   printf ("TXresourcelist");
 
   //TODO
-  const CXMLResdata& XMLResData = m_mapResData.begin()->second;
-  const std::string& strTargetProjectName = XMLResData.strTargetProjectName;
+  const std::string& strTargetProjectName = m_mapResData.begin()->second.strTargetProjectName;
 
   std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/");
   if (strtemp.empty())
@@ -534,95 +213,24 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 
   printf ("\n\n");
 
-  std::list<std::string> listResourceNamesTX = ParseResources(strtemp);
-
-  std::string strPrefixDir = XMLResData.strTXUpdateLangfilesDir;
+  std::set<std::string> lResourcesAtTX = ParseResources(strtemp);
 
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
 
-  for (T_itResData itResData = m_mapResData.begin(); itResData != m_mapResData.end(); itResData++)
+  for (T_itmapRes it = m_mapResources.begin(); it != m_mapResources.end(); it++)
   {
-    std::string strResourceDir, strLangDir;
-    const CXMLResdata& XMLResData = itResData->second;
-    std::string strResname = itResData->first;
-    bool bNewResource = false;
+    CResourceHandler& ResHandler = it->second;
+    std::string& sResName = it->first;
+    CXMLResdata& XMLResData = m_mapResData.at(sResName);
 
-    strResourceDir = strProjRootDir + strPrefixDir + DirSepChar + strResname + DirSepChar;
-    strLangDir = strResourceDir;
-
-    CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Uploading resource: %s, from langdir: %s",itResData->first.c_str(), strLangDir.c_str());
-    printf ("Uploading files for resource: %s%s%s", KMAG, itResData->first.c_str(), RESET);
-
-    std::list<std::string> listLangCodes = GetLangsFromDir(strLangDir);
-
-    if (listLangCodes.empty()) // No update needed for the specific resource (not even an English one)
-    {
-      CLog::Log(logINFO, "CProjectHandler::GetLangsFromDir: no English directory found at langdir: %s,"
-      " skipping upload for this resource.", strLangDir.c_str());
-      printf (", no upload was requested.\n");
-      continue;
-    }
-
-    if (!FindResInList(listResourceNamesTX, itResData->second.strTargetTXName))
-    {
-      CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: No resource %s exists on Transifex. Creating it now.", itResData->first.c_str());
-      // We create the new resource on transifex and also upload the English source file at once
-      g_HTTPHandler.Cleanup();
-      g_HTTPHandler.ReInit();
-      size_t straddednew;
-      g_HTTPHandler.CreateNewResource(itResData->second.strTargetTXName,
-                                      strLangDir + XMLResData.strSourceLcode + DirSepChar + "strings.po",
-                                      "https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/",
-                                      straddednew, "https://www.transifex.com/api/2/project/" + strTargetProjectName +
-                                      "/resource/" + XMLResData.strTargetTXName + "/translation/" +
-                                      g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strTargetTXName) + "/");
-
-      CLog::Log(logINFO, "CProjectHandler::UploadTXUpdateFiles: Resource %s was succesfully created with %i Source language strings.",
-                itResData->first.c_str(), straddednew);
-      printf (", newly created on Transifex with %s%lu%s English strings.\n", KGRN, straddednew, RESET);
-
-      g_HTTPHandler.Cleanup();
-      g_HTTPHandler.ReInit();
-      bNewResource = true;
-      //TODO change directory to the right location of the cache file (even if it is different)
-      g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/", "GET");
-    }
-
-    printf ("\n");
-
-    for (std::list<std::string>::const_iterator it = listLangCodes.begin(); it!=listLangCodes.end(); it++)
-    {
-      if (bNewResource && *it == XMLResData.strSourceLcode) // Let's not upload the Source language file again
-        continue;
-      std::string strFilePath = strLangDir + *it + DirSepChar + "strings.po";
-      std::string strLangAlias = g_LCodeHandler.GetLangFromLCode(*it, XMLResData.strTargTXLFormat);
-
-      bool buploaded = false;
-      size_t stradded, strupd;
-      if (strLangAlias == g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strTargTXLFormat))
-        g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + strTargetProjectName +
-                                                "/resource/" + XMLResData.strTargetTXName + "/content/",
-                                                buploaded, stradded, strupd);
-      else
-        g_HTTPHandler.PutFileToURL(strFilePath, "https://www.transifex.com/api/2/project/" + strTargetProjectName +
-                                                "/resource/" + XMLResData.strTargetTXName + "/translation/" + strLangAlias + "/",
-                                                buploaded, stradded, strupd);
-      if (buploaded)
-      {
-        printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, strLangAlias.c_str(), RESET, KCYN, stradded, RESET, KCYN, strupd, RESET);
-
-        g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + strTargetProjectName +
-                                       "/resource/" + strResname + "/stats/", "GET");
-        g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" +strTargetProjectName +
-        "/resource/" + strResname + "/translation/" + strLangAlias + "/?file", "GET");
-      }
-      else
-        printf ("\tlangcode: %s:\t no change, skipping.\n", it->c_str());
-    }
+    ResHandler.UploadResourceToTransifex(lResourcesAtTX.find(XMLResData.strTargetTXName) == lResourcesAtTX.end());
   }
+
+  return true;
 }
 
+/*
 bool CProjectHandler::FindResInList(std::list<std::string> const &listResourceNamesTX, std::string strTXResName)
 {
   for (std::list<std::string>::const_iterator it = listResourceNamesTX.begin(); it!=listResourceNamesTX.end(); it++)
@@ -770,7 +378,7 @@ void CProjectHandler::MigrateTranslators()
   printf("-----------------------------%s\n", RESET);
 
   g_LCodeHandler.UploadTranslatorsDatabase(mapCoordinators, mapReviewers, mapTranslators, strTargetProjectName, strTargetTXLangFormat);
-}
+};
 
 void CProjectHandler::InitLCodeHandler()
 {
@@ -779,12 +387,12 @@ void CProjectHandler::InitLCodeHandler()
   g_LCodeHandler.Init(XMLResdata.LangDatabaseURL, XMLResdata);
 }
 
-std::list<std::string> CProjectHandler::ParseResources(std::string strJSON)
+std::set<std::string> CProjectHandler::ParseResources(std::string strJSON)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
   std::string resName;
-  std::list<std::string> listResources;
+  std::set<std::string> listResources;
 
   bool parsingSuccessful = reader.parse(strJSON, root );
   if ( !parsingSuccessful )
@@ -800,7 +408,7 @@ std::list<std::string> CProjectHandler::ParseResources(std::string strJSON)
 
     if (resName.size() == 0 || resName == "unknown")
       CLog::Log(logERROR, "JSONHandler: Parse resource: no valid JSON data while iterating");
-    listResources.push_back(resName);
+    listResources.insert(resName);
     CLog::Log(logINFO, "JSONHandler: found resource on Transifex server: %s", resName.c_str());
   };
   CLog::Log(logINFO, "JSONHandler: Found %i resources at Transifex server", listResources.size());

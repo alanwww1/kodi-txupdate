@@ -137,6 +137,9 @@ public:
   void SetLangAddonXMLString(const std::string& strXMLfile) {m_strLangAddonXML = strXMLfile;}
   std::string& GetLangAddonXMLString () {return m_strLangAddonXML;}
   void BumpLangAddonXMLVersion();
+  void CreateNewResource();
+  void PutSRCFileToTRX();
+  void PutTranslFileToTRX();
 
 protected:
   void ClearCPOEntry (CPOEntry &entry);

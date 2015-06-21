@@ -75,7 +75,7 @@ public:
 
 private:
   std::string CacheFileNameFromURL(std::string strURL);
-  long curlPUTPOFileToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd, bool bIsPO);
+  long curlPUTPOStrToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd, bool bIsPO);
 
   CURL *m_curlHandle;
   std::string m_strCacheDir;
