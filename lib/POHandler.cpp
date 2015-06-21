@@ -212,10 +212,13 @@ void CPOHandler::GeneratePOFile()
 {
   ClearVariables();
 
-    m_bhasLFWritten = false;
+  m_bhasLFWritten = false;
 
   m_strOutBuffer.clear();
-  m_strOutBuffer = m_strHeader;
+  bool bHasOnlyAddonXMLEntries = m_mapItPOData.rbegin()->first < 200; // The last entry is addon.xml entry
+
+  if (!bHasOnlyAddonXMLEntries)
+    m_strOutBuffer = m_strHeader;
 /*
   if (m_bIsSRCLang)
   {
@@ -247,6 +250,9 @@ void CPOHandler::GeneratePOFile()
 
 void CPOHandler::WritePOFile(const std::string& strOutputPOFilename)
 {
+  if (m_strOutBuffer.empty()) // This can be true for languages has only the addon.xml entries translated
+    return;
+
   std::string strDir = g_File.GetPath(strOutputPOFilename);
   g_File.MakeDir(strDir);
 
