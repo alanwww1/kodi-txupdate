@@ -80,7 +80,6 @@ int main(int argc, char* argv[])
   bool bMergeNeeded = false;
   bool bUploadNeeded = false;
   bool bTransferTranslators = false;
-  bool bForceUpload;
   bool bInfiniteCacheTime = false;
 
   if (argv[1])
@@ -112,11 +111,6 @@ int main(int argc, char* argv[])
       }
     else if (strMode == "-dmu")
       {bDownloadNeeded = true; bMergeNeeded = true; bUploadNeeded = true;}
-    else if (strMode == "-fu")
-    {
-      bUploadNeeded = true;
-      bForceUpload = true;
-    }
     else if (strMode == "-u")
       bUploadNeeded = true;
     else if (strMode == "-ttr")
@@ -223,13 +217,6 @@ int main(int argc, char* argv[])
 
     if (bUploadNeeded && !bTransferTranslators)
     {
-      CLog::SetbWriteSyntaxLog(false);
-      if (!bForceUpload && g_File.ReadFileToStrE(WorkingDir + ".httpcache" + DirSepChar + ".dload_merge_status") != "ok")
-        CLog::Log(logERROR, "There was no successful download and merge run before. Please (re)run download and merge.");
-
-//      if (!bForceUpload && g_File.ReadFileToStrE(WorkingDir + ".httpcache" + DirSepChar + ".last_kodi-txupdate.xml") !=
-//          g_File.ReadFileToStrE(WorkingDir + "kodi-txupdate.xml"))
-//        CLog::Log(logERROR, "kodi-txupdate.xml file changed since last download and merge. Please (re)run download and merge.");
 
       printf("\n%s", KGRN);
       printf("-----------------------------------------\n");

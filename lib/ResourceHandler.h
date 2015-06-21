@@ -52,10 +52,6 @@ public:
 //  void AddPOData(CPOHandler& POHandler, std::string strLang) {m_mapPOFiles[strLang] = POHandler;}
   CAddonXMLHandler * GetXMLHandler () {return &m_AddonXMLHandler;}
   void SetXMLHandler (CAddonXMLHandler XMLHandler) {m_AddonXMLHandler = XMLHandler;}
-  void SetChangedLangsFromUpstream (std::list<std::string> lChanged) {m_lChangedLangsFromUpstream = lChanged;}
-  std::list<std::string> GetChangedLangsFromUpstream () {return m_lChangedLangsFromUpstream;}
-  void SetChangedLangsInAddXMLFromUpstream (std::list<std::string> lChanged) {m_lChangedLangsInAddXMLFromUpstream = lChanged;}
-  std::list<std::string> GetChangedLangsInAddXMLFromUpstream () {return m_lChangedLangsInAddXMLFromUpstream;}
   void SetIfIsLangAddon (bool bIsLangAddon) {m_bIsLangAddon = bIsLangAddon;}
   bool GetIfIsLangaddon () {return m_bIsLangAddon;}
 
@@ -71,6 +67,7 @@ protected:
   bool FindTRXEntry(const std::string sLCode, CPOEntry &EntryToFind);
   T_itPOData GetUPSItFoundEntry();
   T_itPOData GetTRXItFoundEntry();
+  void PrintChangedLangs(std::list<std::string> lChangedLangs);
 
   std::map<std::string, CPOHandler> m_mapUPS;
   std::map<std::string, CPOHandler> m_mapTRX;
@@ -79,8 +76,8 @@ protected:
 
 
   CAddonXMLHandler m_AddonXMLHandler;
-  std::list<std::string> m_lChangedLangsFromUpstream;
-  std::list<std::string> m_lChangedLangsInAddXMLFromUpstream;
+  std::list<std::string> m_lChangedLangsFromUPS;
+  std::list<std::string> m_lLangsToUPD;
   bool m_bIsLangAddon;
   CXMLResdata m_XMLResData;
 

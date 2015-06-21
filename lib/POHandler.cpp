@@ -213,8 +213,8 @@ void CPOHandler::GeneratePOFile()
   ClearVariables();
 
   m_bhasLFWritten = false;
-
   m_strOutBuffer.clear();
+
   bool bHasOnlyAddonXMLEntries = m_mapItPOData.rbegin()->first < 200; // The last entry is addon.xml entry
 
   if (!bHasOnlyAddonXMLEntries)

@@ -210,7 +210,7 @@ void CResourceHandler::MergeResource()
     T_itPOData itSRCUPSPO = POHandlUPSSRC.GetPOMapBeginIterator();
     T_itPOData itSRCUPSPOEnd = POHandlUPSSRC.GetPOMapEndIterator();
 
-    // Let's iterate by the UPSTREAM source PO file for this resource
+    //Let's iterate by the UPSTREAM source PO file for this resource
     for (; itSRCUPSPO != itSRCUPSPOEnd; itSRCUPSPO++)
     {
       CPOEntry& EntrySRC = itSRCUPSPO->second;
@@ -218,6 +218,7 @@ void CResourceHandler::MergeResource()
       bool bisInUPS = FindUPSEntry(sLCode, EntrySRC);
       bool bisInTRX = FindTRXEntry(sLCode, EntrySRC);
 
+      //Handle the source language
       if (sLCode == m_XMLResData.strSourceLcode)
       {
         T_itPOData itPOUPS = GetUPSItFoundEntry();
@@ -225,6 +226,7 @@ void CResourceHandler::MergeResource()
         if (bWriteUPDFileSRC)
           m_mapUPD[sLCode].AddItEntry(itPOUPS);
       }
+
       //We have non-source language. Let's treat it that way
       else if (bisInTRX)
       {
@@ -240,6 +242,8 @@ void CResourceHandler::MergeResource()
                               (itPOTRX->second.msgStrPlural != itPOUPS->second.msgStrPlural);
         }
       }
+
+      //Entry was not on Transifex, check if it has a new translation at upstream
       else if (bisInUPS)
       {
         T_itPOData itPOUPS = GetUPSItFoundEntry();
@@ -248,33 +252,43 @@ void CResourceHandler::MergeResource()
       }
     }
 
-    //Pass Resource data to the newly created PO classes for later use (PO file creation)
-    CPOHandler& MRGPOHandler = m_mapMRG[sLCode];
-    MRGPOHandler.SetXMLReasData(m_XMLResData);
-    MRGPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
-    MRGPOHandler.SetPOType(MERGEDPO);
-    MRGPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
-    if (m_XMLResData.bIsLanguageAddon)
-      MRGPOHandler.SetLangAddonXMLString(m_mapUPS[sLCode].GetLangAddonXMLString());
-
-    if (bPOChangedFromUPS)
+    //Pass Resource data to the newly created MRG PO classes for later use (PO file creation)
+    if (m_mapMRG.find(sLCode) != m_mapMRG.end())
     {
+      CPOHandler& MRGPOHandler = m_mapMRG.at(sLCode);
+      MRGPOHandler.SetXMLReasData(m_XMLResData);
+      MRGPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
+      MRGPOHandler.SetPOType(MERGEDPO);
+      MRGPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
       if (m_XMLResData.bIsLanguageAddon)
-        MRGPOHandler.BumpLangAddonXMLVersion();
-      bResChangedFromUPS = true;
+        MRGPOHandler.SetLangAddonXMLString(m_mapUPS[sLCode].GetLangAddonXMLString());
+
+      if (bPOChangedFromUPS)
+      {
+        if (m_XMLResData.bIsLanguageAddon)
+          MRGPOHandler.BumpLangAddonXMLVersion();
+        bResChangedFromUPS = true;
+        m_lChangedLangsFromUPS.push_back(sLCode);
+      }
     }
 
+    //Pass Resource data to the newly created UPD PO classes for later use (PO file creation)
     if (m_mapUPD.find(sLCode) != m_mapUPD.end())
     {
-      CPOHandler& UPDPOHandler = m_mapUPD[sLCode];
+      CPOHandler& UPDPOHandler = m_mapUPD.at(sLCode);
       UPDPOHandler.SetXMLReasData(m_XMLResData);
       UPDPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
       UPDPOHandler.SetPOType(UPDATEPO);
       UPDPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
+
+      m_lLangsToUPD.push_back(sLCode);
     }
   }
+
+  //If resource has been changed in any language, bump the language addon version
   if (bResChangedFromUPS && !m_XMLResData.bIsLanguageAddon)
     m_AddonXMLHandler.SetBumpAddonVersion();
+
   return;
 }
 
@@ -422,9 +436,14 @@ void CResourceHandler::GenerateMergedPOFiles()
 
 //  if (!bMRGOrUPD && !m_mapUPD.empty())
 //    printf("Languages to update from upstream to upload to Transifex:");
-  size_t counter = 0;
 
-  printf ("%s", KCYN);
+  printf("Generating merged and update PO files: %s%s%s\n", KMAG, m_XMLResData.strResName.c_str(), RESET);
+  if (!m_lChangedLangsFromUPS.empty())
+  {
+    printf("  Changed Langs in strings files from upstream: ");
+    PrintChangedLangs(m_lChangedLangsFromUPS);
+    printf ("\n");
+  }
 
   for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
   {
@@ -447,26 +466,20 @@ void CResourceHandler::GenerateMergedPOFiles()
 
 void CResourceHandler::GenerateUpdatePOFiles()
 {
-
-  printf ("%s", RESET);
-//  if (!bMRGOrUPD && !m_mapMRG.empty())
-//    printf("\n");
-
-  if (!m_mapUPD.empty())
-    printf("Languages to update from upstream to upload to Transifex:");
-  size_t counter = 0;
-
-  printf ("%s", KCYN);
+  if (!m_lLangsToUPD.empty())
+  {
+    printf("  Langs to update to Transifex from upstream: ");
+    PrintChangedLangs(m_lLangsToUPD);
+    printf ("\n");
+  }
 
   for (T_itmapPOFiles itmapPOFiles = m_mapUPD.begin(); itmapPOFiles != m_mapUPD.end(); itmapPOFiles++)
   {
     const std::string& sLCode = itmapPOFiles->first;
-
     CPOHandler& POHandler = m_mapUPD.at(sLCode);
 
     POHandler.GeneratePOFile();
   }
-
   return;
 }
 
@@ -605,4 +618,20 @@ std::list<std::string> CResourceHandler::CreateMergedLangList()
   return listMergedLangs;
 }
 
-
+void CResourceHandler::PrintChangedLangs(std::list<std::string> lChangedLangs)
+{
+  std::list<std::string>::iterator itLangs;
+  std::size_t counter = 0;
+  printf ("%s", KCYN);
+  for (itLangs = lChangedLangs.begin() ; itLangs != lChangedLangs.end(); itLangs++)
+  {
+    printf ("%s ", itLangs->c_str());
+    counter++;
+    if (counter > 10)
+    {
+      printf ("+ %i langs ", (int)lChangedLangs.size() - 11);
+      break;
+    }
+  }
+  printf ("%s", RESET);
+}
