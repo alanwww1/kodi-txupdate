@@ -468,7 +468,7 @@ void CResourceHandler::GenerateUpdatePOFiles()
 {
   if (!m_lLangsToUPD.empty())
   {
-    printf("  Langs to update to Transifex from upstream: ");
+    printf("%s  Langs to update%s to Transifex from upstream: ", KRED, RESET);
     PrintChangedLangs(m_lLangsToUPD);
     printf ("\n");
   }

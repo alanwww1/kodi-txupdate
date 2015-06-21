@@ -190,10 +190,7 @@ bool CProjectHandler::CreateMergedResources()
 
   for (T_itmapRes it = m_mapResources.begin(); it != m_mapResources.end(); it++)
   {
-    const std::string& sResName = it->first;
     CResourceHandler& ResHandler = it->second;
-
-    printf("Merging resource: %s%s%s\n", KMAG, sResName.c_str(), RESET);
 
     ResHandler.MergeResource();
   }

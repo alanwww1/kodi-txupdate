@@ -187,15 +187,6 @@ int main(int argc, char* argv[])
 
       if (bMergeNeeded)
       {
-        printf("\n%s", KGRN);
-        printf("-----------------\n");
-        printf("MERGING RESOURCES\n");
-        printf("-----------------%s\n", RESET);
-
-        CLog::Log(logLINEFEED, "");
-        CLog::Log(logINFO, "*****************");
-        CLog::Log(logINFO, "MERGING RESOURCES");
-        CLog::Log(logINFO, "*****************");
 
         TXProject.CreateMergedResources();
 
