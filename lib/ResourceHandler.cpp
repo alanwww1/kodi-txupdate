@@ -629,7 +629,7 @@ void CResourceHandler::PrintChangedLangs(std::list<std::string> lChangedLangs)
     counter++;
     if (counter > 10)
     {
-      printf ("+ %i langs ", (int)lChangedLangs.size() - 11);
+      printf ("+ %i langs ", (int)lChangedLangs.size() - 10);
       break;
     }
   }
