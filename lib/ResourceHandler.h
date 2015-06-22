@@ -54,7 +54,7 @@ public:
   void SetXMLHandler (CAddonXMLHandler XMLHandler) {m_AddonXMLHandler = XMLHandler;}
   void SetIfIsLangAddon (bool bIsLangAddon) {m_bIsLangAddon = bIsLangAddon;}
   bool GetIfIsLangaddon () {return m_bIsLangAddon;}
-  void UploadResourceToTransifex();
+  void UploadResourceToTransifex(bool bNewResourceOnTRX);
 
 protected:
 

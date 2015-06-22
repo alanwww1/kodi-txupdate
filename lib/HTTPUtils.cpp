@@ -361,19 +361,18 @@ bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &s
                                 size_t &iAddedNew, size_t &iUpdated)
 {
   std::string strBuffer;
-  std::string strCacheFile = CacheFileNameFromURL(strURL);
-  strCacheFile = m_strCacheDir + "PUT/" + strCacheFile;
+  std::string strCacheFileName = CacheFileNameFromURL(strURL);
+  strCacheFileName = m_strCacheDir + "PUT/" + strCacheFileName;
+  std::string sCacheFile = g_File.ReadFileToStr(strCacheFileName);
 
-//TODO check if this is ok to take rip
-//  if (g_File.FileExist(strCacheFile) && ComparePOFiles(strCacheFile, strFilePath))
-//  {
-//    CLog::Log(logINFO, "HTTPHandler::PutFileToURL: not necesarry to upload file as it has not changed from last upload. File: %s",
-//              strFilePath.c_str());
-//    return true;
-//  }
+  if (sCacheFile == sPOFile)
+  {
+    CLog::Log(logINFO, "HTTPHandler::PutFileToURL: not necesarry to upload file as it has not changed from last upload.");
+    return true;
+  }
 
 
-  long result = curlPUTPOStrToURL(sPOFile, strURL, iAddedNew, iUpdated, true);
+  long result = curlPUTPOStrToURL(sPOFile, strURL, iAddedNew, iUpdated);
   if (result < 200 || result >= 400)
   {
     CLog::Log(logERROR, "HTTPHandler::PutFileToURL: File upload was unsuccessful, http errorcode: %i", result);
@@ -388,7 +387,7 @@ bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &s
   return true;
 };
 
-long CHTTPHandler::curlPUTPOStrToURL(std::string const &strFilePath, std::string const &cstrURL, size_t &stradded, size_t &strupd, bool bIsPO)
+long CHTTPHandler::curlPUTPOStrToURL(std::string const &strPOFile, std::string const &cstrURL, size_t &stradded, size_t &strupd)
 {
   CURLcode curlResult;
 
@@ -415,7 +414,9 @@ long CHTTPHandler::curlPUTPOStrToURL(std::string const &strFilePath, std::string
       postend = NULL;
       curl_formadd(&post1, &postend,
                   CURLFORM_COPYNAME, "file",
-                  CURLFORM_FILE, strFilePath.c_str(),
+                  CURLFORM_BUFFER, "strings.po",
+                  CURLFORM_BUFFERPTR, &strPOFile[0],
+                  CURLFORM_BUFFERLENGTH, strPOFile.size(),
                   CURLFORM_CONTENTTYPE, "application/octet-stream",
                   CURLFORM_END);
 
@@ -438,7 +439,6 @@ long CHTTPHandler::curlPUTPOStrToURL(std::string const &strFilePath, std::string
       curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, 0);
       curl_easy_setopt(m_curlHandle, CURLOPT_VERBOSE, 0);
       curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, 0);
-//      curl_easy_setopt(m_curlHandle, CURLOPT_SSLVERSION, 3);
 
       curlResult = curl_easy_perform(m_curlHandle);
 
@@ -453,14 +453,11 @@ long CHTTPHandler::curlPUTPOStrToURL(std::string const &strFilePath, std::string
     while (nretry < 5 && !bSuccess);
 
     if (bSuccess)
-      CLog::Log(logINFO, "HTTPHandler::curlFileToURL finished with success from File %s to URL %s",
-                strFilePath.c_str(), strURL.c_str());
+      CLog::Log(logINFO, "HTTPHandler::curlFileToURL finished with success from File to URL %s", strURL.c_str());
     else
-      CLog::Log(logERROR, "HTTPHandler::curlFileToURL finished with error: \ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\nlocaldir: %s",
-                curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), strURL.c_str(), strFilePath.c_str());
+      CLog::Log(logERROR, "HTTPHandler::curlFileToURL finished with error: \ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\n",
+                curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), strURL.c_str());
 
-    if (!bIsPO)
-      return http_code;
     size_t jsonPos = strServerResp.find_first_of("{");
     if (jsonPos == std::string::npos)
       CLog::Log(logERROR, "HTTPHandler::curlFileToURL no valid Transifex server response received");
@@ -483,15 +480,6 @@ long CHTTPHandler::curlPUTPOStrToURL(std::string const &strFilePath, std::string
 //  return ComparePOFilesInMem(&POHandler1, &POHandler2, false);
 //}
 
-bool CHTTPHandler::ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pPOHandler2, bool bLangIsEN) const
-{
-  if (!pPOHandler1 || !pPOHandler2)
-    return false;
-//  if (pPOHandler1->GetNumEntriesCount() != pPOHandler2->GetNumEntriesCount())
-//    return false;
-  if (pPOHandler1->GetClassEntriesCount() != pPOHandler2->GetClassEntriesCount())
-    return false;
-
 /*
   for (size_t POEntryIdx = 0; POEntryIdx != pPOHandler1->GetNumEntriesCount(); POEntryIdx++)
   {
@@ -513,16 +501,6 @@ bool CHTTPHandler::ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pP
       return false;
   }
 */
-  //TODO
-  for (size_t POEntryIdx = 0; POEntryIdx != pPOHandler1->GetClassEntriesCount(); POEntryIdx++)
-  {
-    const CPOEntry * POEntry1 = pPOHandler1->GetClassicPOEntryByIdx(POEntryIdx);
-    CPOEntry POEntryToFind = *POEntry1;
-    if (!pPOHandler2->FindEntry(POEntryToFind))
-      return false;
-  }
-  return true;
-}
 
 bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResdata& XMLResData, size_t &iAddedNew)
 {

@@ -221,13 +221,13 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   for (T_itmapRes it = m_mapResources.begin(); it != m_mapResources.end(); it++)
   {
     CResourceHandler& ResHandler = it->second;
-    std::string& sResName = it->first;
+    const std::string& sResName = it->first;
     CXMLResdata& XMLResData = m_mapResData.at(sResName);
 
     ResHandler.UploadResourceToTransifex(lResourcesAtTX.find(XMLResData.strTargetTXName) == lResourcesAtTX.end());
   }
 
-  return true;
+  return;
 }
 
 /*

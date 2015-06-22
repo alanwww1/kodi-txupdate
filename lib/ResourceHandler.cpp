@@ -640,11 +640,6 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
-  printf ("TXresourcelist");
-
-  //TODO
-  const std::string& strTargetProjectName = m_XMLResData.strTargetProjectName;
-
 
   printf ("Uploading files for resource: %s%s%s", KMAG, m_XMLResData.strResName.c_str(), RESET);
 
@@ -665,7 +660,7 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
     g_HTTPHandler.ReInit();
 
     //TODO change directory to the right location of the cache file (even if it is different)
-    g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/", "GET");
+    g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName + "/resources/", "GET");
   }
 
   printf ("\n");

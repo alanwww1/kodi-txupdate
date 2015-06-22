@@ -64,10 +64,8 @@ public:
   bool LoadCredentials (std::string CredentialsFilename);
   bool PutFileToURL(std::string const &strFilePath, std::string const &strURL, bool &buploaded,
                     size_t &stradded, size_t &strupd);
-  bool CreateNewResource(std::string strResname, std::string strENPOFilePath, std::string strURL, size_t &stradded,
-                         std::string const &strURLENTransl);
+  bool CreateNewResource(const std::string& sPOFile, const CXMLResdata& XMLResData, size_t &iAddedNew);
   void DeleteCachedFile(std::string const &strURL, std::string strPrefix);
-  bool ComparePOFilesInMem(CPOHandler * pPOHandler1, CPOHandler * pPOHandler2, bool bLangIsEN) const;
   void GetGithubData (const std::string &strURL, CGithubURLData &GithubURLData);
   std::string GetGitHUBAPIURL(std::string const & strURL);
   void GetGitCloneURL(std::string const & strURL, std::string &strGitHubURL, CGithubURLData &GithubURLData);
@@ -75,14 +73,13 @@ public:
 
 private:
   std::string CacheFileNameFromURL(std::string strURL);
-  long curlPUTPOStrToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd, bool bIsPO);
+  long curlPUTPOStrToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd);
 
   CURL *m_curlHandle;
   std::string m_strCacheDir;
   long curlURLToCache(std::string strCacheFile, std::string strURL, std::string &strBuffer);
 
   CLoginData GetCredentials (std::string strURL);
-  bool ComparePOFiles(std::string strPOFilePath1, std::string strPOFilePath2) const;
   std::string URLEncode (std::string strURL);
   std::string CreateNewresJSONStrFromPOStr(std::string strTXResname, std::string const &strPO);
   void ParseUploadedStringsData(std::string const &strJSON, size_t &stradded, size_t &strupd);
