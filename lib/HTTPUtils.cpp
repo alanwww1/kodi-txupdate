@@ -360,10 +360,12 @@ std::string CHTTPHandler::URLEncode (std::string strURL)
 bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &strURL, bool &bUploaded,
                                 size_t &iAddedNew, size_t &iUpdated)
 {
-  std::string strBuffer;
   std::string strCacheFileName = CacheFileNameFromURL(strURL);
   strCacheFileName = m_strCacheDir + "PUT/" + strCacheFileName;
-  std::string sCacheFile = g_File.ReadFileToStr(strCacheFileName);
+
+  std::string sCacheFile;
+  if (g_File.FileExist(strCacheFileName))
+    sCacheFile = g_File.ReadFileToStr(strCacheFileName);
 
   if (sCacheFile == sPOFile)
   {
@@ -380,7 +382,7 @@ bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &s
   }
 
   CLog::Log(logINFO, "HTTPHandler::PutFileToURL: File upload was successful so creating a copy at the .httpcache directory");
-//  g_File.CopyFile(strFilePath, strCacheFile);
+  g_File.WriteFileFromStr(strCacheFileName, sPOFile);
 
   bUploaded = true;
 
@@ -509,7 +511,7 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
 
   std::string sURLSRCRes = "https://www.transifex.com/api/2/project/" + XMLResData.strTargetProjectName + "/resource/" +
                            XMLResData.strTargetTXName + "/translation/" +
-                           g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strTargetTXName) + "/";
+                           g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strTargTXLFormat) + "/";
 
   std::string sCacheFile = CacheFileNameFromURL(sURLSRCRes);
   sCacheFile = m_strCacheDir + "PUT/" + sCacheFile;
@@ -518,7 +520,7 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
 
   sURLCreateRes = URLEncode(sURLCreateRes);
 
-  std::string strPOJson = CreateNewresJSONStrFromPOStr(XMLResData.strResName, sPOFile);
+  std::string strPOJson = CreateNewresJSONStrFromPOStr(XMLResData.strTXName, sPOFile);
 
   std::string strServerResp;
   CLoginData LoginData = GetCredentials(sURLCreateRes);

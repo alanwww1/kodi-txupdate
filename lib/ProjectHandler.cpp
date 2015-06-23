@@ -203,6 +203,9 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   //TODO
   const std::string& strTargetProjectName = m_mapResData.begin()->second.strTargetProjectName;
 
+  //TODO ditry fix for always getting a fresh txlist here
+  g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_mapResData.begin()->second.strTargetProjectName + "/resources/", "GET");
+
   std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
@@ -218,9 +221,8 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   {
     CResourceHandler& ResHandler = it->second;
     const std::string& sResName = it->first;
-    CXMLResdata& XMLResData = m_mapResData.at(sResName);
 
-    ResHandler.UploadResourceToTransifex(lResourcesAtTX.find(XMLResData.strTargetTXName) == lResourcesAtTX.end());
+    ResHandler.UploadResourceToTransifex(lResourcesAtTX.find(sResName) == lResourcesAtTX.end());
   }
 
   return;

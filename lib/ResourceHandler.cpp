@@ -656,11 +656,11 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
 
     m_mapUPD.at(m_XMLResData.strSourceLcode).CreateNewResource();
 
-    g_HTTPHandler.Cleanup();
-    g_HTTPHandler.ReInit();
-
     //TODO change directory to the right location of the cache file (even if it is different)
     g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName + "/resources/", "GET");
+
+    g_HTTPHandler.Cleanup();
+    g_HTTPHandler.ReInit();
   }
 
   printf ("\n");

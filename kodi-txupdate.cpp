@@ -206,6 +206,7 @@ int main(int argc, char* argv[])
       g_File.WriteFileFromStr(WorkingDir + ".httpcache" + DirSepChar + ".dload_merge_status", "ok");
     }
 
+    bUploadNeeded = true;
     if (bUploadNeeded && !bTransferTranslators)
     {
 
