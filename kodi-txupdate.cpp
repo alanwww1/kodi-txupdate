@@ -209,6 +209,8 @@ int main(int argc, char* argv[])
     bUploadNeeded = true;
     if (bUploadNeeded && !bTransferTranslators)
     {
+      int iChoice;
+      cin >> iChoice;
 
       printf("\n%s", KGRN);
       printf("-----------------------------------------\n");

@@ -217,7 +217,7 @@ void CPOHandler::GeneratePOFile()
 
   bool bHasOnlyAddonXMLEntries = m_mapItPOData.rbegin()->first < 200; // The last entry is addon.xml entry
 
-  if (!bHasOnlyAddonXMLEntries)
+  if (!bHasOnlyAddonXMLEntries || m_POType == UPDATEPO)
     m_strOutBuffer = m_strHeader;
 /*
   if (m_bIsSRCLang)
@@ -250,7 +250,7 @@ void CPOHandler::GeneratePOFile()
 
 void CPOHandler::WritePOFile(const std::string& strOutputPOFilename)
 {
-  if (m_strOutBuffer.empty()) // This can be true for languages has only the addon.xml entries translated
+  if (m_strOutBuffer.empty() && m_POType == MERGEDPO) // This can be true for languages has only the addon.xml entries translated
     return;
 
   std::string strDir = g_File.GetPath(strOutputPOFilename);
