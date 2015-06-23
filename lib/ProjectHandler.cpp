@@ -44,7 +44,7 @@ void CProjectHandler::LoadUpdXMLToMem()
 
 bool CProjectHandler::FetchResourcesFromTransifex()
 {
-/*
+
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
   printf ("TXresourcelist");
@@ -56,7 +56,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 
   printf ("\n\n");
 
-  std::list<std::string> listResourceNamesTX = ParseResources(strtemp); */
+  std::set<std::string> listResNamesAvailOnTX = ParseResources(strtemp);
 //TODO collect out txprojectnames, check all resources in them, if we need to download
   for (T_itResData it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {
@@ -67,15 +67,11 @@ bool CProjectHandler::FetchResourcesFromTransifex()
     CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from TRANSIFEX: %s", sResName.c_str());
     CLog::IncIdent(4);
 
-/*    std::string sResname = GetResNameFromTXResName(sTXResName);
-    if (sResname.empty())
+    if (listResNamesAvailOnTX.find(sResName) == listResNamesAvailOnTX.end())
     {
-      printf(" )\n");
-      CLog::Log(logWARNING, "ProjHandler: found resource on Transifex which is not in kodi-txupdate.xml: %s", sTXResName.c_str());
-      CLog::DecIdent(4);
+      printf(" ) Not yet at available at Transifex\n");
       continue;
     }
-*/
 
     const CXMLResdata& XMLResData = m_mapResData[sResName];
     CResourceHandler NewResHandler(XMLResData);
@@ -391,7 +387,7 @@ std::set<std::string> CProjectHandler::ParseResources(std::string strJSON)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
-  std::string resName;
+  std::string sTXResName, sResName;
   std::set<std::string> listResources;
 
   bool parsingSuccessful = reader.parse(strJSON, root );
@@ -404,13 +400,24 @@ std::set<std::string> CProjectHandler::ParseResources(std::string strJSON)
   for(Json::ValueIterator itr = root.begin() ; itr != root.end() ; itr++)
   {
     Json::Value valu = *itr;
-    resName = valu.get("slug", "unknown").asString();
+    sTXResName = valu.get("slug", "unknown").asString();
 
-    if (resName.size() == 0 || resName == "unknown")
+    if (sTXResName.size() == 0 || sTXResName == "unknown")
       CLog::Log(logERROR, "JSONHandler: Parse resource: no valid JSON data while iterating");
-    listResources.insert(resName);
-    CLog::Log(logINFO, "JSONHandler: found resource on Transifex server: %s", resName.c_str());
+
+    //TODO check if a resource only exists at transifex and warn user
+    if ((sResName = GetResNameFromTXResName(sTXResName)) != "")
+      listResources.insert(sResName);
   };
-  CLog::Log(logINFO, "JSONHandler: Found %i resources at Transifex server", listResources.size());
   return listResources;
 };
+
+std::string CProjectHandler::GetResNameFromTXResName(const std::string& strTXResName)
+{
+  for (T_itResData itXMLResdata = m_mapResData.begin(); itXMLResdata != m_mapResData.end(); itXMLResdata++)
+  {
+    if (itXMLResdata->second.strTXName == strTXResName)
+      return itXMLResdata->first;
+  }
+  return "";
+}
