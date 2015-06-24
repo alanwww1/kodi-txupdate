@@ -77,12 +77,19 @@ std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
   if (!m_sResName.empty())
     sCacheFileName += m_sResName + DirSepChar;
 
-  if (strURL.find("github.com") != std::string::npos)
+  //If we download from github, get branch into count
+  if (strURL.find("raw.github.com/") != std::string::npos || strURL.find("raw2.github.com/") != std::string::npos ||
+      strURL.find("raw.githubusercontent.com/") != std::string::npos ||
+      strURL.find("raw2.githubusercontent.com/") != std::string::npos)
   {
     CGithubURLData GitData;
     GetGithubData(strURL,GitData);
     sCacheFileName += GitData.strGitBranch + "/";
   }
+
+  if (!m_sLCode.empty())
+    sCacheFileName += m_sLCode + DirSepChar;
+
 
     sCacheFileName += g_CharsetUtils.GetFilenameFromURL(strURL);
 
