@@ -30,6 +30,7 @@
 #include "../Log.h"
 #include <ftw.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 CFile g_File;
 
@@ -352,4 +353,11 @@ void CFile::WriteNowToFileAgeFile(std::string strFileName)
 {
   time_t now = std::time(0);
   WriteFileAgeToFile(strFileName, now);
+}
+
+void CFile::SytemCommand (const std::string &strCommand)
+{
+  int status = system (strCommand.c_str());
+  if (status == 32768)
+    CLog::Log(logERROR, "System command failed with return value %i", WEXITSTATUS(status));
 }

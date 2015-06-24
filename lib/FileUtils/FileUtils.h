@@ -67,6 +67,7 @@ public:
   time_t GetFileAgeFromFile(std::string strFileName);
   bool WriteFileAgeToFile(std::string strFileName, time_t FileAgeTime);
   void WriteNowToFileAgeFile(std::string strFileName);
+  void SytemCommand (const std::string &strCommand);
 };
 
 extern CFile g_File;

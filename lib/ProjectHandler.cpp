@@ -196,6 +196,32 @@ bool CProjectHandler::CreateMergedResources()
 
 void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 {
+  char charInput;
+  printf ("\n");
+  do
+  {
+    printf ("%sChoose option:%s %s0%s:Continue with update Transifex %s1%s:VIM UPD files %s2%s:VIM MRG files %sx%s:Exit. Your Choice:   \b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
+    cin >> charInput;
+
+    if (charInput == '1')
+    {
+      std::string sCommand = "vim " + strProjRootDir + m_mapResData.begin()->second.strTXUpdateLangfilesDir;
+      g_File.SytemCommand(sCommand);
+    }
+    else if (charInput == '2')
+    {
+      std::string sCommand = "vim " + strProjRootDir + m_mapResData.begin()->second.strMergedLangfileDir;
+      g_File.SytemCommand(sCommand);
+    }
+    else if (charInput == 'x')
+      CLog::Log(logERROR, "Updating Transifex with new files aborted by user.");
+
+    printf ("\e[A");
+  }
+  while (charInput != '0');
+
+  printf ("                                                                                                                                        \n\e[A");
+
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
   printf ("TXresourcelist");
