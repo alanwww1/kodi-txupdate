@@ -55,6 +55,7 @@ public:
   std::string replaceStrParts(std::string strToReplace, const std::string& from, const std::string& to);
   void reBrandXBMCToKodi(std::string * pstrtorebrand);
   std::string GetRoot(const std::string &strPath,const std::string &strFilename);
+  std::string GetFilenameFromURL(const std::string &sURL);
   std::string GetLangnameFromURL(std::string strName, std::string strURL, std::string strLangformat);
   std::string ReplaceLanginURL(const std::string &strURL,const std::string &strLangFormat, const std::string &strLCode);
   bool bISPOFile(const std::string strFilename);

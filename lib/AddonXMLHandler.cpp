@@ -75,7 +75,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   std::string strURL = m_XMLResData.strUPSAddonURL;
   TiXmlDocument xmlAddonXML;
 
-  std::string strXMLFile = g_HTTPHandler.GetURLToSTR(strURL);
+  std::string strXMLFile = g_HTTPHandler.GetURLToSTRNew(strURL);
   if (strXMLFile.empty())
     CLog::Log(logERROR, "CAddonXMLHandler::FetchAddonXMLFileUpstr: http error getting XML file from upstream url: %s", strURL.c_str());
 
@@ -426,7 +426,7 @@ bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::st
 
 bool CAddonXMLHandler::FetchAddonChangelogFile ()
 {
-  std::string strChangelogFile = g_HTTPHandler.GetURLToSTR(m_XMLResData.strUPSChangelogURL);
+  std::string strChangelogFile = g_HTTPHandler.GetURLToSTRNew(m_XMLResData.strUPSChangelogURL);
 
   g_File.ConvertStrLineEnds(strChangelogFile);
 

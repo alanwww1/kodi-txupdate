@@ -89,7 +89,7 @@ CPOHandler::~CPOHandler()
 bool CPOHandler::FetchPOURLToMem (std::string strURL)
 {
   ClearVariables();
-  m_strBuffer = g_HTTPHandler.GetURLToSTR(strURL);
+  m_strBuffer = g_HTTPHandler.GetURLToSTRNew(strURL);
 
   return ProcessPOFile();
 };
@@ -619,7 +619,7 @@ unsigned int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralSt
 
 void CPOHandler::FetchLangAddonXML(const std::string &strURL)
 {
-  m_strLangAddonXML = g_HTTPHandler.GetURLToSTR(strURL);
+  m_strLangAddonXML = g_HTTPHandler.GetURLToSTRNew(strURL);
   if (m_strLangAddonXML.empty())
     CLog::Log(logERROR, "CPOHandler::FetchLangAddonXML: http error reading XML file from url: %s", strURL.c_str());
 }

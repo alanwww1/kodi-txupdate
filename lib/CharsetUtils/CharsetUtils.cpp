@@ -26,6 +26,7 @@
 #include <sstream>
 #include <algorithm>
 #include "../Langcodes.h"
+#include "../FileUtils/FileUtils.h"
 
 CCharsetUtils g_CharsetUtils;
 
@@ -330,6 +331,16 @@ void CCharsetUtils::reBrandXBMCToKodi(std::string * pstrtorebrand)
 std::string CCharsetUtils::GetRoot(const std::string &strPath,const std::string &strFilename)
 {
   return strPath.substr(0, strPath.size()-strFilename.size());
+}
+
+std::string CCharsetUtils::GetFilenameFromURL(const std::string &sURL)
+{
+  size_t lastpos = sURL.find_last_of(DirSepChar);
+  if (lastpos != std::string::npos)
+    return sURL.substr(lastpos+1);
+  else
+    CLog::Log(logERROR, "CharsetUtils::GetFilenameFromURL Wrong URL format: %s", sURL.c_str());
+  return "";
 }
 
 std::string CCharsetUtils::GetLangnameFromURL(std::string strName, std::string strURL, std::string strLangformat)

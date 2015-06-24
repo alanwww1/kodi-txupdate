@@ -27,6 +27,7 @@
 #include "Fileversioning.h"
 #include "jsoncpp/json/json.h"
 #include "Langcodes.h"
+#include "CharsetUtils/CharsetUtils.h"
 
 
 CHTTPHandler g_HTTPHandler;
@@ -70,7 +71,22 @@ void CHTTPHandler::HTTPRetry(int nretry)
 
 std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
 {
- return strURL;
+  std::string sCacheFileName = m_strCacheDir;
+  if (!m_sFileLocation.empty())
+    sCacheFileName += m_sFileLocation + DirSepChar;
+  if (!m_sResName.empty())
+    sCacheFileName += m_sResName + DirSepChar;
+
+  if (strURL.find("github.com") != std::string::npos)
+  {
+    CGithubURLData GitData;
+    GetGithubData(strURL,GitData);
+    sCacheFileName += GitData.strGitBranch + "/";
+  }
+
+    sCacheFileName += g_CharsetUtils.GetFilenameFromURL(strURL);
+
+    return GetURLToSTRCache(strURL, sCacheFileName);
 }
 
 std::string CHTTPHandler::GetURLToSTR(std::string strURL)

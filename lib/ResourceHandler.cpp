@@ -101,6 +101,11 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
+
+  g_HTTPHandler.SetLocation("UPS");
+  g_HTTPHandler.SetResName(m_XMLResData.strResName);
+  g_HTTPHandler.SetLCode("");
+
   bool bHasLanguageFiles = !m_XMLResData.strUPSLangURL.empty();
 
   m_AddonXMLHandler.FetchAddonDataFiles();
@@ -125,6 +130,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     bool bIsSourceLang = sLCode == m_XMLResData.strSourceLcode;
     POHandler.SetIfIsSourceLang(bIsSourceLang);
     POHandler.SetLCode(sLCode);
+    g_HTTPHandler.SetLCode(sLCode);
 
     if (bHasLanguageFiles && m_XMLResData.bIsLanguageAddon) // Download individual addon.xml files for language-addons
     {
