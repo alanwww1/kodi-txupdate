@@ -55,6 +55,8 @@ public:
   std::string GetHTTPErrorFromCode(int http_code);
   void HTTPRetry(int nretry);
   std::string GetURLToSTR(std::string strURL);
+  std::string GetURLToSTRNew(std::string strURL);
+
   void Cleanup();
   void SetCacheDir(std::string strCacheDir);
   std::string GetCacheDir() {return m_strCacheDir;}
@@ -71,6 +73,10 @@ public:
   void GetGitCloneURL(std::string const & strURL, std::string &strGitHubURL, CGithubURLData &GithubURLData);
   bool UploadTranslatorsDatabase(std::string strJson, std::string strURL);
 
+  void SetResName (const std::string& sResName) {m_sResName = sResName;}
+  void SetLCode (const std::string& sLCode) {m_sLCode = sLCode;}
+  void SetLocation (const std::string& sLocation) {m_sFileLocation = sLocation;}
+
 private:
   std::string CacheFileNameFromURL(std::string strURL);
   long curlPUTPOStrToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd);
@@ -84,10 +90,13 @@ private:
   std::string CreateNewresJSONStrFromPOStr(std::string strTXResname, std::string const &strPO);
   void ParseUploadedStringsData(std::string const &strJSON, size_t &stradded, size_t &strupd);
   void ParseUploadedStrForNewRes(std::string const &strJSON, size_t &stradded);
+  std::string GetURLToSTRCache(std::string strURL, std::string& strCacheFile);
 
   std::map<std::string, CLoginData> m_mapLoginData;
   std::map<std::string, CLoginData>::iterator itMapLoginData;
   size_t m_iHTTPCacheExp;
+
+  std::string m_sResName, m_sFileLocation, m_sLCode;
 };
 
 size_t Write_CurlData_File(void *ptr, size_t size, size_t nmemb, FILE *stream);

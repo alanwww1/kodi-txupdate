@@ -68,12 +68,21 @@ void CHTTPHandler::HTTPRetry(int nretry)
   g_HTTPHandler.ReInit();
 }
 
+std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
+{
+ return strURL;
+}
+
 std::string CHTTPHandler::GetURLToSTR(std::string strURL)
 {
-  std::string strBuffer;
   std::string strCacheFile = CacheFileNameFromURL(strURL);
   strCacheFile = m_strCacheDir + "GET/" + strCacheFile;
+  return GetURLToSTRCache(strURL, strCacheFile);
+}
 
+std::string CHTTPHandler::GetURLToSTRCache(std::string strURL, std::string& strCacheFile)
+{
+  std::string strBuffer;
   bool bCacheFileExists = g_File.FileExist(strCacheFile);
 
   size_t CacheFileAge = bCacheFileExists ? g_File.GetFileAge(strCacheFile): -1; //in seconds
