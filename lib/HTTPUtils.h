@@ -78,7 +78,7 @@ public:
   void SetLocation (const std::string& sLocation) {m_sFileLocation = sLocation;}
   void SetProjectName (const std::string& sProjName) {m_sProjectName = sProjName;}
   void SetFileName (const std::string& sFileName) {m_sFileName = sFileName;}
-
+  void SetSkipCache (bool bSkipCache) {m_bSkipCache = bSkipCache;}
 
 private:
   std::string CacheFileNameFromURL(std::string strURL);
@@ -86,20 +86,21 @@ private:
 
   CURL *m_curlHandle;
   std::string m_strCacheDir;
-  long curlURLToCache(std::string strCacheFile, std::string strURL, std::string &strBuffer);
+  void curlURLToCache(std::string strURL, std::string &strBuffer);
 
   CLoginData GetCredentials (std::string strURL);
   std::string URLEncode (std::string strURL);
   std::string CreateNewresJSONStrFromPOStr(std::string strTXResname, std::string const &strPO);
   void ParseUploadedStringsData(std::string const &strJSON, size_t &stradded, size_t &strupd);
   void ParseUploadedStrForNewRes(std::string const &strJSON, size_t &stradded);
-  std::string GetURLToSTRCache(std::string strURL, std::string& strCacheFile);
+  std::string GetURLToSTRCache(std::string strURL, const std::string& strCacheFile);
 
   std::map<std::string, CLoginData> m_mapLoginData;
   std::map<std::string, CLoginData>::iterator itMapLoginData;
   size_t m_iHTTPCacheExp;
 
   std::string m_sResName, m_sFileLocation, m_sLCode, m_sProjectName, m_sFileName;
+  bool m_bSkipCache;
 };
 
 size_t Write_CurlData_File(void *ptr, size_t size, size_t nmemb, FILE *stream);

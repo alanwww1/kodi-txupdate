@@ -37,6 +37,7 @@ using namespace std;
 CHTTPHandler::CHTTPHandler()
 {
   m_curlHandle = curl_easy_init();
+  m_bSkipCache = false;
 };
 
 CHTTPHandler::~CHTTPHandler()
@@ -71,6 +72,9 @@ void CHTTPHandler::HTTPRetry(int nretry)
 
 std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
 {
+  if (m_bSkipCache)
+    return GetURLToSTRCache(strURL, "");
+
   std::string sCacheFileName = m_strCacheDir;
   if (!m_sFileLocation.empty())
     sCacheFileName += m_sFileLocation + DirSepChar;
@@ -105,9 +109,10 @@ std::string CHTTPHandler::GetURLToSTR(std::string strURL)
   return GetURLToSTRCache(strURL, strCacheFile);
 }
 
-std::string CHTTPHandler::GetURLToSTRCache(std::string strURL, std::string& strCacheFile)
+std::string CHTTPHandler::GetURLToSTRCache(std::string strURL, const std::string& strCacheFile)
 {
   std::string strBuffer;
+
   bool bCacheFileExists = g_File.FileExist(strCacheFile);
 
   size_t CacheFileAge = bCacheFileExists ? g_File.GetFileAge(strCacheFile): -1; //in seconds
@@ -130,9 +135,10 @@ std::string CHTTPHandler::GetURLToSTRCache(std::string strURL, std::string& strC
     g_File.DeleteFile(strCacheFile + ".version");
     g_File.DeleteFile(strCacheFile + ".time");
 
-    long result = curlURLToCache(strCacheFile, strURL, strBuffer);
-    if (result < 200 || result >= 400)
-      return "";
+    curlURLToCache(strURL, strBuffer);
+
+    if (!m_bSkipCache)
+      g_File.WriteFileFromStr(strCacheFile, strBuffer);
 
     if (strWebFileVersion != "")
       g_File.WriteFileFromStr(strCacheFile + ".version", strWebFileVersion);
@@ -151,7 +157,7 @@ std::string CHTTPHandler::GetURLToSTRCache(std::string strURL, std::string& strC
   return strBuffer;
 };
 
-long CHTTPHandler::curlURLToCache(std::string strCacheFile, std::string strURL, std::string &strBuffer)
+void CHTTPHandler::curlURLToCache(std::string strURL, std::string &strBuffer)
 {
   CURLcode curlResult;
   strURL = URLEncode(strURL);
@@ -192,19 +198,15 @@ long CHTTPHandler::curlURLToCache(std::string strCacheFile, std::string strURL, 
       }
       while (nretry < 5 && !bSuccess);
 
-      if (bSuccess)
-        CLog::Log(logINFO, "HTTPHandler: curlURLToCache finished with success from URL %s to cachefile %s, read filesize: %ibytes",
-                  strURL.c_str(), strCacheFile.c_str(), strBuffer.size());
-      else
-        CLog::Log(logERROR, "HTTPHandler: curlURLToCache finished with error: \ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\nlocaldir: %s",
-                  curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(),  strURL.c_str(), strCacheFile.c_str());
+      if (!bSuccess)
+        CLog::Log(logERROR, "HTTPHandler: curlURLToCache finished with error: \ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\n",
+                  curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(),  strURL.c_str());
 
-      g_File.WriteFileFromStr(strCacheFile, strBuffer);
-      return http_code;
+      return;
     }
     else
       CLog::Log(logERROR, "HTTPHandler: curlURLToCache failed because Curl was not initalized");
-    return 0;
+    return;
 };
 
 void CHTTPHandler::ReInit()

@@ -49,8 +49,14 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   g_HTTPHandler.ReInit();
   printf ("TXresourcelist");
 
+  //TODO multiple projects
   const std::string& sProjectName = m_mapResData.begin()->second.strProjectName;
-  std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + sProjectName + "/resources/");
+  g_HTTPHandler.SetLocation("TRX");
+  g_HTTPHandler.SetProjectName(sProjectName);
+  g_HTTPHandler.SetResName("");
+  g_HTTPHandler.SetLCode("");
+  g_HTTPHandler.SetFileName("0_TXResourceList.json");
+  std::string strtemp = g_HTTPHandler.GetURLToSTRNew("https://www.transifex.com/api/2/project/" + sProjectName + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
 
@@ -230,12 +236,14 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   const std::string& strTargetProjectName = m_mapResData.begin()->second.strTargetProjectName;
 
   //TODO ditry fix for always getting a fresh txlist here
-  g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_mapResData.begin()->second.strTargetProjectName + "/resources/", "GET");
+//  g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_mapResData.begin()->second.strTargetProjectName + "/resources/", "GET");
+  g_HTTPHandler.SetSkipCache(true);
 
-  std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/");
+  std::string strtemp = g_HTTPHandler.GetURLToSTRNew("https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
 
+  g_HTTPHandler.SetSkipCache(false);
   printf ("\n\n");
 
   std::set<std::string> lResourcesAtTX = ParseResources(strtemp);
