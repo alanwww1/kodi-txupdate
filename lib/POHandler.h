@@ -97,6 +97,8 @@ public:
   void SetLCode (const std::string& sLCode) {m_sLCode = sLCode;}
 
   bool FetchPOURLToMem(std::string strURL);
+  bool FetchPOURLToMemNew(std::string strURL);
+
   void FetchLangAddonXML (const std::string &strURL);
   void WriteLangAddonXML(const std::string &strPath);
   bool ParsePOStrToMem (std::string const &strPOData);

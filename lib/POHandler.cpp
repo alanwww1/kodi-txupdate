@@ -89,10 +89,25 @@ CPOHandler::~CPOHandler()
 bool CPOHandler::FetchPOURLToMem (std::string strURL)
 {
   ClearVariables();
+  m_strBuffer = g_HTTPHandler.GetURLToSTR(strURL);
+
+  return ProcessPOFile();
+};
+
+bool CPOHandler::FetchPOURLToMemNew (std::string strURL)
+{
+  ClearVariables();
   m_strBuffer = g_HTTPHandler.GetURLToSTRNew(strURL);
 
   return ProcessPOFile();
 };
+
+
+
+
+
+
+
 
 bool CPOHandler::ParsePOStrToMem (std::string const &strPOData)
 {

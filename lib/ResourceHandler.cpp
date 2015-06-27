@@ -58,6 +58,11 @@ CPOHandler* CResourceHandler::GetPOData(std::string strLang)
 
 bool CResourceHandler::FetchPOFilesTXToMem()
 {
+  g_HTTPHandler.SetLocation("TRX");
+  g_HTTPHandler.SetResName(m_XMLResData.strResName);
+  g_HTTPHandler.SetLCode("");
+  g_HTTPHandler.SetProjectName(m_XMLResData.strProjectName);
+  g_HTTPHandler.SetFileName("strings.po");
 
   std::string strURL = "https://www.transifex.com/api/2/project/" + m_XMLResData.strProjectName + "/resource/" + m_XMLResData.strTXName + "/";
   g_HTTPHandler.Cleanup();
@@ -82,10 +87,10 @@ bool CResourceHandler::FetchPOFilesTXToMem()
     CPOHandler& POHandler = m_mapTRX[sLCode];
     POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
     POHandler.SetLCode(sLCode);
-
+    g_HTTPHandler.SetLCode(sLCode);
 
     std::string sLangNameTX = g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat);
-    POHandler.FetchPOURLToMem(strURL + "translation/" + sLangNameTX + "/?file");
+    POHandler.FetchPOURLToMemNew(strURL + "translation/" + sLangNameTX + "/?file");
     POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
 
     CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i", sLCode.c_str(), POHandler.GetClassEntriesCount());
@@ -105,6 +110,9 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   g_HTTPHandler.SetLocation("UPS");
   g_HTTPHandler.SetResName(m_XMLResData.strResName);
   g_HTTPHandler.SetLCode("");
+  g_HTTPHandler.SetProjectName("");
+  g_HTTPHandler.SetFileName("strings.po");
+
 
   bool bHasLanguageFiles = !m_XMLResData.strUPSLangURL.empty();
 
@@ -152,7 +160,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
       else
         strDloadURL = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.strUPSLangURL, m_XMLResData.strUPSLangFormat, sLCode);
 
-      POHandler.FetchPOURLToMem(strDloadURL);
+      POHandler.FetchPOURLToMemNew(strDloadURL);
     }
 
     if (m_AddonXMLHandler.FindAddonXMLEntry(sLCode))

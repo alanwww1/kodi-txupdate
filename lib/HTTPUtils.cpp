@@ -74,6 +74,8 @@ std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
   std::string sCacheFileName = m_strCacheDir;
   if (!m_sFileLocation.empty())
     sCacheFileName += m_sFileLocation + DirSepChar;
+  if (!m_sProjectName.empty())
+    sCacheFileName += m_sProjectName + DirSepChar;
   if (!m_sResName.empty())
     sCacheFileName += m_sResName + DirSepChar;
 
@@ -91,7 +93,7 @@ std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
     sCacheFileName += m_sLCode + DirSepChar;
 
 
-    sCacheFileName += g_CharsetUtils.GetFilenameFromURL(strURL);
+    sCacheFileName += m_sFileName;
 
     return GetURLToSTRCache(strURL, sCacheFileName);
 }

@@ -76,6 +76,9 @@ public:
   void SetResName (const std::string& sResName) {m_sResName = sResName;}
   void SetLCode (const std::string& sLCode) {m_sLCode = sLCode;}
   void SetLocation (const std::string& sLocation) {m_sFileLocation = sLocation;}
+  void SetProjectName (const std::string& sProjName) {m_sProjectName = sProjName;}
+  void SetFileName (const std::string& sFileName) {m_sFileName = sFileName;}
+
 
 private:
   std::string CacheFileNameFromURL(std::string strURL);
@@ -96,7 +99,7 @@ private:
   std::map<std::string, CLoginData>::iterator itMapLoginData;
   size_t m_iHTTPCacheExp;
 
-  std::string m_sResName, m_sFileLocation, m_sLCode;
+  std::string m_sResName, m_sFileLocation, m_sLCode, m_sProjectName, m_sFileName;
 };
 
 size_t Write_CurlData_File(void *ptr, size_t size, size_t nmemb, FILE *stream);
