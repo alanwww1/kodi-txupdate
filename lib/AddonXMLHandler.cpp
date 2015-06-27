@@ -72,6 +72,7 @@ void CAddonXMLHandler::FetchAddonDataFiles()
 
 bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
 {
+  g_HTTPHandler.SetFileName(m_XMLResData.strUPSAddonXMLFilename);
   std::string strURL = m_XMLResData.strUPSAddonURL;
   TiXmlDocument xmlAddonXML;
 
@@ -426,6 +427,7 @@ bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::st
 
 bool CAddonXMLHandler::FetchAddonChangelogFile ()
 {
+    g_HTTPHandler.SetFileName(m_XMLResData.strUPSChangelogName);
   std::string strChangelogFile = g_HTTPHandler.GetURLToSTRNew(m_XMLResData.strUPSChangelogURL);
 
   g_File.ConvertStrLineEnds(strChangelogFile);

@@ -96,7 +96,6 @@ public:
   void SetXMLReasData (const CXMLResdata& XMLResData) {m_XMLResData = XMLResData;}
   void SetLCode (const std::string& sLCode) {m_sLCode = sLCode;}
 
-  bool FetchPOURLToMem(std::string strURL);
   bool FetchPOURLToMemNew(std::string strURL);
 
   void FetchLangAddonXML (const std::string &strURL);

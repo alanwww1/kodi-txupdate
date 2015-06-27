@@ -111,7 +111,6 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   g_HTTPHandler.SetResName(m_XMLResData.strResName);
   g_HTTPHandler.SetLCode("");
   g_HTTPHandler.SetProjectName("");
-  g_HTTPHandler.SetFileName("strings.po");
 
 
   bool bHasLanguageFiles = !m_XMLResData.strUPSLangURL.empty();
@@ -129,6 +128,8 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
   if (!m_XMLResData.strUPSSourceLangURL.empty()) // we have a language-addon with different SRC language upstream URL
     listLangs.insert(m_XMLResData.strSourceLcode);
+
+  g_HTTPHandler.SetFileName("strings.po");
 
   for (std::set<std::string>::iterator it = listLangs.begin(); it != listLangs.end(); it++)
   {

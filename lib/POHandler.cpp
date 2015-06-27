@@ -86,13 +86,6 @@ CPOHandler::CPOHandler(const CXMLResdata& XMLResdata) : m_XMLResData(XMLResdata)
 CPOHandler::~CPOHandler()
 {};
 
-bool CPOHandler::FetchPOURLToMem (std::string strURL)
-{
-  ClearVariables();
-  m_strBuffer = g_HTTPHandler.GetURLToSTR(strURL);
-
-  return ProcessPOFile();
-};
 
 bool CPOHandler::FetchPOURLToMemNew (std::string strURL)
 {
