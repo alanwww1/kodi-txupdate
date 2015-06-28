@@ -38,6 +38,8 @@ CHTTPHandler::CHTTPHandler()
 {
   m_curlHandle = curl_easy_init();
   m_bSkipCache = false;
+  m_bUseGitBranch = true;
+  m_bDataFile = false;
 };
 
 CHTTPHandler::~CHTTPHandler()
@@ -90,16 +92,24 @@ std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
   {
     CGithubURLData GitData;
     GetGithubData(strURL,GitData);
-    sCacheFileName += GitData.strGitBranch + "/";
+    if (!m_sResName.empty() && m_bUseGitBranch)
+      sCacheFileName += GitData.strGitBranch + DirSepChar;
+  }
+  else if (m_bUseGitBranch && strURL.find("api.github.com/") != std::string::npos)
+  {
+    size_t pos = strURL.rfind("?ref=");
+    sCacheFileName += strURL.substr(pos+5) + DirSepChar;
   }
 
   if (!m_sLCode.empty())
     sCacheFileName += m_sLCode + DirSepChar;
 
+  if (m_bDataFile)
+    sCacheFileName += sCACHEDATADIRNAME + DirSepChar;
 
-    sCacheFileName += m_sFileName;
+  sCacheFileName += m_sFileName;
 
-    return GetURLToSTRCache(strURL, sCacheFileName);
+  return GetURLToSTRCache(strURL, sCacheFileName);
 }
 
 std::string CHTTPHandler::GetURLToSTR(std::string strURL)
@@ -184,7 +194,7 @@ void CHTTPHandler::curlURLToCache(std::string strURL, std::string &strBuffer)
         }
         curl_easy_setopt(m_curlHandle, CURLOPT_FAILONERROR, true);
         curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &strBuffer);
-        curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT, strUserAgent.c_str());
+        curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT, sUSERAGENT.c_str());
         curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, 0);
 //        curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, 0);
         curl_easy_setopt(m_curlHandle, CURLOPT_VERBOSE, 0);
@@ -464,7 +474,7 @@ long CHTTPHandler::curlPUTPOStrToURL(std::string const &strPOFile, std::string c
       curl_easy_setopt(m_curlHandle, CURLOPT_HEADER, 1L);
       curl_easy_setopt(m_curlHandle, CURLOPT_FOLLOWLOCATION, 1L);
       curl_easy_setopt(m_curlHandle, CURLOPT_HTTPPOST, post1);
-      curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT, strUserAgent.c_str());
+      curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT, sUSERAGENT.c_str());
       curl_easy_setopt(m_curlHandle, CURLOPT_MAXREDIRS, 50L);
       curl_easy_setopt(m_curlHandle, CURLOPT_CUSTOMREQUEST, "PUT");
 
@@ -593,7 +603,7 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
       curl_easy_setopt(m_curlHandle, CURLOPT_READDATA, &PutStrData);
       curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &strServerResp);
       curl_easy_setopt(m_curlHandle, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)strPOJson.size());
-      curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT, strUserAgent.c_str());
+      curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT, sUSERAGENT.c_str());
       curl_easy_setopt(m_curlHandle, CURLOPT_HTTPHEADER, headers);
       curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, 0);
       curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, 0);
@@ -730,7 +740,7 @@ bool CHTTPHandler::UploadTranslatorsDatabase(std::string strJson, std::string st
       curl_easy_setopt(m_curlHandle, CURLOPT_READDATA, &PutStrData);
       curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &strServerResp);
       curl_easy_setopt(m_curlHandle, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)strJson.size());
-      curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT, strUserAgent.c_str());
+      curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT, sUSERAGENT.c_str());
       curl_easy_setopt(m_curlHandle, CURLOPT_HTTPHEADER, headers);
       curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, 0);
       curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, 0);

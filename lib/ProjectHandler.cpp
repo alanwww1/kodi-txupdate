@@ -55,7 +55,9 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   g_HTTPHandler.SetProjectName(sProjectName);
   g_HTTPHandler.SetResName("");
   g_HTTPHandler.SetLCode("");
-  g_HTTPHandler.SetFileName("0_TXResourceList.json");
+  g_HTTPHandler.SetFileName("TXResourceList.json");
+  g_HTTPHandler.SetDataFile(true);
+
   std::string strtemp = g_HTTPHandler.GetURLToSTRNew("https://www.transifex.com/api/2/project/" + sProjectName + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");

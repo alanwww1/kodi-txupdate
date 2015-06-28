@@ -50,10 +50,14 @@ void CAddonXMLHandler::FetchAddonDataFiles()
   if (m_XMLResData.strUPSAddonURL.empty() || !m_XMLResData.strUPSAddonLangFormat.empty())
     return; // kodi language-addons have individual addon.xml files
 
+  g_HTTPHandler.SetFileName("AddonData_FilesListing.json");
+  g_HTTPHandler.SetUseGitBranch(true);
+  g_HTTPHandler.SetDataFile(true);
+
   // We get the version of the addon.xml and changelog.txt files here
   sGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(m_XMLResData.strUPSAddonURLRoot);
   printf(" Dir");
-  sTemp = g_HTTPHandler.GetURLToSTR(sGitHubURL);
+  sTemp = g_HTTPHandler.GetURLToSTRNew(sGitHubURL);
   if (sTemp.empty())
     CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting addon.xml file version from github.com");
 
@@ -73,6 +77,8 @@ void CAddonXMLHandler::FetchAddonDataFiles()
 bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
 {
   g_HTTPHandler.SetFileName(m_XMLResData.strUPSAddonXMLFilename);
+  g_HTTPHandler.SetDataFile(false);
+
   std::string strURL = m_XMLResData.strUPSAddonURL;
   TiXmlDocument xmlAddonXML;
 
@@ -427,7 +433,9 @@ bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::st
 
 bool CAddonXMLHandler::FetchAddonChangelogFile ()
 {
-    g_HTTPHandler.SetFileName(m_XMLResData.strUPSChangelogName);
+  g_HTTPHandler.SetFileName(m_XMLResData.strUPSChangelogName);
+  g_HTTPHandler.SetDataFile(false);
+
   std::string strChangelogFile = g_HTTPHandler.GetURLToSTRNew(m_XMLResData.strUPSChangelogURL);
 
   g_File.ConvertStrLineEnds(strChangelogFile);

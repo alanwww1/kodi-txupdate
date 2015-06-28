@@ -63,6 +63,7 @@ bool CResourceHandler::FetchPOFilesTXToMem()
   g_HTTPHandler.SetLCode("");
   g_HTTPHandler.SetProjectName(m_XMLResData.strProjectName);
   g_HTTPHandler.SetFileName("strings.po");
+  g_HTTPHandler.SetDataFile(false);
 
   std::string strURL = "https://www.transifex.com/api/2/project/" + m_XMLResData.strProjectName + "/resource/" + m_XMLResData.strTXName + "/";
   g_HTTPHandler.Cleanup();
@@ -130,6 +131,9 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     listLangs.insert(m_XMLResData.strSourceLcode);
 
   g_HTTPHandler.SetFileName("strings.po");
+  g_HTTPHandler.SetUseGitBranch(true);
+  g_HTTPHandler.SetDataFile(false);
+
 
   for (std::set<std::string>::iterator it = listLangs.begin(); it != listLangs.end(); it++)
   {

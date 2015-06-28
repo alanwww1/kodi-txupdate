@@ -49,17 +49,27 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata
   printf("DOWNLOADING LANGUAGE DATABASE\n");
   printf("-----------------------------\n");
 
+  g_HTTPHandler.SetLocation("UPS");
+  g_HTTPHandler.SetProjectName("");
+  g_HTTPHandler.SetResName("");
+  g_HTTPHandler.SetLCode("");
+  g_HTTPHandler.SetFileName("LangDatabase_FileListing.json");
+  g_HTTPHandler.SetUseGitBranch(false);
+  g_HTTPHandler.SetDataFile(true);
+
   // We get the version of the language database files here
   std::string strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(strLangDatabaseURL.substr(0,strLangDatabaseURL.find_last_of("/")+1));
   printf("Langdatabaseversion");
-  std::string strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
+  std::string strtemp = g_HTTPHandler.GetURLToSTRNew(strGitHubURL);
   if (strtemp.empty())
     CLog::Log(logERROR, "CLCodeHandler::Init: error getting language file version from github.com with URL: %s", strLangDatabaseURL.c_str());
 
   ParseLangDatabaseVersion(strtemp, strLangDatabaseURL);
 
+  g_HTTPHandler.SetFileName("LangDatabase.json");
+
   printf(" Langdatabase");
-  strtemp = g_HTTPHandler.GetURLToSTR(strLangDatabaseURL);
+  strtemp = g_HTTPHandler.GetURLToSTRNew(strLangDatabaseURL);
   if (strtemp.empty())
     CLog::Log(logERROR, "LangCode::Init: error getting available language list from URL %s", strLangDatabaseURL.c_str());
 

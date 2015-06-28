@@ -44,7 +44,8 @@ struct CGithubURLData
   std::string strGitBranch;
 };
 
-const std::string strUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1870.2 Safari/537.36";
+const std::string sUSERAGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1870.2 Safari/537.36";
+const std::string sCACHEDATADIRNAME = ".0data";
 
 class CHTTPHandler
 {
@@ -73,12 +74,16 @@ public:
   void GetGitCloneURL(std::string const & strURL, std::string &strGitHubURL, CGithubURLData &GithubURLData);
   bool UploadTranslatorsDatabase(std::string strJson, std::string strURL);
 
+  //Cache filename generations related settings
   void SetResName (const std::string& sResName) {m_sResName = sResName;}
   void SetLCode (const std::string& sLCode) {m_sLCode = sLCode;}
   void SetLocation (const std::string& sLocation) {m_sFileLocation = sLocation;}
   void SetProjectName (const std::string& sProjName) {m_sProjectName = sProjName;}
   void SetFileName (const std::string& sFileName) {m_sFileName = sFileName;}
   void SetSkipCache (bool bSkipCache) {m_bSkipCache = bSkipCache;}
+  void SetUseGitBranch (bool bUseBranch) {m_bUseGitBranch = bUseBranch;}
+  void SetDataFile (bool bDataFile) {m_bDataFile = bDataFile;}
+
 
 private:
   std::string CacheFileNameFromURL(std::string strURL);
@@ -100,7 +105,7 @@ private:
   size_t m_iHTTPCacheExp;
 
   std::string m_sResName, m_sFileLocation, m_sLCode, m_sProjectName, m_sFileName;
-  bool m_bSkipCache;
+  bool m_bSkipCache, m_bUseGitBranch, m_bDataFile;
 };
 
 size_t Write_CurlData_File(void *ptr, size_t size, size_t nmemb, FILE *stream);
