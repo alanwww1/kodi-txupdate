@@ -62,8 +62,6 @@ bool CResourceHandler::FetchPOFilesTXToMem()
   g_HTTPHandler.SetResName(m_XMLResData.strResName);
   g_HTTPHandler.SetLCode("");
   g_HTTPHandler.SetProjectName(m_XMLResData.strProjectName);
-  g_HTTPHandler.SetFileName("strings.po");
-  g_HTTPHandler.SetDataFile(false);
 
   std::string strURL = "https://www.transifex.com/api/2/project/" + m_XMLResData.strProjectName + "/resource/" + m_XMLResData.strTXName + "/";
   g_HTTPHandler.Cleanup();
@@ -71,13 +69,19 @@ bool CResourceHandler::FetchPOFilesTXToMem()
   CLog::Log(logINFO, "ResHandler: Starting to load resource from TX URL: %s into memory",strURL.c_str());
   printf(" Langlist");
 
-  std::string strtemp = g_HTTPHandler.GetURLToSTR(strURL + "stats/");
+  g_HTTPHandler.SetFileName("LanguageList.json");
+  g_HTTPHandler.SetDataFile(true);
+
+  std::string strtemp = g_HTTPHandler.GetURLToSTRNew(strURL + "stats/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ResHandler::FetchPOFilesTXToMem: error getting po file list from transifex.net");
 
   std::list<std::string> listLCodesTX = ParseAvailLanguagesTX(strtemp, strURL);
 
   CPOHandler newPOHandler(m_XMLResData);
+
+  g_HTTPHandler.SetFileName("strings.po");
+  g_HTTPHandler.SetDataFile(false);
 
   for (std::list<std::string>::iterator it = listLCodesTX.begin(); it != listLCodesTX.end(); it++)
   {
