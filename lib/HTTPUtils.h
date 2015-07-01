@@ -55,7 +55,6 @@ public:
   void ReInit();
   std::string GetHTTPErrorFromCode(int http_code);
   void HTTPRetry(int nretry);
-  std::string GetURLToSTR(std::string strURL);
   std::string GetURLToSTRNew(std::string strURL);
 
   void Cleanup();

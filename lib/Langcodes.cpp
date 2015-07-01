@@ -161,7 +161,14 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const 
     std::string strLangCode = itmapLCodes->first;
     std::string strTXLformat = XMLResData.strDefTXLFormat;
 
-    std::string strJson = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/"+ strProjectName + "/language/" +
+    g_HTTPHandler.SetLocation("TRX");
+    g_HTTPHandler.SetProjectName(XMLResData.strProjectName);
+    g_HTTPHandler.SetResName("");
+    g_HTTPHandler.SetLCode(strLangCode);
+    g_HTTPHandler.SetFileName("ContributorList.json");
+    g_HTTPHandler.SetDataFile(true);
+
+    std::string strJson = g_HTTPHandler.GetURLToSTRNew("https://www.transifex.com/api/2/project/"+ strProjectName + "/language/" +
                                                      GetLangFromLCode(strLangCode, strTXLformat) + "/" + strContributorType + "/");
     if (strJson.empty())
       CLog::Log(logERROR, "CLCodeHandler::GetTranslatorsDatabase: error getting translator groups list for project: %s", strProjectName.c_str());

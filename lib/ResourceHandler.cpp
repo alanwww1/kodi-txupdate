@@ -118,6 +118,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   g_HTTPHandler.SetProjectName("");
 
 
+
   bool bHasLanguageFiles = !m_XMLResData.strUPSLangURL.empty();
 
   m_AddonXMLHandler.FetchAddonDataFiles();
@@ -125,6 +126,12 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   std::set<std::string> listLangs;
   if (bHasLanguageFiles)
   {
+    g_HTTPHandler.SetLCode("");
+    g_HTTPHandler.SetProjectName("");
+    g_HTTPHandler.SetUseGitBranch(true);
+    g_HTTPHandler.SetFileName("LangList.json");
+    g_HTTPHandler.SetDataFile(true);
+
     printf(" Langlist");
     listLangs = GetAvailLangsGITHUB();
   }
@@ -566,7 +573,7 @@ std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
   std::string sJson, sGitHubURL;
   sGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(m_XMLResData.strUPSLangURLRoot);
 
-  sJson = g_HTTPHandler.GetURLToSTR(sGitHubURL);
+  sJson = g_HTTPHandler.GetURLToSTRNew(sGitHubURL);
   if (sJson.empty())
     CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting po file list from github.com");
 

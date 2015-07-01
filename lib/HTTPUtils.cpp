@@ -112,13 +112,6 @@ std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
   return GetURLToSTRCache(strURL, sCacheFileName);
 }
 
-std::string CHTTPHandler::GetURLToSTR(std::string strURL)
-{
-  std::string strCacheFile = CacheFileNameFromURL(strURL);
-  strCacheFile = m_strCacheDir + "GET/" + strCacheFile;
-  return GetURLToSTRCache(strURL, strCacheFile);
-}
-
 std::string CHTTPHandler::GetURLToSTRCache(std::string strURL, const std::string& strCacheFile)
 {
   std::string strBuffer;
