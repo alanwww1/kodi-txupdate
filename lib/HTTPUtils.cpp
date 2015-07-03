@@ -399,12 +399,36 @@ std::string CHTTPHandler::URLEncode (std::string strURL)
 bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &strURL, bool &bUploaded,
                                 size_t &iAddedNew, size_t &iUpdated)
 {
-  std::string strCacheFileName = CacheFileNameFromURL(strURL);
-  strCacheFileName = m_strCacheDir + "PUT/" + strCacheFileName;
+  std::string sCacheFileName = m_strCacheDir;
+  if (!m_sFileLocation.empty())
+    sCacheFileName += m_sFileLocation + DirSepChar;
+  if (!m_sProjectName.empty())
+    sCacheFileName += m_sProjectName + DirSepChar;
+  if (!m_sResName.empty())
+    sCacheFileName += m_sResName + DirSepChar;
+  if (!m_sLCode.empty())
+    sCacheFileName += m_sLCode + DirSepChar;
+  if (m_bDataFile)
+    sCacheFileName += sCACHEDATADIRNAME + DirSepChar;
+
+  sCacheFileName += m_sFileName;
+
+  bool bCacheFileExists = g_File.FileExist(sCacheFileName);
+
+  size_t CacheFileAge = bCacheFileExists ? g_File.GetFileAge(sCacheFileName): -1; //in seconds
+  size_t MaxCacheFileAge = m_iHTTPCacheExp * 60; // in seconds
+
+  bool bCacheFileExpired = CacheFileAge > MaxCacheFileAge;
+
+  if (bCacheFileExpired)  //In case cachefile expired, delete it so forcing upload of current uploadable
+  {
+    g_File.DeleteFile(sCacheFileName);
+    g_File.DeleteFile(sCacheFileName + ".time");
+  }
 
   std::string sCacheFile;
-  if (g_File.FileExist(strCacheFileName))
-    sCacheFile = g_File.ReadFileToStr(strCacheFileName);
+  if (bCacheFileExists && !bCacheFileExpired)
+    sCacheFile = g_File.ReadFileToStr(sCacheFileName);
 
   if (sCacheFile == sPOFile)
   {
@@ -421,7 +445,12 @@ bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &s
   }
 
   CLog::Log(logINFO, "HTTPHandler::PutFileToURL: File upload was successful so creating a copy at the .httpcache directory");
-  g_File.WriteFileFromStr(strCacheFileName, sPOFile);
+
+  if (!bCacheFileExists || bCacheFileExpired)
+  {
+    g_File.WriteFileFromStr(sCacheFileName, sPOFile);
+    g_File.WriteNowToFileAgeFile(sCacheFileName);
+  }
 
   bUploaded = true;
 

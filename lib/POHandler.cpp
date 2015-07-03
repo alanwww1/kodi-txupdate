@@ -1085,10 +1085,4 @@ void CPOHandler::PutTranslFileToTRX()
     printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
   else
     printf ("\tlangcode: %s:\t no change, skipping.\n", m_sLCode.c_str());
-
-  g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
-                                 "/resource/" + m_XMLResData.strResName + "/stats/", "GET");
-  g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
-                                 "/resource/" + m_XMLResData.strResName + "/translation/" +
-                                 g_LCodeHandler.GetLangFromLCode(m_sLCode, m_XMLResData.strTargTXLFormat) + "/?file", "GET");
 }

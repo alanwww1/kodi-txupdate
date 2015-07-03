@@ -680,14 +680,19 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
     return;
   }
 
+  g_HTTPHandler.SetLocation("UPD");
+  g_HTTPHandler.SetProjectName(m_XMLResData.strProjectName);
+  g_HTTPHandler.SetResName(m_XMLResData.strResName);
+  g_HTTPHandler.SetFileName("string.po");
+  g_HTTPHandler.SetDataFile(false);
+
+  g_HTTPHandler.SetLCode(m_XMLResData.strSourceLcode);
+
   if (bNewResourceOnTRX)
   {
     // We create the new resource on transifex and also upload the English source file at once
 
     m_mapUPD.at(m_XMLResData.strSourceLcode).CreateNewResource();
-
-    //TODO change directory to the right location of the cache file (even if it is different)
-    g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName + "/resources/", "GET");
 
     g_HTTPHandler.Cleanup();
     g_HTTPHandler.ReInit();
@@ -707,6 +712,8 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
 
     if (sLCode == m_XMLResData.strSourceLcode) // Let's not upload the Source language file again
       continue;
+
+    g_HTTPHandler.SetLCode(sLCode);
 
     POHandler.PutTranslFileToTRX();
   }
