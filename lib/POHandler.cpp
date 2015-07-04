@@ -1050,7 +1050,7 @@ void CPOHandler::CreateNewResource()
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
 
-  size_t iAddedNew;
+  size_t iAddedNew = 0;
   g_HTTPHandler.CreateNewResource(m_strOutBuffer, m_XMLResData, iAddedNew);
   printf (", newly created on Transifex with %s%lu%s English strings.\n", KGRN, iAddedNew, RESET);
 }
