@@ -616,7 +616,12 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
                 curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), sURLCreateRes.c_str(),
                 sURLSRCRes.c_str(), XMLResData.strResName.c_str());
 
-    g_File.CopyFile(sURLCreateRes, sCacheFile);
+    if (!bCacheFileExists || bCacheFileExpired)
+    {
+      g_File.WriteFileFromStr(sCacheFileName, sPOFile);
+      g_File.WriteNowToFileAgeFile(sCacheFileName);
+    }
+
     ParseUploadedStrForNewRes(strServerResp, iAddedNew);
 
     return true;

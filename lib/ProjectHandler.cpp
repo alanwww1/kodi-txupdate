@@ -77,7 +77,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 
     if (listResNamesAvailOnTX.find(sResName) == listResNamesAvailOnTX.end())
     {
-      printf(" ) Not yet at available at Transifex\n");
+      printf(" ) Not yet available at Transifex\n");
       continue;
     }
 

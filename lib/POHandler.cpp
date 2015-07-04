@@ -1061,7 +1061,8 @@ void CPOHandler::PutSRCFileToTRX()
   g_HTTPHandler.ReInit();
 
   bool bUploaded;
-  size_t iAddedNew, iUpdated;
+  size_t iAddedNew =0;
+  size_t iUpdated = 0;
   g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
   "/resource/" + m_XMLResData.strTargetTXName + "/content/", bUploaded, iAddedNew, iUpdated);
 
@@ -1077,7 +1078,9 @@ void CPOHandler::PutTranslFileToTRX()
   g_HTTPHandler.ReInit();
 
   bool bUploaded;
-  size_t iAddedNew, iUpdated;
+  size_t iAddedNew =0;
+  size_t iUpdated = 0;
+
   g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
                              "/resource/" + m_XMLResData.strTargetTXName + "/translation/"
                              + g_LCodeHandler.GetLangFromLCode(m_sLCode, m_XMLResData.strTargTXLFormat) + "/", bUploaded, iAddedNew, iUpdated);
