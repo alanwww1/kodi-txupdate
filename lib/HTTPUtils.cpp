@@ -74,83 +74,37 @@ void CHTTPHandler::HTTPRetry(int nretry)
 
 std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
 {
-  if (m_bSkipCache)
-    return GetURLToSTRCache(strURL, "");
+  bool bCacheFileExists, bCacheFileExpired;
+  std::string sCacheFileName = CreateCacheFilename(strURL, bCacheFileExists, bCacheFileExpired);
 
-  std::string sCacheFileName = m_strCacheDir;
-  if (!m_sFileLocation.empty())
-    sCacheFileName += m_sFileLocation + DirSepChar;
-  if (!m_sProjectName.empty())
-    sCacheFileName += m_sProjectName + DirSepChar;
-  if (!m_sResName.empty())
-    sCacheFileName += m_sResName + DirSepChar;
+  std::string strBuffer, strCachedFileVersion, strWebFileVersion;
 
-  //If we download from github, get branch into count
-  if (strURL.find("raw.github.com/") != std::string::npos || strURL.find("raw2.github.com/") != std::string::npos ||
-      strURL.find("raw.githubusercontent.com/") != std::string::npos ||
-      strURL.find("raw2.githubusercontent.com/") != std::string::npos)
-  {
-    CGithubURLData GitData;
-    GetGithubData(strURL,GitData);
-    if (!m_sResName.empty() && m_bUseGitBranch)
-      sCacheFileName += GitData.strGitBranch + DirSepChar;
-  }
-  else if (m_bUseGitBranch && strURL.find("api.github.com/") != std::string::npos)
-  {
-    size_t pos = strURL.rfind("?ref=");
-    sCacheFileName += strURL.substr(pos+5) + DirSepChar;
-  }
-
-  if (!m_sLCode.empty())
-    sCacheFileName += m_sLCode + DirSepChar;
-
-  if (m_bDataFile)
-    sCacheFileName += sCACHEDATADIRNAME + DirSepChar;
-
-  sCacheFileName += m_sFileName;
-
-  return GetURLToSTRCache(strURL, sCacheFileName);
-}
-
-std::string CHTTPHandler::GetURLToSTRCache(std::string strURL, const std::string& strCacheFile)
-{
-  std::string strBuffer;
-
-  bool bCacheFileExists = g_File.FileExist(strCacheFile);
-
-  size_t CacheFileAge = bCacheFileExists ? g_File.GetFileAge(strCacheFile): -1; //in seconds
-  size_t MaxCacheFileAge = m_iHTTPCacheExp * 60; // in seconds
-
-  bool bCacheFileExpired = CacheFileAge > MaxCacheFileAge;
-
-  std::string strCachedFileVersion, strWebFileVersion;
   strWebFileVersion = g_Fileversion.GetVersionForURL(strURL);
 
-
-  if (strWebFileVersion != "" && g_File.FileExist(strCacheFile + ".version"))
-    strCachedFileVersion = g_File.ReadFileToStr(strCacheFile + ".version");
+  if (strWebFileVersion != "" && g_File.FileExist(sCacheFileName + ".version"))
+    strCachedFileVersion = g_File.ReadFileToStr(sCacheFileName + ".version");
 
   bool bFileChangedOnWeb = strCachedFileVersion != strWebFileVersion;
 
   if (!bCacheFileExists || (bCacheFileExpired && (strWebFileVersion == "" || bFileChangedOnWeb)))
   {
     printf("%s*%s", KGRN, RESET);
-    g_File.DeleteFile(strCacheFile + ".version");
-    g_File.DeleteFile(strCacheFile + ".time");
+    g_File.DeleteFile(sCacheFileName + ".version");
+    g_File.DeleteFile(sCacheFileName + ".time");
 
     curlURLToCache(strURL, strBuffer);
 
     if (!m_bSkipCache)
-      g_File.WriteFileFromStr(strCacheFile, strBuffer);
+      g_File.WriteFileFromStr(sCacheFileName, strBuffer);
 
     if (strWebFileVersion != "")
-      g_File.WriteFileFromStr(strCacheFile + ".version", strWebFileVersion);
+      g_File.WriteFileFromStr(sCacheFileName + ".version", strWebFileVersion);
 
-    g_File.WriteNowToFileAgeFile(strCacheFile);
+    g_File.WriteNowToFileAgeFile(sCacheFileName);
   }
   else
   {
-    strBuffer = g_File.ReadFileToStr(strCacheFile);
+    strBuffer = g_File.ReadFileToStr(sCacheFileName);
     if (bCacheFileExpired)
       printf ("%s-%s", KCYN, RESET);
     else
@@ -281,45 +235,12 @@ size_t Read_CurlData_String(void * ptr, size_t size, size_t nmemb, void * stream
   return 0; 
 }
 
-
 void CHTTPHandler::SetCacheDir(std::string strCacheDir)
 {
   if (!g_File.DirExists(strCacheDir))
     g_File.MakeDir(strCacheDir);
   m_strCacheDir = strCacheDir + DirSepChar;
   CLog::Log(logINFO, "HTTPHandler: Cache directory set to: %s", strCacheDir.c_str());
-};
-
-std::string CHTTPHandler::CacheFileNameFromURL(std::string strURL)
-{
-  std::string strResult;
-  std::string strCharsToKeep  = "/.-=_() ";
-  std::string strReplaceChars = "/.-=_() ";
-
-  std::string hexChars = "01234567890abcdef"; 
-
-  for (std::string::iterator it = strURL.begin(); it != strURL.end(); it++)
-  {
-    if (isalnum(*it))
-      strResult += *it;
-    else
-    {
-      size_t pos = strCharsToKeep.find(*it);
-      if (pos != std::string::npos)
-        strResult += strReplaceChars[pos];
-      else
-      {
-        strResult += "%";
-        strResult += hexChars[(*it >> 4) & 0x0F];
-        strResult += hexChars[*it & 0x0F];
-      }
-    }
-  }
-
-  if (strResult.at(strResult.size()-1) == '/')
-    strResult[strResult.size()-1] = '-';
-
-  return strResult;
 };
 
 bool CHTTPHandler::LoadCredentials (std::string CredentialsFilename)
@@ -394,31 +315,12 @@ std::string CHTTPHandler::URLEncode (std::string strURL)
   return strOut;
 }
 
-
-
 bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &strURL, bool &bUploaded,
                                 size_t &iAddedNew, size_t &iUpdated)
 {
-  std::string sCacheFileName = m_strCacheDir;
-  if (!m_sFileLocation.empty())
-    sCacheFileName += m_sFileLocation + DirSepChar;
-  if (!m_sProjectName.empty())
-    sCacheFileName += m_sProjectName + DirSepChar;
-  if (!m_sResName.empty())
-    sCacheFileName += m_sResName + DirSepChar;
-  if (!m_sLCode.empty())
-    sCacheFileName += m_sLCode + DirSepChar;
-  if (m_bDataFile)
-    sCacheFileName += sCACHEDATADIRNAME + DirSepChar;
+  bool bCacheFileExists, bCacheFileExpired;
 
-  sCacheFileName += m_sFileName;
-
-  bool bCacheFileExists = g_File.FileExist(sCacheFileName);
-
-  size_t CacheFileAge = bCacheFileExists ? g_File.GetFileAge(sCacheFileName): -1; //in seconds
-  size_t MaxCacheFileAge = m_iHTTPCacheExp * 60; // in seconds
-
-  bool bCacheFileExpired = CacheFileAge > MaxCacheFileAge;
+  std::string sCacheFileName = CreateCacheFilename(strURL, bCacheFileExists, bCacheFileExpired);
 
   if (bCacheFileExpired)  //In case cachefile expired, delete it so forcing upload of current uploadable
   {
@@ -459,6 +361,7 @@ bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &s
 
 long CHTTPHandler::curlPUTPOStrToURL(std::string const &strPOFile, std::string const &cstrURL, size_t &stradded, size_t &strupd)
 {
+
   CURLcode curlResult;
 
   std::string strURL = URLEncode(cstrURL);
@@ -572,8 +475,56 @@ long CHTTPHandler::curlPUTPOStrToURL(std::string const &strPOFile, std::string c
   }
 */
 
+std::string CHTTPHandler::CreateCacheFilename(const std::string& strURL, bool &bCacheFileExists, bool &bCacheFileExpired)
+{
+  if (m_bSkipCache)
+    return "";
+
+  std::string sCacheFileName = m_strCacheDir;
+  if (!m_sFileLocation.empty())
+    sCacheFileName += m_sFileLocation + DirSepChar;
+  if (!m_sProjectName.empty())
+    sCacheFileName += m_sProjectName + DirSepChar;
+  if (!m_sResName.empty())
+    sCacheFileName += m_sResName + DirSepChar;
+
+  //If we download from github, get branch into count
+  if (strURL.find("raw.github.com/") != std::string::npos || strURL.find("raw2.github.com/") != std::string::npos ||
+      strURL.find("raw.githubusercontent.com/") != std::string::npos ||
+      strURL.find("raw2.githubusercontent.com/") != std::string::npos)
+  {
+    CGithubURLData GitData;
+    GetGithubData(strURL,GitData);
+    if (!m_sResName.empty() && m_bUseGitBranch)
+      sCacheFileName += GitData.strGitBranch + DirSepChar;
+  }
+  else if (m_bUseGitBranch && strURL.find("api.github.com/") != std::string::npos)
+  {
+    size_t pos = strURL.rfind("?ref=");
+    sCacheFileName += strURL.substr(pos+5) + DirSepChar;
+  }
+
+  if (!m_sLCode.empty())
+    sCacheFileName += m_sLCode + DirSepChar;
+
+  if (m_bDataFile)
+    sCacheFileName += sCACHEDATADIRNAME + DirSepChar;
+
+  sCacheFileName += m_sFileName;
+
+  bCacheFileExists = g_File.FileExist(sCacheFileName);
+
+  size_t CacheFileAge = bCacheFileExists ? g_File.GetFileAge(sCacheFileName): -1; //in seconds
+  size_t MaxCacheFileAge = m_iHTTPCacheExp * 60; // in seconds
+
+  bCacheFileExpired = CacheFileAge > MaxCacheFileAge;
+
+  return sCacheFileName;
+}
+
 bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResdata& XMLResData, size_t &iAddedNew)
 {
+
 
   std::string sURLCreateRes = "https://www.transifex.com/api/2/project/" + XMLResData.strTargetProjectName + "/resources/";
 
@@ -581,8 +532,25 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
                            XMLResData.strTargetTXName + "/translation/" +
                            g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strTargTXLFormat) + "/";
 
-  std::string sCacheFile = CacheFileNameFromURL(sURLSRCRes);
-  sCacheFile = m_strCacheDir + "PUT/" + sCacheFile;
+  bool bCacheFileExists, bCacheFileExpired;
+
+  std::string sCacheFileName = CreateCacheFilename(sURLSRCRes, bCacheFileExists, bCacheFileExpired);
+
+  if (bCacheFileExpired)  //In case cachefile expired, delete it so forcing upload of current uploadable
+  {
+    g_File.DeleteFile(sCacheFileName);
+    g_File.DeleteFile(sCacheFileName + ".time");
+  }
+
+  std::string sCacheFile;
+  if (bCacheFileExists && !bCacheFileExpired)
+    sCacheFile = g_File.ReadFileToStr(sCacheFileName);
+
+  if (sCacheFile == sPOFile)
+  {
+    CLog::Log(logINFO, "HTTPHandler::PutFileToURL: not necesarry to upload file as it has not changed from last upload.");
+    return true;
+  }
 
   CURLcode curlResult;
 
@@ -658,15 +626,6 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
 
   return false;
 };
-
-void CHTTPHandler::DeleteCachedFile (std::string const &strURL, std::string strPrefix)
-{
-  std::string strCacheFile = CacheFileNameFromURL(strURL);
-
-  strCacheFile = m_strCacheDir + strPrefix + "/" + strCacheFile;
-  if (g_File.FileExist(strCacheFile))
-    g_File.DeleteFile(strCacheFile);
-}
 
 void CHTTPHandler::GetGithubData (const std::string &strURL, CGithubURLData &GithubURLData)
 {

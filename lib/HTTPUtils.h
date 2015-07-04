@@ -67,7 +67,6 @@ public:
   bool PutFileToURL(std::string const &strFilePath, std::string const &strURL, bool &buploaded,
                     size_t &stradded, size_t &strupd);
   bool CreateNewResource(const std::string& sPOFile, const CXMLResdata& XMLResData, size_t &iAddedNew);
-  void DeleteCachedFile(std::string const &strURL, std::string strPrefix);
   void GetGithubData (const std::string &strURL, CGithubURLData &GithubURLData);
   std::string GetGitHUBAPIURL(std::string const & strURL);
   void GetGitCloneURL(std::string const & strURL, std::string &strGitHubURL, CGithubURLData &GithubURLData);
@@ -85,8 +84,8 @@ public:
 
 
 private:
-  std::string CacheFileNameFromURL(std::string strURL);
   long curlPUTPOStrToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd);
+  std::string CreateCacheFilename(const std::string& strURL, bool &bCacheFileExists, bool &bCacheFileExpired);
 
   CURL *m_curlHandle;
   std::string m_strCacheDir;
@@ -97,7 +96,6 @@ private:
   std::string CreateNewresJSONStrFromPOStr(std::string strTXResname, std::string const &strPO);
   void ParseUploadedStringsData(std::string const &strJSON, size_t &stradded, size_t &strupd);
   void ParseUploadedStrForNewRes(std::string const &strJSON, size_t &stradded);
-  std::string GetURLToSTRCache(std::string strURL, const std::string& strCacheFile);
 
   std::map<std::string, CLoginData> m_mapLoginData;
   std::map<std::string, CLoginData>::iterator itMapLoginData;
