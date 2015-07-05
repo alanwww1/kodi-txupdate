@@ -94,6 +94,15 @@ std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
 
     curlURLToCache(strURL, strBuffer);
 
+    //Check if the changed file is an UPS one. In that case save previous version for later use,
+    //to  filter out deleted entries at Transifex and not re-adding them from UPS
+    if (m_sFileLocation == "UPS" && !m_bDataFile && bCacheFileExists && !g_File.FileExist(sCacheFileName + ".prev"))
+    {
+      g_File.CopyFile(sCacheFileName, sCacheFileName + ".prev");
+      g_File.CopyFile(sCacheFileName + ".time", sCacheFileName + ".time.prev");
+      g_File.CopyFile(sCacheFileName + ".version", sCacheFileName + ".version.prev");
+    }
+
     if (!m_bSkipCache)
       g_File.WriteFileFromStr(sCacheFileName, strBuffer);
 
@@ -110,6 +119,9 @@ std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
     else
       printf ("%s.%s", KYEL, RESET);
   }
+
+  //Check if we have a previous version stored in cache for the current fie
+  m_bFileHasPreviousVersion == g_File.FileExist(sCacheFileName + ".prev");
 
   return strBuffer;
 };
