@@ -58,7 +58,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   g_HTTPHandler.SetFileName("TXResourceList.json");
   g_HTTPHandler.SetDataFile(true);
 
-  std::string strtemp = g_HTTPHandler.GetURLToSTRNew("https://www.transifex.com/api/2/project/" + sProjectName + "/resources/");
+  std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + sProjectName + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
 
@@ -241,7 +241,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 //  g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_mapResData.begin()->second.strTargetProjectName + "/resources/", "GET");
   g_HTTPHandler.SetSkipCache(true);
 
-  std::string strtemp = g_HTTPHandler.GetURLToSTRNew("https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/");
+  std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
 

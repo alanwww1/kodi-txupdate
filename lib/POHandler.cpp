@@ -81,26 +81,31 @@ CPOHandler::CPOHandler()
 CPOHandler::CPOHandler(const CXMLResdata& XMLResdata) : m_XMLResData(XMLResdata)
 {
   m_POType = UNKNOWNPO;
+  m_bIfItHasPrevLangVersion = false;
 };
 
 CPOHandler::~CPOHandler()
 {};
 
 
-bool CPOHandler::FetchPOURLToMemNew (std::string strURL)
+bool CPOHandler::FetchPOURLToMem (std::string strURL)
 {
   ClearVariables();
-  m_strBuffer = g_HTTPHandler.GetURLToSTRNew(strURL);
+  m_strBuffer = g_HTTPHandler.GetURLToSTR(strURL);
+
+  //Pass bool to indicate that we did have a file for last download that changed, thus having a previous version saved
+  m_bIfItHasPrevLangVersion = g_HTTPHandler.GetIfFileHasPrevVersion();
 
   return ProcessPOFile();
 };
 
+bool CPOHandler::FetchPrevPOURLToMem ()
+{
+  ClearVariables();
+  m_strBuffer = g_HTTPHandler.GetPrevURLToSTR();
 
-
-
-
-
-
+  return ProcessPOFile();
+};
 
 bool CPOHandler::ParsePOStrToMem (std::string const &strPOData)
 {
@@ -627,7 +632,7 @@ unsigned int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralSt
 
 void CPOHandler::FetchLangAddonXML(const std::string &strURL)
 {
-  m_strLangAddonXML = g_HTTPHandler.GetURLToSTRNew(strURL);
+  m_strLangAddonXML = g_HTTPHandler.GetURLToSTR(strURL);
   if (m_strLangAddonXML.empty())
     CLog::Log(logERROR, "CPOHandler::FetchLangAddonXML: http error reading XML file from url: %s", strURL.c_str());
 }

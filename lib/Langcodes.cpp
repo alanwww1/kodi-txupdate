@@ -60,7 +60,7 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata
   // We get the version of the language database files here
   std::string strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(strLangDatabaseURL.substr(0,strLangDatabaseURL.find_last_of("/")+1));
   printf("Langdatabaseversion");
-  std::string strtemp = g_HTTPHandler.GetURLToSTRNew(strGitHubURL);
+  std::string strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
   if (strtemp.empty())
     CLog::Log(logERROR, "CLCodeHandler::Init: error getting language file version from github.com with URL: %s", strLangDatabaseURL.c_str());
 
@@ -69,7 +69,7 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata
   g_HTTPHandler.SetFileName("LangDatabase.json");
 
   printf(" Langdatabase");
-  strtemp = g_HTTPHandler.GetURLToSTRNew(strLangDatabaseURL);
+  strtemp = g_HTTPHandler.GetURLToSTR(strLangDatabaseURL);
   if (strtemp.empty())
     CLog::Log(logERROR, "LangCode::Init: error getting available language list from URL %s", strLangDatabaseURL.c_str());
 
@@ -168,7 +168,7 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const 
     g_HTTPHandler.SetFileName("ContributorList.json");
     g_HTTPHandler.SetDataFile(true);
 
-    std::string strJson = g_HTTPHandler.GetURLToSTRNew("https://www.transifex.com/api/2/project/"+ strProjectName + "/language/" +
+    std::string strJson = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/"+ strProjectName + "/language/" +
                                                      GetLangFromLCode(strLangCode, strTXLformat) + "/" + strContributorType + "/");
     if (strJson.empty())
       CLog::Log(logERROR, "CLCodeHandler::GetTranslatorsDatabase: error getting translator groups list for project: %s", strProjectName.c_str());

@@ -72,8 +72,10 @@ void CHTTPHandler::HTTPRetry(int nretry)
   g_HTTPHandler.ReInit();
 }
 
-std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
+
+std::string CHTTPHandler::GetURLToSTR(std::string strURL)
 {
+  m_sCacheFilenamePrevVersion = "";
   bool bCacheFileExists, bCacheFileExpired;
   std::string sCacheFileName = CreateCacheFilename(strURL, bCacheFileExists, bCacheFileExpired);
 
@@ -121,7 +123,8 @@ std::string CHTTPHandler::GetURLToSTRNew(std::string strURL)
   }
 
   //Check if we have a previous version stored in cache for the current fie
-  m_bFileHasPreviousVersion == g_File.FileExist(sCacheFileName + ".prev");
+   if (g_File.FileExist(sCacheFileName + ".prev"))
+     m_sCacheFilenamePrevVersion = sCacheFileName + ".prev";
 
   return strBuffer;
 };
@@ -193,6 +196,7 @@ void CHTTPHandler::Cleanup()
     curl_easy_cleanup(m_curlHandle);
     m_curlHandle = NULL;
   }
+  m_sCacheFilenamePrevVersion = "";
 };
 
 size_t Write_CurlData_File(void *ptr, size_t size, size_t nmemb, FILE *stream)

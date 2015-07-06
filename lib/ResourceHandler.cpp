@@ -72,7 +72,7 @@ bool CResourceHandler::FetchPOFilesTXToMem()
   g_HTTPHandler.SetFileName("LanguageList.json");
   g_HTTPHandler.SetDataFile(true);
 
-  std::string strtemp = g_HTTPHandler.GetURLToSTRNew(strURL + "stats/");
+  std::string strtemp = g_HTTPHandler.GetURLToSTR(strURL + "stats/");
   if (strtemp.empty())
     CLog::Log(logERROR, "ResHandler::FetchPOFilesTXToMem: error getting po file list from transifex.net");
 
@@ -95,7 +95,7 @@ bool CResourceHandler::FetchPOFilesTXToMem()
     g_HTTPHandler.SetLCode(sLCode);
 
     std::string sLangNameTX = g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat);
-    POHandler.FetchPOURLToMemNew(strURL + "translation/" + sLangNameTX + "/?file");
+    POHandler.FetchPOURLToMem(strURL + "translation/" + sLangNameTX + "/?file");
     POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
 
     CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i", sLCode.c_str(), POHandler.GetClassEntriesCount());
@@ -155,6 +155,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     POHandler.SetIfIsSourceLang(bIsSourceLang);
     POHandler.SetLCode(sLCode);
     g_HTTPHandler.SetLCode(sLCode);
+    bool bHasPreviousVersion = false;
 
     if (bHasLanguageFiles && m_XMLResData.bIsLanguageAddon) // Download individual addon.xml files for language-addons
     {
@@ -176,13 +177,23 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
       else
         strDloadURL = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.strUPSLangURL, m_XMLResData.strUPSLangFormat, sLCode);
 
-      POHandler.FetchPOURLToMemNew(strDloadURL);
+      POHandler.FetchPOURLToMem(strDloadURL);
+      bHasPreviousVersion = POHandler.GetIfItHasPrevLangVersion();
     }
 
     if (m_AddonXMLHandler.FindAddonXMLEntry(sLCode))
       POHandler.AddAddonXMLEntries(m_AddonXMLHandler.GetAddonXMLEntry(sLCode), m_AddonXMLHandler.GetAddonXMLEntry(m_XMLResData.strSourceLcode));
 
     m_mapUPS[sLCode] = POHandler;
+
+    if (bHasPreviousVersion)
+    {
+      CPOHandler POHandlerPrev(m_XMLResData);
+      POHandlerPrev.SetIfIsSourceLang(bIsSourceLang);
+      POHandlerPrev.SetLCode(sLCode);
+      POHandlerPrev.FetchPrevPOURLToMem();
+      m_mapPREV[sLCode] = POHandlerPrev;
+    }
   }
 
   CLog::LogTable(logADDTABLEHEADER, "upstrFetch", "-----------------------------------------------------------------------------\n");
@@ -276,9 +287,15 @@ void CResourceHandler::MergeResource()
       //Entry was not on Transifex, check if it has a new translation at upstream
       else if (bisInUPS)
       {
-        T_itPOData itPOUPS = GetUPSItFoundEntry();
-        m_mapMRG[sLCode].AddItEntry(itPOUPS);
-        m_mapUPD[sLCode].AddItEntry(itPOUPS);
+        bool bIsInPrevUPS = FindPrevUPSEntry(sLCode, EntrySRC);
+        if (!bIsInPrevUPS)
+        {
+          T_itPOData itPOUPS = GetUPSItFoundEntry();
+          m_mapMRG[sLCode].AddItEntry(itPOUPS);
+          m_mapUPD[sLCode].AddItEntry(itPOUPS);
+        }
+        else
+          m_lLangsWithDeletedEntry.insert(sLCode);
       }
     }
 
@@ -298,7 +315,7 @@ void CResourceHandler::MergeResource()
         if (m_XMLResData.bIsLanguageAddon)
           MRGPOHandler.BumpLangAddonXMLVersion();
         bResChangedFromUPS = true;
-        m_lChangedLangsFromUPS.push_back(sLCode);
+        m_lChangedLangsFromUPS.insert(sLCode);
       }
     }
 
@@ -311,7 +328,7 @@ void CResourceHandler::MergeResource()
       UPDPOHandler.SetPOType(UPDATEPO);
       UPDPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
 
-      m_lLangsToUPD.push_back(sLCode);
+      m_lLangsToUPD.insert(sLCode);
     }
   }
 
@@ -349,7 +366,7 @@ bool CResourceHandler::FindUPSEntry(const std::string sLCode, CPOEntry &EntryToF
   }
 }
 
-// Check if there is a POHandler existing in mapUPS for language code sLCode.
+// Check if there is a POHandler existing in mapTRX for language code sLCode.
 // If so, store it as last found POHandler iterator and store last sLCode.
 // If a POHandler exist, try to find a PO entry in it.
 bool CResourceHandler::FindTRXEntry(const std::string sLCode, CPOEntry &EntryToFind)
@@ -374,6 +391,16 @@ bool CResourceHandler::FindTRXEntry(const std::string sLCode, CPOEntry &EntryToF
     m_bLastTRXHandlerFound = true;
     return m_lastTRXIterator->second.FindEntry(EntryToFind);
   }
+}
+
+//Check if in previous upstream PO file we can find the particular entry or not
+//if not, that means that we have a true new translation coming from UPS not from TRX
+bool CResourceHandler::FindPrevUPSEntry(const std::string sLCode, CPOEntry &EntryToFind)
+{
+  T_itmapPOFiles PrevUPSIterator = m_mapPREV.find(sLCode);
+  if (PrevUPSIterator == m_mapPREV.end())
+    return false;
+  return PrevUPSIterator->second.FindEntry(EntryToFind);
 }
 
 // Read iterator to the last found entry stored by function FindUPSEntry.
@@ -503,6 +530,13 @@ void CResourceHandler::GenerateUpdatePOFiles()
     printf ("\n");
   }
 
+  if (!m_lLangsWithDeletedEntry.empty())
+  {
+    printf("  Langs which has entry to %sdelete upstream%s, like deleted at Transifex: ", KRED, RESET);
+    PrintChangedLangs(m_lLangsWithDeletedEntry);
+    printf ("\n");
+  }
+
   for (T_itmapPOFiles itmapPOFiles = m_mapUPD.begin(); itmapPOFiles != m_mapUPD.end(); itmapPOFiles++)
   {
     const std::string& sLCode = itmapPOFiles->first;
@@ -573,7 +607,7 @@ std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
   std::string sJson, sGitHubURL;
   sGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(m_XMLResData.strUPSLangURLRoot);
 
-  sJson = g_HTTPHandler.GetURLToSTRNew(sGitHubURL);
+  sJson = g_HTTPHandler.GetURLToSTR(sGitHubURL);
   if (sJson.empty())
     CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting po file list from github.com");
 
@@ -648,9 +682,10 @@ std::list<std::string> CResourceHandler::CreateMergedLangList()
   return listMergedLangs;
 }
 
-void CResourceHandler::PrintChangedLangs(std::list<std::string> lChangedLangs)
+//TODO use std::set instead of list everywhere
+void CResourceHandler::PrintChangedLangs(const std::set<std::string>& lChangedLangs)
 {
-  std::list<std::string>::iterator itLangs;
+  std::set<std::string>::iterator itLangs;
   std::size_t counter = 0;
   printf ("%s", KCYN);
   for (itLangs = lChangedLangs.begin() ; itLangs != lChangedLangs.end(); itLangs++)

@@ -96,12 +96,15 @@ public:
   void SetXMLReasData (const CXMLResdata& XMLResData) {m_XMLResData = XMLResData;}
   void SetLCode (const std::string& sLCode) {m_sLCode = sLCode;}
 
-  bool FetchPOURLToMemNew(std::string strURL);
+  bool FetchPOURLToMem(std::string strURL);
+  bool FetchPrevPOURLToMem ();
 
   void FetchLangAddonXML (const std::string &strURL);
   void WriteLangAddonXML(const std::string &strPath);
   bool ParsePOStrToMem (std::string const &strPOData);
   void GeneratePOFile();
+  bool GetIfItHasPrevLangVersion(){return m_bIfItHasPrevLangVersion;}
+
   void WritePOFile(const std::string &strOutputPOFilename);
   bool FindEntry (const CPOEntry &EntryToFind);
   T_itPOData GetItFoundEntry() {return m_itLastFound;}
@@ -154,6 +157,7 @@ protected:
   std::string m_strHeader;
   std::string m_CurrentEntryText;
   std::string m_sLCode;
+  bool m_bIfItHasPrevLangVersion;
   unsigned int m_nplurals;
 
 //  std::map<uint32_t, CPOEntry> m_mapStrings;

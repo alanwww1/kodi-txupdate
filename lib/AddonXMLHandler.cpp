@@ -57,7 +57,7 @@ void CAddonXMLHandler::FetchAddonDataFiles()
   // We get the version of the addon.xml and changelog.txt files here
   sGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(m_XMLResData.strUPSAddonURLRoot);
   printf(" Dir");
-  sTemp = g_HTTPHandler.GetURLToSTRNew(sGitHubURL);
+  sTemp = g_HTTPHandler.GetURLToSTR(sGitHubURL);
   if (sTemp.empty())
     CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting addon.xml file version from github.com");
 
@@ -82,7 +82,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   std::string strURL = m_XMLResData.strUPSAddonURL;
   TiXmlDocument xmlAddonXML;
 
-  std::string strXMLFile = g_HTTPHandler.GetURLToSTRNew(strURL);
+  std::string strXMLFile = g_HTTPHandler.GetURLToSTR(strURL);
   if (strXMLFile.empty())
     CLog::Log(logERROR, "CAddonXMLHandler::FetchAddonXMLFileUpstr: http error getting XML file from upstream url: %s", strURL.c_str());
 
@@ -436,7 +436,7 @@ bool CAddonXMLHandler::FetchAddonChangelogFile ()
   g_HTTPHandler.SetFileName(m_XMLResData.strUPSChangelogName);
   g_HTTPHandler.SetDataFile(false);
 
-  std::string strChangelogFile = g_HTTPHandler.GetURLToSTRNew(m_XMLResData.strUPSChangelogURL);
+  std::string strChangelogFile = g_HTTPHandler.GetURLToSTR(m_XMLResData.strUPSChangelogURL);
 
   g_File.ConvertStrLineEnds(strChangelogFile);
 

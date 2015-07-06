@@ -65,20 +65,17 @@ protected:
   std::set<std::string> GetAvailLangsGITHUB();
   std::list<std::string> CreateMergedLangList();
   bool FindUPSEntry(const std::string sLCode, CPOEntry &EntryToFind);
+  bool FindPrevUPSEntry(const std::string sLCode, CPOEntry &EntryToFind);
   bool FindTRXEntry(const std::string sLCode, CPOEntry &EntryToFind);
   T_itPOData GetUPSItFoundEntry();
   T_itPOData GetTRXItFoundEntry();
-  void PrintChangedLangs(std::list<std::string> lChangedLangs);
+  void PrintChangedLangs(const std::set<std::string>& lChangedLangs);
 
-  std::map<std::string, CPOHandler> m_mapUPS;
-  std::map<std::string, CPOHandler> m_mapTRX;
-  std::map<std::string, CPOHandler> m_mapUPD;
-  std::map<std::string, CPOHandler> m_mapMRG;
-
+  std::map<std::string, CPOHandler> m_mapUPS, m_mapTRX, m_mapUPD, m_mapMRG, m_mapPREV;
 
   CAddonXMLHandler m_AddonXMLHandler;
-  std::list<std::string> m_lChangedLangsFromUPS;
-  std::list<std::string> m_lLangsToUPD;
+  std::set<std::string> m_lChangedLangsFromUPS, m_lLangsToUPD, m_lLangsWithDeletedEntry;
+
   bool m_bIsLangAddon;
   CXMLResdata m_XMLResData;
 
