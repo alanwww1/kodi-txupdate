@@ -43,19 +43,7 @@ CResourceHandler::CResourceHandler(const CXMLResdata& XMLResdata) : m_XMLResData
 CResourceHandler::~CResourceHandler()
 {};
 
-/*
-CPOHandler* CResourceHandler::GetPOData(std::string strLang)
-{
-  if (m_mapPOFiles.empty())
-    return NULL;
-  if (m_mapPOFiles.find(strLang) != m_mapPOFiles.end())
-    return &m_mapPOFiles[strLang];
-  return NULL;
-}
-*/
-
 // Download from Transifex related functions
-
 bool CResourceHandler::FetchPOFilesTXToMem()
 {
   g_HTTPHandler.SetLocation("TRX");
@@ -428,23 +416,11 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
     return;
 
 
-//  if (bMRGOrUPD)
-//  {
-
-  //  else
-//  {
-//    strPath = m_XMLResData.strProjRootdir + m_XMLResData.strTXUpdateLangfilesDir + DirSepChar + m_XMLResData.strResName + DirSepChar + m_XMLResData.strBaseLCode + DirSepChar + "strings.po";
-//    strLangFormat = m_XMLResData.strBaseLCode;
   for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
   {
     const std::string& sLCode = itmapPOFiles->first;
     std::string strPODir, strAddonDir;
     strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, m_XMLResData.strLOCLangFormat, sLCode);
-
-//    if (!bMRGOrUPD && counter < 15)
-//      printf (" %s", sLCode.c_str());
-//    if ((!bMRGOrUPD && counter == 14) && m_mapUPD.size() != 15)
-//      printf ("+%i Langs", (int)m_mapUPD.size()-14);
 
     CPOHandler& POHandler = m_mapMRG.at(sLCode);
 
@@ -468,11 +444,6 @@ void CResourceHandler::WriteUpdatePOFiles(const std::string& strPath)
     std::string strPODir;
     strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, m_XMLResData.strBaseLCode, sLCode);
 
-//    if (!bMRGOrUPD && counter < 15)
-//      printf (" %s", sLCode.c_str());
-//    if ((!bMRGOrUPD && counter == 14) && m_mapUPD.size() != 15)
-//      printf ("+%i Langs", (int)m_mapUPD.size()-14);
-
     CPOHandler& POHandler = m_mapUPD.at(sLCode);
 
     POHandler.WritePOFile(strPODir);
@@ -480,19 +451,14 @@ void CResourceHandler::WriteUpdatePOFiles(const std::string& strPath)
   return;
 }
 
-
 void CResourceHandler::GenerateMergedPOFiles()
 {
 
   printf ("%s", RESET);
-//  if (!bMRGOrUPD && !m_mapMRG.empty())
-//    printf("\n");
 
   if (!m_XMLResData.bIsLanguageAddon)
     m_AddonXMLHandler.ClearAllAddonXMLEntries();
 
-//  if (!bMRGOrUPD && !m_mapUPD.empty())
-//    printf("Languages to update from upstream to upload to Transifex:");
 
   printf("Generating merged and update PO files: %s%s%s\n", KMAG, m_XMLResData.strResName.c_str(), RESET);
   if (!m_lChangedLangsFromUPS.empty())
@@ -516,7 +482,6 @@ void CResourceHandler::GenerateMergedPOFiles()
 
   if (!m_XMLResData.bIsLanguageAddon)
     m_AddonXMLHandler.GenerateAddonXMLFile();
-
 
   return;
 }
@@ -545,12 +510,6 @@ void CResourceHandler::GenerateUpdatePOFiles()
     POHandler.GeneratePOFile();
   }
   return;
-}
-
-T_itmapPOFiles CResourceHandler::IterateToMapIndex(T_itmapPOFiles it, size_t index)
-{
-  for (size_t i = 0; i != index; i++) it++;
-  return it;
 }
 
 std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL)

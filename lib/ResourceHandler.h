@@ -43,23 +43,12 @@ public:
   void WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sChangeLogPath, const std::string& sLangPath);
   void WriteUpdatePOFiles(const std::string& strPath);
 
-//  size_t GetLangsCount() const {return m_mapPOFiles.size();}
-//  std::string GetLangCodeFromPos(size_t pos) {T_itmapPOFiles it = IterateToMapIndex (m_mapPOFiles.begin(), pos); return it->first;}
-  CPOHandler* GetPOData(std::string strLang);
   bool FindUPSEntry(const CPOEntry &EntryToFind);
   bool FindSRCEntry(const CPOEntry &EntryToFind);
 
-//  void AddPOData(CPOHandler& POHandler, std::string strLang) {m_mapPOFiles[strLang] = POHandler;}
-  CAddonXMLHandler * GetXMLHandler () {return &m_AddonXMLHandler;}
-  void SetXMLHandler (CAddonXMLHandler XMLHandler) {m_AddonXMLHandler = XMLHandler;}
-  void SetIfIsLangAddon (bool bIsLangAddon) {m_bIsLangAddon = bIsLangAddon;}
-  bool GetIfIsLangaddon () {return m_bIsLangAddon;}
   void UploadResourceToTransifex(bool bNewResourceOnTRX);
 
 protected:
-
-  void CreateMissingDirs(std::string strResRootDir, int resType);
-  T_itmapPOFiles IterateToMapIndex(T_itmapPOFiles it, size_t index);
   bool ComparePOFiles(CPOHandler& POHandler1, CPOHandler& POHandler2);
   std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL);
   std::set<std::string> GetAvailLangsGITHUB();
@@ -76,7 +65,6 @@ protected:
   CAddonXMLHandler m_AddonXMLHandler;
   std::set<std::string> m_lChangedLangsFromUPS, m_lLangsToUPD, m_lLangsWithDeletedEntry;
 
-  bool m_bIsLangAddon;
   CXMLResdata m_XMLResData;
 
   bool m_bLastUPSHandlerFound;
