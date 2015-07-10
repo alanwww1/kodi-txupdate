@@ -62,7 +62,6 @@ public:
   void SetCacheDir(std::string strCacheDir);
   std::string GetCacheDir() {return m_strCacheDir;}
   void SetHTTPCacheExpire(size_t iCacheTimeInMins) {m_iHTTPCacheExp = iCacheTimeInMins;}
-  size_t GetHTTPCacheExpire() {return m_iHTTPCacheExp;}
   bool GetIfFileHasPrevVersion() {return !m_sCacheFilenamePrevVersion.empty();}
   std::string GetPrevURLToSTR() {return g_File.ReadFileToStr(m_sCacheFilenamePrevVersion);}
 
@@ -109,7 +108,6 @@ private:
   std::string m_sCacheFilenamePrevVersion;
 };
 
-size_t Write_CurlData_File(void *ptr, size_t size, size_t nmemb, FILE *stream);
 size_t Write_CurlData_String(char *data, size_t size, size_t nmemb, std::string *buffer);
 
 extern CHTTPHandler g_HTTPHandler;

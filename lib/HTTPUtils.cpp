@@ -199,12 +199,6 @@ void CHTTPHandler::Cleanup()
   m_sCacheFilenamePrevVersion = "";
 };
 
-size_t Write_CurlData_File(void *ptr, size_t size, size_t nmemb, FILE *stream)
-{
-  size_t written = fwrite(ptr, size, nmemb, stream);
-  return written;
-};
-
 size_t Read_CurlData_File(char *bufptr, size_t size, size_t nitems, FILE *stream) 
 {
   size_t read;
@@ -460,36 +454,6 @@ long CHTTPHandler::curlPUTPOStrToURL(std::string const &strPOFile, std::string c
     CLog::Log(logERROR, "HTTPHandler::curlFileToURL failed because Curl was not initalized");
   return 700;
 };
-
-// bool CHTTPHandler::ComparePOFiles(std::string strPOFilePath1, std::string strPOFilePath2) const
-// {
-//  CPOHandler POHandler1, POHandler2;
-//  POHandler1.ParsePOStrToMem(g_File.ReadFileToStr(strPOFilePath1), strPOFilePath1);
-//  POHandler2.ParsePOStrToMem(g_File.ReadFileToStr(strPOFilePath2), strPOFilePath2);
-//  return ComparePOFilesInMem(&POHandler1, &POHandler2, false);
-//}
-
-/*
-  for (size_t POEntryIdx = 0; POEntryIdx != pPOHandler1->GetNumEntriesCount(); POEntryIdx++)
-  {
-    CPOEntry POEntry1 = *(pPOHandler1->GetNumPOEntryByIdx(POEntryIdx));
-    const CPOEntry * pPOEntry2 = pPOHandler2->GetNumPOEntryByID(POEntry1.numID);
-    if (!pPOEntry2)
-      return false;
-    CPOEntry POEntry2 = *pPOEntry2;
-
-    if (bLangIsEN)
-    {
-      POEntry1.msgStr.clear();
-      POEntry1.msgStrPlural.clear();
-      POEntry2.msgStr.clear();
-      POEntry2.msgStrPlural.clear();
-    }
-
-    if (!(POEntry1 == POEntry2))
-      return false;
-  }
-*/
 
 std::string CHTTPHandler::CreateCacheFilename(const std::string& strURL, bool &bCacheFileExists, bool &bCacheFileExpired)
 {
@@ -747,7 +711,6 @@ bool CHTTPHandler::UploadTranslatorsDatabase(std::string strJson, std::string st
       curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, 0);
       curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, 0);
       curl_easy_setopt(m_curlHandle, CURLOPT_VERBOSE, 0);
-      //      curl_easy_setopt(m_curlHandle, CURLOPT_SSLVERSION, 3);
 
       curlResult = curl_easy_perform(m_curlHandle);
 
@@ -757,13 +720,6 @@ bool CHTTPHandler::UploadTranslatorsDatabase(std::string strJson, std::string st
       nretry++;
     }
     while (nretry < 5 && !bSuccess);
-
-//    if (bSuccess)
-//      CLog::Log(logINFO, "CHTTPHandler::CreateNewResource finished with success for resource %s from EN PO file %s to URL %s",
-//                strResname.c_str(), strENPOFilePath.c_str(), strURL.c_str());
-//      else
-//        CLog::Log(logERROR, "CHTTPHandler::CreateNewResource finished with error:\ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\nlocaldir: %s\nREsource: %s",
-//                  curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), strURL.c_str(), strENPOFilePath.c_str(), strResname.c_str());
 
     return http_code;
   }
