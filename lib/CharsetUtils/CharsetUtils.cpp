@@ -376,16 +376,6 @@ std::string CCharsetUtils::ReplaceLanginURL(const std::string& strURL, const std
   return replaceStrParts(strURL, strLangFormat, g_LCodeHandler.GetLangFromLCode(strLCode, strLangFormat));
 }
 
-bool CCharsetUtils::bISPOFile(const std::string strFilename)
-{
-  return (strFilename.find(".po") != std::string::npos || strFilename.find(".PO") != std::string::npos);
-}
-
-bool CCharsetUtils::bISXMLFile(const std::string strFilename)
-{
-  return (strFilename.find(".xml") != std::string::npos || strFilename.find(".XML") != std::string::npos);
-}
-
 void CCharsetUtils::ConvertLineEnds(std::string &strBuffer)
 {
   size_t foundPos = strBuffer.find_first_of("\r");
