@@ -130,25 +130,6 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CResourceHandler& ResHandler = itmapResources->second;
     const CXMLResdata& XMLResData = m_mapResData[sResName];
 
-
-    /*
-    std::list<std::string> lChangedLangsFromUpstream = m_mapResMerged[itmapResources->first].GetChangedLangsFromUpstream();
-    std::list<std::string> lChangedAddXMLLangsFromUpstream = m_mapResMerged[itmapResources->first].GetChangedLangsInAddXMLFromUpstream();
-
-    if (!lChangedAddXMLLangsFromUpstream.empty())
-    {
-      printf("    Changed Langs in addon.xml file from upstream: ");
-      PrintChangedLangs(lChangedAddXMLLangsFromUpstream);
-      printf("\n");
-    }
-    if (!lChangedLangsFromUpstream.empty())
-    {
-      printf("    Changed Langs in strings files from upstream: ");
-      PrintChangedLangs(lChangedLangsFromUpstream);
-      printf ("\n");
-    }
-    */
-
     CLog::Log(logLINEFEED, "");
     CLog::Log(logINFO, "ProjHandler: *** Write Merged Resource: %s ***", itmapResources->first.c_str());
     CLog::IncIdent(4);
@@ -169,21 +150,6 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CLog::DecIdent(4);
   }
   printf ("\n\n");
-/*
-  strPrefixDir = XMLResData.strTXUpdateLangfilesDir;
-  CLog::Log(logINFO, "Deleting tx update language file directory");
-  g_File.DeleteDirectory(strProjRootDir + strPrefixDir);
-  for (T_itmapRes itmapResources = m_mapResUpdateTX.begin(); itmapResources != m_mapResUpdateTX.end(); itmapResources++)
-  {
-    printf("Writing update TX resources to HDD: %s%s%s\n", KMAG, itmapResources->first.c_str(), RESET);
-    CLog::Log(logLINEFEED, "");
-    CLog::Log(logINFO, "ProjHandler: *** Write UpdTX Resource: %s ***", itmapResources->first.c_str());
-    CLog::IncIdent(4);
-    CXMLResdata XMLResdata = m_mapResData[itmapResources->first];
-    m_mapResUpdateTX[itmapResources->first].WritePOToFiles (strProjRootDir, strPrefixDir, itmapResources->first, XMLResdata, true);
-    CLog::DecIdent(4);
-  }
-*/
   return true;
 };
 
@@ -195,7 +161,6 @@ bool CProjectHandler::CreateMergedResources()
   for (T_itmapRes it = m_mapResources.begin(); it != m_mapResources.end(); it++)
   {
     CResourceHandler& ResHandler = it->second;
-
     ResHandler.MergeResource();
   }
 
@@ -238,7 +203,6 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   const std::string& strTargetProjectName = m_mapResData.begin()->second.strTargetProjectName;
 
   //TODO ditry fix for always getting a fresh txlist here
-//  g_HTTPHandler.DeleteCachedFile("https://www.transifex.com/api/2/project/" + m_mapResData.begin()->second.strTargetProjectName + "/resources/", "GET");
   g_HTTPHandler.SetSkipCache(true);
 
   std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + strTargetProjectName + "/resources/");
@@ -264,126 +228,6 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   return;
 }
 
-/*
-bool CProjectHandler::FindResInList(std::list<std::string> const &listResourceNamesTX, std::string strTXResName)
-{
-  for (std::list<std::string>::const_iterator it = listResourceNamesTX.begin(); it!=listResourceNamesTX.end(); it++)
-  {
-    if (*it == strTXResName)
-      return true;
-  }
-  return false;
-}
-*/
-/*
-std::list<std::string> CProjectHandler::GetLangsFromDir(std::string const &strLangDir)
-{
-  //TODO
-  const CXMLResdata& XMLResData = m_mapResData.begin()->second;
-  std::list<std::string> listDirs;
-  bool bEnglishExists = true;
-  if (!g_File.DirExists(strLangDir + XMLResData.strSourceLcode))
-    bEnglishExists = false;
-
-  DIR* Dir;
-  struct dirent *DirEntry;
-  Dir = opendir(strLangDir.c_str());
-
-  while(Dir && (DirEntry=readdir(Dir)))
-  {
-    if (DirEntry->d_type == DT_DIR && DirEntry->d_name[0] != '.')
-    {
-      std::string strDirname = DirEntry->d_name;
-      if (strDirname != XMLResData.strSourceLcode)
-      {
-        std::string strFoundLangCode = DirEntry->d_name;
-        listDirs.push_back(strFoundLangCode);
-      }
-    }
-  }
-
-  listDirs.sort();
-  if (bEnglishExists)
-    listDirs.push_front(XMLResData.strSourceLcode);
-
-  return listDirs;
-};
-*/
-/*
-void CProjectHandler::CheckPOEntrySyntax(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN,
-                                         const CXMLResdata& XMLResData)
-{
-  if (!pPOEntry)
-    return;
-
-  CheckCharCount(pPOEntry, strLangCode, pcurrPOEntryEN, '%', XMLResData);
-  CheckCharCount(pPOEntry, strLangCode, pcurrPOEntryEN, '\n', XMLResData);
-
-  return;
-}
-
-std::string CProjectHandler::GetEntryContent(const CPOEntry * pPOEntry, std::string const &strLangCode, const CXMLResdata& XMLResData)
-{
-  if (!pPOEntry)
-    return "";
-
-  std::string strReturn;
-  strReturn += "\n";
-
-//  if (pPOEntry->Type == ID_FOUND)
-//    strReturn += "msgctxt \"#" + g_CharsetUtils.IntToStr(pPOEntry->numID) + "\"\n";
-//  else
-    if (!pPOEntry->msgCtxt.empty())
-    strReturn += "msgctxt \"" + g_CharsetUtils.EscapeStringCPP(pPOEntry->msgCtxt) + "\"\n";
-
-  strReturn += "msgid \""  + g_CharsetUtils.EscapeStringCPP(pPOEntry->msgID) +  "\"\n";
-
-  if (strLangCode != XMLResData.strSourceLcode)
-    strReturn += "msgstr \"" + g_CharsetUtils.EscapeStringCPP(pPOEntry->msgStr) + "\"\n";
-  else
-    strReturn += "msgstr \"\"\n";
-
-  return strReturn;
-}
-
-void CProjectHandler::CheckCharCount(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN, char chrToCheck,
-                                     const CXMLResdata& XMLResData)
-{
-  // check '%' count in msgid and msgstr entries
-  size_t count = g_CharsetUtils.GetCharCountInStr(pcurrPOEntryEN->msgID, chrToCheck);
-  if (!pPOEntry->msgIDPlur.empty() && count != g_CharsetUtils.GetCharCountInStr(pPOEntry->msgIDPlur, chrToCheck))
-    CLog::SyntaxLog(logWARNING, "Warning: count missmatch of char \"%s\"%s",
-                    g_CharsetUtils.EscapeStringCPP(g_CharsetUtils.ChrToStr(chrToCheck)).c_str(),
-                    GetEntryContent(pPOEntry, strLangCode, XMLResData).c_str());
-
-  if (strLangCode != XMLResData.strSourceLcode)
-  {
-    if (!pPOEntry->msgStr.empty() && count != g_CharsetUtils.GetCharCountInStr(pPOEntry->msgStr, chrToCheck))
-      CLog::SyntaxLog(logWARNING, "Warning: count missmatch of char \"%s\"%s",
-                      g_CharsetUtils.EscapeStringCPP(g_CharsetUtils.ChrToStr(chrToCheck)).c_str(),
-                      GetEntryContent(pPOEntry, strLangCode, XMLResData).c_str());
-
-      for (std::vector<std::string>::const_iterator it =  pPOEntry->msgStrPlural.begin() ; it != pPOEntry->msgStrPlural.end() ; it++)
-      {
-        if (count != g_CharsetUtils.GetCharCountInStr(*it, '%'))
-          CLog::SyntaxLog(logWARNING, "Warning: count missmatch of char \"%s\"%s",
-                          g_CharsetUtils.EscapeStringCPP(g_CharsetUtils.ChrToStr(chrToCheck)).c_str(),
-                          GetEntryContent(pPOEntry, strLangCode, XMLResData).c_str());
-      }
-  }
-}
-*/
-/*
-std::string CProjectHandler::GetResNameFromTXResName(std::string const &strTXResName)
-{
-  for (T_itResData itResData = m_mapResData.begin(); itResData != m_mapResData.end(); itResData++)
-  {
-    if (itResData->second.strTXName == strTXResName)
-      return itResData->first;
-  }
-  return "";
-}
-*/
 void CProjectHandler::MigrateTranslators()
 {
   //TODO

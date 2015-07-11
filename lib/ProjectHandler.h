@@ -41,37 +41,15 @@ public:
   void InitLCodeHandler();
 
 protected:
-/*  const CPOEntry * SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
-                                  std::string &strLangCode, size_t numID);
-  const CPOEntry * SafeGetPOEntry(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
-                                  std::string &strLangCode, CPOEntry const &currPOEntryEN);
-  CPOHandler * SafeGetPOHandler(std::map<std::string, CResourceHandler> &mapResHandl, const std::string &strResname,
-                                std::string &strLangCode);
-  std::list<std::string> CreateMergedLanguageList(std::string strResname);
-  std::map<std::string, CResourceHandler> * ChoosePrefResMap(std::string strResname);
-  CAddonXMLEntry * const GetAddonDataFromXML(std::map<std::string, CResourceHandler> * pmapRes,
-                                             const std::string &strResname, const std::string &strLangCode) const;
-  void MergeAddonXMLEntry(CAddonXMLEntry const &EntryToMerge, CAddonXMLEntry &MergedAddonXMLEntry,
-                                           CAddonXMLEntry const &SourceENEntry, CAddonXMLEntry const &CurrENEntry, bool UpstrToMerge,
-                                           bool &bResChangedFromUpstream);
-  bool FindResInList(std::list<std::string> const &listResourceNamesTX, std::string strTXResName);
-  std::list<std::string> GetLangsFromDir(std::string const &strLangDir);
-  void CheckPOEntrySyntax(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN,
-                          const CXMLResdata& XMLResData);
-  std::string GetEntryContent(const CPOEntry * pPOEntry, std::string const &strLangCode, const CXMLResdata& XMLResData);
-  void CheckCharCount(const CPOEntry * pPOEntry, std::string const &strLangCode, const CPOEntry * pcurrPOEntryEN, char chrToCheck,
-                      const CXMLResdata& XMLResData); */
-  void PrintChangedLangs(std::list<std::string> lChangedLangs);
   std::string GetResNameFromTXResName(std::string const &strTXResName);
 
   std::set<std::string> ParseResources(std::string strJSON);
 
   std::map<std::string, CResourceHandler> m_mapResources;
   typedef std::map<std::string, CResourceHandler>::iterator T_itmapRes;
-  std::map<std::string, std::string> m_mapResourceNamesTX;
-  int m_resCount;
 
-  std::string m_strProjDir;
   std::map<std::string, CXMLResdata> m_mapResData;
   typedef std::map<std::string, CXMLResdata>::iterator T_itResData;
+
+  std::string m_strProjDir;
 };
