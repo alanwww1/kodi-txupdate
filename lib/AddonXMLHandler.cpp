@@ -133,18 +133,15 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     m_strResourceData += g_CharsetUtils.ToUTF8(addonXMLEncoding, CstrToString(pMainAttrId)) + "\n";
 
   pMainAttrId=pRootElement->Attribute("version");
-//  m_strResourceData += "# Addon version: ";
   if (!pMainAttrId)
   {
     CLog::Log(logWARNING, "AddonXMLHandler: No version name was available in addon.xml file: %s\n", AddonXMLFilename.c_str());
-//    m_strResourceData += "0.0.1\n";
     m_strAddonVersion = "0.0.1";
   }
   else
   {
     m_strAddonVersion = g_CharsetUtils.ToUTF8(addonXMLEncoding, CstrToString(pMainAttrId));
     BumpVersionNumber();
-//    m_strResourceData += g_CharsetUtils.ToUTF8(addonXMLEncoding, m_strAddonVersion) + "\n";
   }
 
   pMainAttrId=pRootElement->Attribute("provider-name");
@@ -487,22 +484,6 @@ void CAddonXMLHandler::UpdateVersionNumber()
     return;
   }
   m_strAddonXMLFile.replace(Pos1 + PosSub1 + 9, PosSub2 - PosSub1 - 9, m_strAddonVersion.c_str());
-}
-
-void CAddonXMLHandler::CleanWSBetweenXMLEntries (std::string &strXMLString)
-{
-  bool bInsideEntry = false;
-  std::string strCleaned;
-  for (std::string::iterator it = strXMLString.begin(); it != strXMLString.end(); it++)
-  {
-    if (*it == '<')
-      bInsideEntry = true;
-    if (bInsideEntry)
-      strCleaned += *it;
-    if (*it == '>')
-      bInsideEntry = false;
-  }
-  strCleaned.swap(strXMLString);
 }
 
 bool CAddonXMLHandler::GetEncoding(const TiXmlDocument* pDoc, std::string& strEncoding)

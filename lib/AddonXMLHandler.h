@@ -50,25 +50,11 @@ public:
   bool FetchAddonChangelogFile ();
   void FetchAddonDataFiles();
   std::string GetResHeaderPretext () const {return m_strResourceData;}
- // std::map<std::string, CAddonXMLEntry> * GetMapAddonXMLData () {return &m_mapAddonXMLData;}
-  const std::map<std::string, CAddonXMLEntry>& GetMapAddonXMLData () {return m_mapAddonXMLData;}
   void AddAddonXMLLangsToList(std::set<std::string>& listLangs);
-  void SetMapAddonXMLData (const std::map<std::string, CAddonXMLEntry>& mapData) {m_mapAddonXMLData = mapData;}
-  std::string GetStrAddonXMLFile() const {return m_strAddonXMLFile;}
   void SetAddonXMLEntry (const CAddonXMLEntry& AddonXMLEntry, const std::string& sLang) {m_mapAddonXMLData[sLang] = AddonXMLEntry;}
   void ClearAllAddonXMLEntries () {m_mapAddonXMLData.clear();}
   const CAddonXMLEntry& GetAddonXMLEntry(const std::string& sLang) const {return m_mapAddonXMLData.at(sLang);}
   bool FindAddonXMLEntry(const std::string& sLang) const {return m_mapAddonXMLData.find(sLang) != m_mapAddonXMLData.end();}
-
-  void SetStrAddonXMLFile(std::string const &strAddonXMLFile) {m_strAddonXMLFile = strAddonXMLFile;}
-  std::string GetAddonVersion () const {return m_strAddonVersion;}
-  void SetAddonVersion(std::string const &strAddonVersion) {m_strAddonVersion = strAddonVersion;}
-  std::string GetAddonChangelogFile () const {return m_strChangelogFile;}
-  void SetAddonChangelogFile(std::string const &strAddonChangelogFile) {m_strChangelogFile = strAddonChangelogFile;}
-  std::string GetAddonLogFilename () const {return m_strLogFilename;}
-  void SetAddonLogFilename(std::string const &strAddonLogFilename) {m_strLogFilename = strAddonLogFilename;}
-  COtherAddonMetadata GetAddonMetaData () const {return m_AddonMetadata;}
-  void SetAddonMetadata(COtherAddonMetadata const &MetaData) {m_AddonMetadata = MetaData;}
 
 protected:
   bool FetchAddonXMLFileUpstr ();
@@ -79,14 +65,14 @@ protected:
   void ParseAddonXMLVersionGITHUB(const std::string &strJSON);
   std::string CstrToString(const char * StrToEscape);
   std::string GetXMLEntry (std::string const &strprefix, size_t &pos1, size_t &pos2);
-  void CleanWSBetweenXMLEntries (std::string &strXMLString);
+
   std::map<std::string, CAddonXMLEntry> m_mapAddonXMLData;
-typedef std::map<std::string, CAddonXMLEntry>::iterator T_itAddonXMLData;
+  typedef std::map<std::string, CAddonXMLEntry>::iterator T_itAddonXMLData;
+
   std::string m_strResourceData;
   std::string m_strAddonXMLFile;
   std::string m_strAddonVersion;
   std::string m_strChangelogFile;
-  std::string m_strLogFilename;
   bool m_bBumpAddoXMLVersion;
   COtherAddonMetadata m_AddonMetadata;
   CXMLResdata m_XMLResData;
