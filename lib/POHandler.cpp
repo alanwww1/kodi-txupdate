@@ -107,13 +107,6 @@ bool CPOHandler::FetchPrevPOURLToMem ()
   return ProcessPOFile();
 };
 
-bool CPOHandler::ParsePOStrToMem (std::string const &strPOData)
-{
-  ClearVariables();
-  m_strBuffer = strPOData;
-  return ProcessPOFile();
-};
-
 bool CPOHandler::ProcessPOFile()
 {
   if (m_strBuffer.empty())
@@ -176,7 +169,6 @@ bool CPOHandler::ProcessPOFile()
     }
 
     if (m_Entry.Type == NUMID || m_Entry.Type == MSGID || m_Entry.Type == MSGID_PLURAL)
-//    if (m_Entry.Type == MSGID_FOUND || m_Entry.Type == MSGID_PLURAL_FOUND)
     {
       if (bMultipleComment)
         CLog::Log(logWARNING, "POHandler: multiple comment entries found. Using only the last one "
@@ -232,16 +224,7 @@ void CPOHandler::GeneratePOFile()
 
   if (!bHasOnlyAddonXMLEntries || m_POType == UPDATEPO)
     m_strOutBuffer = m_strHeader;
-/*
-  if (m_bIsSRCLang)
-  {
-    for (T_itPOData it = m_mapPOData.begin(); it != m_mapPOData.end(); it++)
-    {
-      WritePOEntry(it->second);
-    }
-  }
-  else
-*/
+
   for (T_itPOItData it = m_mapItPOData.begin(); it != m_mapItPOData.end(); it++)
   {
     T_itPOData& itPOEntry = it->second;
@@ -319,58 +302,6 @@ bool CPOHandler::FindEntry (const CPOEntry &EntryToFind)
   }
 }
 
-const CPOEntry*  CPOHandler::PLookforClassicEntry (CPOEntry &EntryToFind)
-{
-  if (EntryToFind.Type == NUMID)
-  {
-    T_itPOData it = m_mapPOData.find(EntryToFind.numID + 0x100);
-    if (it == m_mapPOData.end())
-      return NULL;
-    if (it->second == EntryToFind)
-    {
-      return &(it->second);
-    }
-    else
-      return NULL;
-  }
-  else
-  {
-    std::string sKeyToFind = EntryToFind.msgCtxt;
-    if (!EntryToFind.msgID.empty())
-      sKeyToFind += "|" + EntryToFind.msgID;
-
-    T_itClassicPOData it = m_mapClassicDataIndex.find(sKeyToFind);
-    if (it == m_mapClassicDataIndex.end())
-      return NULL;
-    if (m_mapPOData[it->second] == EntryToFind)
-    {
-      return &(m_mapPOData[it->second]);
-    }
-    else
-      return NULL;
-  }
-}
-
-bool CPOHandler::AddClassicEntry (CPOEntry EntryToAdd, CPOEntry const &POEntryEN, bool bCopyComments)
-{
-  if (bCopyComments)
-  {
-    EntryToAdd.extractedComm = POEntryEN.extractedComm;
-    EntryToAdd.interlineComm = POEntryEN.interlineComm;
-    EntryToAdd.referenceComm = POEntryEN.referenceComm;
-    EntryToAdd.translatorComm = POEntryEN.translatorComm;
-  }
-  else
-  {
-    EntryToAdd.extractedComm.clear();
-    EntryToAdd.interlineComm.clear();
-    EntryToAdd.referenceComm.clear();
-    EntryToAdd.translatorComm.clear();
-  }
-
-  AddPOEntryToMaps(EntryToAdd);
-  return true;
-};
 void CPOHandler::AddAddonXMLEntries (const CAddonXMLEntry& AddonXMLEntry, const CAddonXMLEntry& AddonXMLEntrySRC)
 {
   CPOEntry EntryToAdd;
@@ -472,76 +403,6 @@ bool CPOHandler::ModifyClassicEntry (CPOEntry &EntryToFind, CPOEntry EntryNewVal
   return false;
 }
 
-void CPOHandler::SetAddonMetaData (CAddonXMLEntry const &AddonXMLEntry, CAddonXMLEntry const &PrevAddonXMLEntry,
-                                   CAddonXMLEntry const &AddonXMLEntryEN, std::string const &strLang)
-{
-  CPOEntry POEntryDesc, POEntryDiscl, POEntrySumm;
-  POEntryDesc.Type = MSGID;
-  POEntryDiscl.Type = MSGID;
-  POEntrySumm.Type = MSGID;
-  POEntryDesc.msgCtxt = "Addon Description";
-  POEntryDiscl.msgCtxt = "Addon Disclaimer";
-  POEntrySumm.msgCtxt = "Addon Summary";
-
-  CPOEntry newPOEntryDesc = POEntryDesc;
-  CPOEntry newPOEntryDisc = POEntryDiscl;
-  CPOEntry newPOEntrySumm = POEntrySumm;
-
-  newPOEntryDesc.msgID = AddonXMLEntryEN.strDescription;
-  newPOEntryDisc.msgID = AddonXMLEntryEN.strDisclaimer;
-  newPOEntrySumm.msgID = AddonXMLEntryEN.strSummary;
-
-  if (strLang != m_XMLResData.strSourceLcode)
-  {
-    if (!AddonXMLEntry.strDescription.empty() && (m_XMLResData.bForceTXUpd || AddonXMLEntry.strDescription != PrevAddonXMLEntry.strDescription))
-      newPOEntryDesc.msgStr = AddonXMLEntry.strDescription;
-    if (!AddonXMLEntry.strDisclaimer.empty() && (m_XMLResData.bForceTXUpd || AddonXMLEntry.strDisclaimer != PrevAddonXMLEntry.strDisclaimer))
-      newPOEntryDisc.msgStr = AddonXMLEntry.strDisclaimer;
-    if (!AddonXMLEntry.strSummary.empty() && (m_XMLResData.bForceTXUpd || AddonXMLEntry.strSummary != PrevAddonXMLEntry.strSummary))
-      newPOEntrySumm.msgStr = AddonXMLEntry.strSummary;
-  }
-
-  if (!newPOEntryDesc.msgID.empty() && (strLang == m_XMLResData.strSourceLcode || !newPOEntryDesc.msgStr.empty()))
-    ModifyClassicEntry(POEntryDesc, newPOEntryDesc);
-  if (!newPOEntryDisc.msgID.empty() && (strLang == m_XMLResData.strSourceLcode || !newPOEntryDisc.msgStr.empty()))
-    ModifyClassicEntry(POEntryDiscl, newPOEntryDisc);
-  if (!newPOEntrySumm.msgID.empty() && (strLang == m_XMLResData.strSourceLcode || !newPOEntrySumm.msgStr.empty()))
-    ModifyClassicEntry(POEntrySumm, newPOEntrySumm);
-  return;
-}
-/*
-void CPOHandler::GetAddonMetaData (CAddonXMLEntry &AddonXMLEntry, CAddonXMLEntry &AddonXMLEntryEN)
-{
-  CAddonXMLEntry newAddonXMLEntry, newENAddonXMLEntry;
-  CPOEntry POEntry;
-  POEntry.msgCtxt = "Addon Summary";
-  if (FindEntry(POEntry))
-  {
-    newAddonXMLEntry.strSummary = POEntry.msgStr;
-    newENAddonXMLEntry.strSummary = POEntry.msgID;
-  }
-
-  ClearCPOEntry(POEntry);
-  POEntry.msgCtxt = "Addon Description";
-  if (FindEntry(POEntry))
-  {
-    newAddonXMLEntry.strDescription = POEntry.msgStr;
-    newENAddonXMLEntry.strDescription = POEntry.msgID;
-  }
-
-  ClearCPOEntry(POEntry);
-  POEntry.msgCtxt = "Addon Disclaimer";
-  if (FindEntry(POEntry))
-  {
-    newAddonXMLEntry.strDisclaimer = POEntry.msgStr;
-    newENAddonXMLEntry.strDisclaimer = POEntry.msgID;
-  }
-  AddonXMLEntry = newAddonXMLEntry;
-  AddonXMLEntryEN = newENAddonXMLEntry;
-  return;
-}
-*/
-
 void CPOHandler::CreateHeader (const std::string &strPreText, const std::string& sLCode)
 {
   m_strHeader = "# Kodi Media Center language file\n";
@@ -568,55 +429,6 @@ void CPOHandler::CreateHeader (const std::string &strPreText, const std::string&
   m_strHeader += "\"Content-Transfer-Encoding: 8bit\\n\"\n";
   m_strHeader +=  "\"Language: " + g_LCodeHandler.GetLangFromLCode(sLCode, m_XMLResData.strTargTXLFormat) + "\\n\"\n";
   m_strHeader +=  "\"Plural-Forms: nplurals=" + strnplurals + "; plural=" + g_LCodeHandler.GetPlurForm(sLCode) + ";\\n\"\n";
-}
-
-/*
-bool CPOHandler::AddNumPOEntryByID(uint32_t numid, CPOEntry const &POEntry, CPOEntry const &POEntryEN, bool bCopyComments)
-{
-  if (m_mapStrings.find(numid) != m_mapStrings.end())
-    return false;
-  m_mapStrings[numid] = POEntry;
-  m_mapStrings[numid].msgID = POEntryEN.msgID;
-  if (bCopyComments)
-  {
-    m_mapStrings[numid].extractedComm = POEntryEN.extractedComm;
-    m_mapStrings[numid].interlineComm = POEntryEN.interlineComm;
-    m_mapStrings[numid].referenceComm = POEntryEN.referenceComm;
-    m_mapStrings[numid].translatorComm = POEntryEN.translatorComm;
-  }
-  else
-  {
-    m_mapStrings[numid].extractedComm.clear();
-    m_mapStrings[numid].interlineComm.clear();
-    m_mapStrings[numid].referenceComm.clear();
-    m_mapStrings[numid].translatorComm.clear();
-  }
-  return true;
-}
-
-const CPOEntry* CPOHandler::GetNumPOEntryByID(uint32_t numid)
-{
-  if (m_mapStrings.find(numid) == m_mapStrings.end())
-    return NULL;
-  return &(m_mapStrings[numid]);
-}
-
-const CPOEntry* CPOHandler::GetNumPOEntryByIdx(size_t pos) const
-{
-  std::map<uint32_t, CPOEntry>::const_iterator it_mapStrings;
-  it_mapStrings = m_mapStrings.begin();
-  advance(it_mapStrings, pos);
-  return &(it_mapStrings->second);
-}
-*/
-const CPOEntry* CPOHandler::GetClassicPOEntryByIdx(size_t pos)
-{
-  T_itSequenceIndex itseq = m_mapSequenceIndex.find(pos);
-  if (itseq == m_mapSequenceIndex.end())
-    CLog::Log(logERROR, "CPOHandler::GetClassicPOEntryByIdx: not found entry at position: %i", pos);
-
-  T_itPOData it = m_mapPOData.find(itseq->second);
-  return &(it->second);
 }
 
 unsigned int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings)
@@ -684,9 +496,6 @@ void CPOHandler::ClearVariables()
   m_previd = -1;
   m_writtenEntry = 0;
 };
-
-
-
 
 bool CPOHandler::GetNextEntry(bool bSkipError)
 {
@@ -791,7 +600,6 @@ void CPOHandler::ParseEntry()
       pPlaceToParse= NULL; // end of reading the multiline string
     }
 
-//    if (HasPrefix(strLine, "msgctxt") && !HasPrefix(strLine, "msgctxt \"#") && strLine.size() > 9)
     if (HasPrefix(strLine, "msgctxt") && strLine.size() > 9)
     {
       if (HasPrefix(strLine, "msgctxt \"#") && strLine.size() > 10 && isdigit(strLine[10]))
@@ -946,10 +754,7 @@ bool CPOHandler::ParseNumID(const std::string &strLineToCheck, size_t xIDPos)
   return false;
 };
 
-
-
 // ********* SAVE part
-
 
 void CPOHandler::WritePOEntry(const CPOEntry &currEntry)
 {
@@ -981,9 +786,7 @@ void CPOHandler::WritePOEntry(const CPOEntry &currEntry)
   }
 
   WriteLF();
-//  if (currEntry.Type == ID_FOUND)
-//    m_strOutBuffer += "msgctxt \"#" + IntToStr(currEntry.numID) + "\"\n";
-//  else
+
   if (!currEntry.msgCtxt.empty())
     m_strOutBuffer += "msgctxt \"" + g_CharsetUtils.EscapeStringCPP(currEntry.msgCtxt) + "\"\n";
 
