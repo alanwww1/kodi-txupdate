@@ -111,7 +111,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
   m_AddonXMLHandler.FetchAddonDataFiles();
 
-  std::set<std::string> listLangs;
+  std::set<std::string> listLangs, listLangsWithStringsPO;
   if (bHasLanguageFiles)
   {
     g_HTTPHandler.SetLCode("");
@@ -121,15 +121,16 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     g_HTTPHandler.SetDataFile(true);
 
     printf(" Langlist");
-    listLangs = GetAvailLangsGITHUB();
+    listLangsWithStringsPO = GetAvailLangsGITHUB();
   }
+
+  if (!m_XMLResData.strUPSSourceLangURL.empty()) // we have a language-addon with different SRC language upstream URL
+    listLangsWithStringsPO.insert(m_XMLResData.strSourceLcode);
+
+  listLangs = listLangsWithStringsPO;
 
   m_AddonXMLHandler.AddAddonXMLLangsToList(listLangs); // Add languages that are only in the addon.xml file
 
-  if (!m_XMLResData.strUPSSourceLangURL.empty()) // we have a language-addon with different SRC language upstream URL
-    listLangs.insert(m_XMLResData.strSourceLcode);
-
-  g_HTTPHandler.SetFileName("strings.po");
   g_HTTPHandler.SetUseGitBranch(true);
   g_HTTPHandler.SetDataFile(false);
 
@@ -139,14 +140,17 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     CPOHandler POHandler(m_XMLResData);
     const std::string& sLCode = *it;
 
+    bool bLangHasStringsPO = listLangsWithStringsPO.find(sLCode) != listLangsWithStringsPO.end();
+
     bool bIsSourceLang = sLCode == m_XMLResData.strSourceLcode;
     POHandler.SetIfIsSourceLang(bIsSourceLang);
     POHandler.SetLCode(sLCode);
     g_HTTPHandler.SetLCode(sLCode);
     bool bHasPreviousVersion = false;
 
-    if (bHasLanguageFiles && m_XMLResData.bIsLanguageAddon) // Download individual addon.xml files for language-addons
+    if (bLangHasStringsPO && bHasLanguageFiles && m_XMLResData.bIsLanguageAddon) // Download individual addon.xml files for language-addons
     {
+      g_HTTPHandler.SetFileName("addon.xml");
       std::string strLangAddonXMLDloadURL;
       if (!bIsSourceLang)
         strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (m_XMLResData.strUPSAddonURL, m_XMLResData.strUPSAddonLangFormat, sLCode);
@@ -156,8 +160,9 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
       POHandler.FetchLangAddonXML(strLangAddonXMLDloadURL);
     }
 
-    if (bHasLanguageFiles) // Download language file from upstream for language sLCode
+    if (bLangHasStringsPO && bHasLanguageFiles) // Download language file from upstream for language sLCode
     {
+      g_HTTPHandler.SetFileName("strings.po");
       printf (" %s", sLCode.c_str());
       std::string strDloadURL;
       if (bIsSourceLang && !m_XMLResData.strUPSSourceLangURL.empty()) // If we have a different URL for source language, use that for download
