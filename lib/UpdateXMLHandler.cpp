@@ -414,8 +414,24 @@ size_t CUpdateXMLHandler::FindVariable(const std::string& sVar)
   return iMatchedEntries;
 }
 
+void CUpdateXMLHandler::SetExternalVariables(const std::string& sLine)
+{
+  size_t iPosVar1 = 0;
+  size_t iPosVar2 = sLine.find(" = ", iPosVar1);
 
-void CUpdateXMLHandler::GetSetParameters(const std::string& sLine, CXMLResdata& ResData, std::string& sValue)
+  if (iPosVar2 == std::string::npos)
+    CLog::Log(logERROR, "ConfHandler: Wrong line in conf file. variable = value format is wrong");
+
+  std::string sVar = sLine.substr(iPosVar1, iPosVar2-iPosVar1);
+
+  std::string sVal = sLine.substr(iPosVar2 + 3);
+
+  SubstituteExternalVariables(sVal);
+
+  m_MapOfVariables[sVar] = sVal;
+}
+
+void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResdata& ResData)
 {
   size_t iPosVar1 = 4;
   size_t iPosVar2 = sLine.find(" = ", iPosVar1);
@@ -435,13 +451,23 @@ void CUpdateXMLHandler::GetSetParameters(const std::string& sLine, CXMLResdata& 
     ResData.UPS.Repo = sVal;
   else if (sVar == "UPSBranch")
     ResData.UPS.Branch = sVal;
+
   else if (sVar == "UPSLpath")
     ResData.UPS.LPath = sVal;
-
   else if (sVar == "UPSLForm")
     ResData.UPS.LForm = sVal;
-  else if (sVar == "UPSB")
-    ResData.UPS.Branch = sVal;
+  else if (sVar == "UPSAXMLPath")
+    ResData.UPS.AXMLPath = sVal;
+  else if (sVar == "UPSLFormInAXML")
+    ResData.UPS.LFormInAXML = sVal;
+  else if (sVar == "UPSLAXMLPath")
+    ResData.UPS.LAXMLPath = sVal;
+  else if (sVar == "UPSLAXMLFormat")
+    ResData.UPS.LAXMLForm = sVal;
+  else if (sVar == "UPSChLogPath")
+    ResData.UPS.ChLogPath = sVal;
+
+
 
   else
     CLog::Log(logERROR, "ConfHandler: Unreconised internal variable name");
@@ -475,9 +501,10 @@ void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::str
 
     if (sLine.find("set ") == 0)
     {
-      std::string sValue;
-      GetSetParameters(sLine, ResData, sValue);
+      SetInternalVariables(sLine, ResData);
     }
+    else
+      SetExternalVariables(sLine);
   }
 }
 

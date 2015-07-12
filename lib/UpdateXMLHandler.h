@@ -43,10 +43,18 @@ struct CGITData
 {
   // L=Language, A = Addon
   std::string Owner, Repo, Branch;
-  std::string LPath, LForm, LFileName;
-  std::string AXMLPath, LFormInAXML, AXMLFileName;
-  std::string LAXMLPath, LAXMLFormat;
-  std::string ChLogPath, ChLogFileName;
+  std::string LPath, LForm;
+  std::string AXMLPath, LFormInAXML;;
+  std::string LAXMLPath, LAXMLForm;
+  std::string ChLogPath;
+};
+
+struct CTRXData
+{
+  std::string sProjectName;
+  std::string sLongProjectName;
+  std::string sTRXResname;
+  std::string sTRXLForm;
 };
 
 class CXMLResdata
@@ -67,9 +75,7 @@ public:
   //NEW
   CGITData UPS, UPSSRC;
   CGITData LOC, LOCSRC;
-
-
-
+  CTRXData TRX, UPD;
 
   std::string strLOCLangPath, strLOCLangPathRoot, strLOCLangFormat, strLOCLangFileName;
   std::string strLOCAddonPath, strLOCAddonPathRoot, strLOCAddonLangFormat, strLOCAddonLangFormatinXML, strLOCAddonXMLFilename;
@@ -78,8 +84,6 @@ public:
   std::string strChangelogFormat;
   bool bIsLanguageAddon;
   bool bHasOnlyAddonXML;
-  bool bDloadFromLocalGitRepo;
-  bool bCopyToLocalGitRepo;
 
   std::string strProjectName;
   std::string strProjRootdir;
@@ -106,8 +110,6 @@ public:
   CUpdateXMLHandler();
   ~CUpdateXMLHandler();
   void LoadUpdXMLToMem(std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
-
-  void GetSetParameters(const std::string& sLine, CXMLResdata& ResData, std::string& sValue);
   void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
 
 private:
@@ -115,8 +117,11 @@ private:
                                std::string &strURLRoot, const char strSeparator);
   bool GetParamsFromURLorPath (std::string const &strURL, std::string &strFileName,
                                std::string &strURLRoot, const char strSeparator);
+
   std::map<std::string, std::string> m_MapOfVariables;
   size_t FindVariable(const std::string& sVar);
+  void SetInternalVariables(const std::string& sLine, CXMLResdata& ResData);
+  void SetExternalVariables(const std::string& sLine);
   void SubstituteExternalVariables(std::string& sVar);
 };
 
