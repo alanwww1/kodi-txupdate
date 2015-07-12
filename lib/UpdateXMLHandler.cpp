@@ -359,6 +359,128 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
   return;
 };
 
+void CUpdateXMLHandler::SubstituteExternalVariables(std::string& sVal)
+{
+  size_t iCurrPos = 0;
+  size_t iNextPos = 0;
+  while ((iNextPos = sVal.find('$', iCurrPos)) != std::string::npos)
+  {
+    // If the char is at the end of string, or if it is an internal var like $(LCODE), skip
+    if (iNextPos + 1 == sVal.size() || sVal.at(iNextPos +1) == '(')
+    {
+      iCurrPos = iNextPos +1;
+      continue;
+    }
+    size_t iVarLength = 1;
+    while (iVarLength + iNextPos < sVal.size())
+    {
+      size_t iMatchedEntries = FindVariable(sVal.substr(iNextPos+1, iVarLength));
+      if (iMatchedEntries == std::string::npos)
+        CLog::Log(logERROR, "Undefined variable in value: %s", sVal.c_str());
+      if (iMatchedEntries == 0)
+        break;
+      iVarLength++;
+    }
+
+    if ((iVarLength + iNextPos) == sVal.size())
+      CLog::Log(logERROR, "Undefined variable in value: %s", sVal.c_str());
+
+    std::string sVarToReplace = sVal.substr(iNextPos+1, iVarLength);
+    std::string sReplaceString = m_MapOfVariables.at(sVarToReplace);
+    sVal.replace(iNextPos,iVarLength +1, sReplaceString);
+
+    iCurrPos = iNextPos + sReplaceString.size();
+  }
+}
+
+size_t CUpdateXMLHandler::FindVariable(const std::string& sVar)
+{
+  size_t iMatchedEntries = 0;
+  bool bExactMatchFound = false;
+
+  for (std::map<std::string, std::string>::iterator it = m_MapOfVariables.begin(); it != m_MapOfVariables.end(); it++)
+  {
+    if (it->first.find(sVar) != std::string::npos)
+    {
+      iMatchedEntries++;
+      if (sVar.size() == it->first.size())
+        bExactMatchFound = true;
+    }
+  }
+  if (iMatchedEntries == 0)
+    return std::string::npos;
+  if (iMatchedEntries == 1 && bExactMatchFound)
+    return 0;
+  return iMatchedEntries;
+}
+
+
+void CUpdateXMLHandler::GetSetParameters(const std::string& sLine, CXMLResdata& ResData, std::string& sValue)
+{
+  size_t iPosVar1 = 4;
+  size_t iPosVar2 = sLine.find(" = ", iPosVar1);
+
+  if (iPosVar2 == std::string::npos)
+    CLog::Log(logERROR, "ConfHandler: Wrong line in conf file. set variable = value format is wrong");
+
+  std::string sVar = sLine.substr(iPosVar1, iPosVar2-iPosVar1);
+
+  std::string sVal = sLine.substr(iPosVar2 + 3);
+
+  SubstituteExternalVariables(sVal);
+
+  if (sVar == "UPSOwner")
+    ResData.UPS.Owner = sVal;
+  else if (sVar == "UPSRepo")
+    ResData.UPS.Repo = sVal;
+  else if (sVar == "UPSBranch")
+    ResData.UPS.Branch = sVal;
+  else if (sVar == "UPSLpath")
+    ResData.UPS.LPath = sVal;
+
+  else if (sVar == "UPSLForm")
+    ResData.UPS.LForm = sVal;
+  else if (sVar == "UPSB")
+    ResData.UPS.Branch = sVal;
+
+  else
+    CLog::Log(logERROR, "ConfHandler: Unreconised internal variable name");
+
+  m_MapOfVariables[sVar] = sVal;
+}
+
+//  std::string Owner, Repo, Branch;
+//  std::string LPath, LForm, LFileName;
+//  std::string AXMLPath, LFormInAXML, AXMLFileName;
+//  std::string LAXMLPath, LAXMLFormat;
+//  std::string ChLogPath, ChLogFileName;
+
+void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData)
+{
+  std::string sConfFile = g_File.ReadFileToStr(rootDir + "kodi-txupdate.conf");
+  if (sConfFile == "")
+    CLog::Log(logERROR, "Confhandler: erroe: missing conf file.");
+
+  size_t iPos1 = 0;
+  size_t iPos2 = 0;
+
+  while ((iPos2 = sConfFile.find('\n', iPos1)) != std::string::npos)
+  {
+    CXMLResdata ResData;
+    std::string sLine = sConfFile.substr(iPos1, iPos2-iPos1);
+    iPos1 = iPos2 +1;
+
+    if (sLine.empty() || sLine.find('#') == 0) // If line is empty or a comment line, ignore
+      continue;
+
+    if (sLine.find("set ") == 0)
+    {
+      std::string sValue;
+      GetSetParameters(sLine, ResData, sValue);
+    }
+  }
+}
+
 bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,
                                                  string &strURLRoot, const char strSeparator)
 {

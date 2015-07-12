@@ -39,6 +39,16 @@ const std::string DEFAULTLANGTEAMLFORMAT = "$(GUILNAME)";
 const std::string DEFAULTLANGDATABASELINK = "https://raw.github.com/xbmc/translations/master/tool/lang-database/kodi-languages.json";
 const std::string DEFAULTLANGFORMATINADDONXML = "$(OLDLCODE)";
 
+struct CGITData
+{
+  // L=Language, A = Addon
+  std::string Owner, Repo, Branch;
+  std::string LPath, LForm, LFileName;
+  std::string AXMLPath, LFormInAXML, AXMLFileName;
+  std::string LAXMLPath, LAXMLFormat;
+  std::string ChLogPath, ChLogFileName;
+};
+
 class CXMLResdata
 {
 public:
@@ -53,8 +63,13 @@ public:
   std::string strUPSAddonURL, strUPSAddonURLRoot, strUPSAddonLangFormat, strUPSAddonLangFormatinXML, strUPSAddonXMLFilename;
   std::string strUPSSourceLangAddonURL;
   std::string strUPSChangelogURL, strUPSChangelogURLRoot, strUPSChangelogName;
+
   //NEW
-//  std::string
+  CGITData UPS, UPSSRC;
+  CGITData LOC, LOCSRC;
+
+
+
 
   std::string strLOCLangPath, strLOCLangPathRoot, strLOCLangFormat, strLOCLangFileName;
   std::string strLOCAddonPath, strLOCAddonPathRoot, strLOCAddonLangFormat, strLOCAddonLangFormatinXML, strLOCAddonXMLFilename;
@@ -92,11 +107,17 @@ public:
   ~CUpdateXMLHandler();
   void LoadUpdXMLToMem(std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
 
+  void GetSetParameters(const std::string& sLine, CXMLResdata& ResData, std::string& sValue);
+  void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
+
 private:
   bool GetParamsFromURLorPath (std::string const &strURL, std::string &strLangFormat, std::string &strFileName,
                                std::string &strURLRoot, const char strSeparator);
   bool GetParamsFromURLorPath (std::string const &strURL, std::string &strFileName,
                                std::string &strURLRoot, const char strSeparator);
+  std::map<std::string, std::string> m_MapOfVariables;
+  size_t FindVariable(const std::string& sVar);
+  void SubstituteExternalVariables(std::string& sVar);
 };
 
 #endif
