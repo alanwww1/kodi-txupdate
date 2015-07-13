@@ -219,30 +219,30 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
   while (pChildResElement && pChildResElement->FirstChild())
   {
     CXMLResdata currResData;
-    currResData.strProjRootdir = rootDir;
+    currResData.sProjRootDir = rootDir;
     currResData.strProjectName = strProjName;
     currResData.strTargetProjectName = strTargetProjName;
     currResData.strTargetProjectNameLong = strLongProjName;
     currResData.iMinComplPercent = iMinComplPercent;
-    currResData.strMergedLangfileDir = strMergedLangfileDir;
-    currResData.strTXUpdateLangfilesDir = strTXUpdatelangfileDir;
+    currResData.sMRGLFilesDir = strMergedLangfileDir;
+    currResData.sUPDLFilesDir = strTXUpdatelangfileDir;
     currResData.bForceTXUpd = bForceTXUpdate;
     currResData.bRebrand = bRebrand;
     currResData.bForceComm = bForcePOComments;
-    currResData.strLangteamLFormat = strLangteamLFormat;
-    currResData.strSupportEmailAdd = strSupportEmailAdd;
-    currResData.strSourceLcode = strSourcelcode;
-    currResData.LangDatabaseURL = strLangDatabaseURL;
+    currResData.sLTeamLFormat = strLangteamLFormat;
+    currResData.sSupportEmailAddr = strSupportEmailAdd;
+    currResData.sSRCLCode = strSourcelcode;
+    currResData.sLDatabaseURL = strLangDatabaseURL;
     currResData.strTargTXLFormat = strTargetTXLangFormat;
     currResData.strDefTXLFormat = strTargetTXLangFormat;
-    currResData.strBaseLCode = strBaseLcode;
+    currResData.sBaseLCode = strBaseLcode;
 
     std::string strResName;
     if (!pChildResElement->Attribute("name") || (strResName = pChildResElement->Attribute("name")) == "")
     {
       CLog::Log(logERROR, "UpdXMLHandler: No name specified for resource. Cannot continue. Please specify it.");
     }
-    currResData.strResName =strResName;
+    currResData.sResName =strResName;
 
     if (pChildResElement->FirstChild())
     {
@@ -282,8 +282,8 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
       if (pChildAddonURLElement && pChildAddonURLElement->FirstChild())
         currResData.strUPSAddonURL = pChildAddonURLElement->FirstChild()->Value();
       if (currResData.strUPSAddonURL.empty())
-        currResData.strUPSAddonURL = currResData.strUPSLangURL.substr(0,currResData.strUPSLangURL.find(currResData.strResName)
-                                                                      + currResData.strResName.size()) + "/addon.xml";
+        currResData.strUPSAddonURL = currResData.strUPSLangURL.substr(0,currResData.strUPSLangURL.find(currResData.sResName)
+                                                                      + currResData.sResName.size()) + "/addon.xml";
       if (currResData.strUPSAddonURL.empty())
         CLog::Log(logERROR, "UpdXMLHandler: Unable to determine the URL for the addon.xml file for resource %s", strResName.c_str());
       GetParamsFromURLorPath (currResData.strUPSAddonURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
@@ -302,14 +302,14 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
 
       const TiXmlElement *pChildChglogElement = pChildResElement->FirstChildElement("changelogFormat");
       if (pChildChglogElement && pChildChglogElement->FirstChild())
-        currResData.strChangelogFormat = pChildChglogElement->FirstChild()->Value();
+        currResData.sChgLogFormat = pChildChglogElement->FirstChild()->Value();
 
       const TiXmlElement *pChildChglogUElement = pChildResElement->FirstChildElement("upstreamChangelogURL");
       if (pChildChglogUElement && pChildChglogUElement->FirstChild())
         currResData.strUPSChangelogURL = pChildChglogUElement->FirstChild()->Value();
-      else if (!currResData.strChangelogFormat.empty())
+      else if (!currResData.sChgLogFormat.empty())
         currResData.strUPSChangelogURL = currResData.strUPSAddonURLRoot + "changelog.txt";
-      if (!currResData.strChangelogFormat.empty())
+      if (!currResData.sChgLogFormat.empty())
       GetParamsFromURLorPath (currResData.strUPSChangelogURL, currResData.strUPSChangelogName,
                                 currResData.strUPSChangelogURLRoot, '/');
 
@@ -320,7 +320,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
       if (currResData.strLOCLangPath.empty() && !currResData.bHasOnlyAddonXML)
         currResData.strLOCLangPath = currResData.strUPSLangURL.substr(currResData.strUPSAddonURLRoot.size()-1);
       if (!currResData.bHasOnlyAddonXML)
-        currResData.strLOCLangPath = currResData.strResName + DirSepChar + currResData.strLOCLangPath;
+        currResData.strLOCLangPath = currResData.sResName + DirSepChar + currResData.strLOCLangPath;
       if (!currResData.bHasOnlyAddonXML && !GetParamsFromURLorPath (currResData.strLOCLangPath, currResData.strLOCLangFormat,
           currResData.strLOCLangFileName, currResData.strLOCLangPathRoot, DirSepChar))
         CLog::Log(logERROR, "UpdXMLHandler: Local langpath format is wrong for resource %s", strResName.c_str());
@@ -330,7 +330,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
         currResData.strLOCAddonPath = pChildLocAddonElement->FirstChild()->Value();
       if (currResData.strLOCAddonPath.empty())
         currResData.strLOCAddonPath = currResData.strUPSAddonXMLFilename;
-      currResData.strLOCAddonPath = currResData.strResName + DirSepChar + currResData.strLOCAddonPath;
+      currResData.strLOCAddonPath = currResData.sResName + DirSepChar + currResData.strLOCAddonPath;
       GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
                               currResData.strLOCAddonPathRoot, DirSepChar);
       std::string strLOCAddonLangFormatinXML;
@@ -467,7 +467,90 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
   else if (sVar == "UPSChLogPath")
     ResData.UPS.ChLogPath = sVal;
 
+  if (sVar == "LOCOwner")
+    ResData.LOC.Owner = sVal;
+  else if (sVar == "LOCRepo")
+    ResData.LOC.Repo = sVal;
+  else if (sVar == "LOCBranch")
+    ResData.LOC.Branch = sVal;
 
+  else if (sVar == "LOCLpath")
+    ResData.LOC.LPath = sVal;
+  else if (sVar == "LOCLForm")
+    ResData.LOC.LForm = sVal;
+  else if (sVar == "LOCAXMLPath")
+    ResData.LOC.AXMLPath = sVal;
+  else if (sVar == "LOCLFormInAXML")
+    ResData.LOC.LFormInAXML = sVal;
+  else if (sVar == "LOCLAXMLPath")
+    ResData.LOC.LAXMLPath = sVal;
+  else if (sVar == "LOCLAXMLFormat")
+    ResData.LOC.LAXMLForm = sVal;
+  else if (sVar == "LOCChLogPath")
+    ResData.LOC.ChLogPath = sVal;
+
+  if (sVar == "TRXProjectName")
+    ResData.TRX.sProjectName = sVal;
+  if (sVar == "TRXLongProjectName")
+    ResData.TRX.sLongProjectName = sVal;
+  if (sVar == "TRXResName")
+    ResData.TRX.sResName = sVal;
+  if (sVar == "TRXLForm")
+    ResData.TRX.sLForm = sVal;
+
+  if (sVar == "UPDProjectName")
+    ResData.UPD.sProjectName = sVal;
+  if (sVar == "UPDLongProjectName")
+    ResData.UPD.sLongProjectName = sVal;
+  if (sVar == "UPDResName")
+    ResData.UPD.sResName = sVal;
+  if (sVar == "UPDLForm")
+    ResData.UPD.sLForm = sVal;
+
+
+
+
+
+//  std::string Owner, Repo, Branch;
+//  std::string LPath, LForm, LFileName;
+//  std::string AXMLPath, LFormInAXML, AXMLFileName;
+//  std::string LAXMLPath, LAXMLFormat;
+//  std::string ChLogPath, ChLogFileName;
+
+/*
+  std::string sProjectName;
+  std::string sLongProjectName;
+  std::string sTRXResname;
+  std::string sTRXLForm;
+*/
+  else if (sVar == "ResName")
+    ResData.sResName = sVal;
+  else if (sVar == "ChgLogFormat")
+    ResData.sChgLogFormat = sVal;
+  else if (sVar == "ProjRootDir")
+    ResData.sProjRootDir = sVal;
+  else if (sVar == "MRGLFilesDir")
+    ResData.sMRGLFilesDir = sVal;
+  else if (sVar == "MinComplPercent")
+    ResData.iMinComplPercent = strtol(&sVal[0], NULL, 10);
+  else if (sVar == "UPDLFilesDir")
+    ResData.sUPDLFilesDir = sVal;
+  else if (sVar == "SupportEmailAddr")
+    ResData.sSupportEmailAddr = sVal;
+  else if (sVar == "SRCLCode")
+    ResData.sSRCLCode = sVal;
+  else if (sVar == "BaseLCode")
+    ResData.sBaseLCode = sVal;
+  else if (sVar == "LTeamLFormat")
+    ResData.sLTeamLFormat = sVal;
+  else if (sVar == "LDatabaseURL")
+    ResData.sLDatabaseURL = sVal;
+  else if (sVar == "ForceComm")
+    ResData.bForceComm = (sVal == "true");
+  else if (sVar == "Rebrand")
+    ResData.bRebrand = (sVal == "true");
+  else if (sVar == "ForceTXUpd")
+    ResData.bForceTXUpd = (sVal == "true");
 
   else
     CLog::Log(logERROR, "ConfHandler: Unreconised internal variable name");
@@ -475,11 +558,30 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
   m_MapOfVariables[sVar] = sVal;
 }
 
-//  std::string Owner, Repo, Branch;
-//  std::string LPath, LForm, LFileName;
-//  std::string AXMLPath, LFormInAXML, AXMLFileName;
-//  std::string LAXMLPath, LAXMLFormat;
-//  std::string ChLogPath, ChLogFileName;
+
+/*
+  std::string strChangelogFormat;
+  bool bIsLanguageAddon;
+  bool bHasOnlyAddonXML;
+
+  std::string strProjectName;
+  std::string strProjRootdir;
+  std::string strTargetProjectName;***
+  std::string strTargetProjectNameLong;***
+  std::string strMergedLangfileDir;
+  int iMinComplPercent;
+  std::string strTXUpdateLangfilesDir;
+  std::string strSupportEmailAdd;
+  std::string strSourceLcode;
+  std::string strBaseLCode;
+  std::string strDefTXLFormat;
+  std::string strTargTXLFormat;
+  std::string strLangteamLFormat;
+  std::string LangDatabaseURL;
+  bool bForceComm;
+  bool bRebrand;
+  bool bForceTXUpd;
+ */
 
 void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData)
 {

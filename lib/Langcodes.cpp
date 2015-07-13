@@ -267,7 +267,7 @@ std::map<std::string, CLangcodes> CLCodeHandler::ParseTransifexLanguageDatabase(
       std::string langstrKey = itralias.key().asString();
       std::string langstrName = (*itralias).asString();
       LangData.mapLangdata[langstrKey] = langstrName;
-      if ( "$(" + langstrKey + ")" == XMLResData.strBaseLCode)
+      if ( "$(" + langstrKey + ")" == XMLResData.sBaseLCode)
         strLCode = langstrName;
     }
 

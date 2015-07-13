@@ -417,11 +417,11 @@ void CPOHandler::CreateHeader (const std::string &strPreText, const std::string&
   m_strHeader += "msgid \"\"\n";
   m_strHeader += "msgstr \"\"\n";
   m_strHeader += "\"Project-Id-Version: " + m_XMLResData.strTargetProjectNameLong + "\\n\"\n";
-  m_strHeader += "\"Report-Msgid-Bugs-To: " + m_XMLResData.strSupportEmailAdd + "\\n\"\n";
+  m_strHeader += "\"Report-Msgid-Bugs-To: " + m_XMLResData.sSupportEmailAddr + "\\n\"\n";
   m_strHeader += "\"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"Last-Translator: Kodi Translation Team\\n\"\n";
-  m_strHeader += "\"Language-Team: " + g_LCodeHandler.GetLangFromLCode(sLCode, m_XMLResData.strLangteamLFormat) +
+  m_strHeader += "\"Language-Team: " + g_LCodeHandler.GetLangFromLCode(sLCode, m_XMLResData.sLTeamLFormat) +
                  " (http://www.transifex.com/projects/p/" + m_XMLResData.strTargetProjectName +"/language/"
                  + g_LCodeHandler.GetLangFromLCode(sLCode, m_XMLResData.strTargTXLFormat) +"/)" + "\\n\"\n";
   m_strHeader += "\"MIME-Version: 1.0\\n\"\n";
@@ -872,7 +872,7 @@ void CPOHandler::PutSRCFileToTRX()
   size_t iAddedNew =0;
   size_t iUpdated = 0;
   g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
-  "/resource/" + m_XMLResData.strTargetTXName + "/content/", bUploaded, iAddedNew, iUpdated);
+  "/resource/" + m_XMLResData.UPD.sResName + "/content/", bUploaded, iAddedNew, iUpdated);
 
   if (bUploaded)
     printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
@@ -890,7 +890,7 @@ void CPOHandler::PutTranslFileToTRX()
   size_t iUpdated = 0;
 
   g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
-                             "/resource/" + m_XMLResData.strTargetTXName + "/translation/"
+                             "/resource/" + m_XMLResData.UPD.sResName + "/translation/"
                              + g_LCodeHandler.GetLangFromLCode(m_sLCode, m_XMLResData.strTargTXLFormat) + "/", bUploaded, iAddedNew, iUpdated);
   if (bUploaded)
     printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);

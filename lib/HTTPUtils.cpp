@@ -509,8 +509,8 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
   std::string sURLCreateRes = "https://www.transifex.com/api/2/project/" + XMLResData.strTargetProjectName + "/resources/";
 
   std::string sURLSRCRes = "https://www.transifex.com/api/2/project/" + XMLResData.strTargetProjectName + "/resource/" +
-                           XMLResData.strTargetTXName + "/translation/" +
-                           g_LCodeHandler.GetLangFromLCode(XMLResData.strSourceLcode, XMLResData.strTargTXLFormat) + "/";
+                           XMLResData.UPD.sResName + "/translation/" +
+                           g_LCodeHandler.GetLangFromLCode(XMLResData.sSRCLCode, XMLResData.strTargTXLFormat) + "/";
 
   bool bCacheFileExists, bCacheFileExpired;
 
@@ -536,7 +536,7 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
 
   sURLCreateRes = URLEncode(sURLCreateRes);
 
-  std::string strPOJson = CreateNewresJSONStrFromPOStr(XMLResData.strTXName, sPOFile);
+  std::string strPOJson = CreateNewresJSONStrFromPOStr(XMLResData.UPD.sResName, sPOFile);
 
   std::string strServerResp;
   CLoginData LoginData = GetCredentials(sURLCreateRes);
@@ -590,11 +590,11 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
 
     if (bSuccess)
       CLog::Log(logINFO, "CHTTPHandler::CreateNewResource finished with success for resource %s from EN PO file %s to URL %s",
-                XMLResData.strResName.c_str(), sURLSRCRes.c_str(), sURLCreateRes.c_str());
+                XMLResData.sResName.c_str(), sURLSRCRes.c_str(), sURLCreateRes.c_str());
     else
       CLog::Log(logERROR, "CHTTPHandler::CreateNewResource finished with error:\ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\nlocaldir: %s\nREsource: %s",
                 curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), sURLCreateRes.c_str(),
-                sURLSRCRes.c_str(), XMLResData.strResName.c_str());
+                sURLSRCRes.c_str(), XMLResData.sResName.c_str());
 
     if (!bCacheFileExists || bCacheFileExpired)
     {

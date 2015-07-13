@@ -53,8 +53,8 @@ struct CTRXData
 {
   std::string sProjectName;
   std::string sLongProjectName;
-  std::string sTRXResname;
-  std::string sTRXLForm;
+  std::string sResName;
+  std::string sLForm;
 };
 
 class CXMLResdata
@@ -62,7 +62,7 @@ class CXMLResdata
 public:
   CXMLResdata();
   ~CXMLResdata();
-  std::string strResName;
+  std::string sResName;
 
   std::string strTXName, strTargetTXName;
 
@@ -81,24 +81,24 @@ public:
   std::string strLOCAddonPath, strLOCAddonPathRoot, strLOCAddonLangFormat, strLOCAddonLangFormatinXML, strLOCAddonXMLFilename;
   std::string strLOCChangelogPath, strLOCChangelogPathRoot, strLOCChangelogName;
 
-  std::string strChangelogFormat;
+  std::string sChgLogFormat;
   bool bIsLanguageAddon;
   bool bHasOnlyAddonXML;
 
   std::string strProjectName;
-  std::string strProjRootdir;
+  std::string sProjRootDir;
   std::string strTargetProjectName;
   std::string strTargetProjectNameLong;
-  std::string strMergedLangfileDir;
+  std::string sMRGLFilesDir;
   int iMinComplPercent;
-  std::string strTXUpdateLangfilesDir;
-  std::string strSupportEmailAdd;
-  std::string strSourceLcode;
-  std::string strBaseLCode;
+  std::string sUPDLFilesDir;
+  std::string sSupportEmailAddr;
+  std::string sSRCLCode;
+  std::string sBaseLCode;
   std::string strDefTXLFormat;
   std::string strTargTXLFormat;
-  std::string strLangteamLFormat;
-  std::string LangDatabaseURL;
+  std::string sLTeamLFormat;
+  std::string sLDatabaseURL;
   bool bForceComm;
   bool bRebrand;
   bool bForceTXUpd;

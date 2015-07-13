@@ -47,11 +47,11 @@ CResourceHandler::~CResourceHandler()
 bool CResourceHandler::FetchPOFilesTXToMem()
 {
   g_HTTPHandler.SetLocation("TRX");
-  g_HTTPHandler.SetResName(m_XMLResData.strResName);
+  g_HTTPHandler.SetResName(m_XMLResData.sResName);
   g_HTTPHandler.SetLCode("");
   g_HTTPHandler.SetProjectName(m_XMLResData.strProjectName);
 
-  std::string strURL = "https://www.transifex.com/api/2/project/" + m_XMLResData.strProjectName + "/resource/" + m_XMLResData.strTXName + "/";
+  std::string strURL = "https://www.transifex.com/api/2/project/" + m_XMLResData.strProjectName + "/resource/" + m_XMLResData.TRX.sResName + "/";
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
   CLog::Log(logINFO, "ResHandler: Starting to load resource from TX URL: %s into memory",strURL.c_str());
@@ -78,13 +78,13 @@ bool CResourceHandler::FetchPOFilesTXToMem()
     m_mapTRX[sLCode] = newPOHandler;
 
     CPOHandler& POHandler = m_mapTRX[sLCode];
-    POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
+    POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
     POHandler.SetLCode(sLCode);
     g_HTTPHandler.SetLCode(sLCode);
 
     std::string sLangNameTX = g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat);
     POHandler.FetchPOURLToMem(strURL + "translation/" + sLangNameTX + "/?file");
-    POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
+    POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
 
     CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i", sLCode.c_str(), POHandler.GetClassEntriesCount());
   }
@@ -101,7 +101,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   g_HTTPHandler.ReInit();
 
   g_HTTPHandler.SetLocation("UPS");
-  g_HTTPHandler.SetResName(m_XMLResData.strResName);
+  g_HTTPHandler.SetResName(m_XMLResData.sResName);
   g_HTTPHandler.SetLCode("");
   g_HTTPHandler.SetProjectName("");
 
@@ -125,7 +125,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   }
 
   if (!m_XMLResData.strUPSSourceLangURL.empty()) // we have a language-addon with different SRC language upstream URL
-    listLangsWithStringsPO.insert(m_XMLResData.strSourceLcode);
+    listLangsWithStringsPO.insert(m_XMLResData.sSRCLCode);
 
   listLangs = listLangsWithStringsPO;
 
@@ -142,7 +142,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
     bool bLangHasStringsPO = listLangsWithStringsPO.find(sLCode) != listLangsWithStringsPO.end();
 
-    bool bIsSourceLang = sLCode == m_XMLResData.strSourceLcode;
+    bool bIsSourceLang = sLCode == m_XMLResData.sSRCLCode;
     POHandler.SetIfIsSourceLang(bIsSourceLang);
     POHandler.SetLCode(sLCode);
     g_HTTPHandler.SetLCode(sLCode);
@@ -175,7 +175,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     }
 
     if (m_AddonXMLHandler.FindAddonXMLEntry(sLCode))
-      POHandler.AddAddonXMLEntries(m_AddonXMLHandler.GetAddonXMLEntry(sLCode), m_AddonXMLHandler.GetAddonXMLEntry(m_XMLResData.strSourceLcode));
+      POHandler.AddAddonXMLEntries(m_AddonXMLHandler.GetAddonXMLEntry(sLCode), m_AddonXMLHandler.GetAddonXMLEntry(m_XMLResData.sSRCLCode));
 
     m_mapUPS[sLCode] = POHandler;
 
@@ -218,7 +218,7 @@ bool CResourceHandler::ComparePOFiles(CPOHandler& POHandler1, CPOHandler& POHand
 void CResourceHandler::MergeResource()
 {
   std::list<std::string> listMergedLangs = CreateMergedLangList();
-  CPOHandler& POHandlUPSSRC = m_mapUPS.at(m_XMLResData.strSourceLcode);
+  CPOHandler& POHandlUPSSRC = m_mapUPS.at(m_XMLResData.sSRCLCode);
   bool bResChangedFromUPS = false;
 
   for (std::list<std::string>::iterator itlang = listMergedLangs.begin(); itlang != listMergedLangs.end(); itlang++)
@@ -229,11 +229,11 @@ void CResourceHandler::MergeResource()
     // check if lcode is the source lcode. If so we check if it has changed from the last uploaded one
     // if it has has changed set flag that we need to write a complete update PO file for the SRC language
     bool bWriteUPDFileSRC = false;
-    if (sLCode == m_XMLResData.strSourceLcode)
+    if (sLCode == m_XMLResData.sSRCLCode)
     {
-      if (m_mapTRX.find(m_XMLResData.strSourceLcode) != m_mapTRX.end())
+      if (m_mapTRX.find(m_XMLResData.sSRCLCode) != m_mapTRX.end())
       {
-        CPOHandler& POHandlTRXSRC = m_mapTRX.at(m_XMLResData.strSourceLcode);
+        CPOHandler& POHandlTRXSRC = m_mapTRX.at(m_XMLResData.sSRCLCode);
         if (!ComparePOFiles(POHandlTRXSRC, POHandlUPSSRC))       // if the source po file differs from the one at transifex we need to update it
           bWriteUPDFileSRC = true;
       }
@@ -253,7 +253,7 @@ void CResourceHandler::MergeResource()
       bool bisInTRX = FindTRXEntry(sLCode, EntrySRC);
 
       //Handle the source language
-      if (sLCode == m_XMLResData.strSourceLcode)
+      if (sLCode == m_XMLResData.sSRCLCode)
       {
         T_itPOData itPOUPS = GetUPSItFoundEntry();
         m_mapMRG[sLCode].AddItEntry(itPOUPS);
@@ -297,7 +297,7 @@ void CResourceHandler::MergeResource()
     {
       CPOHandler& MRGPOHandler = m_mapMRG.at(sLCode);
       MRGPOHandler.SetXMLReasData(m_XMLResData);
-      MRGPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
+      MRGPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
       MRGPOHandler.SetPOType(MERGEDPO);
       MRGPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
       if (m_XMLResData.bIsLanguageAddon)
@@ -317,7 +317,7 @@ void CResourceHandler::MergeResource()
     {
       CPOHandler& UPDPOHandler = m_mapUPD.at(sLCode);
       UPDPOHandler.SetXMLReasData(m_XMLResData);
-      UPDPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.strSourceLcode);
+      UPDPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
       UPDPOHandler.SetPOType(UPDATEPO);
       UPDPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
 
@@ -413,8 +413,8 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
   if (!m_XMLResData.bIsLanguageAddon)
   {
     m_AddonXMLHandler.WriteAddonXMLFile(sAddonXMLPath);
-    if (!m_XMLResData.strChangelogFormat.empty())
-      m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath, m_XMLResData.strChangelogFormat);
+    if (!m_XMLResData.sChgLogFormat.empty())
+      m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath, m_XMLResData.sChgLogFormat);
   }
 
   if (m_XMLResData.bHasOnlyAddonXML)
@@ -447,7 +447,7 @@ void CResourceHandler::WriteUpdatePOFiles(const std::string& strPath)
   {
     const std::string& sLCode = itmapPOFiles->first;
     std::string strPODir;
-    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, m_XMLResData.strBaseLCode, sLCode);
+    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, m_XMLResData.sBaseLCode, sLCode);
 
     CPOHandler& POHandler = m_mapUPD.at(sLCode);
 
@@ -465,7 +465,7 @@ void CResourceHandler::GenerateMergedPOFiles()
     m_AddonXMLHandler.ClearAllAddonXMLEntries();
 
 
-  printf("Generating merged and update PO files: %s%s%s\n", KMAG, m_XMLResData.strResName.c_str(), RESET);
+  printf("Generating merged and update PO files: %s%s%s\n", KMAG, m_XMLResData.sResName.c_str(), RESET);
   if (!m_lChangedLangsFromUPS.empty())
   {
     printf("  Changed Langs in strings files from upstream: ");
@@ -670,7 +670,7 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
 
-  printf ("Uploading files for resource: %s%s%s", KMAG, m_XMLResData.strResName.c_str(), RESET);
+  printf ("Uploading files for resource: %s%s%s", KMAG, m_XMLResData.sResName.c_str(), RESET);
 
 
   if (m_mapUPD.empty()) // No update needed for the specific resource (not even an English one)
@@ -681,17 +681,17 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
 
   g_HTTPHandler.SetLocation("UPD");
   g_HTTPHandler.SetProjectName(m_XMLResData.strProjectName);
-  g_HTTPHandler.SetResName(m_XMLResData.strResName);
+  g_HTTPHandler.SetResName(m_XMLResData.sResName);
   g_HTTPHandler.SetFileName("string.po");
   g_HTTPHandler.SetDataFile(false);
 
-  g_HTTPHandler.SetLCode(m_XMLResData.strSourceLcode);
+  g_HTTPHandler.SetLCode(m_XMLResData.sSRCLCode);
 
   if (bNewResourceOnTRX)
   {
     // We create the new resource on transifex and also upload the English source file at once
 
-    m_mapUPD.at(m_XMLResData.strSourceLcode).CreateNewResource();
+    m_mapUPD.at(m_XMLResData.sSRCLCode).CreateNewResource();
 
     g_HTTPHandler.Cleanup();
     g_HTTPHandler.ReInit();
@@ -700,8 +700,8 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
   printf ("\n");
 
   // Upload the source file in case there is one to update
-  if (m_mapUPD.find(m_XMLResData.strSourceLcode) != m_mapUPD.end() && !bNewResourceOnTRX)
-    m_mapUPD.at(m_XMLResData.strSourceLcode).PutSRCFileToTRX();
+  if (m_mapUPD.find(m_XMLResData.sSRCLCode) != m_mapUPD.end() && !bNewResourceOnTRX)
+    m_mapUPD.at(m_XMLResData.sSRCLCode).PutSRCFileToTRX();
 
 
   for (T_itmapPOFiles it = m_mapUPD.begin(); it!=m_mapUPD.end(); it++)
@@ -709,7 +709,7 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
     const std::string& sLCode = it->first;
     CPOHandler& POHandler = it->second;
 
-    if (sLCode == m_XMLResData.strSourceLcode) // Let's not upload the Source language file again
+    if (sLCode == m_XMLResData.sSRCLCode) // Let's not upload the Source language file again
       continue;
 
     g_HTTPHandler.SetLCode(sLCode);

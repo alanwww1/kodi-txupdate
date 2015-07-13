@@ -135,7 +135,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CLog::Log(logINFO, "ProjHandler: *** Write Merged Resource: %s ***", itmapResources->first.c_str());
     CLog::IncIdent(4);
 
-    std::string sMergedLangDir = XMLResData.strProjRootdir + DirSepChar + XMLResData.strMergedLangfileDir + DirSepChar;
+    std::string sMergedLangDir = XMLResData.sProjRootDir + DirSepChar + XMLResData.sMRGLFilesDir + DirSepChar;
     std::string sAddonXMLPath = sMergedLangDir + XMLResData.strLOCAddonPath;
     std::string sChangeLogPath =  sMergedLangDir + XMLResData.strLOCChangelogPath;
     std::string sLangPath  = sMergedLangDir + XMLResData.strLOCLangPath;
@@ -143,7 +143,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     ResHandler.GenerateMergedPOFiles ();
     ResHandler.WriteMergedPOFiles (sAddonXMLPath, sLangAddonXMLPath, sChangeLogPath, sLangPath);
 
-    std::string sPathUpdate = XMLResData.strProjRootdir + XMLResData.strTXUpdateLangfilesDir + DirSepChar + XMLResData.strResName + DirSepChar + XMLResData.strBaseLCode + DirSepChar + "strings.po";
+    std::string sPathUpdate = XMLResData.sProjRootDir + XMLResData.sUPDLFilesDir + DirSepChar + XMLResData.sResName + DirSepChar + XMLResData.sBaseLCode + DirSepChar + "strings.po";
     ResHandler.GenerateUpdatePOFiles ();
     ResHandler.WriteUpdatePOFiles (sPathUpdate);
 
@@ -263,7 +263,7 @@ void CProjectHandler::InitLCodeHandler()
 {
 //TODO
   CXMLResdata XMLResdata = m_mapResData.begin()->second;
-  g_LCodeHandler.Init(XMLResdata.LangDatabaseURL, XMLResdata);
+  g_LCodeHandler.Init(XMLResdata.sLDatabaseURL, XMLResdata);
 }
 
 std::set<std::string> CProjectHandler::ParseResources(std::string strJSON)

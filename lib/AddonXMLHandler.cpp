@@ -167,7 +167,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     if (pChildSummElement->Attribute("lang"))
       strAlias = pChildSummElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.strSourceLcode, m_XMLResData.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.strUPSAddonLangFormatinXML);
     strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.strUPSAddonLangFormatinXML);
 
     if (pChildSummElement->FirstChild() && strLCode != "")
@@ -188,7 +188,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     if (pChildDescElement->Attribute("lang"))
       strAlias = pChildDescElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.strSourceLcode, m_XMLResData.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.strUPSAddonLangFormatinXML);
     strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.strUPSAddonLangFormatinXML);
 
     if (pChildDescElement->FirstChild() && strLCode != "")
@@ -209,7 +209,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     if (pChildDisclElement->Attribute("lang"))
       strAlias = pChildDisclElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.strSourceLcode, m_XMLResData.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.strUPSAddonLangFormatinXML);
     strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.strUPSAddonLangFormatinXML);
 
     if (pChildDisclElement->FirstChild() && strLCode != "")
