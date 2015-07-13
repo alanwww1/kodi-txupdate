@@ -872,7 +872,7 @@ void CPOHandler::PutSRCFileToTRX()
   size_t iAddedNew =0;
   size_t iUpdated = 0;
   g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
-  "/resource/" + m_XMLResData.UPD.sResName + "/content/", bUploaded, iAddedNew, iUpdated);
+  "/resource/" + m_XMLResData.UPD.ResName + "/content/", bUploaded, iAddedNew, iUpdated);
 
   if (bUploaded)
     printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
@@ -890,7 +890,7 @@ void CPOHandler::PutTranslFileToTRX()
   size_t iUpdated = 0;
 
   g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_XMLResData.strTargetProjectName +
-                             "/resource/" + m_XMLResData.UPD.sResName + "/translation/"
+                             "/resource/" + m_XMLResData.UPD.ResName + "/translation/"
                              + g_LCodeHandler.GetLangFromLCode(m_sLCode, m_XMLResData.strTargTXLFormat) + "/", bUploaded, iAddedNew, iUpdated);
   if (bUploaded)
     printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);

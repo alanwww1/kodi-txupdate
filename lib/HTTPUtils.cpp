@@ -509,7 +509,7 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
   std::string sURLCreateRes = "https://www.transifex.com/api/2/project/" + XMLResData.strTargetProjectName + "/resources/";
 
   std::string sURLSRCRes = "https://www.transifex.com/api/2/project/" + XMLResData.strTargetProjectName + "/resource/" +
-                           XMLResData.UPD.sResName + "/translation/" +
+                           XMLResData.UPD.ResName + "/translation/" +
                            g_LCodeHandler.GetLangFromLCode(XMLResData.sSRCLCode, XMLResData.strTargTXLFormat) + "/";
 
   bool bCacheFileExists, bCacheFileExpired;
@@ -536,7 +536,7 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
 
   sURLCreateRes = URLEncode(sURLCreateRes);
 
-  std::string strPOJson = CreateNewresJSONStrFromPOStr(XMLResData.UPD.sResName, sPOFile);
+  std::string strPOJson = CreateNewresJSONStrFromPOStr(XMLResData.UPD.ResName, sPOFile);
 
   std::string strServerResp;
   CLoginData LoginData = GetCredentials(sURLCreateRes);

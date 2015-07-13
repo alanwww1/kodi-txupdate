@@ -47,14 +47,18 @@ struct CGITData
   std::string AXMLPath, LFormInAXML;;
   std::string LAXMLPath, LAXMLForm;
   std::string ChLogPath;
+  // To be deleted:
+  std::string LURL, LURLRoot;
+  std::string AXMLURL, AXMLURLRoot;
+
 };
 
 struct CTRXData
 {
-  std::string sProjectName;
-  std::string sLongProjectName;
-  std::string sResName;
-  std::string sLForm;
+  std::string ProjectName;
+  std::string LongProjectName;
+  std::string ResName;
+  std::string LForm;
 };
 
 class CXMLResdata
@@ -64,11 +68,9 @@ public:
   ~CXMLResdata();
   std::string sResName;
 
-  std::string strTXName, strTargetTXName;
+//  std::string strTXName, strTargetTXName;
 
-  std::string strUPSLangURL, strUPSLangURLRoot, strUPSLangFormat, strUPSLangFileName;
-  std::string strUPSSourceLangURL;
-  std::string strUPSAddonURL, strUPSAddonURLRoot, strUPSAddonLangFormat, strUPSAddonLangFormatinXML, strUPSAddonXMLFilename;
+  std::string strUPSAddonLangFormat, strUPSAddonLangFormatinXML, strUPSAddonXMLFilename;
   std::string strUPSSourceLangAddonURL;
   std::string strUPSChangelogURL, strUPSChangelogURLRoot, strUPSChangelogName;
 

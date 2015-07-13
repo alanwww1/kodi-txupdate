@@ -47,7 +47,7 @@ void CAddonXMLHandler::FetchAddonDataFiles()
 {
   std::string sGitHubURL, sTemp;
 
-  if (m_XMLResData.strUPSAddonURL.empty() || !m_XMLResData.strUPSAddonLangFormat.empty())
+  if (m_XMLResData.UPS.AXMLURL.empty() || !m_XMLResData.strUPSAddonLangFormat.empty())
     return; // kodi language-addons have individual addon.xml files
 
   g_HTTPHandler.SetFileName("AddonData_FilesListing.json");
@@ -55,7 +55,7 @@ void CAddonXMLHandler::FetchAddonDataFiles()
   g_HTTPHandler.SetDataFile(true);
 
   // We get the version of the addon.xml and changelog.txt files here
-  sGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(m_XMLResData.strUPSAddonURLRoot);
+  sGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(m_XMLResData.UPS.AXMLURLRoot);
   printf(" Dir");
   sTemp = g_HTTPHandler.GetURLToSTR(sGitHubURL);
   if (sTemp.empty())
@@ -79,7 +79,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   g_HTTPHandler.SetFileName(m_XMLResData.strUPSAddonXMLFilename);
   g_HTTPHandler.SetDataFile(false);
 
-  std::string strURL = m_XMLResData.strUPSAddonURL;
+  std::string strURL = m_XMLResData.UPS.AXMLURL;
   TiXmlDocument xmlAddonXML;
 
   std::string strXMLFile = g_HTTPHandler.GetURLToSTR(strURL);
@@ -96,7 +96,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     return false;
   }
 
-  std::string AddonXMLFilename = m_XMLResData.strUPSAddonURL;
+  std::string AddonXMLFilename = m_XMLResData.UPS.AXMLURL;
   std::string addonXMLEncoding;
   m_strResourceData.clear();
 
@@ -540,7 +540,7 @@ void CAddonXMLHandler::ParseAddonXMLVersionGITHUB(const std::string &strJSON)
       if (strVersion == "unknown")
         CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid sha JSON data downloaded from Github");
 
-      g_Fileversion.SetVersionForURL(m_XMLResData.strUPSAddonURLRoot + strName, strVersion);
+      g_Fileversion.SetVersionForURL(m_XMLResData.UPS.AXMLURLRoot + strName, strVersion);
     }
   };
 };

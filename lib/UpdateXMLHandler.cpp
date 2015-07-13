@@ -261,10 +261,10 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
 
       const TiXmlElement *pChildURLElement = pChildResElement->FirstChildElement("upstreamLangURL");
       if (pChildURLElement && pChildURLElement->FirstChild())
-        currResData.strUPSLangURL = pChildURLElement->FirstChild()->Value();
-      if ((currResData.bHasOnlyAddonXML = currResData.strUPSLangURL.empty()))
+        currResData.UPS.LURL = pChildURLElement->FirstChild()->Value();
+      if ((currResData.bHasOnlyAddonXML = currResData.UPS.LURL.empty()))
         CLog::Log(logINFO, "UpdXMLHandler: UpstreamURL entry is empty for resource %s, which means we have no language files for this addon", strResName.c_str());
-      else if (!GetParamsFromURLorPath (currResData.strUPSLangURL, currResData.strUPSLangFormat, currResData.strUPSLangFileName,
+      else if (!GetParamsFromURLorPath (currResData.UPS.LURL, currResData.UPS.LForm, currResData.UPS.LFileName,
                                         currResData.strUPSLangURLRoot, '/'))
         CLog::Log(logERROR, "UpdXMLHandler: UpstreamURL format is wrong for resource %s", strResName.c_str());
       if (!currResData.strUPSLangURLRoot.empty() && currResData.strUPSLangURLRoot.find (".github") == std::string::npos)
@@ -272,7 +272,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
 
       const TiXmlElement *pChildURLSRCElement = pChildResElement->FirstChildElement("upstreamLangSRCURL");
       if (pChildURLSRCElement && pChildURLSRCElement->FirstChild())
-        currResData.strUPSSourceLangURL = pChildURLSRCElement->FirstChild()->Value();
+        currResData.UPSSRC.LURL = pChildURLSRCElement->FirstChild()->Value();
 
       const TiXmlElement *pChildURLSRCAddonElement = pChildResElement->FirstChildElement("upstreamAddonSRCURL");
       if (pChildURLSRCAddonElement && pChildURLSRCAddonElement->FirstChild())
@@ -280,15 +280,15 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
 
       const TiXmlElement *pChildAddonURLElement = pChildResElement->FirstChildElement("upstreamAddonURL");
       if (pChildAddonURLElement && pChildAddonURLElement->FirstChild())
-        currResData.strUPSAddonURL = pChildAddonURLElement->FirstChild()->Value();
-      if (currResData.strUPSAddonURL.empty())
-        currResData.strUPSAddonURL = currResData.strUPSLangURL.substr(0,currResData.strUPSLangURL.find(currResData.sResName)
+        currResData.UPS.AXMLURL = pChildAddonURLElement->FirstChild()->Value();
+      if (currResData.UPS.AXMLURL.empty())
+        currResData.UPS.AXMLURL = currResData.UPS.LURL.substr(0,currResData.UPS.LURL.find(currResData.sResName)
                                                                       + currResData.sResName.size()) + "/addon.xml";
-      if (currResData.strUPSAddonURL.empty())
+      if (currResData.UPS.AXMLURL.empty())
         CLog::Log(logERROR, "UpdXMLHandler: Unable to determine the URL for the addon.xml file for resource %s", strResName.c_str());
-      GetParamsFromURLorPath (currResData.strUPSAddonURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
-                                currResData.strUPSAddonURLRoot, '/');
-      if (!currResData.strUPSAddonURL.empty() && currResData.strUPSAddonURL.find (".github") == std::string::npos)
+      GetParamsFromURLorPath (currResData.UPS.AXMLURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
+                                currResData.UPS.AXMLURLRoot, '/');
+      if (!currResData.UPS.AXMLURL.empty() && currResData.UPS.AXMLURL.find (".github") == std::string::npos)
           CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
       std::string strUPSAddonLangFormatinXML;
       if (pChildAddonURLElement &&  pChildAddonURLElement->Attribute("addonxmllangformat"))
@@ -308,7 +308,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
       if (pChildChglogUElement && pChildChglogUElement->FirstChild())
         currResData.strUPSChangelogURL = pChildChglogUElement->FirstChild()->Value();
       else if (!currResData.sChgLogFormat.empty())
-        currResData.strUPSChangelogURL = currResData.strUPSAddonURLRoot + "changelog.txt";
+        currResData.strUPSChangelogURL = currResData.UPS.AXMLURLRoot + "changelog.txt";
       if (!currResData.sChgLogFormat.empty())
       GetParamsFromURLorPath (currResData.strUPSChangelogURL, currResData.strUPSChangelogName,
                                 currResData.strUPSChangelogURLRoot, '/');
@@ -318,7 +318,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
       if (pChildLocLangElement && pChildLocLangElement->FirstChild())
         currResData.strLOCLangPath = pChildLocLangElement->FirstChild()->Value();
       if (currResData.strLOCLangPath.empty() && !currResData.bHasOnlyAddonXML)
-        currResData.strLOCLangPath = currResData.strUPSLangURL.substr(currResData.strUPSAddonURLRoot.size()-1);
+        currResData.strLOCLangPath = currResData.UPS.LURL.substr(currResData.UPS.AXMLURLRoot.size()-1);
       if (!currResData.bHasOnlyAddonXML)
         currResData.strLOCLangPath = currResData.sResName + DirSepChar + currResData.strLOCLangPath;
       if (!currResData.bHasOnlyAddonXML && !GetParamsFromURLorPath (currResData.strLOCLangPath, currResData.strLOCLangFormat,
@@ -490,22 +490,22 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
     ResData.LOC.ChLogPath = sVal;
 
   if (sVar == "TRXProjectName")
-    ResData.TRX.sProjectName = sVal;
+    ResData.TRX.ProjectName = sVal;
   if (sVar == "TRXLongProjectName")
-    ResData.TRX.sLongProjectName = sVal;
+    ResData.TRX.LongProjectName = sVal;
   if (sVar == "TRXResName")
-    ResData.TRX.sResName = sVal;
+    ResData.TRX.ResName = sVal;
   if (sVar == "TRXLForm")
-    ResData.TRX.sLForm = sVal;
+    ResData.TRX.LForm = sVal;
 
   if (sVar == "UPDProjectName")
-    ResData.UPD.sProjectName = sVal;
+    ResData.UPD.ProjectName = sVal;
   if (sVar == "UPDLongProjectName")
-    ResData.UPD.sLongProjectName = sVal;
+    ResData.UPD.LongProjectName = sVal;
   if (sVar == "UPDResName")
-    ResData.UPD.sResName = sVal;
+    ResData.UPD.ResName = sVal;
   if (sVar == "UPDLForm")
-    ResData.UPD.sLForm = sVal;
+    ResData.UPD.LForm = sVal;
 
 
 
