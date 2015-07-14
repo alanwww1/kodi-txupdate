@@ -51,7 +51,7 @@ struct CGITData
   std::string LURL, LURLRoot;
   std::string AXMLURL, AXMLURLRoot, ALForm;
   std::string AXMLFileName;
-  std::string ChLogURL, ChLogURLRoot;
+  std::string ChLogURL, ChLogURLRoot, ChLogName;
 
 };
 
@@ -78,26 +78,17 @@ public:
   CGITData LOC, LOCSRC;
   CTRXData TRX, UPD;
 
-  std::string strLOCLangPath, strLOCLangPathRoot, strLOCLangFormat, strLOCLangFileName;
-  std::string strLOCAddonPath, strLOCAddonPathRoot, strLOCAddonLangFormat, strLOCAddonLangFormatinXML, strLOCAddonXMLFilename;
-  std::string strLOCChangelogPath, strLOCChangelogPathRoot, strLOCChangelogName;
-
   std::string sChgLogFormat;
   bool bIsLanguageAddon;
   bool bHasOnlyAddonXML;
 
-  std::string strProjectName;
   std::string sProjRootDir;
-  std::string strTargetProjectName;
-  std::string strTargetProjectNameLong;
   std::string sMRGLFilesDir;
   int iMinComplPercent;
   std::string sUPDLFilesDir;
   std::string sSupportEmailAddr;
   std::string sSRCLCode;
   std::string sBaseLCode;
-  std::string strDefTXLFormat;
-  std::string strTargTXLFormat;
   std::string sLTeamLFormat;
   std::string sLDatabaseURL;
   bool bForceComm;
@@ -110,7 +101,7 @@ class CUpdateXMLHandler
 public:
   CUpdateXMLHandler();
   ~CUpdateXMLHandler();
-  void LoadUpdXMLToMem(std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
+//  void LoadUpdXMLToMem(std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
   void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
 
 private:

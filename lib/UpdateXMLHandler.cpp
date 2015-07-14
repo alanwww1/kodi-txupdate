@@ -41,7 +41,7 @@ CUpdateXMLHandler::CUpdateXMLHandler()
 
 CUpdateXMLHandler::~CUpdateXMLHandler()
 {};
-
+/*
 void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData)
 {
   std::string UpdateXMLFilename = rootDir  + DirSepChar + "kodi-txupdate.xml";
@@ -221,8 +221,8 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
     CXMLResdata currResData;
     currResData.sProjRootDir = rootDir;
     currResData.strProjectName = strProjName;
-    currResData.strTargetProjectName = strTargetProjName;
-    currResData.strTargetProjectNameLong = strLongProjName;
+    currResData.UPD.ProjectName = strTargetProjName;
+    currResData.UPD.ProjectNameLong = strLongProjName;
     currResData.iMinComplPercent = iMinComplPercent;
     currResData.sMRGLFilesDir = strMergedLangfileDir;
     currResData.sUPDLFilesDir = strTXUpdatelangfileDir;
@@ -316,48 +316,49 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
 //TODO if not defined automatic creation fails for language-addons
       const TiXmlElement *pChildLocLangElement = pChildResElement->FirstChildElement("localLangPath");
       if (pChildLocLangElement && pChildLocLangElement->FirstChild())
-        currResData.strLOCLangPath = pChildLocLangElement->FirstChild()->Value();
-      if (currResData.strLOCLangPath.empty() && !currResData.bHasOnlyAddonXML)
-        currResData.strLOCLangPath = currResData.UPS.LURL.substr(currResData.UPS.AXMLURLRoot.size()-1);
+        currResData.LOC.LURL = pChildLocLangElement->FirstChild()->Value();
+      if (currResData.LOC.LURL.empty() && !currResData.bHasOnlyAddonXML)
+        currResData.LOC.LURL = currResData.UPS.LURL.substr(currResData.UPS.AXMLURLRoot.size()-1);
       if (!currResData.bHasOnlyAddonXML)
-        currResData.strLOCLangPath = currResData.sResName + DirSepChar + currResData.strLOCLangPath;
-      if (!currResData.bHasOnlyAddonXML && !GetParamsFromURLorPath (currResData.strLOCLangPath, currResData.strLOCLangFormat,
+        currResData.LOC.LURL = currResData.sResName + DirSepChar + currResData.LOC.LURL;
+      if (!currResData.bHasOnlyAddonXML && !GetParamsFromURLorPath (currResData.LOC.LURL, currResData.strLOCLangFormat,
           currResData.strLOCLangFileName, currResData.strLOCLangPathRoot, DirSepChar))
         CLog::Log(logERROR, "UpdXMLHandler: Local langpath format is wrong for resource %s", strResName.c_str());
 
       const TiXmlElement *pChildLocAddonElement = pChildResElement->FirstChildElement("localAddonPath");
       if (pChildLocAddonElement && pChildLocAddonElement->FirstChild())
-        currResData.strLOCAddonPath = pChildLocAddonElement->FirstChild()->Value();
-      if (currResData.strLOCAddonPath.empty())
-        currResData.strLOCAddonPath = currResData.UPS.AXMLFileName;
-      currResData.strLOCAddonPath = currResData.sResName + DirSepChar + currResData.strLOCAddonPath;
-      GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
+        currResData.LOC.AXMLURL = pChildLocAddonElement->FirstChild()->Value();
+      if (currResData.LOC.AXMLURL.empty())
+        currResData.LOC.AXMLURL = currResData.UPS.AXMLFileName;
+      currResData.LOC.AXMLURL = currResData.sResName + DirSepChar + currResData.LOC.AXMLURL;
+      GetParamsFromURLorPath (currResData.LOC.AXMLURL, currResData.strLOCAddonLangFormat, currResData.LOC.AXMLFileName,
                               currResData.strLOCAddonPathRoot, DirSepChar);
       std::string strLOCAddonLangFormatinXML;
       if (pChildLocAddonElement && pChildLocAddonElement->Attribute("addonxmllangformat"))
         strLOCAddonLangFormatinXML = pChildLocAddonElement->Attribute("addonxmllangformat");
       if (strLOCAddonLangFormatinXML != "")
-        currResData.strLOCAddonLangFormatinXML = strLOCAddonLangFormatinXML;
+        currResData.LOC.LFormInAXML = strLOCAddonLangFormatinXML;
       else
-        currResData.strLOCAddonLangFormatinXML = strDefLOCAddonLangFormatinXML;
+        currResData.LOC.LFormInAXML = strDefLOCAddonLangFormatinXML;
 
       const TiXmlElement *pChildChglogLElement = pChildResElement->FirstChildElement("localChangelogPath");
       if (pChildChglogLElement && pChildChglogLElement->FirstChild())
-        currResData.strLOCChangelogPath = pChildChglogLElement->FirstChild()->Value();
+        currResData.LOC.ChLogURL = pChildChglogLElement->FirstChild()->Value();
       else
-	currResData.strLOCChangelogPath = currResData.strLOCAddonPathRoot + "changelog.txt";
-      GetParamsFromURLorPath (currResData.strLOCChangelogPath, currResData.strLOCChangelogName,
+	currResData.LOC.ChLogURL = currResData.strLOCAddonPathRoot + "changelog.txt";
+      GetParamsFromURLorPath (currResData.LOC.ChLogURL, currResData.strLOCChangelogName,
                                 currResData.strLOCChangelogPathRoot, '/');
 
       mapResData[strResName] = currResData;
       CLog::Log(logINFO, "UpdXMLHandler: found resource in update.xml file: %s, Type: %s, SubDir: %s",
-                strResName.c_str(), strType.c_str(), currResData.strLOCAddonPath.c_str());
+                strResName.c_str(), strType.c_str(), currResData.LOC.AXMLURL.c_str());
     }
     pChildResElement = pChildResElement->NextSiblingElement("resource");
   }
 
   return;
 };
+*/
 
 void CUpdateXMLHandler::SubstituteExternalVariables(std::string& sVal)
 {

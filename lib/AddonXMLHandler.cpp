@@ -336,7 +336,7 @@ void CAddonXMLHandler::GenerateAddonXMLFile ()
   std::list<std::string> listAddonDataLangs;
 
   for (T_itAddonXMLData itAddonXMLData = m_mapAddonXMLData.begin(); itAddonXMLData != m_mapAddonXMLData.end(); itAddonXMLData++)
-    listAddonDataLangs.push_back(g_LCodeHandler.GetLangFromLCode(itAddonXMLData->first, m_XMLResData.strLOCAddonLangFormatinXML));
+    listAddonDataLangs.push_back(g_LCodeHandler.GetLangFromLCode(itAddonXMLData->first, m_XMLResData.LOC.LFormInAXML));
 
   listAddonDataLangs.sort();
 
@@ -345,21 +345,21 @@ void CAddonXMLHandler::GenerateAddonXMLFile ()
 
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
-    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.strLOCAddonLangFormatinXML)].strSummary.empty())
+    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strSummary.empty())
       strNewMetadata += strAllign + "<summary lang=\"" + *it + "\">" + 
-                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.strLOCAddonLangFormatinXML)].strSummary) + "</summary>\n";
+                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strSummary) + "</summary>\n";
   }
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
-    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.strLOCAddonLangFormatinXML)].strDescription.empty())
+    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strDescription.empty())
       strNewMetadata += strAllign + "<description lang=\"" + *it + "\">" +
-                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.strLOCAddonLangFormatinXML)].strDescription) + "</description>\n";
+                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strDescription) + "</description>\n";
   }
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
-    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.strLOCAddonLangFormatinXML)].strDisclaimer.empty())
+    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strDisclaimer.empty())
       strNewMetadata += strAllign + "<disclaimer lang=\"" + *it + "\">" +
-                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.strLOCAddonLangFormatinXML)].strDisclaimer) + "</disclaimer>\n";
+                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strDisclaimer) + "</disclaimer>\n";
   }
 
   if (!m_AddonMetadata.strLanguage.empty())
@@ -430,7 +430,7 @@ bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::st
 
 bool CAddonXMLHandler::FetchAddonChangelogFile ()
 {
-  g_HTTPHandler.SetFileName(m_XMLResData.strUPSChangelogName);
+  g_HTTPHandler.SetFileName(m_XMLResData.UPS.ChLogName);
   g_HTTPHandler.SetDataFile(false);
 
   std::string strChangelogFile = g_HTTPHandler.GetURLToSTR(m_XMLResData.UPS.ChLogURL);
@@ -533,7 +533,7 @@ void CAddonXMLHandler::ParseAddonXMLVersionGITHUB(const std::string &strJSON)
       CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
 
     if (strType == "file" && ((!m_XMLResData.UPS.AXMLFileName.empty() && strName == m_XMLResData.UPS.AXMLFileName) ||
-      (!m_XMLResData.strUPSChangelogName.empty() && strName == m_XMLResData.strUPSChangelogName)))
+      (!m_XMLResData.UPS.ChLogName.empty() && strName == m_XMLResData.UPS.ChLogName)))
     {
       strVersion =JValu.get("sha", "unknown").asString();
 

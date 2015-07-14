@@ -39,7 +39,7 @@ CProjectHandler::~CProjectHandler()
 void CProjectHandler::LoadUpdXMLToMem()
 {
   CUpdateXMLHandler UpdateXMLHandler;
-  UpdateXMLHandler.LoadUpdXMLToMem (m_strProjDir, m_mapResData);
+//  UpdateXMLHandler.LoadUpdXMLToMem (m_strProjDir, m_mapResData);
   UpdateXMLHandler.LoadResDataToMem(m_strProjDir, m_mapResData);
 }
 
@@ -51,7 +51,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   printf ("TXresourcelist");
 
   //TODO multiple projects
-  const std::string& sProjectName = m_mapResData.begin()->second.strProjectName;
+  const std::string& sProjectName = m_mapResData.begin()->second.TRX.ProjectName;
   g_HTTPHandler.SetLocation("TRX");
   g_HTTPHandler.SetProjectName(sProjectName);
   g_HTTPHandler.SetResName("");
@@ -69,7 +69,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 //TODO collect out txprojectnames, check all resources in them, if we need to download
   for (T_itResData it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {
-    const std::string& sResName = it->second.strResName;
+    const std::string& sResName = it->second.sResName;
 
     printf("%s%s%s (", KMAG, sResName.c_str(), RESET);
     CLog::Log(logLINEFEED, "");
@@ -122,8 +122,8 @@ bool CProjectHandler::FetchResourcesFromUpstream()
 bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
 {
 //TODO
-  g_File.DeleteDirectory(strProjRootDir + m_mapResData.begin()->second.strMergedLangfileDir);
-  g_File.DeleteDirectory(strProjRootDir + m_mapResData.begin()->second.strTXUpdateLangfilesDir);
+  g_File.DeleteDirectory(strProjRootDir + m_mapResData.begin()->second.sMRGLFilesDir);
+  g_File.DeleteDirectory(strProjRootDir + m_mapResData.begin()->second.sUPDLFilesDir);
 
   for (T_itmapRes itmapResources = m_mapResources.begin(); itmapResources != m_mapResources.end(); itmapResources++)
   {
@@ -136,10 +136,10 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CLog::IncIdent(4);
 
     std::string sMergedLangDir = XMLResData.sProjRootDir + DirSepChar + XMLResData.sMRGLFilesDir + DirSepChar;
-    std::string sAddonXMLPath = sMergedLangDir + XMLResData.strLOCAddonPath;
-    std::string sChangeLogPath =  sMergedLangDir + XMLResData.strLOCChangelogPath;
-    std::string sLangPath  = sMergedLangDir + XMLResData.strLOCLangPath;
-    std::string sLangAddonXMLPath = sMergedLangDir + XMLResData.strLOCAddonPath;
+    std::string sAddonXMLPath = sMergedLangDir + XMLResData.LOC.AXMLURL;
+    std::string sChangeLogPath =  sMergedLangDir + XMLResData.LOC.ChLogURL;
+    std::string sLangPath  = sMergedLangDir + XMLResData.LOC.LURL;
+    std::string sLangAddonXMLPath = sMergedLangDir + XMLResData.LOC.AXMLURL;
     ResHandler.GenerateMergedPOFiles ();
     ResHandler.WriteMergedPOFiles (sAddonXMLPath, sLangAddonXMLPath, sChangeLogPath, sLangPath);
 
@@ -179,12 +179,12 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 
     if (charInput == '1')
     {
-      std::string sCommand = "vim " + strProjRootDir + m_mapResData.begin()->second.strTXUpdateLangfilesDir;
+      std::string sCommand = "vim " + strProjRootDir + m_mapResData.begin()->second.sUPDLFilesDir;
       g_File.SytemCommand(sCommand);
     }
     else if (charInput == '2')
     {
-      std::string sCommand = "vim " + strProjRootDir + m_mapResData.begin()->second.strMergedLangfileDir;
+      std::string sCommand = "vim " + strProjRootDir + m_mapResData.begin()->second.sMRGLFilesDir;
       g_File.SytemCommand(sCommand);
     }
     else if (charInput == 'x')
@@ -201,7 +201,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   printf ("TXresourcelist");
 
   //TODO
-  const std::string& strTargetProjectName = m_mapResData.begin()->second.strTargetProjectName;
+  const std::string& strTargetProjectName = m_mapResData.begin()->second.UPD.ProjectName;
 
   //TODO ditry fix for always getting a fresh txlist here
   g_HTTPHandler.SetSkipCache(true);
@@ -233,9 +233,9 @@ void CProjectHandler::MigrateTranslators()
 {
   //TODO
   CXMLResdata XMLResdata = m_mapResData.begin()->second;
-  const std::string& strProjectName = XMLResdata.strProjectName;
-  const std::string& strTargetProjectName = XMLResdata.strTargetProjectName;
-  const std::string& strTargetTXLangFormat = XMLResdata.strTargTXLFormat;
+  const std::string& strProjectName = XMLResdata.TRX.ProjectName;
+  const std::string& strTargetProjectName = XMLResdata.UPD.ProjectName;
+  const std::string& strTargetTXLangFormat = XMLResdata.UPD.LForm;
 
   if (strProjectName.empty() || strTargetProjectName.empty() || strProjectName == strTargetProjectName)
     CLog::Log(logERROR, "Cannot tranfer translators database. Wrong projectname and/or target projectname,");
@@ -299,7 +299,7 @@ std::string CProjectHandler::GetResNameFromTXResName(const std::string& strTXRes
 {
   for (T_itResData itXMLResdata = m_mapResData.begin(); itXMLResdata != m_mapResData.end(); itXMLResdata++)
   {
-    if (itXMLResdata->second.strTXName == strTXResName)
+    if (itXMLResdata->second.TRX.ResName == strTXResName)
       return itXMLResdata->first;
   }
   return "";

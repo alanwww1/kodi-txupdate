@@ -159,10 +159,10 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const 
   for (itmapLCodes = m_mapLCodes.begin(); itmapLCodes != m_mapLCodes.end() ; itmapLCodes++)
   {
     std::string strLangCode = itmapLCodes->first;
-    std::string strTXLformat = XMLResData.strDefTXLFormat;
+    std::string strTXLformat = XMLResData.TRX.LForm;
 
     g_HTTPHandler.SetLocation("TRX");
-    g_HTTPHandler.SetProjectName(XMLResData.strProjectName);
+    g_HTTPHandler.SetProjectName(XMLResData.TRX.ProjectName);
     g_HTTPHandler.SetResName("");
     g_HTTPHandler.SetLCode(strLangCode);
     g_HTTPHandler.SetFileName("ContributorList.json");

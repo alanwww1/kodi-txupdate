@@ -49,9 +49,9 @@ bool CResourceHandler::FetchPOFilesTXToMem()
   g_HTTPHandler.SetLocation("TRX");
   g_HTTPHandler.SetResName(m_XMLResData.sResName);
   g_HTTPHandler.SetLCode("");
-  g_HTTPHandler.SetProjectName(m_XMLResData.strProjectName);
+  g_HTTPHandler.SetProjectName(m_XMLResData.TRX.ProjectName);
 
-  std::string strURL = "https://www.transifex.com/api/2/project/" + m_XMLResData.strProjectName + "/resource/" + m_XMLResData.TRX.ResName + "/";
+  std::string strURL = "https://www.transifex.com/api/2/project/" + m_XMLResData.TRX.ProjectName + "/resource/" + m_XMLResData.TRX.ResName + "/";
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
   CLog::Log(logINFO, "ResHandler: Starting to load resource from TX URL: %s into memory",strURL.c_str());
@@ -82,7 +82,7 @@ bool CResourceHandler::FetchPOFilesTXToMem()
     POHandler.SetLCode(sLCode);
     g_HTTPHandler.SetLCode(sLCode);
 
-    std::string sLangNameTX = g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.strDefTXLFormat);
+    std::string sLangNameTX = g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.TRX.LForm);
     POHandler.FetchPOURLToMem(strURL + "translation/" + sLangNameTX + "/?file");
     POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
 
@@ -425,7 +425,7 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
   {
     const std::string& sLCode = itmapPOFiles->first;
     std::string strPODir, strAddonDir;
-    strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, m_XMLResData.strLOCLangFormat, sLCode);
+    strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, m_XMLResData.LOC.LForm, sLCode);
 
     CPOHandler& POHandler = m_mapMRG.at(sLCode);
 
@@ -434,7 +434,7 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
     // Write individual addon.xml files for language-addons
     if (m_XMLResData.bIsLanguageAddon)
     {
-      strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPath, m_XMLResData.strLOCLangFormat, sLCode);
+      strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPath, m_XMLResData.LOC.LForm, sLCode);
       POHandler.WriteLangAddonXML(strAddonDir);
     }
   }
@@ -541,7 +541,7 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
     if (LCode == "unknown")
       CLog::Log(logERROR, "JSONHandler: ParseLangs: no language code in json data. json string:\n %s", strJSON.c_str());
 
-    LCode = g_LCodeHandler.VerifyLangCode(LCode, m_XMLResData.strDefTXLFormat);
+    LCode = g_LCodeHandler.VerifyLangCode(LCode, m_XMLResData.TRX.LForm);
 
     if (LCode == "")
       continue;
@@ -556,7 +556,7 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
     {
       strLangsToFetch += LCode + ": " + strCompletedPerc + ", ";
       listLangs.push_back(LCode);
-      g_Fileversion.SetVersionForURL(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(LCode, m_XMLResData.strDefTXLFormat) + "/?file", strModTime);
+      g_Fileversion.SetVersionForURL(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(LCode, m_XMLResData.TRX.LForm) + "/?file", strModTime);
     }
     else
       strLangsToDrop += LCode + ": " + strCompletedPerc + ", ";
@@ -680,7 +680,7 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
   }
 
   g_HTTPHandler.SetLocation("UPD");
-  g_HTTPHandler.SetProjectName(m_XMLResData.strProjectName);
+  g_HTTPHandler.SetProjectName(m_XMLResData.UPD.ProjectName);
   g_HTTPHandler.SetResName(m_XMLResData.sResName);
   g_HTTPHandler.SetFileName("string.po");
   g_HTTPHandler.SetDataFile(false);

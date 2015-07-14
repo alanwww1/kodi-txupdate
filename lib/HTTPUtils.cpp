@@ -506,11 +506,11 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
 {
 
 
-  std::string sURLCreateRes = "https://www.transifex.com/api/2/project/" + XMLResData.strTargetProjectName + "/resources/";
+  std::string sURLCreateRes = "https://www.transifex.com/api/2/project/" + XMLResData.UPD.ProjectName + "/resources/";
 
-  std::string sURLSRCRes = "https://www.transifex.com/api/2/project/" + XMLResData.strTargetProjectName + "/resource/" +
+  std::string sURLSRCRes = "https://www.transifex.com/api/2/project/" + XMLResData.UPD.ProjectName + "/resource/" +
                            XMLResData.UPD.ResName + "/translation/" +
-                           g_LCodeHandler.GetLangFromLCode(XMLResData.sSRCLCode, XMLResData.strTargTXLFormat) + "/";
+                           g_LCodeHandler.GetLangFromLCode(XMLResData.sSRCLCode, XMLResData.UPD.LForm) + "/";
 
   bool bCacheFileExists, bCacheFileExpired;
 
