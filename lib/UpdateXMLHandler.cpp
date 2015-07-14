@@ -276,7 +276,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
 
       const TiXmlElement *pChildURLSRCAddonElement = pChildResElement->FirstChildElement("upstreamAddonSRCURL");
       if (pChildURLSRCAddonElement && pChildURLSRCAddonElement->FirstChild())
-        currResData.strUPSSourceLangAddonURL = pChildURLSRCAddonElement->FirstChild()->Value();
+        currResData.UPSSRC.AXMLURL = pChildURLSRCAddonElement->FirstChild()->Value();
 
       const TiXmlElement *pChildAddonURLElement = pChildResElement->FirstChildElement("upstreamAddonURL");
       if (pChildAddonURLElement && pChildAddonURLElement->FirstChild())
@@ -286,7 +286,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
                                                                       + currResData.sResName.size()) + "/addon.xml";
       if (currResData.UPS.AXMLURL.empty())
         CLog::Log(logERROR, "UpdXMLHandler: Unable to determine the URL for the addon.xml file for resource %s", strResName.c_str());
-      GetParamsFromURLorPath (currResData.UPS.AXMLURL, currResData.strUPSAddonLangFormat, currResData.strUPSAddonXMLFilename,
+      GetParamsFromURLorPath (currResData.UPS.AXMLURL, currResData.UPS.ALForm, currResData.UPS.AXMLFileName,
                                 currResData.UPS.AXMLURLRoot, '/');
       if (!currResData.UPS.AXMLURL.empty() && currResData.UPS.AXMLURL.find (".github") == std::string::npos)
           CLog::Log(logERROR, "UpdXMLHandler: Only github is supported as upstream repository for resource %s", strResName.c_str());
@@ -297,7 +297,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
         currResData.strUPSAddonLangFormatinXML = strUPSAddonLangFormatinXML;
       else
         currResData.strUPSAddonLangFormatinXML = strDefUPSAddonLangFormatinXML;
-      currResData.bIsLanguageAddon = !currResData.strUPSAddonLangFormat.empty();
+      currResData.bIsLanguageAddon = !currResData.UPS.ALForm.empty();
 
 
       const TiXmlElement *pChildChglogElement = pChildResElement->FirstChildElement("changelogFormat");
@@ -306,11 +306,11 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
 
       const TiXmlElement *pChildChglogUElement = pChildResElement->FirstChildElement("upstreamChangelogURL");
       if (pChildChglogUElement && pChildChglogUElement->FirstChild())
-        currResData.strUPSChangelogURL = pChildChglogUElement->FirstChild()->Value();
+        currResData.UPS.ChLogURL = pChildChglogUElement->FirstChild()->Value();
       else if (!currResData.sChgLogFormat.empty())
-        currResData.strUPSChangelogURL = currResData.UPS.AXMLURLRoot + "changelog.txt";
+        currResData.UPS.ChLogURL = currResData.UPS.AXMLURLRoot + "changelog.txt";
       if (!currResData.sChgLogFormat.empty())
-      GetParamsFromURLorPath (currResData.strUPSChangelogURL, currResData.strUPSChangelogName,
+      GetParamsFromURLorPath (currResData.UPS.ChLogURL, currResData.strUPSChangelogName,
                                 currResData.strUPSChangelogURLRoot, '/');
 
 //TODO if not defined automatic creation fails for language-addons
@@ -329,7 +329,7 @@ void CUpdateXMLHandler::LoadUpdXMLToMem (std::string rootDir, std::map<std::stri
       if (pChildLocAddonElement && pChildLocAddonElement->FirstChild())
         currResData.strLOCAddonPath = pChildLocAddonElement->FirstChild()->Value();
       if (currResData.strLOCAddonPath.empty())
-        currResData.strLOCAddonPath = currResData.strUPSAddonXMLFilename;
+        currResData.strLOCAddonPath = currResData.UPS.AXMLFileName;
       currResData.strLOCAddonPath = currResData.sResName + DirSepChar + currResData.strLOCAddonPath;
       GetParamsFromURLorPath (currResData.strLOCAddonPath, currResData.strLOCAddonLangFormat, currResData.strLOCAddonXMLFilename,
                               currResData.strLOCAddonPathRoot, DirSepChar);

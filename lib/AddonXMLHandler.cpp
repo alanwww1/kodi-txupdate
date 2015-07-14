@@ -47,7 +47,7 @@ void CAddonXMLHandler::FetchAddonDataFiles()
 {
   std::string sGitHubURL, sTemp;
 
-  if (m_XMLResData.UPS.AXMLURL.empty() || !m_XMLResData.strUPSAddonLangFormat.empty())
+  if (m_XMLResData.UPS.AXMLURL.empty() || !m_XMLResData.UPS.ALForm.empty())
     return; // kodi language-addons have individual addon.xml files
 
   g_HTTPHandler.SetFileName("AddonData_FilesListing.json");
@@ -66,7 +66,7 @@ void CAddonXMLHandler::FetchAddonDataFiles()
 
   printf(" Addxml");
   FetchAddonXMLFileUpstr();
-  if (!m_XMLResData.strUPSChangelogURL.empty())
+  if (!m_XMLResData.UPS.ChLogURL.empty())
   {
     printf(" Chlog");
     FetchAddonChangelogFile();
@@ -76,7 +76,7 @@ void CAddonXMLHandler::FetchAddonDataFiles()
 
 bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
 {
-  g_HTTPHandler.SetFileName(m_XMLResData.strUPSAddonXMLFilename);
+  g_HTTPHandler.SetFileName(m_XMLResData.UPS.AXMLFileName);
   g_HTTPHandler.SetDataFile(false);
 
   std::string strURL = m_XMLResData.UPS.AXMLURL;
@@ -167,8 +167,8 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     if (pChildSummElement->Attribute("lang"))
       strAlias = pChildSummElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.strUPSAddonLangFormatinXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.UPS.LFormInAXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.UPS.LFormInAXML);
 
     if (pChildSummElement->FirstChild() && strLCode != "")
     {
@@ -188,8 +188,8 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     if (pChildDescElement->Attribute("lang"))
       strAlias = pChildDescElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.strUPSAddonLangFormatinXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.UPS.LFormInAXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.UPS.LFormInAXML);
 
     if (pChildDescElement->FirstChild() && strLCode != "")
     {
@@ -209,8 +209,8 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     if (pChildDisclElement->Attribute("lang"))
       strAlias = pChildDisclElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.strUPSAddonLangFormatinXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.strUPSAddonLangFormatinXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.UPS.LFormInAXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.UPS.LFormInAXML);
 
     if (pChildDisclElement->FirstChild() && strLCode != "")
     {
@@ -433,7 +433,7 @@ bool CAddonXMLHandler::FetchAddonChangelogFile ()
   g_HTTPHandler.SetFileName(m_XMLResData.strUPSChangelogName);
   g_HTTPHandler.SetDataFile(false);
 
-  std::string strChangelogFile = g_HTTPHandler.GetURLToSTR(m_XMLResData.strUPSChangelogURL);
+  std::string strChangelogFile = g_HTTPHandler.GetURLToSTR(m_XMLResData.UPS.ChLogURL);
 
   g_File.ConvertStrLineEnds(strChangelogFile);
 
@@ -532,7 +532,7 @@ void CAddonXMLHandler::ParseAddonXMLVersionGITHUB(const std::string &strJSON)
     if (strName == "unknown")
       CLog::Log(logERROR, "CJSONHandler::ParseAddonXMLVersionGITHUB: no valid JSON data downloaded from Github");
 
-    if (strType == "file" && ((!m_XMLResData.strUPSAddonXMLFilename.empty() && strName == m_XMLResData.strUPSAddonXMLFilename) ||
+    if (strType == "file" && ((!m_XMLResData.UPS.AXMLFileName.empty() && strName == m_XMLResData.UPS.AXMLFileName) ||
       (!m_XMLResData.strUPSChangelogName.empty() && strName == m_XMLResData.strUPSChangelogName)))
     {
       strVersion =JValu.get("sha", "unknown").asString();

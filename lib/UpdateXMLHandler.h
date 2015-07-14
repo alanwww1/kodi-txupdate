@@ -44,12 +44,14 @@ struct CGITData
   // L=Language, A = Addon
   std::string Owner, Repo, Branch;
   std::string LPath, LForm;
-  std::string AXMLPath, LFormInAXML;;
+  std::string AXMLPath, LFormInAXML;
   std::string LAXMLPath, LAXMLForm;
   std::string ChLogPath;
   // To be deleted:
   std::string LURL, LURLRoot;
-  std::string AXMLURL, AXMLURLRoot;
+  std::string AXMLURL, AXMLURLRoot, ALForm;
+  std::string AXMLFileName;
+  std::string ChLogURL, ChLogURLRoot;
 
 };
 
@@ -70,9 +72,6 @@ public:
 
 //  std::string strTXName, strTargetTXName;
 
-  std::string strUPSAddonLangFormat, strUPSAddonLangFormatinXML, strUPSAddonXMLFilename;
-  std::string strUPSSourceLangAddonURL;
-  std::string strUPSChangelogURL, strUPSChangelogURLRoot, strUPSChangelogName;
 
   //NEW
   CGITData UPS, UPSSRC;

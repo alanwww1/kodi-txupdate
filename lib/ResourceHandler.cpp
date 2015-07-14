@@ -153,9 +153,9 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
       g_HTTPHandler.SetFileName("addon.xml");
       std::string strLangAddonXMLDloadURL;
       if (!bIsSourceLang)
-        strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (m_XMLResData.UPS.AXMLURL, m_XMLResData.strUPSAddonLangFormat, sLCode);
+        strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (m_XMLResData.UPS.AXMLURL, m_XMLResData.UPS.ALForm, sLCode);
       else
-        strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (m_XMLResData.strUPSSourceLangAddonURL, m_XMLResData.strUPSAddonLangFormat, sLCode);
+        strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (m_XMLResData.UPSSRC.AXMLURL, m_XMLResData.UPS.ALForm, sLCode);
 
       POHandler.FetchLangAddonXML(strLangAddonXMLDloadURL);
     }
