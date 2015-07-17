@@ -453,6 +453,7 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
   else if (sVar == "UPSBranch")
     ResData.UPS.Branch = sVal;
 
+//To be deleted
   else if (sVar == "UPSLpath")
     ResData.UPS.LPath = sVal;
   else if (sVar == "UPSLForm")
@@ -465,8 +466,50 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
     ResData.UPS.LAXMLPath = sVal;
   else if (sVar == "UPSLAXMLFormat")
     ResData.UPS.LAXMLForm = sVal;
+  else if (sVar == "UPSChLogURL")
+    ResData.UPS.ChLogURL = sVal;
+  else if (sVar == "UPSChLogURLRoot")
+    ResData.UPS.ChLogURLRoot = sVal;
+  else if (sVar == "UPSChLogName")
+    ResData.UPS.ChLogName = sVal;
+
+  else if (sVar == "LOCLpath")
+    ResData.LOC.LPath = sVal;
+  else if (sVar == "LOCLForm")
+    ResData.LOC.LForm = sVal;
+  else if (sVar == "LOCAXMLPath")
+    ResData.LOC.AXMLPath = sVal;
+  else if (sVar == "LOCLFormInAXML")
+    ResData.LOC.LFormInAXML = sVal;
+  else if (sVar == "LOCLAXMLPath")
+    ResData.LOC.LAXMLPath = sVal;
+  else if (sVar == "LOCLAXMLFormat")
+    ResData.LOC.LAXMLForm = sVal;
+  else if (sVar == "LOCChLogURL")
+    ResData.LOC.ChLogURL = sVal;
+  else if (sVar == "LOCChLogURLRoot")
+    ResData.LOC.ChLogURLRoot = sVal;
+  else if (sVar == "LOCChLogName")
+    ResData.LOC.ChLogName = sVal;
+//
+
+  else if (sVar == "UPSLURL")
+    ResData.UPS.LURL = sVal;
+  else if (sVar == "UPSLURLRoot")
+    ResData.UPS.LURLRoot = sVal;
+  else if (sVar == "UPSAXMLURL")
+    ResData.UPS.AXMLURL = sVal;
+  else if (sVar == "UPSAXMLURLRoot")
+    ResData.UPS.AXMLURLRoot = sVal;
+  else if (sVar == "UPSALForm")
+    ResData.UPS.ALForm = sVal;
+  else if (sVar == "UPSAXMLFileName")
+    ResData.UPS.AXMLFileName = sVal;
   else if (sVar == "UPSChLogPath")
     ResData.UPS.ChLogPath = sVal;
+  else if (sVar == "UPSChLogPath")
+    ResData.UPS.ChLogPath = sVal;
+
 
   if (sVar == "LOCOwner")
     ResData.LOC.Owner = sVal;
@@ -490,40 +533,25 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
   else if (sVar == "LOCChLogPath")
     ResData.LOC.ChLogPath = sVal;
 
-  if (sVar == "TRXProjectName")
+  else if (sVar == "TRXProjectName")
     ResData.TRX.ProjectName = sVal;
-  if (sVar == "TRXLongProjectName")
+  else if (sVar == "TRXLongProjectName")
     ResData.TRX.LongProjectName = sVal;
-  if (sVar == "TRXResName")
+  else if (sVar == "TRXResName")
     ResData.TRX.ResName = sVal;
-  if (sVar == "TRXLForm")
+  else if (sVar == "TRXLForm")
     ResData.TRX.LForm = sVal;
 
-  if (sVar == "UPDProjectName")
+  else if (sVar == "UPDProjectName")
     ResData.UPD.ProjectName = sVal;
-  if (sVar == "UPDLongProjectName")
+  else if (sVar == "UPDLongProjectName")
     ResData.UPD.LongProjectName = sVal;
-  if (sVar == "UPDResName")
+  else if (sVar == "UPDResName")
     ResData.UPD.ResName = sVal;
-  if (sVar == "UPDLForm")
+  else if (sVar == "UPDLForm")
     ResData.UPD.LForm = sVal;
 
 
-
-
-
-//  std::string Owner, Repo, Branch;
-//  std::string LPath, LForm, LFileName;
-//  std::string AXMLPath, LFormInAXML, AXMLFileName;
-//  std::string LAXMLPath, LAXMLFormat;
-//  std::string ChLogPath, ChLogFileName;
-
-/*
-  std::string sProjectName;
-  std::string sLongProjectName;
-  std::string sTRXResname;
-  std::string sTRXLForm;
-*/
   else if (sVar == "ResName")
     ResData.sResName = sVal;
   else if (sVar == "ChgLogFormat")
@@ -552,6 +580,10 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
     ResData.bRebrand = (sVal == "true");
   else if (sVar == "ForceTXUpd")
     ResData.bForceTXUpd = (sVal == "true");
+  else if (sVar == "IsLangAddon")
+    ResData.bIsLangAddon = (sVal == "true");
+  else if (sVar == "HasOnlyAddonXML")
+    ResData.bHasOnlyAddonXML = (sVal == "true");
 
   else
     CLog::Log(logERROR, "ConfHandler: Unreconised internal variable name");
@@ -559,30 +591,6 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
   m_MapOfVariables[sVar] = sVal;
 }
 
-
-/*
-  std::string strChangelogFormat;
-  bool bIsLanguageAddon;
-  bool bHasOnlyAddonXML;
-
-  std::string strProjectName;
-  std::string strProjRootdir;
-  std::string strTargetProjectName;***
-  std::string strTargetProjectNameLong;***
-  std::string strMergedLangfileDir;
-  int iMinComplPercent;
-  std::string strTXUpdateLangfilesDir;
-  std::string strSupportEmailAdd;
-  std::string strSourceLcode;
-  std::string strBaseLCode;
-  std::string strDefTXLFormat;
-  std::string strTargTXLFormat;
-  std::string strLangteamLFormat;
-  std::string LangDatabaseURL;
-  bool bForceComm;
-  bool bRebrand;
-  bool bForceTXUpd;
- */
 
 void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData)
 {

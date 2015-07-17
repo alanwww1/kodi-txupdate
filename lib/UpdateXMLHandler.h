@@ -79,7 +79,7 @@ public:
   CTRXData TRX, UPD;
 
   std::string sChgLogFormat;
-  bool bIsLanguageAddon;
+  bool bIsLangAddon;
   bool bHasOnlyAddonXML;
 
   std::string sProjRootDir;

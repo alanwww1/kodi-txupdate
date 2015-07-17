@@ -148,7 +148,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     g_HTTPHandler.SetLCode(sLCode);
     bool bHasPreviousVersion = false;
 
-    if (bLangHasStringsPO && bHasLanguageFiles && m_XMLResData.bIsLanguageAddon) // Download individual addon.xml files for language-addons
+    if (bLangHasStringsPO && bHasLanguageFiles && m_XMLResData.bIsLangAddon) // Download individual addon.xml files for language-addons
     {
       g_HTTPHandler.SetFileName("addon.xml");
       std::string strLangAddonXMLDloadURL;
@@ -300,12 +300,12 @@ void CResourceHandler::MergeResource()
       MRGPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
       MRGPOHandler.SetPOType(MERGEDPO);
       MRGPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
-      if (m_XMLResData.bIsLanguageAddon)
+      if (m_XMLResData.bIsLangAddon)
         MRGPOHandler.SetLangAddonXMLString(m_mapUPS[sLCode].GetLangAddonXMLString());
 
       if (bPOChangedFromUPS)
       {
-        if (m_XMLResData.bIsLanguageAddon)
+        if (m_XMLResData.bIsLangAddon)
           MRGPOHandler.BumpLangAddonXMLVersion();
         bResChangedFromUPS = true;
         m_lChangedLangsFromUPS.insert(sLCode);
@@ -326,7 +326,7 @@ void CResourceHandler::MergeResource()
   }
 
   //If resource has been changed in any language, bump the language addon version
-  if (bResChangedFromUPS && !m_XMLResData.bIsLanguageAddon)
+  if (bResChangedFromUPS && !m_XMLResData.bIsLangAddon)
     m_AddonXMLHandler.SetBumpAddonVersion();
 
   return;
@@ -410,7 +410,7 @@ T_itPOData CResourceHandler::GetTRXItFoundEntry()
 
 void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sChangeLogPath, const std::string& sLangPath)
 {
-  if (!m_XMLResData.bIsLanguageAddon)
+  if (!m_XMLResData.bIsLangAddon)
   {
     m_AddonXMLHandler.WriteAddonXMLFile(sAddonXMLPath);
     if (!m_XMLResData.sChgLogFormat.empty())
@@ -432,7 +432,7 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
     POHandler.WritePOFile(strPODir);
 
     // Write individual addon.xml files for language-addons
-    if (m_XMLResData.bIsLanguageAddon)
+    if (m_XMLResData.bIsLangAddon)
     {
       strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPath, m_XMLResData.LOC.LForm, sLCode);
       POHandler.WriteLangAddonXML(strAddonDir);
@@ -461,7 +461,7 @@ void CResourceHandler::GenerateMergedPOFiles()
 
   printf ("%s", RESET);
 
-  if (!m_XMLResData.bIsLanguageAddon)
+  if (!m_XMLResData.bIsLangAddon)
     m_AddonXMLHandler.ClearAllAddonXMLEntries();
 
 
@@ -481,11 +481,11 @@ void CResourceHandler::GenerateMergedPOFiles()
 
     POHandler.GeneratePOFile();
 
-    if (!m_XMLResData.bIsLanguageAddon)
+    if (!m_XMLResData.bIsLangAddon)
       m_AddonXMLHandler.SetAddonXMLEntry(POHandler.GetAddonXMLEntry(), sLCode);
   }
 
-  if (!m_XMLResData.bIsLanguageAddon)
+  if (!m_XMLResData.bIsLangAddon)
     m_AddonXMLHandler.GenerateAddonXMLFile();
 
   return;
@@ -611,7 +611,7 @@ std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
       std::string strURLforFile = m_XMLResData.UPS.LURL;
       g_CharsetUtils.replaceAllStrParts(&strURLforFile, m_XMLResData.UPS.LForm, strMatchedLangalias);
       g_Fileversion.SetVersionForURL(strURLforFile, strVersion);
-      if (m_XMLResData.bIsLanguageAddon)
+      if (m_XMLResData.bIsLangAddon)
       {
         std::string strURLforAddonFile = m_XMLResData.UPS.AXMLURL;
         g_CharsetUtils.replaceAllStrParts(&strURLforAddonFile, m_XMLResData.UPS.LForm, strMatchedLangalias);
