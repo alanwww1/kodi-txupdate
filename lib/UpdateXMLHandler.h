@@ -115,6 +115,9 @@ private:
   void SetInternalVariables(const std::string& sLine, CXMLResdata& ResData);
   void SetExternalVariables(const std::string& sLine);
   void SubstituteExternalVariables(std::string& sVar);
+protected:
+  void CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData);
+  std::string ReplaceResName(std::string sVal, const CXMLResdata& ResData);
 };
 
 #endif

@@ -312,6 +312,7 @@ std::string CCharsetUtils::replaceStrParts(std::string strToReplace, const std::
   return strToReplace;
 };
 
+//TODO use reference instead of pointer
 void CCharsetUtils::reBrandXBMCToKodi(std::string * pstrtorebrand)
 {
   replaceAllStrParts(pstrtorebrand, "XMBC.org", "Kodi.tv");
