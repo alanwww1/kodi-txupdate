@@ -84,13 +84,14 @@ public:
 
   std::string sProjRootDir;
   std::string sMRGLFilesDir;
-  int iMinComplPercent;
   std::string sUPDLFilesDir;
   std::string sSupportEmailAddr;
   std::string sSRCLCode;
-  std::string sBaseLCode;
+  std::string sBaseLForm;
   std::string sLTeamLFormat;
   std::string sLDatabaseURL;
+  int iMinComplPercent;
+  int iCacheExpire;
   bool bForceComm;
   bool bRebrand;
   bool bForceTXUpd;

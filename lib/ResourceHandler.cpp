@@ -447,7 +447,7 @@ void CResourceHandler::WriteUpdatePOFiles(const std::string& strPath)
   {
     const std::string& sLCode = itmapPOFiles->first;
     std::string strPODir;
-    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, m_XMLResData.sBaseLCode, sLCode);
+    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, m_XMLResData.sBaseLForm, sLCode);
 
     CPOHandler& POHandler = m_mapUPD.at(sLCode);
 

@@ -554,13 +554,14 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
   else if (sVar == "ChgLogFormat")          ResData.sChgLogFormat = sVal;
   else if (sVar == "ProjRootDir")           ResData.sProjRootDir = sVal;
   else if (sVar == "MRGLFilesDir")          ResData.sMRGLFilesDir = sVal;
-  else if (sVar == "MinComplPercent")       ResData.iMinComplPercent = strtol(&sVal[0], NULL, 10);
   else if (sVar == "UPDLFilesDir")          ResData.sUPDLFilesDir = sVal;
   else if (sVar == "SupportEmailAddr")      ResData.sSupportEmailAddr = sVal;
   else if (sVar == "SRCLCode")              ResData.sSRCLCode = sVal;
-  else if (sVar == "BaseLCode")             ResData.sBaseLCode = sVal;
+  else if (sVar == "BaseLForm")             ResData.sBaseLForm = sVal;
   else if (sVar == "LTeamLFormat")          ResData.sLTeamLFormat = sVal;
   else if (sVar == "LDatabaseURL")          ResData.sLDatabaseURL = sVal;
+  else if (sVar == "MinComplPercent")       ResData.iMinComplPercent = strtol(&sVal[0], NULL, 10);
+  else if (sVar == "CacheExpire")           ResData.iCacheExpire = strtol(&sVal[0], NULL, 10);
   else if (sVar == "ForceComm")             ResData.bForceComm = (sVal == "true");
   else if (sVar == "Rebrand")               ResData.bRebrand = (sVal == "true");
   else if (sVar == "ForceTXUpd")            ResData.bForceTXUpd = (sVal == "true");
@@ -610,25 +611,22 @@ std::string CUpdateXMLHandler::ReplaceResName(std::string sVal, const CXMLResdat
 
 void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData)
 {
+  CXMLResdata ResDataToStore;
+
   //Parse the resource names
   size_t posResName, posTRXResName;
   if ((posResName = sLine.find("ResName =")) == std::string::npos)
     CLog::Log(logERROR, "Confhandler: Cannot create resource, missing ResName");
   posResName = posResName +9;
 
-  ResData.sResName = sLine.substr(posResName, sLine.find(' ', posResName)-posResName);
+  ResDataToStore.sResName = sLine.substr(posResName, sLine.find(' ', posResName)-posResName);
 
   if ((posTRXResName = sLine.find("TRXResName =")) == std::string::npos)
     CLog::Log(logERROR, "Confhandler: Cannot create resource, missing TRXResName");
   posTRXResName = posResName +12;
 
-  ResData.TRX.ResName = sLine.substr(posTRXResName, sLine.find('\n', posTRXResName)-posTRXResName);
+  ResDataToStore.TRX.ResName = sLine.substr(posTRXResName, sLine.find('\n', posTRXResName)-posTRXResName);
 
-  //If we don't have a different target trx resource name, use the source trx resource name
-  if (ResData.UPD.ResName.empty())
-    ResData.UPD.ResName = ResData.TRX.ResName;
-
-  CXMLResdata ResDataToStore;
 
   ResDataToStore.UPS.Owner            = ReplaceResName(ResData.UPS.Owner, ResData);
   ResDataToStore.UPS.Repo             = ReplaceResName(ResData.UPS.Repo, ResData);
@@ -723,7 +721,7 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
 
   ResDataToStore.TRX.ProjectName      = ReplaceResName(ResData.TRX.ProjectName, ResData);
   ResDataToStore.TRX.LongProjectName  = ReplaceResName(ResData.TRX.LongProjectName, ResData);
-  ResDataToStore.TRX.ResName          = ReplaceResName(ResData.TRX.ResName, ResData);
+//ResDataToStore.TRX.ResName          = ReplaceResName(ResData.TRX.ResName, ResData);
   ResDataToStore.TRX.LForm            = ReplaceResName(ResData.TRX.LForm, ResData);
 
   ResDataToStore.UPD.ProjectName      = ReplaceResName(ResData.UPD.ProjectName, ResData);
@@ -732,27 +730,31 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.UPD.LForm            = ReplaceResName(ResData.UPD.LForm, ResData);
 
 
-  ResDataToStore.sResName             = ReplaceResName(ResData.sResName, ResData);
+//ResDataToStore.sResName             = ReplaceResName(ResData.sResName, ResData);
   ResDataToStore.sChgLogFormat        = ReplaceResName(ResData.sChgLogFormat, ResData);
   ResDataToStore.sProjRootDir         = ReplaceResName(ResData.sProjRootDir, ResData);
   ResDataToStore.sMRGLFilesDir        = ReplaceResName(ResData.sMRGLFilesDir, ResData);
   ResDataToStore.sUPDLFilesDir        = ReplaceResName(ResData.sUPDLFilesDir, ResData);
   ResDataToStore.sSupportEmailAddr    = ReplaceResName(ResData.sSupportEmailAddr, ResData);
   ResDataToStore.sSRCLCode            = ReplaceResName(ResData.sSRCLCode, ResData);
-  ResDataToStore.sBaseLCode           = ReplaceResName(ResData.sBaseLCode, ResData);
+  ResDataToStore.sBaseLForm           = ReplaceResName(ResData.sBaseLForm, ResData);
   ResDataToStore.sLTeamLFormat        = ReplaceResName(ResData.sLTeamLFormat, ResData);
   ResDataToStore.sLDatabaseURL        = ReplaceResName(ResData.sLDatabaseURL, ResData);
   ResDataToStore.iMinComplPercent     = ResData.iMinComplPercent;
+  ResDataToStore.iCacheExpire         = ResData.iCacheExpire;
   ResDataToStore.bForceComm           = ResData.bForceComm;
   ResDataToStore.bRebrand             = ResData.bRebrand;
   ResDataToStore.bForceTXUpd          = ResData.bForceTXUpd;
   ResDataToStore.bIsLangAddon         = ResData.bIsLangAddon;
   ResDataToStore.bHasOnlyAddonXML     = ResData.bHasOnlyAddonXML;
 
+  //If we don't have a different target trx resource name, use the source trx resource name
+  if (ResDataToStore.UPD.ResName.empty())
+    ResDataToStore.UPD.ResName = ResDataToStore.TRX.ResName;
+
+
   mapResData[ResDataToStore.sResName] = ResDataToStore;
 
-  ResData.sResName.clear();
-  ResData.TRX.ResName.clear();
   ResData.UPD.ResName.clear();
 }
 
