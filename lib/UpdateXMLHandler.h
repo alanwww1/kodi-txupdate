@@ -27,18 +27,6 @@
 #include <string>
 #include <map>
 
-const size_t DEFAULTCACHEEXPIRE = 360; // 6 hours
-const int DEFAULTMINCOMPLETION = 10; // %
-const std::string DEFAULTMERGEDLANGDIR = "merged-langfiles";
-const std::string DEFAULTTXUPDLANGDIR = "tempfiles_txupdate";
-const std::string DEFAULTSUPPORTMAIL = "txtranslation@kodi.tv";
-const std::string DEFAULTSOURCELCODE = "en_GB";
-const std::string DEFAULTBASELCODE = "$(LCODE)";
-const std::string DEFAULTTXLFORMAT = "$(LCODE)";
-const std::string DEFAULTLANGTEAMLFORMAT = "$(GUILNAME)";
-const std::string DEFAULTLANGDATABASELINK = "https://raw.github.com/xbmc/translations/master/tool/lang-database/kodi-languages.json";
-const std::string DEFAULTLANGFORMATINADDONXML = "$(OLDLCODE)";
-
 struct CGITData
 {
   // L=Language, A = Addon
@@ -70,9 +58,6 @@ public:
   ~CXMLResdata();
   std::string sResName;
 
-//  std::string strTXName, strTargetTXName;
-
-
   //NEW
   CGITData UPS, UPSSRC;
   CGITData LOC, LOCSRC;
@@ -102,7 +87,6 @@ class CUpdateXMLHandler
 public:
   CUpdateXMLHandler();
   ~CUpdateXMLHandler();
-//  void LoadUpdXMLToMem(std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
   void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
 
 private:
