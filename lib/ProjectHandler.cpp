@@ -41,6 +41,7 @@ void CProjectHandler::LoadUpdXMLToMem()
   CUpdateXMLHandler UpdateXMLHandler;
 //  UpdateXMLHandler.LoadUpdXMLToMem (m_strProjDir, m_mapResData);
   UpdateXMLHandler.LoadResDataToMem(m_strProjDir, m_mapResData);
+  g_HTTPHandler.SetHTTPCacheExpire(m_mapResData.begin()->second.iCacheExpire);
 }
 
 bool CProjectHandler::FetchResourcesFromTransifex()
@@ -85,6 +86,8 @@ bool CProjectHandler::FetchResourcesFromTransifex()
     const CXMLResdata& XMLResData = m_mapResData[sResName];
     CResourceHandler NewResHandler(XMLResData);
 
+    g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
+
     m_mapResources[sResName] = NewResHandler;
     m_mapResources[sResName].FetchPOFilesTXToMem();
     CLog::DecIdent(4);
@@ -111,6 +114,8 @@ bool CProjectHandler::FetchResourcesFromUpstream()
       CResourceHandler NewResHandler(XMLResData);
       m_mapResources[sResName] = NewResHandler;
     }
+
+    g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
 
     m_mapResources[sResName].FetchPOFilesUpstreamToMem();
     CLog::DecIdent(4);
@@ -145,6 +150,9 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
 
     std::string sPathUpdate = XMLResData.sProjRootDir + XMLResData.sUPDLFilesDir + DirSepChar + XMLResData.sResName + DirSepChar + XMLResData.sBaseLForm + DirSepChar + "strings.po";
     ResHandler.GenerateUpdatePOFiles ();
+
+   g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
+
     ResHandler.WriteUpdatePOFiles (sPathUpdate);
 
 
@@ -222,6 +230,9 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   {
     CResourceHandler& ResHandler = it->second;
     const std::string& sResName = it->first;
+    const CXMLResdata& XMLResData = m_mapResData[sResName];
+
+    g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
 
     ResHandler.UploadResourceToTransifex(lResourcesAtTX.find(sResName) == lResourcesAtTX.end());
   }

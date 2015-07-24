@@ -31,7 +31,15 @@
 using namespace std;
 
 CXMLResdata::CXMLResdata()
-{}
+{
+ iMinComplPercent = 40;
+ iCacheExpire = 60;
+ bForceComm = false;
+ bRebrand = false;
+ bForceTXUpd = false;
+ bHasOnlyAddonXML = false;
+ bIsLangAddon = false;
+}
 
 CXMLResdata::~CXMLResdata()
 {}
@@ -552,7 +560,7 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
 
   else if (sVar == "ResName")               ResData.sResName = sVal;
   else if (sVar == "ChgLogFormat")          ResData.sChgLogFormat = sVal;
-  else if (sVar == "ProjRootDir")           ResData.sProjRootDir = sVal;
+//else if (sVar == "ProjRootDir")           ResData.sProjRootDir = sVal;
   else if (sVar == "MRGLFilesDir")          ResData.sMRGLFilesDir = sVal;
   else if (sVar == "UPDLFilesDir")          ResData.sUPDLFilesDir = sVal;
   else if (sVar == "SupportEmailAddr")      ResData.sSupportEmailAddr = sVal;
@@ -569,7 +577,7 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
   else if (sVar == "HasOnlyAddonXML")       ResData.bHasOnlyAddonXML = (sVal == "true");
 
   else
-    CLog::Log(logERROR, "ConfHandler: Unreconised internal variable name");
+    CLog::Log(logERROR, "ConfHandler: Unreconised internal variable name: \"%s\"", sVar.c_str());
 
   m_MapOfVariables[sVar] = sVal;
 }
@@ -584,9 +592,12 @@ void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::str
   size_t iPos1 = 0;
   size_t iPos2 = 0;
 
+  CXMLResdata ResData;
+
+  ResData.sProjRootDir = rootDir;
+
   while ((iPos2 = sConfFile.find('\n', iPos1)) != std::string::npos)
   {
-    CXMLResdata ResData;
     std::string sLine = sConfFile.substr(iPos1, iPos2-iPos1);
     iPos1 = iPos2 +1;
 
@@ -604,8 +615,8 @@ void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::str
 
 std::string CUpdateXMLHandler::ReplaceResName(std::string sVal, const CXMLResdata& ResData)
 {
-  g_CharsetUtils.replaceAllStrParts (&sVal, "$(ResName)", ResData.sResName);
-  g_CharsetUtils.replaceAllStrParts (&sVal, "$(TRXResName)", ResData.TRX.ResName);
+  g_CharsetUtils.replaceAllStrParts (&sVal, "$(RESNAME)", ResData.sResName);
+  g_CharsetUtils.replaceAllStrParts (&sVal, "$(TRXRESNAME)", ResData.TRX.ResName);
   return sVal;
 }
 
@@ -615,131 +626,131 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
 
   //Parse the resource names
   size_t posResName, posTRXResName;
-  if ((posResName = sLine.find("ResName =")) == std::string::npos)
+  if ((posResName = sLine.find("ResName = ")) == std::string::npos)
     CLog::Log(logERROR, "Confhandler: Cannot create resource, missing ResName");
-  posResName = posResName +9;
+  posResName = posResName +10;
 
   ResDataToStore.sResName = sLine.substr(posResName, sLine.find(' ', posResName)-posResName);
 
-  if ((posTRXResName = sLine.find("TRXResName =")) == std::string::npos)
+  if ((posTRXResName = sLine.find("TRXResName = ")) == std::string::npos)
     CLog::Log(logERROR, "Confhandler: Cannot create resource, missing TRXResName");
-  posTRXResName = posResName +12;
+  posTRXResName = posTRXResName +13;
 
   ResDataToStore.TRX.ResName = sLine.substr(posTRXResName, sLine.find('\n', posTRXResName)-posTRXResName);
 
 
-  ResDataToStore.UPS.Owner            = ReplaceResName(ResData.UPS.Owner, ResData);
-  ResDataToStore.UPS.Repo             = ReplaceResName(ResData.UPS.Repo, ResData);
-  ResDataToStore.UPS.Branch           = ReplaceResName(ResData.UPS.Branch, ResData);
+  ResDataToStore.UPS.Owner            = ReplaceResName(ResData.UPS.Owner, ResDataToStore);
+  ResDataToStore.UPS.Repo             = ReplaceResName(ResData.UPS.Repo, ResDataToStore);
+  ResDataToStore.UPS.Branch           = ReplaceResName(ResData.UPS.Branch, ResDataToStore);
 
-  ResDataToStore.UPS.LPath            = ReplaceResName(ResData.UPS.LPath, ResData);
-  ResDataToStore.UPS.LForm            = ReplaceResName(ResData.UPS.LForm, ResData);
-  ResDataToStore.UPS.AXMLPath         = ReplaceResName(ResData.UPS.AXMLPath, ResData);
-  ResDataToStore.UPS.LFormInAXML      = ReplaceResName(ResData.UPS.LFormInAXML, ResData);
-  ResDataToStore.UPS.LAXMLPath        = ReplaceResName(ResData.UPS.LAXMLPath, ResData);
-  ResDataToStore.UPS.LAXMLForm        = ReplaceResName(ResData.UPS.LAXMLForm, ResData);
-  ResDataToStore.UPS.ChLogPath        = ReplaceResName(ResData.UPS.ChLogPath, ResData);
+  ResDataToStore.UPS.LPath            = ReplaceResName(ResData.UPS.LPath, ResDataToStore);
+  ResDataToStore.UPS.LForm            = ReplaceResName(ResData.UPS.LForm, ResDataToStore);
+  ResDataToStore.UPS.AXMLPath         = ReplaceResName(ResData.UPS.AXMLPath, ResDataToStore);
+  ResDataToStore.UPS.LFormInAXML      = ReplaceResName(ResData.UPS.LFormInAXML, ResDataToStore);
+  ResDataToStore.UPS.LAXMLPath        = ReplaceResName(ResData.UPS.LAXMLPath, ResDataToStore);
+  ResDataToStore.UPS.LAXMLForm        = ReplaceResName(ResData.UPS.LAXMLForm, ResDataToStore);
+  ResDataToStore.UPS.ChLogPath        = ReplaceResName(ResData.UPS.ChLogPath, ResDataToStore);
 
-  ResDataToStore.LOC.Owner            = ReplaceResName(ResData.LOC.Owner, ResData);
-  ResDataToStore.LOC.Repo             = ReplaceResName(ResData.LOC.Repo, ResData);
-  ResDataToStore.LOC.Branch           = ReplaceResName(ResData.LOC.Branch, ResData);
+  ResDataToStore.LOC.Owner            = ReplaceResName(ResData.LOC.Owner, ResDataToStore);
+  ResDataToStore.LOC.Repo             = ReplaceResName(ResData.LOC.Repo, ResDataToStore);
+  ResDataToStore.LOC.Branch           = ReplaceResName(ResData.LOC.Branch, ResDataToStore);
 
-  ResDataToStore.LOC.LPath            = ReplaceResName(ResData.LOC.LPath, ResData);
-  ResDataToStore.LOC.LForm            = ReplaceResName(ResData.LOC.LForm, ResData);
-  ResDataToStore.LOC.AXMLPath         = ReplaceResName(ResData.LOC.AXMLPath, ResData);
-  ResDataToStore.LOC.LFormInAXML      = ReplaceResName(ResData.LOC.LFormInAXML, ResData);
-  ResDataToStore.LOC.LAXMLPath        = ReplaceResName(ResData.LOC.LAXMLPath, ResData);
-  ResDataToStore.LOC.LAXMLForm        = ReplaceResName(ResData.LOC.LAXMLForm, ResData);
-  ResDataToStore.LOC.ChLogPath        = ReplaceResName(ResData.LOC.ChLogPath, ResData);
+  ResDataToStore.LOC.LPath            = ReplaceResName(ResData.LOC.LPath, ResDataToStore);
+  ResDataToStore.LOC.LForm            = ReplaceResName(ResData.LOC.LForm, ResDataToStore);
+  ResDataToStore.LOC.AXMLPath         = ReplaceResName(ResData.LOC.AXMLPath, ResDataToStore);
+  ResDataToStore.LOC.LFormInAXML      = ReplaceResName(ResData.LOC.LFormInAXML, ResDataToStore);
+  ResDataToStore.LOC.LAXMLPath        = ReplaceResName(ResData.LOC.LAXMLPath, ResDataToStore);
+  ResDataToStore.LOC.LAXMLForm        = ReplaceResName(ResData.LOC.LAXMLForm, ResDataToStore);
+  ResDataToStore.LOC.ChLogPath        = ReplaceResName(ResData.LOC.ChLogPath, ResDataToStore);
 
-  ResDataToStore.UPSSRC.Owner         = ReplaceResName(ResData.UPSSRC.Owner, ResData);
-  ResDataToStore.UPSSRC.Repo          = ReplaceResName(ResData.UPSSRC.Repo, ResData);
-  ResDataToStore.UPSSRC.Branch        = ReplaceResName(ResData.UPSSRC.Branch, ResData);
+  ResDataToStore.UPSSRC.Owner         = ReplaceResName(ResData.UPSSRC.Owner, ResDataToStore);
+  ResDataToStore.UPSSRC.Repo          = ReplaceResName(ResData.UPSSRC.Repo, ResDataToStore);
+  ResDataToStore.UPSSRC.Branch        = ReplaceResName(ResData.UPSSRC.Branch, ResDataToStore);
 
-  ResDataToStore.UPSSRC.LPath         = ReplaceResName(ResData.UPSSRC.LPath, ResData);
-  ResDataToStore.UPSSRC.LForm         = ReplaceResName(ResData.UPSSRC.LForm, ResData);
-  ResDataToStore.UPSSRC.AXMLPath      = ReplaceResName(ResData.UPSSRC.AXMLPath, ResData);
-  ResDataToStore.UPSSRC.LFormInAXML   = ReplaceResName(ResData.UPSSRC.LFormInAXML, ResData);
-  ResDataToStore.UPSSRC.LAXMLPath     = ReplaceResName(ResData.UPSSRC.LAXMLPath, ResData);
-  ResDataToStore.UPSSRC.LAXMLForm     = ReplaceResName(ResData.UPSSRC.LAXMLForm, ResData);
-  ResDataToStore.UPSSRC.ChLogPath     = ReplaceResName(ResData.UPSSRC.ChLogPath, ResData);
+  ResDataToStore.UPSSRC.LPath         = ReplaceResName(ResData.UPSSRC.LPath, ResDataToStore);
+  ResDataToStore.UPSSRC.LForm         = ReplaceResName(ResData.UPSSRC.LForm, ResDataToStore);
+  ResDataToStore.UPSSRC.AXMLPath      = ReplaceResName(ResData.UPSSRC.AXMLPath, ResDataToStore);
+  ResDataToStore.UPSSRC.LFormInAXML   = ReplaceResName(ResData.UPSSRC.LFormInAXML, ResDataToStore);
+  ResDataToStore.UPSSRC.LAXMLPath     = ReplaceResName(ResData.UPSSRC.LAXMLPath, ResDataToStore);
+  ResDataToStore.UPSSRC.LAXMLForm     = ReplaceResName(ResData.UPSSRC.LAXMLForm, ResDataToStore);
+  ResDataToStore.UPSSRC.ChLogPath     = ReplaceResName(ResData.UPSSRC.ChLogPath, ResDataToStore);
 
-  ResDataToStore.LOCSRC.Owner         = ReplaceResName(ResData.LOCSRC.Owner, ResData);
-  ResDataToStore.LOCSRC.Repo          = ReplaceResName(ResData.LOCSRC.Repo, ResData);
-  ResDataToStore.LOCSRC.Branch        = ReplaceResName(ResData.LOCSRC.Branch, ResData);
+  ResDataToStore.LOCSRC.Owner         = ReplaceResName(ResData.LOCSRC.Owner, ResDataToStore);
+  ResDataToStore.LOCSRC.Repo          = ReplaceResName(ResData.LOCSRC.Repo, ResDataToStore);
+  ResDataToStore.LOCSRC.Branch        = ReplaceResName(ResData.LOCSRC.Branch, ResDataToStore);
 
-  ResDataToStore.LOCSRC.LPath         = ReplaceResName(ResData.LOCSRC.LPath, ResData);
-  ResDataToStore.LOCSRC.LForm         = ReplaceResName(ResData.LOCSRC.LForm, ResData);
-  ResDataToStore.LOCSRC.AXMLPath      = ReplaceResName(ResData.LOCSRC.AXMLPath, ResData);
-  ResDataToStore.LOCSRC.LFormInAXML   = ReplaceResName(ResData.LOCSRC.LFormInAXML, ResData);
-  ResDataToStore.LOCSRC.LAXMLPath     = ReplaceResName(ResData.LOCSRC.LAXMLPath, ResData);
-  ResDataToStore.LOCSRC.LAXMLForm     = ReplaceResName(ResData.LOCSRC.LAXMLForm, ResData);
-  ResDataToStore.LOCSRC.ChLogPath     = ReplaceResName(ResData.LOCSRC.ChLogPath, ResData);
+  ResDataToStore.LOCSRC.LPath         = ReplaceResName(ResData.LOCSRC.LPath, ResDataToStore);
+  ResDataToStore.LOCSRC.LForm         = ReplaceResName(ResData.LOCSRC.LForm, ResDataToStore);
+  ResDataToStore.LOCSRC.AXMLPath      = ReplaceResName(ResData.LOCSRC.AXMLPath, ResDataToStore);
+  ResDataToStore.LOCSRC.LFormInAXML   = ReplaceResName(ResData.LOCSRC.LFormInAXML, ResDataToStore);
+  ResDataToStore.LOCSRC.LAXMLPath     = ReplaceResName(ResData.LOCSRC.LAXMLPath, ResDataToStore);
+  ResDataToStore.LOCSRC.LAXMLForm     = ReplaceResName(ResData.LOCSRC.LAXMLForm, ResDataToStore);
+  ResDataToStore.LOCSRC.ChLogPath     = ReplaceResName(ResData.LOCSRC.ChLogPath, ResDataToStore);
 
 //To be deleted
-  ResDataToStore.UPS.LURL             = ReplaceResName(ResData.UPS.LURL, ResData);
-  ResDataToStore.UPS.LURLRoot         = ReplaceResName(ResData.UPS.LURLRoot, ResData);
-  ResDataToStore.UPS.AXMLURL          = ReplaceResName(ResData.UPS.AXMLURL, ResData);
-  ResDataToStore.UPS.AXMLURLRoot      = ReplaceResName(ResData.UPS.AXMLURLRoot, ResData);
-  ResDataToStore.UPS.ALForm           = ReplaceResName(ResData.UPS.ALForm, ResData);
-  ResDataToStore.UPS.AXMLFileName     = ReplaceResName(ResData.UPS.AXMLFileName, ResData);
-  ResDataToStore.UPS.ChLogURL         = ReplaceResName(ResData.UPS.ChLogURL, ResData);
-  ResDataToStore.UPS.ChLogURLRoot     = ReplaceResName(ResData.UPS.ChLogURLRoot, ResData);
-  ResDataToStore.UPS.ChLogName        = ReplaceResName(ResData.UPS.ChLogName, ResData);
+  ResDataToStore.UPS.LURL             = ReplaceResName(ResData.UPS.LURL, ResDataToStore);
+  ResDataToStore.UPS.LURLRoot         = ReplaceResName(ResData.UPS.LURLRoot, ResDataToStore);
+  ResDataToStore.UPS.AXMLURL          = ReplaceResName(ResData.UPS.AXMLURL, ResDataToStore);
+  ResDataToStore.UPS.AXMLURLRoot      = ReplaceResName(ResData.UPS.AXMLURLRoot, ResDataToStore);
+  ResDataToStore.UPS.ALForm           = ReplaceResName(ResData.UPS.ALForm, ResDataToStore);
+  ResDataToStore.UPS.AXMLFileName     = ReplaceResName(ResData.UPS.AXMLFileName, ResDataToStore);
+  ResDataToStore.UPS.ChLogURL         = ReplaceResName(ResData.UPS.ChLogURL, ResDataToStore);
+  ResDataToStore.UPS.ChLogURLRoot     = ReplaceResName(ResData.UPS.ChLogURLRoot, ResDataToStore);
+  ResDataToStore.UPS.ChLogName        = ReplaceResName(ResData.UPS.ChLogName, ResDataToStore);
 
-  ResDataToStore.LOC.LURL             = ReplaceResName(ResData.LOC.LURL, ResData);
-  ResDataToStore.LOC.LURLRoot         = ReplaceResName(ResData.LOC.LURLRoot, ResData);
-  ResDataToStore.LOC.AXMLURL          = ReplaceResName(ResData.LOC.AXMLURL, ResData);
-  ResDataToStore.LOC.AXMLURLRoot      = ReplaceResName(ResData.LOC.AXMLURLRoot, ResData);
-  ResDataToStore.LOC.ALForm           = ReplaceResName(ResData.LOC.ALForm, ResData);
-  ResDataToStore.LOC.AXMLFileName     = ReplaceResName(ResData.LOC.AXMLFileName, ResData);
-  ResDataToStore.LOC.ChLogURL         = ReplaceResName(ResData.LOC.ChLogURL, ResData);
-  ResDataToStore.LOC.ChLogURLRoot     = ReplaceResName(ResData.LOC.ChLogURLRoot, ResData);
-  ResDataToStore.LOC.ChLogName        = ReplaceResName(ResData.LOC.ChLogName, ResData);
+  ResDataToStore.LOC.LURL             = ReplaceResName(ResData.LOC.LURL, ResDataToStore);
+  ResDataToStore.LOC.LURLRoot         = ReplaceResName(ResData.LOC.LURLRoot, ResDataToStore);
+  ResDataToStore.LOC.AXMLURL          = ReplaceResName(ResData.LOC.AXMLURL, ResDataToStore);
+  ResDataToStore.LOC.AXMLURLRoot      = ReplaceResName(ResData.LOC.AXMLURLRoot, ResDataToStore);
+  ResDataToStore.LOC.ALForm           = ReplaceResName(ResData.LOC.ALForm, ResDataToStore);
+  ResDataToStore.LOC.AXMLFileName     = ReplaceResName(ResData.LOC.AXMLFileName, ResDataToStore);
+  ResDataToStore.LOC.ChLogURL         = ReplaceResName(ResData.LOC.ChLogURL, ResDataToStore);
+  ResDataToStore.LOC.ChLogURLRoot     = ReplaceResName(ResData.LOC.ChLogURLRoot, ResDataToStore);
+  ResDataToStore.LOC.ChLogName        = ReplaceResName(ResData.LOC.ChLogName, ResDataToStore);
 
-  ResDataToStore.UPSSRC.LURL          = ReplaceResName(ResData.UPSSRC.LURL, ResData);
-  ResDataToStore.UPSSRC.LURLRoot      = ReplaceResName(ResData.UPSSRC.LURLRoot, ResData);
-  ResDataToStore.UPSSRC.AXMLURL       = ReplaceResName(ResData.UPSSRC.AXMLURL, ResData);
-  ResDataToStore.UPSSRC.AXMLURLRoot   = ReplaceResName(ResData.UPSSRC.AXMLURLRoot, ResData);
-  ResDataToStore.UPSSRC.ALForm        = ReplaceResName(ResData.UPSSRC.ALForm, ResData);
-  ResDataToStore.UPSSRC.AXMLFileName  = ReplaceResName(ResData.UPSSRC.AXMLFileName, ResData);
-  ResDataToStore.UPSSRC.ChLogURL      = ReplaceResName(ResData.UPSSRC.ChLogURL, ResData);
-  ResDataToStore.UPSSRC.ChLogURLRoot  = ReplaceResName(ResData.UPSSRC.ChLogURLRoot, ResData);
-  ResDataToStore.UPSSRC.ChLogName     = ReplaceResName(ResData.UPSSRC.ChLogName, ResData);
+  ResDataToStore.UPSSRC.LURL          = ReplaceResName(ResData.UPSSRC.LURL, ResDataToStore);
+  ResDataToStore.UPSSRC.LURLRoot      = ReplaceResName(ResData.UPSSRC.LURLRoot, ResDataToStore);
+  ResDataToStore.UPSSRC.AXMLURL       = ReplaceResName(ResData.UPSSRC.AXMLURL, ResDataToStore);
+  ResDataToStore.UPSSRC.AXMLURLRoot   = ReplaceResName(ResData.UPSSRC.AXMLURLRoot, ResDataToStore);
+  ResDataToStore.UPSSRC.ALForm        = ReplaceResName(ResData.UPSSRC.ALForm, ResDataToStore);
+  ResDataToStore.UPSSRC.AXMLFileName  = ReplaceResName(ResData.UPSSRC.AXMLFileName, ResDataToStore);
+  ResDataToStore.UPSSRC.ChLogURL      = ReplaceResName(ResData.UPSSRC.ChLogURL, ResDataToStore);
+  ResDataToStore.UPSSRC.ChLogURLRoot  = ReplaceResName(ResData.UPSSRC.ChLogURLRoot, ResDataToStore);
+  ResDataToStore.UPSSRC.ChLogName     = ReplaceResName(ResData.UPSSRC.ChLogName, ResDataToStore);
 
-  ResDataToStore.LOCSRC.LURL          = ReplaceResName(ResData.LOCSRC.LURL, ResData);
-  ResDataToStore.LOCSRC.LURLRoot      = ReplaceResName(ResData.LOCSRC.LURLRoot, ResData);
-  ResDataToStore.LOCSRC.AXMLURL       = ReplaceResName(ResData.LOCSRC.AXMLURL, ResData);
-  ResDataToStore.LOCSRC.AXMLURLRoot   = ReplaceResName(ResData.LOCSRC.AXMLURLRoot, ResData);
-  ResDataToStore.LOCSRC.ALForm        = ReplaceResName(ResData.LOCSRC.ALForm, ResData);
-  ResDataToStore.LOCSRC.AXMLFileName  = ReplaceResName(ResData.LOCSRC.AXMLFileName, ResData);
-  ResDataToStore.LOCSRC.ChLogURL      = ReplaceResName(ResData.LOCSRC.ChLogURL, ResData);
-  ResDataToStore.LOCSRC.ChLogURLRoot  = ReplaceResName(ResData.LOCSRC.ChLogURLRoot, ResData);
-  ResDataToStore.LOCSRC.ChLogName     = ReplaceResName(ResData.LOCSRC.ChLogName, ResData);
+  ResDataToStore.LOCSRC.LURL          = ReplaceResName(ResData.LOCSRC.LURL, ResDataToStore);
+  ResDataToStore.LOCSRC.LURLRoot      = ReplaceResName(ResData.LOCSRC.LURLRoot, ResDataToStore);
+  ResDataToStore.LOCSRC.AXMLURL       = ReplaceResName(ResData.LOCSRC.AXMLURL, ResDataToStore);
+  ResDataToStore.LOCSRC.AXMLURLRoot   = ReplaceResName(ResData.LOCSRC.AXMLURLRoot, ResDataToStore);
+  ResDataToStore.LOCSRC.ALForm        = ReplaceResName(ResData.LOCSRC.ALForm, ResDataToStore);
+  ResDataToStore.LOCSRC.AXMLFileName  = ReplaceResName(ResData.LOCSRC.AXMLFileName, ResDataToStore);
+  ResDataToStore.LOCSRC.ChLogURL      = ReplaceResName(ResData.LOCSRC.ChLogURL, ResDataToStore);
+  ResDataToStore.LOCSRC.ChLogURLRoot  = ReplaceResName(ResData.LOCSRC.ChLogURLRoot, ResDataToStore);
+  ResDataToStore.LOCSRC.ChLogName     = ReplaceResName(ResData.LOCSRC.ChLogName, ResDataToStore);
 
 //
 
-  ResDataToStore.TRX.ProjectName      = ReplaceResName(ResData.TRX.ProjectName, ResData);
-  ResDataToStore.TRX.LongProjectName  = ReplaceResName(ResData.TRX.LongProjectName, ResData);
-//ResDataToStore.TRX.ResName          = ReplaceResName(ResData.TRX.ResName, ResData);
-  ResDataToStore.TRX.LForm            = ReplaceResName(ResData.TRX.LForm, ResData);
+  ResDataToStore.TRX.ProjectName      = ReplaceResName(ResData.TRX.ProjectName, ResDataToStore);
+  ResDataToStore.TRX.LongProjectName  = ReplaceResName(ResData.TRX.LongProjectName, ResDataToStore);
+//ResDataToStore.TRX.ResName          = ReplaceResName(ResData.TRX.ResName, ResDataToStore);
+  ResDataToStore.TRX.LForm            = ReplaceResName(ResData.TRX.LForm, ResDataToStore);
 
-  ResDataToStore.UPD.ProjectName      = ReplaceResName(ResData.UPD.ProjectName, ResData);
-  ResDataToStore.UPD.LongProjectName  = ReplaceResName(ResData.UPD.LongProjectName, ResData);
-  ResDataToStore.UPD.ResName          = ReplaceResName(ResData.UPD.ResName, ResData);
-  ResDataToStore.UPD.LForm            = ReplaceResName(ResData.UPD.LForm, ResData);
+  ResDataToStore.UPD.ProjectName      = ReplaceResName(ResData.UPD.ProjectName, ResDataToStore);
+  ResDataToStore.UPD.LongProjectName  = ReplaceResName(ResData.UPD.LongProjectName, ResDataToStore);
+  ResDataToStore.UPD.ResName          = ReplaceResName(ResData.UPD.ResName, ResDataToStore);
+  ResDataToStore.UPD.LForm            = ReplaceResName(ResData.UPD.LForm, ResDataToStore);
 
 
-//ResDataToStore.sResName             = ReplaceResName(ResData.sResName, ResData);
-  ResDataToStore.sChgLogFormat        = ReplaceResName(ResData.sChgLogFormat, ResData);
-  ResDataToStore.sProjRootDir         = ReplaceResName(ResData.sProjRootDir, ResData);
-  ResDataToStore.sMRGLFilesDir        = ReplaceResName(ResData.sMRGLFilesDir, ResData);
-  ResDataToStore.sUPDLFilesDir        = ReplaceResName(ResData.sUPDLFilesDir, ResData);
-  ResDataToStore.sSupportEmailAddr    = ReplaceResName(ResData.sSupportEmailAddr, ResData);
-  ResDataToStore.sSRCLCode            = ReplaceResName(ResData.sSRCLCode, ResData);
-  ResDataToStore.sBaseLForm           = ReplaceResName(ResData.sBaseLForm, ResData);
-  ResDataToStore.sLTeamLFormat        = ReplaceResName(ResData.sLTeamLFormat, ResData);
-  ResDataToStore.sLDatabaseURL        = ReplaceResName(ResData.sLDatabaseURL, ResData);
+//ResDataToStore.sResName             = ReplaceResName(ResData.sResName, ResDataToStore);
+  ResDataToStore.sChgLogFormat        = ReplaceResName(ResData.sChgLogFormat, ResDataToStore);
+  ResDataToStore.sProjRootDir         = ReplaceResName(ResData.sProjRootDir, ResDataToStore);
+  ResDataToStore.sMRGLFilesDir        = ReplaceResName(ResData.sMRGLFilesDir, ResDataToStore);
+  ResDataToStore.sUPDLFilesDir        = ReplaceResName(ResData.sUPDLFilesDir, ResDataToStore);
+  ResDataToStore.sSupportEmailAddr    = ReplaceResName(ResData.sSupportEmailAddr, ResDataToStore);
+  ResDataToStore.sSRCLCode            = ReplaceResName(ResData.sSRCLCode, ResDataToStore);
+  ResDataToStore.sBaseLForm           = ReplaceResName(ResData.sBaseLForm, ResDataToStore);
+  ResDataToStore.sLTeamLFormat        = ReplaceResName(ResData.sLTeamLFormat, ResDataToStore);
+  ResDataToStore.sLDatabaseURL        = ReplaceResName(ResData.sLDatabaseURL, ResDataToStore);
   ResDataToStore.iMinComplPercent     = ResData.iMinComplPercent;
   ResDataToStore.iCacheExpire         = ResData.iCacheExpire;
   ResDataToStore.bForceComm           = ResData.bForceComm;
