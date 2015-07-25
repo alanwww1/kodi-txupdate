@@ -66,7 +66,7 @@ void CAddonXMLHandler::FetchAddonDataFiles()
 
   printf(" Addxml");
   FetchAddonXMLFileUpstr();
-  if (!m_XMLResData.UPS.ChLogURL.empty())
+  if (!m_XMLResData.sChgLogFormat.empty())
   {
     printf(" Chlog");
     FetchAddonChangelogFile();

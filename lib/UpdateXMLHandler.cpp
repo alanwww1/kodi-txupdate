@@ -115,7 +115,7 @@ void CUpdateXMLHandler::SetExternalVariables(const std::string& sLine)
 
   std::string sVar = sLine.substr(iPosVar1, iPosVar2-iPosVar1);
 
-  std::string sVal = sLine.substr(iPosVar2 + 3);
+  std::string sVal = g_CharsetUtils.UnescapeCPPString(sLine.substr(iPosVar2 + 3));
 
   SubstituteExternalVariables(sVal);
 
@@ -132,7 +132,7 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
 
   std::string sVar = sLine.substr(iPosVar1, iPosVar2-iPosVar1);
 
-  std::string sVal = sLine.substr(iPosVar2 + 3);
+  std::string sVal = g_CharsetUtils.UnescapeCPPString(sLine.substr(iPosVar2 + 3));
 
   SubstituteExternalVariables(sVal);
 
