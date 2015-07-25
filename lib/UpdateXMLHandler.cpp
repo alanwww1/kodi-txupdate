@@ -141,7 +141,7 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
 
 void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CXMLResdata& ResData)
 {
-  std::string sVar = sLine.substr(5);
+  std::string sVar = sLine.substr(6);
 
   if (sVar.empty())
     CLog::Log(logERROR, "ConfHandler: Wrong line in conf file. Clear variable name is empty.");
@@ -150,7 +150,7 @@ void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CXMLResdata& Re
     SetInternalVariable(sVar, "", ResData);
 
   //We clear variables that has a match at the begining with our string
-  sVar != sVar.substr(0,sVar.size()-1);
+  sVar = sVar.substr(0,sVar.size()-1);
 
   for (std::map<std::string, std::string>::iterator it = m_MapOfVariables.begin(); it != m_MapOfVariables.end(); it++)
   {
