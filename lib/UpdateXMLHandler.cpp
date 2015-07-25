@@ -136,6 +136,31 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
 
   SubstituteExternalVariables(sVal);
 
+  return SetInternalVariable(sVar, sVal, ResData);
+}
+
+void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CXMLResdata& ResData)
+{
+  std::string sVar = sLine.substr(5);
+
+  if (sVar.empty())
+    CLog::Log(logERROR, "ConfHandler: Wrong line in conf file. Clear variable name is empty.");
+
+  if (sVar.find('*') != sVar.size()-1)
+    SetInternalVariable(sVar, "", ResData);
+
+  //We clear variables that has a match at the begining with our string
+  sVar != sVar.substr(0,sVar.size()-1);
+
+  for (std::map<std::string, std::string>::iterator it = m_MapOfVariables.begin(); it != m_MapOfVariables.end(); it++)
+  {
+    if (it->first.find(sVar) == 0)
+      SetInternalVariable(it->first, "", ResData);
+  }
+}
+
+void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::string sVal, CXMLResdata& ResData)
+{
   if (sVar == "UPSOwner")                   ResData.UPS.Owner = sVal;
   else if (sVar == "UPSRepo")               ResData.UPS.Repo = sVal;
   else if (sVar == "UPSBranch")             ResData.UPS.Branch = sVal;
@@ -183,8 +208,6 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
   else if (sVar == "LOCSRCLAXMLPath")       ResData.LOCSRC.LAXMLPath = sVal;
   else if (sVar == "LOCSRCLAXMLFormat")     ResData.LOCSRC.LAXMLForm = sVal;
   else if (sVar == "LOCSRCChLogPath")       ResData.LOCSRC.ChLogPath = sVal;
-
-
 
 //To be deleted
   else if (sVar == "UPSLURL")               ResData.UPS.LURL = sVal;
@@ -287,6 +310,8 @@ void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::str
 
     if (sLine.find("set ") == 0)
       SetInternalVariables(sLine, ResData);
+    else if (sLine.find("clear ") == 0)
+      ClearVariables(sLine, ResData);
     else if (sLine.find("create resource ") == 0)
       CreateResource(ResData, sLine, mapResData);
     else

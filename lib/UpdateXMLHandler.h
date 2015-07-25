@@ -103,6 +103,9 @@ private:
 protected:
   void CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData);
   std::string ReplaceResName(std::string sVal, const CXMLResdata& ResData);
+  void ClearVariables(const std::string& sLine, CXMLResdata& ResData);
+  void SetInternalVariable(const std::string& sVar, const std::string sVal, CXMLResdata& ResData);
+
 };
 
 #endif
