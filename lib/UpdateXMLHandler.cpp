@@ -111,7 +111,7 @@ void CUpdateXMLHandler::SetExternalVariables(const std::string& sLine)
   size_t iPosVar2 = sLine.find(" = ", iPosVar1);
 
   if (iPosVar2 == std::string::npos)
-    CLog::Log(logERROR, "ConfHandler: Wrong line in conf file. variable = value format is wrong");
+    CLog::Log(logERROR, "ConfHandler: Wrong line in conf file. variable = value format is wrong for line:\n%s", sLine.c_str());
 
   std::string sVar = sLine.substr(iPosVar1, iPosVar2-iPosVar1);
 
@@ -128,7 +128,7 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
   size_t iPosVar2 = sLine.find(" = ", iPosVar1);
 
   if (iPosVar2 == std::string::npos)
-    CLog::Log(logERROR, "ConfHandler: Wrong line in conf file. set variable = value format is wrong");
+    CLog::Log(logERROR, "ConfHandler: Wrong line in conf file. set variable = value format is wrong for line:\n%s", sLine.c_str());
 
   std::string sVar = sLine.substr(iPosVar1, iPosVar2-iPosVar1);
 

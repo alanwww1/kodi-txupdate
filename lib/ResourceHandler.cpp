@@ -107,7 +107,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
 
 
-  bool bHasLanguageFiles = !m_XMLResData.UPS.LURL.empty();
+  bool bHasLanguageFiles = !m_XMLResData.bHasOnlyAddonXML;
 
   m_AddonXMLHandler.FetchAddonDataFiles();
 
