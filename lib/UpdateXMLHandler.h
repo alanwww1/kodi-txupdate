@@ -80,6 +80,7 @@ public:
   bool bForceComm;
   bool bRebrand;
   bool bForceTXUpd;
+  std::map<std::string, CGITData> * m_pMapGitRepos;
 };
 
 class CUpdateXMLHandler
@@ -87,7 +88,7 @@ class CUpdateXMLHandler
 public:
   CUpdateXMLHandler();
   ~CUpdateXMLHandler();
-  void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData);
+  void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CGITData> * pMapGitRepos);
 
 private:
   bool GetParamsFromURLorPath (std::string const &strURL, std::string &strLangFormat, std::string &strFileName,

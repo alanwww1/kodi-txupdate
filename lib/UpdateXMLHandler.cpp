@@ -287,7 +287,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   m_MapOfVariables[sVar] = sVal;
 }
 
-void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData)
+void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CGITData> * pMapGitRepos)
 {
   std::string sConfFile = g_File.ReadFileToStr(rootDir + "kodi-txupdate.conf");
   if (sConfFile == "")
@@ -299,6 +299,8 @@ void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::str
   CXMLResdata ResData;
 
   ResData.sProjRootDir = rootDir;
+  ResData.m_pMapGitRepos = pMapGitRepos;
+
 
   while ((iPos2 = sConfFile.find('\n', iPos1)) != std::string::npos)
   {
@@ -464,6 +466,7 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.bForceTXUpd          = ResData.bForceTXUpd;
   ResDataToStore.bIsLangAddon         = ResData.bIsLangAddon;
   ResDataToStore.bHasOnlyAddonXML     = ResData.bHasOnlyAddonXML;
+  ResDataToStore.m_pMapGitRepos       = ResData.m_pMapGitRepos;
 
   //If we don't have a different target trx resource name, use the source trx resource name
   if (ResDataToStore.UPD.ResName.empty())
@@ -473,6 +476,7 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   mapResData[ResDataToStore.sResName] = ResDataToStore;
 
   ResData.UPD.ResName.clear();
+  ResDataToStore.m_pMapGitRepos->operator[](ResDataToStore.UPS.Owner + "/" + ResDataToStore.UPS.Repo + "/" + ResDataToStore.UPS.Branch) = ResDataToStore.UPS;
 }
 
 bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,
