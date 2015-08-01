@@ -27,6 +27,12 @@
 #include <string>
 #include <map>
 
+struct CBasicGITData
+{
+  std::string Owner, Repo, Branch;
+  std::string sUPSLocalPath;
+};
+
 struct CGITData
 {
   // L=Language, A = Addon
@@ -69,6 +75,7 @@ public:
 
   std::string sProjRootDir;
   std::string sMRGLFilesDir;
+  std::string sUPSLocalPath;
   std::string sUPDLFilesDir;
   std::string sSupportEmailAddr;
   std::string sSRCLCode;
@@ -80,7 +87,7 @@ public:
   bool bForceComm;
   bool bRebrand;
   bool bForceTXUpd;
-  std::map<std::string, CGITData> * m_pMapGitRepos;
+  std::map<std::string, CBasicGITData> * m_pMapGitRepos;
 };
 
 class CUpdateXMLHandler
@@ -88,7 +95,7 @@ class CUpdateXMLHandler
 public:
   CUpdateXMLHandler();
   ~CUpdateXMLHandler();
-  void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CGITData> * pMapGitRepos);
+  void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos);
 
 private:
   bool GetParamsFromURLorPath (std::string const &strURL, std::string &strLangFormat, std::string &strFileName,

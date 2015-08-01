@@ -165,7 +165,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "UPSRepo")               ResData.UPS.Repo = sVal;
   else if (sVar == "UPSBranch")             ResData.UPS.Branch = sVal;
 
-  else if (sVar == "UPSLpath")              ResData.UPS.LPath = sVal;
+  else if (sVar == "UPSLPath")              ResData.UPS.LPath = sVal;
   else if (sVar == "UPSLForm")              ResData.UPS.LForm = sVal;
   else if (sVar == "UPSAXMLPath")           ResData.UPS.AXMLPath = sVal;
   else if (sVar == "UPSLFormInAXML")        ResData.UPS.LFormInAXML = sVal;
@@ -189,7 +189,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "UPSSRCRepo")            ResData.UPSSRC.Repo = sVal;
   else if (sVar == "UPSSRCBranch")          ResData.UPSSRC.Branch = sVal;
 
-  else if (sVar == "UPSSRCLpath")           ResData.UPSSRC.LPath = sVal;
+  else if (sVar == "UPSSRCLPath")           ResData.UPSSRC.LPath = sVal;
   else if (sVar == "UPSSRCLForm")           ResData.UPSSRC.LForm = sVal;
   else if (sVar == "UPSSRCAXMLPath")        ResData.UPSSRC.AXMLPath = sVal;
   else if (sVar == "UPSSRCLFormInAXML")     ResData.UPSSRC.LFormInAXML = sVal;
@@ -267,6 +267,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "ChgLogFormat")          ResData.sChgLogFormat = sVal;
 //else if (sVar == "ProjRootDir")           ResData.sProjRootDir = sVal;
   else if (sVar == "MRGLFilesDir")          ResData.sMRGLFilesDir = sVal;
+  else if (sVar == "UPSLocalPath")          ResData.sUPSLocalPath = sVal;
   else if (sVar == "UPDLFilesDir")          ResData.sUPDLFilesDir = sVal;
   else if (sVar == "SupportEmailAddr")      ResData.sSupportEmailAddr = sVal;
   else if (sVar == "SRCLCode")              ResData.sSRCLCode = sVal;
@@ -287,7 +288,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   m_MapOfVariables[sVar] = sVal;
 }
 
-void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CGITData> * pMapGitRepos)
+void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos)
 {
   std::string sConfFile = g_File.ReadFileToStr(rootDir + "kodi-txupdate.conf");
   if (sConfFile == "")
@@ -453,6 +454,7 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.sChgLogFormat        = ReplaceResName(ResData.sChgLogFormat, ResDataToStore);
   ResDataToStore.sProjRootDir         = ReplaceResName(ResData.sProjRootDir, ResDataToStore);
   ResDataToStore.sMRGLFilesDir        = ReplaceResName(ResData.sMRGLFilesDir, ResDataToStore);
+  ResDataToStore.sUPSLocalPath        = ReplaceResName(ResData.sUPSLocalPath, ResDataToStore);
   ResDataToStore.sUPDLFilesDir        = ReplaceResName(ResData.sUPDLFilesDir, ResDataToStore);
   ResDataToStore.sSupportEmailAddr    = ReplaceResName(ResData.sSupportEmailAddr, ResDataToStore);
   ResDataToStore.sSRCLCode            = ReplaceResName(ResData.sSRCLCode, ResDataToStore);
@@ -476,7 +478,26 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   mapResData[ResDataToStore.sResName] = ResDataToStore;
 
   ResData.UPD.ResName.clear();
-  ResDataToStore.m_pMapGitRepos->operator[](ResDataToStore.UPS.Owner + "/" + ResDataToStore.UPS.Repo + "/" + ResDataToStore.UPS.Branch) = ResDataToStore.UPS;
+
+  //Store git data for git clone the repositories needed for upstream push and pull handling
+  if (ResDataToStore.UPS.Repo.empty() || ResDataToStore.UPS.Branch.empty() || ResDataToStore.UPS.Owner.empty())
+    CLog::Log(logERROR, "Confhandler: Insufficient UPS git data. Missing Owner or Repo or Branch data.");
+  if (ResDataToStore.sUPSLocalPath.empty())
+    CLog::Log(logERROR, "Confhandler: missing folder path for local upstream git clone data.");
+
+  CBasicGITData BasicGitData;
+  BasicGitData.Owner = ResDataToStore.UPS.Owner; BasicGitData.Repo = ResDataToStore.UPS.Repo; BasicGitData.Branch = ResDataToStore.UPS.Branch;
+  BasicGitData.sUPSLocalPath = ResDataToStore.sUPSLocalPath;
+  ResDataToStore.m_pMapGitRepos->operator[](ResDataToStore.UPS.Owner + "/" + ResDataToStore.UPS.Repo + "/" + ResDataToStore.UPS.Branch) = BasicGitData;
+  if (ResDataToStore.bIsLangAddon)
+  {
+    if (ResDataToStore.UPSSRC.Repo.empty() || ResDataToStore.UPSSRC.Branch.empty() || ResDataToStore.UPSSRC.Owner.empty())
+      CLog::Log(logERROR, "Confhandler: Insufficient UPSSRC git data. Missing owner or Repo or Branch data.");
+
+    BasicGitData.Owner = ResDataToStore.UPSSRC.Owner; BasicGitData.Repo = ResDataToStore.UPSSRC.Repo; BasicGitData.Branch = ResDataToStore.UPSSRC.Branch;
+    BasicGitData.sUPSLocalPath = ResDataToStore.sUPSLocalPath;
+    ResDataToStore.m_pMapGitRepos->operator[](ResDataToStore.UPSSRC.Owner + "/" + ResDataToStore.UPSSRC.Repo + "/" + ResDataToStore.UPSSRC.Branch) = BasicGitData;
+  }
 }
 
 bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,

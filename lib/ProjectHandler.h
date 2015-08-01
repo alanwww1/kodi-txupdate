@@ -44,12 +44,13 @@ protected:
   std::string GetResNameFromTXResName(std::string const &strTXResName);
 
   std::set<std::string> ParseResources(std::string strJSON);
+  void GITPullUPSRepos();
 
   std::map<std::string, CResourceHandler> m_mapResources;
   typedef std::map<std::string, CResourceHandler>::iterator T_itmapRes;
 
   std::map<std::string, CXMLResdata> m_mapResData;
   typedef std::map<std::string, CXMLResdata>::iterator T_itResData;
-  std::map<std::string, CGITData> m_MapGitRepos;
+  std::map<std::string, CBasicGITData> m_MapGitRepos;
   std::string m_strProjDir;
 };

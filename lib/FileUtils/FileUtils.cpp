@@ -360,4 +360,6 @@ void CFile::SytemCommand (const std::string &strCommand)
   int status = system (strCommand.c_str());
   if (status == 32768)
     CLog::Log(logERROR, "System command failed with return value %i", WEXITSTATUS(status));
+  if (status == 2 || status == 256)
+    CLog::Log(logERROR, "System command aborted by user with return code %i", status);
 }
