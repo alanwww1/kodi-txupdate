@@ -73,6 +73,7 @@ public:
   std::string GetGitHUBAPIURL(std::string const & strURL);
   void GetGitCloneURL(std::string const & strURL, std::string &strGitHubURL, CGithubURLData &GithubURLData);
   bool UploadTranslatorsDatabase(std::string strJson, std::string strURL);
+  std::string GetCurrentGitrevision(const std::string& sGitRootPath, const std::string& sBranch);
 
   //Cache filename generations related settings
   void SetResName (const std::string& sResName) {m_sResName = sResName;}

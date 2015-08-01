@@ -773,3 +773,8 @@ void CHTTPHandler::ParseUploadedStrForNewRes(std::string const &strJSON, size_t 
 
   return;
 };
+
+std::string CHTTPHandler::GetCurrentGitrevision(const std::string& sGitRootPath, const std::string& sBranch)
+{
+  return g_File.ReadFileToStr(sGitRootPath + ".git/refs/heads/" + sBranch);
+}
