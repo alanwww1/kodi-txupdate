@@ -98,7 +98,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 
 bool CProjectHandler::FetchResourcesFromUpstream()
 {
-  GITPullUPSRepos();
+  g_HTTPHandler.GITPullUPSRepos(m_MapGitRepos);
 
   for (std::map<std::string, CXMLResdata>::iterator it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {
@@ -126,34 +126,6 @@ bool CProjectHandler::FetchResourcesFromUpstream()
   return true;
 };
 
-void CProjectHandler::GITPullUPSRepos()
-{
-  std::string sCommand;
-  for (std::map<std::string, CBasicGITData> ::iterator it = m_MapGitRepos.begin(); it != m_MapGitRepos.end(); it++)
-  {
-    CBasicGITData GitData = it->second;
-    std::string sGitHubRootNoBranch = GitData.sUPSLocalPath + GitData.Owner + "/" + GitData.Repo;
-    std::string sGitHubRoot = sGitHubRootNoBranch + "/" + GitData.Branch;
-    if (!g_File.FileExist(sGitHubRoot +  "/.git/config"))
-    {
-      //no local directory present, cloning one
-      printf("\n");
-      // clean directory if exists, unless git clone fails
-      g_File.DeleteDirectory(sGitHubRoot);
-      g_File.MakeDir(sGitHubRoot);
-
-      sCommand = "cd " + sGitHubRootNoBranch + ";";
-      sCommand += "git clone git@github.com:" + GitData.Owner + "/" + GitData.Repo + ".git " + GitData.Branch;
-      printf("%sGIT cloning with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
-      g_File.SytemCommand(sCommand);
-
-      sCommand = "cd " + sGitHubRoot + ";";
-      sCommand += "git checkout " + GitData.Branch;
-      printf("%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
-      g_File.SytemCommand(sCommand);
-    }
-  }
-}
 
 bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
 {
@@ -182,7 +154,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     std::string sPathUpdate = XMLResData.sProjRootDir + XMLResData.sUPDLFilesDir + DirSepChar + XMLResData.sResName + DirSepChar + XMLResData.sBaseLForm + DirSepChar + "strings.po";
     ResHandler.GenerateUpdatePOFiles ();
 
-   g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
+    g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
 
     ResHandler.WriteUpdatePOFiles (sPathUpdate);
 

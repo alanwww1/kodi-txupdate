@@ -778,3 +778,75 @@ std::string CHTTPHandler::GetCurrentGitrevision(const std::string& sGitRootPath,
 {
   return g_File.ReadFileToStr(sGitRootPath + ".git/refs/heads/" + sBranch);
 }
+
+std::string CHTTPHandler::GetCurrentGitBranch(const std::string& sGitRootPath)
+{
+  std::string sHead = g_File.ReadFileToStr(sGitRootPath + "/.git/HEAD");
+
+  if (sHead.find("ref: refs/heads/") != 0) //Git repo is in a detached state
+    return "";
+  size_t posLF = sHead.find('\n');
+  return sHead.substr(16, posLF-16);
+}
+
+void CHTTPHandler::GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitRepos)
+{
+  std::string sCommand;
+  for (std::map<std::string, CBasicGITData>::iterator it = MapGitRepos.begin(); it != MapGitRepos.end(); it++)
+  {
+    CBasicGITData GitData = it->second;
+    std::string sGitHubRootNoBranch = GitData.sUPSLocalPath + GitData.Owner + "/" + GitData.Repo;
+    std::string sGitHubRoot = sGitHubRootNoBranch + "/" + GitData.Branch;
+    if (!g_File.FileExist(sGitHubRoot +  "/.git/config"))
+    {
+      //no local directory present, cloning one
+      printf("\n");
+      // clean directory if exists, unless git clone fails
+      g_File.DeleteDirectory(sGitHubRoot);
+      g_File.MakeDir(sGitHubRoot);
+
+      sCommand = "cd " + sGitHubRootNoBranch + ";";
+      sCommand += "git clone git@github.com:" + GitData.Owner + "/" + GitData.Repo + ".git " + GitData.Branch;
+      printf("%sGIT cloning with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+      g_File.SytemCommand(sCommand);
+
+      sCommand = "cd " + sGitHubRoot + ";";
+      sCommand += "git checkout " + GitData.Branch;
+      printf("%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
+      g_File.SytemCommand(sCommand);
+    }
+    else
+    {
+      // We have an existing git repo. Let's clean it and update if necesarry
+      printf("\n");
+
+      if (GitData.Branch != GetCurrentGitBranch(sGitHubRoot))
+      {
+        //Curent branch differs from the neede one, so check out the needed branch
+        sCommand = "cd " + sGitHubRoot + ";";
+        sCommand += "git checkout " + GitData.Branch;
+        printf ("%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
+        g_File.SytemCommand(sCommand);
+      }
+
+      sCommand = "cd " + sGitHubRoot + ";";
+      sCommand += "git reset --hard origin/" + GitData.Branch;
+      printf ("%sGIT reset existing local repo to branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
+      g_File.SytemCommand(sCommand);
+
+      sCommand = "cd " + sGitHubRoot + ";";
+      sCommand += "git clean -f -d -x";
+      printf("%sRemove untracked files%s\n%s%s%s\n", KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+      g_File.SytemCommand(sCommand);
+
+      if (g_File.GetAgeOfGitRepoPull(sGitHubRoot + "/.git/HEAD") > m_iHTTPCacheExp * 60)
+      {
+        //Git repo pull is outdated, make a fresh pull
+        sCommand = "cd " + sGitHubRoot + ";";
+        sCommand += "git pull";
+        printf("%sPull latest git changes%s\n%s%s%s\n", KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+        g_File.SytemCommand(sCommand);
+      }
+    }
+  }
+}

@@ -31,6 +31,7 @@
 #include <ftw.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <errno.h>
 
 CFile g_File;
 
@@ -209,6 +210,19 @@ size_t CFile::GetFileAge(std::string strFileName)
   }
 };
 
+size_t CFile::GetAgeOfGitRepoPull(std::string strFileName)
+{
+  struct stat b;
+  time_t now = std::time(0);
+
+  if (!stat(strFileName.c_str(), &b))
+    return now-b.st_mtime;
+  else
+    CLog::Log(logERROR, "FileUtils: Unable to determine the last modify date for file: %s", strFileName.c_str());
+
+  return 0;
+}
+
 std::string CFile::ReadFileToStr(std::string strFileName)
 {
   FILE * file;
@@ -362,4 +376,41 @@ void CFile::SytemCommand (const std::string &strCommand)
     CLog::Log(logERROR, "System command failed with return value %i", WEXITSTATUS(status));
   if (status == 2 || status == 256)
     CLog::Log(logERROR, "System command aborted by user with return code %i", status);
+}
+
+bool CFile::isDir(string dir)
+{
+  struct stat fileInfo;
+  stat(dir.c_str(), &fileInfo);
+  if (S_ISDIR(fileInfo.st_mode)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void CFile::listFiles(string baseDir, bool recursive)
+{
+  DIR *dp;
+  struct dirent *dirp;
+  if ((dp = opendir(baseDir.c_str())) == NULL) {
+    cout << "[ERROR: " << errno << " ] Couldn't open " << baseDir << "." << endl;
+    return;
+  } else {
+    while ((dirp = readdir(dp)) != NULL) {
+      if (dirp->d_name != string(".") && dirp->d_name != string(".."))
+      {
+        if (isDir(baseDir + dirp->d_name) == true && recursive == true)
+        {
+          cout << "[DIR]\t" << baseDir << dirp->d_name << "/" << endl;
+          listFiles(baseDir + dirp->d_name + "/", true);
+        }
+        else
+        {
+          cout << "[FILE]\t" << baseDir << dirp->d_name << endl;
+        }
+      }
+    }
+    closedir(dp);
+  }
 }

@@ -54,6 +54,7 @@ public:
   void DeleteFile(std::string filename);
   void CopyFile(std::string strSourceFileName, std::string strDestFileName);
   size_t GetFileAge(std::string strFileName);
+  size_t GetAgeOfGitRepoPull(std::string strFileName);
   std::string ReadFileToStr(std::string strFileName);
   std::string ReadFileToStrE(std::string const &strFileName);
   bool WriteFileFromStr(const std::string &pofilename, std::string const &strToWrite);
@@ -68,6 +69,8 @@ public:
   bool WriteFileAgeToFile(std::string strFileName, time_t FileAgeTime);
   void WriteNowToFileAgeFile(std::string strFileName);
   void SytemCommand (const std::string &strCommand);
+  bool isDir(std::string dir);
+  void listFiles(std::string baseDir, bool recursive);
 };
 
 extern CFile g_File;
