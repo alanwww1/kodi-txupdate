@@ -161,9 +161,9 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
       CGITData GitData;
 
       if (bIsSourceLang && m_XMLResData.bIsLangAddon) // If we have a different URL for source language, use that for download
-        GitData = m_XMLResData.UPS;
-      else
         GitData = m_XMLResData.UPSSRC;
+      else
+        GitData = m_XMLResData.UPS;
 
       sLPath = g_CharsetUtils.ReplaceLanginURL (GitData.LPath, g_CharsetUtils.GetLFormFromPath(GitData.LPath), sLCode);
 
