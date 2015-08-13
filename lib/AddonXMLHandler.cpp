@@ -47,22 +47,8 @@ void CAddonXMLHandler::FetchAddonDataFiles()
 {
   std::string sGitHubURL, sTemp;
 
-  if (m_XMLResData.UPS.AXMLURL.empty() || !m_XMLResData.UPS.ALForm.empty())
+  if (m_XMLResData.bIsLangAddon)
     return; // kodi language-addons have individual addon.xml files
-
-  g_HTTPHandler.SetFileName("AddonData_FilesListing.json");
-  g_HTTPHandler.SetUseGitBranch(true);
-  g_HTTPHandler.SetDataFile(true);
-
-  // We get the version of the addon.xml and changelog.txt files here
-  sGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(m_XMLResData.UPS.AXMLURLRoot);
-  printf(" Dir");
-  sTemp = g_HTTPHandler.GetURLToSTR(sGitHubURL);
-  if (sTemp.empty())
-    CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting addon.xml file version from github.com");
-
-  //TODO separate addon.xml and changelog.txt version parsing as they can be in a different place
-  ParseAddonXMLVersionGITHUB(sTemp);
 
   printf(" Addxml");
   FetchAddonXMLFileUpstr();
@@ -73,22 +59,21 @@ void CAddonXMLHandler::FetchAddonDataFiles()
   }
 }
 
-
 bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
 {
-  g_HTTPHandler.SetFileName(m_XMLResData.UPS.AXMLFileName);
+  g_HTTPHandler.SetFileName("addon.xml");
   g_HTTPHandler.SetDataFile(false);
 
   std::string strURL = m_XMLResData.UPS.AXMLURL;
   TiXmlDocument xmlAddonXML;
 
-  std::string strXMLFile = g_HTTPHandler.GetURLToSTR(strURL);
-  if (strXMLFile.empty())
+  std::string sAXMLFile = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.UPS.AXMLPath);
+  if (sAXMLFile.empty())
     CLog::Log(logERROR, "CAddonXMLHandler::FetchAddonXMLFileUpstr: http error getting XML file from upstream url: %s", strURL.c_str());
 
-  g_File.ConvertStrLineEnds(strXMLFile);
+  g_File.ConvertStrLineEnds(sAXMLFile);
 
-  m_strAddonXMLFile = strXMLFile.substr(0,strXMLFile.find_last_of(">")+1) + "\n";
+  m_strAddonXMLFile = sAXMLFile.substr(0,sAXMLFile.find_last_of(">")+1) + "\n";
 
   if (!xmlAddonXML.Parse(m_strAddonXMLFile.c_str(), 0, TIXML_DEFAULT_ENCODING))
   {
@@ -430,10 +415,10 @@ bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::st
 
 bool CAddonXMLHandler::FetchAddonChangelogFile ()
 {
-  g_HTTPHandler.SetFileName(m_XMLResData.UPS.ChLogName);
+  g_HTTPHandler.SetFileName("changelog.txt");
   g_HTTPHandler.SetDataFile(false);
 
-  std::string strChangelogFile = g_HTTPHandler.GetURLToSTR(m_XMLResData.UPS.ChLogURL);
+  std::string strChangelogFile = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.UPS.ChLogPath);
 
   g_File.ConvertStrLineEnds(strChangelogFile);
 

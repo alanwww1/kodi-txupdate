@@ -344,32 +344,23 @@ std::string CCharsetUtils::GetFilenameFromURL(const std::string &sURL)
   return "";
 }
 
-std::string CCharsetUtils::GetLangnameFromURL(std::string strName, std::string strURL, std::string strLangformat)
+std::string CCharsetUtils::GetLangnameFromPath(std::string sExtractPath, std::string sPath, std::string sLForm)
 {
-  //Get Directory nameformat
-  size_t pos1 = strURL.find(strLangformat);
+  size_t pos1 = sPath.find(sLForm);
   if (pos1 == std::string::npos)
-    CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
-
-  size_t pos2 = pos1 + strLangformat.size();
-  if (pos2 > strURL.size())
-    CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
-
-  size_t pos1per = strURL.substr(0,pos1).find_last_of("/");
-  if (pos1per == std::string::npos)
-    CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
-
-  size_t pos2per = strURL.find_first_of("/",pos2);
-  if (pos2per == std::string::npos)
-    CLog::Log(logERROR, "CharsetUtils::GetLangnameFromURL: Wrong URL format: %s", strURL.c_str());
-
-  std::string strPre = strURL.substr(pos1per+1, pos1-pos1per-1);
-  std::string strPost = strURL.substr(pos2, pos2per-pos2);
-
-  if (strName.find(strPre) != 0 || strName.rfind(strPost) != strName.size()-strPost.size())
     return "";
 
-  return strName.substr(strPre.size(), strName.size()-strPre.size()-strPost.size());
+  size_t pos2 = pos1 + sLForm.size();
+  if (pos2 > sPath.size())
+    return "";
+
+  std::string strPre = sPath.substr(0, pos1);
+  std::string strPost = sPath.substr(pos2);
+
+  if (sExtractPath.find(strPre) != 0 || sExtractPath.rfind(strPost) != sExtractPath.size()-strPost.size())
+    return "";
+
+  return sExtractPath.substr(strPre.size(), sExtractPath.size()-strPre.size()-strPost.size());
 }
 
 std::string CCharsetUtils::ReplaceLanginURL(const std::string& strURL, const std::string& strLangFormat, const std::string& strLCode)
@@ -397,3 +388,13 @@ void CCharsetUtils::ConvertLineEnds(std::string &strBuffer)
   }
   strBuffer.swap(strTemp);
 };
+
+std::string CCharsetUtils::GetLFormFromPath(const std::string& sPath)
+{
+  std::string sLForm;
+  size_t posLForm1 = sPath.find("$(");
+  size_t posLForm2 = sPath.find(')',posLForm1);
+  if (posLForm1 != std::string::npos && posLForm2 != std::string::npos)
+    sLForm = sPath.substr(posLForm1, posLForm2 - posLForm1 + 1);
+  return sLForm;
+}

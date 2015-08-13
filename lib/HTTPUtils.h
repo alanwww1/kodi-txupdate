@@ -76,6 +76,8 @@ public:
   std::string GetCurrentGitrevision(const std::string& sGitRootPath, const std::string& sBranch);
   std::string GetCurrentGitBranch(const std::string& sGitRootPath);
   void GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitRepos);
+  std::string GetGithubPathToSTR(const std::string& sUPSLocalPath, const CGITData& GitData, const std::string& sPath);
+  std::string GetGitFileListToSTR(const std::string& sUPSLocalPath, const CGITData& GitData);
 
   //Cache filename generations related settings
   void SetResName (const std::string& sResName) {m_sResName = sResName;}
@@ -91,6 +93,8 @@ public:
 private:
   long curlPUTPOStrToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd);
   std::string CreateCacheFilename(const std::string& strURL, bool &bCacheFileExists, bool &bCacheFileExpired);
+  std::string CreateCacheFilenameGitSource(const std::string& sBranch, bool &bCacheFileExists, bool &bCacheFileExpired);
+  std::string GetGithubCloneRootPath(const std::string& sUPSLocalPath, const CGITData& GitData);
 
   CURL *m_curlHandle;
   std::string m_strCacheDir;

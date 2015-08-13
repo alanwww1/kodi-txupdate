@@ -83,7 +83,7 @@ bool CResourceHandler::FetchPOFilesTXToMem()
     g_HTTPHandler.SetLCode(sLCode);
 
     std::string sLangNameTX = g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.TRX.LForm);
-    POHandler.FetchPOURLToMem(strURL + "translation/" + sLangNameTX + "/?file");
+    POHandler.FetchPOTXPathToMem(strURL + "translation/" + sLangNameTX + "/?file");
     POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
 
     CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i", sLCode.c_str(), POHandler.GetClassEntriesCount());
@@ -105,27 +105,17 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   g_HTTPHandler.SetLCode("");
   g_HTTPHandler.SetProjectName("");
 
-
-
   bool bHasLanguageFiles = !m_XMLResData.bHasOnlyAddonXML;
 
-  m_AddonXMLHandler.FetchAddonDataFiles();
-
   std::set<std::string> listLangs, listLangsWithStringsPO;
-  if (bHasLanguageFiles)
-  {
-    g_HTTPHandler.SetLCode("");
-    g_HTTPHandler.SetProjectName("");
-    g_HTTPHandler.SetUseGitBranch(true);
-    g_HTTPHandler.SetFileName("LangList.json");
-    g_HTTPHandler.SetDataFile(true);
+  g_HTTPHandler.SetUseGitBranch(true);
+  g_HTTPHandler.SetFileName("LocalFileList.txt");
+  g_HTTPHandler.SetDataFile(true);
 
-    printf(" Langlist");
-    listLangsWithStringsPO = GetAvailLangsGITHUB();
-  }
+  printf(" GitDir");
+  listLangsWithStringsPO = GetAvailLangsGITHUB();
 
-  if (!m_XMLResData.UPSSRC.LURL.empty()) // we have a language-addon with different SRC language upstream URL
-    listLangsWithStringsPO.insert(m_XMLResData.sSRCLCode);
+  m_AddonXMLHandler.FetchAddonDataFiles();
 
   listLangs = listLangsWithStringsPO;
 
@@ -151,26 +141,33 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     if (bLangHasStringsPO && bHasLanguageFiles && m_XMLResData.bIsLangAddon) // Download individual addon.xml files for language-addons
     {
       g_HTTPHandler.SetFileName("addon.xml");
-      std::string strLangAddonXMLDloadURL;
-      if (!bIsSourceLang)
-        strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (m_XMLResData.UPS.AXMLURL, m_XMLResData.UPS.ALForm, sLCode);
-      else
-        strLangAddonXMLDloadURL = g_CharsetUtils.ReplaceLanginURL (m_XMLResData.UPSSRC.AXMLURL, m_XMLResData.UPS.ALForm, sLCode);
+      std::string sLangXMLPath;
+      CGITData GitData;
 
-      POHandler.FetchLangAddonXML(strLangAddonXMLDloadURL);
+      if (!bIsSourceLang)
+        GitData = m_XMLResData.UPS;
+      else
+        GitData = m_XMLResData.UPSSRC;
+
+      sLangXMLPath = g_CharsetUtils.ReplaceLanginURL (GitData.AXMLPath, g_CharsetUtils.GetLFormFromPath(GitData.AXMLPath), sLCode);
+      POHandler.FetchLangAddonXML(sLangXMLPath);
     }
 
     if (bLangHasStringsPO && bHasLanguageFiles) // Download language file from upstream for language sLCode
     {
       g_HTTPHandler.SetFileName("strings.po");
       printf (" %s", sLCode.c_str());
-      std::string strDloadURL;
-      if (bIsSourceLang && !m_XMLResData.UPSSRC.LURL.empty()) // If we have a different URL for source language, use that for download
-        strDloadURL = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.UPSSRC.LURL, m_XMLResData.UPS.LForm, sLCode);
-      else
-        strDloadURL = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.UPS.LURL, m_XMLResData.UPS.LForm, sLCode);
+      std::string sLPath;
+      CGITData GitData;
 
-      POHandler.FetchPOURLToMem(strDloadURL);
+      if (bIsSourceLang && m_XMLResData.bIsLangAddon) // If we have a different URL for source language, use that for download
+        GitData = m_XMLResData.UPS;
+      else
+        GitData = m_XMLResData.UPSSRC;
+
+      sLPath = g_CharsetUtils.ReplaceLanginURL (GitData.LPath, g_CharsetUtils.GetLFormFromPath(GitData.LPath), sLCode);
+
+      POHandler.FetchPOGitPathToMem(sLPath);
       bHasPreviousVersion = POHandler.GetIfItHasPrevLangVersion();
     }
 
@@ -568,57 +565,74 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
 
 std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
 {
-  std::string sJson, sGitHubURL;
-  sGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(m_XMLResData.UPS.LURLRoot);
+  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR(m_XMLResData.sUPSLocalPath, m_XMLResData.UPS);
 
-  sJson = g_HTTPHandler.GetURLToSTR(sGitHubURL);
-  if (sJson.empty())
-    CLog::Log(logERROR, "ResHandler::FetchPOFilesUpstreamToMem: error getting po file list from github.com");
+  size_t posLF = 0;
+  size_t posNextLF = 0;
 
-  Json::Value root;   // will contains the root value after parsing.
-  Json::Reader reader;
-  std::string lang, strVersion;
+  std::string sAXMLLForm = g_CharsetUtils.GetLFormFromPath(m_XMLResData.UPS.AXMLPath);
+  std::string sLForm = g_CharsetUtils.GetLFormFromPath(m_XMLResData.UPS.LPath);
+
+  std::string sVersion;
   std::set<std::string> listLangs;
 
-  bool parsingSuccessful = reader.parse(sJson, root );
-  if ( !parsingSuccessful )
-    CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid JSON data downloaded from Github");
-
-  const Json::Value JLangs = root;
-
-  for(Json::ValueIterator itr = JLangs.begin() ; itr !=JLangs.end() ; itr++)
+  while ((posNextLF = sFileList.find('\n', posLF)) != std::string::npos)
   {
-    Json::Value JValu = *itr;
-    std::string strType =JValu.get("type", "unknown").asString();
-    if (strType == "unknown")
-      CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid JSON data downloaded from Github");
-    else if (strType != "dir")
-      continue;
+    std::string sLine = sFileList.substr(posLF +1, posNextLF - posLF-1);
+    size_t posWS1, posWS2, posWS3;
+    posWS1 = sLine.find(' ');
+    posWS2 = sLine.find(' ', posWS1+1);
+    posWS3 = sLine.find('\t', posWS2+1);
 
-    lang =JValu.get("name", "unknown").asString();
-    if (lang == "unknown")
-      CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid JSON data downloaded from Github");
+    if (posWS1 == std::string::npos || posWS2 == std::string::npos || posWS3 == std::string::npos)
+      CLog::Log(logINFO, "ResHandler::GetAvailLangsGITHUB: Wrong file list format for local github clone filelist, for resource %s", m_XMLResData.sResName.c_str());
 
-    strVersion =JValu.get("sha", "unknown").asString();
-    if (strVersion == "unknown")
-      CLog::Log(logERROR, "CJSONHandler::ParseAvailLanguagesGITHUB: no valid sha JSON data downloaded from Github");
+    std::string sSHA = sLine.substr(posWS1 +1, posWS2 - posWS1);
+    std::string sReadPath = sLine.substr(posWS3 + 1);
 
-    std::string strMatchedLangalias = g_CharsetUtils.GetLangnameFromURL(lang, m_XMLResData.UPS.LURL, m_XMLResData.UPS.LForm);
-    std::string strFoundLangCode = g_LCodeHandler.GetLangCodeFromAlias(strMatchedLangalias, m_XMLResData.UPS.LForm);
-    if (strFoundLangCode != "")
+    posLF = posNextLF + 1;
+
+    if (!m_XMLResData.bHasOnlyAddonXML)
     {
-      listLangs.insert(strFoundLangCode);
-      std::string strURLforFile = m_XMLResData.UPS.LURL;
-      g_CharsetUtils.replaceAllStrParts(&strURLforFile, m_XMLResData.UPS.LForm, strMatchedLangalias);
-      g_Fileversion.SetVersionForURL(strURLforFile, strVersion);
-      if (m_XMLResData.bIsLangAddon)
+      //Get version of strings.po files
+      std::string sMatchedLangalias = g_CharsetUtils.GetLangnameFromPath(sReadPath,  m_XMLResData.UPS.LPath, sLForm);
+      std::string sFoundLangCode = g_LCodeHandler.GetLangCodeFromAlias(sMatchedLangalias, sLForm);
+
+      if (sFoundLangCode != "")
       {
-        std::string strURLforAddonFile = m_XMLResData.UPS.AXMLURL;
-        g_CharsetUtils.replaceAllStrParts(&strURLforAddonFile, m_XMLResData.UPS.LForm, strMatchedLangalias);
-        g_Fileversion.SetVersionForURL(strURLforAddonFile, strVersion);
+        listLangs.insert(sFoundLangCode);
+        CGITData GitData = m_XMLResData.UPS;
+        g_CharsetUtils.replaceAllStrParts(&GitData.LPath, sLForm, sMatchedLangalias);
+        g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + GitData.LPath, sSHA);
+        continue;
       }
     }
-  };
+    if (m_XMLResData.bIsLangAddon)
+    {
+      //If we have a language addon, we also check if there is any language name dependent addon.xml file
+      std::string sMatchedLangalias = g_CharsetUtils.GetLangnameFromPath(sReadPath, m_XMLResData.UPS.AXMLPath, sAXMLLForm);
+      std::string sFoundLangCode = g_LCodeHandler.GetLangCodeFromAlias(sMatchedLangalias, sAXMLLForm);
+      if (sFoundLangCode != "")
+      {
+        listLangs.insert(sFoundLangCode);
+        CGITData GitData = m_XMLResData.UPS;
+        g_CharsetUtils.replaceAllStrParts(&GitData.AXMLPath, sAXMLLForm, sMatchedLangalias);
+        g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + GitData.AXMLPath, sSHA);
+      }
+    }
+    else if (sReadPath == m_XMLResData.UPS.AXMLPath)
+    {
+      //Get version for addon.xml file
+      CGITData GitData = m_XMLResData.UPS;
+      g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + GitData.AXMLPath, sSHA);
+    }
+    else if (sReadPath == m_XMLResData.UPS.ChLogPath)
+    {
+      //Get version for changelog.txt file
+      CGITData GitData = m_XMLResData.UPS;
+      g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + GitData.ChLogPath, sSHA);
+    }
+  }
 
   return listLangs;
 };

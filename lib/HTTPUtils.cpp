@@ -502,6 +502,40 @@ std::string CHTTPHandler::CreateCacheFilename(const std::string& strURL, bool &b
   return sCacheFileName;
 }
 
+std::string CHTTPHandler::CreateCacheFilenameGitSource(const std::string& sBranch, bool &bCacheFileExists, bool &bCacheFileExpired)
+{
+  if (m_bSkipCache)
+    return "";
+
+  std::string sCacheFileName = m_strCacheDir;
+  if (!m_sFileLocation.empty())
+    sCacheFileName += m_sFileLocation + DirSepChar;
+  if (!m_sProjectName.empty())
+    sCacheFileName += m_sProjectName + DirSepChar;
+  if (!m_sResName.empty())
+    sCacheFileName += m_sResName + DirSepChar;
+
+  if (!m_sResName.empty() && m_bUseGitBranch)
+    sCacheFileName += sBranch + DirSepChar;
+
+  if (!m_sLCode.empty())
+    sCacheFileName += m_sLCode + DirSepChar;
+
+  if (m_bDataFile)
+    sCacheFileName += sCACHEDATADIRNAME + DirSepChar;
+
+  sCacheFileName += m_sFileName;
+
+  bCacheFileExists = g_File.FileExist(sCacheFileName);
+
+  size_t CacheFileAge = bCacheFileExists ? g_File.GetFileAge(sCacheFileName): -1; //in seconds
+  size_t MaxCacheFileAge = m_iHTTPCacheExp * 60; // in seconds
+
+  bCacheFileExpired = CacheFileAge > MaxCacheFileAge;
+
+  return sCacheFileName;
+}
+
 bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResdata& XMLResData, size_t &iAddedNew)
 {
 
@@ -849,4 +883,95 @@ void CHTTPHandler::GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitR
       }
     }
   }
+}
+
+
+std::string CHTTPHandler::GetGithubPathToSTR(const std::string& sUPSLocalPath, const CGITData& GitData, const std::string& sPath)
+{
+  m_sCacheFilenamePrevVersion = "";
+  bool bCacheFileExists, bCacheFileExpired;
+  std::string sGitHubRoot = GetGithubCloneRootPath(sUPSLocalPath, GitData);
+  std::string sCacheFileName = CreateCacheFilenameGitSource(GitData.Branch, bCacheFileExists, bCacheFileExpired);
+
+  std::string strBuffer, strCachedFileVersion, strWebFileVersion;
+
+  strWebFileVersion = g_Fileversion.GetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + sPath);
+
+  if (strWebFileVersion != "" && g_File.FileExist(sCacheFileName + ".version"))
+    strCachedFileVersion = g_File.ReadFileToStr(sCacheFileName + ".version");
+
+  bool bFileChangedOnWeb = strCachedFileVersion != strWebFileVersion;
+
+  if (!bCacheFileExists || (bCacheFileExpired && (strWebFileVersion == "" || bFileChangedOnWeb)))
+  {
+    printf("%s*%s", KGRN, RESET);
+    g_File.DeleteFile(sCacheFileName + ".version");
+    g_File.DeleteFile(sCacheFileName + ".time");
+
+    strBuffer = g_File.ReadFileToStr(sUPSLocalPath + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + sPath);
+
+    //Check if the changed file is an UPS one. In that case save previous version for later use,
+    //to  filter out deleted entries at Transifex and not re-adding them from UPS
+    if (m_sFileLocation == "UPS" && !m_bDataFile && bCacheFileExists && !g_File.FileExist(sCacheFileName + ".prev"))
+    {
+      g_File.CopyFile(sCacheFileName, sCacheFileName + ".prev");
+      g_File.CopyFile(sCacheFileName + ".time", sCacheFileName + ".time.prev");
+      g_File.CopyFile(sCacheFileName + ".version", sCacheFileName + ".version.prev");
+    }
+
+    if (!m_bSkipCache)
+      g_File.WriteFileFromStr(sCacheFileName, strBuffer);
+
+    if (strWebFileVersion != "")
+      g_File.WriteFileFromStr(sCacheFileName + ".version", strWebFileVersion);
+
+    g_File.WriteNowToFileAgeFile(sCacheFileName);
+  }
+  else
+  {
+    strBuffer = g_File.ReadFileToStr(sCacheFileName);
+    if (bCacheFileExpired)
+      printf ("%s-%s", KCYN, RESET);
+    else
+      printf ("%s.%s", KYEL, RESET);
+  }
+
+  //Check if we have a previous version stored in cache for the current fie
+   if (g_File.FileExist(sCacheFileName + ".prev"))
+     m_sCacheFilenamePrevVersion = sCacheFileName + ".prev";
+
+  return strBuffer;
+}
+
+
+std::string  CHTTPHandler::GetGitFileListToSTR(const std::string& sUPSLocalPath, const CGITData& GitData)
+{
+  bool bCacheFileExists, bCacheFileExpired;
+  std::string sGitHubRoot = GetGithubCloneRootPath(sUPSLocalPath, GitData);
+  std::string sCacheFileName = CreateCacheFilenameGitSource(GitData.Branch, bCacheFileExists, bCacheFileExpired);
+
+  std::string sGithubPathToList = "/" + g_CharsetUtils.GetRoot(GitData.AXMLPath, g_CharsetUtils.GetFilenameFromURL(GitData.AXMLPath));
+  size_t pos;
+  if ((pos = sGithubPathToList.find_last_of("(")) != std::string::npos)
+  {
+    //We have a language addon, so we list from onel vele higher than the addon.xml files
+    sGithubPathToList = sGithubPathToList.substr(0,pos);
+    sGithubPathToList = sGithubPathToList.substr(0, sGithubPathToList.find_last_of("/"));
+  }
+
+  std::string sCommand;
+
+  if (!bCacheFileExists || bCacheFileExpired)
+  {
+    //Git file list for this directory is outdated, generate a fresh one to cache
+    sCommand = "cd " + sGitHubRoot + ";";
+    sCommand += "git ls-files -s " + sGithubPathToList + " > " + sCacheFileName;
+    g_File.SytemCommand(sCommand);
+  }
+  return g_File.ReadFileToStr(sCacheFileName);
+}
+
+std::string CHTTPHandler::GetGithubCloneRootPath(const std::string& sUPSLocalPath, const CGITData& GitData)
+{
+  return sUPSLocalPath + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch;
 }
