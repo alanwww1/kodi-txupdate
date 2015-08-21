@@ -52,6 +52,7 @@ protected:
   bool ComparePOFiles(CPOHandler& POHandler1, CPOHandler& POHandler2);
   std::list<std::string> ParseAvailLanguagesTX(std::string strJSON, const std::string &strURL);
   std::set<std::string> GetAvailLangsGITHUB();
+  void GetSRCFilesGitData();
   std::list<std::string> CreateMergedLangList();
   bool FindUPSEntry(const std::string sLCode, CPOEntry &EntryToFind);
   bool FindPrevUPSEntry(const std::string sLCode, CPOEntry &EntryToFind);

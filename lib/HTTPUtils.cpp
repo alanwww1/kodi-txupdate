@@ -954,12 +954,17 @@ std::string  CHTTPHandler::GetGitFileListToSTR(const std::string& sUPSLocalPath,
   size_t pos;
   if ((pos = sGithubPathToList.find_last_of("(")) != std::string::npos)
   {
-    //We have a language addon, so we list from onel vele higher than the addon.xml files
+    //We have a language addon, so we list from one level higher than the addon.xml files
     sGithubPathToList = sGithubPathToList.substr(0,pos);
     sGithubPathToList = sGithubPathToList.substr(0, sGithubPathToList.find_last_of("/"));
   }
 
+  if (sGithubPathToList.find_first_of('/') == 0)
+    sGithubPathToList = sGithubPathToList.substr(1, sGithubPathToList.size()-1);
+
   std::string sCommand;
+
+  g_File.MakeDir(g_CharsetUtils.GetRoot(sCacheFileName, g_CharsetUtils.GetFilenameFromURL(sCacheFileName)));
 
   if (!bCacheFileExists || bCacheFileExpired)
   {

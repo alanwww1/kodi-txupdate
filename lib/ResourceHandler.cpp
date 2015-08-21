@@ -115,6 +115,12 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   printf(" GitDir");
   listLangsWithStringsPO = GetAvailLangsGITHUB();
 
+  if (m_XMLResData.bIsLangAddon)
+  {
+    GetSRCFilesGitData(); //Get version data for the SRC files reside at a different github repo
+    listLangsWithStringsPO.insert(m_XMLResData.sSRCLCode);
+  }
+
   m_AddonXMLHandler.FetchAddonDataFiles();
 
   listLangs = listLangsWithStringsPO;
@@ -636,6 +642,49 @@ std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
 
   return listLangs;
 };
+
+void CResourceHandler::GetSRCFilesGitData()
+{
+  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR(m_XMLResData.sUPSLocalPath, m_XMLResData.UPSSRC);
+
+  size_t posLF = 0;
+  size_t posNextLF = 0;
+
+  std::string sVersion;
+
+  std::string sLPathSRC = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.UPSSRC.LPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.UPSSRC.LPath), m_XMLResData.sSRCLCode);
+  std::string sLAXMLPathSRC = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.UPSSRC.AXMLPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.UPSSRC.AXMLPath), m_XMLResData.sSRCLCode);
+
+  while ((posNextLF = sFileList.find('\n', posLF)) != std::string::npos)
+  {
+    std::string sLine = sFileList.substr(posLF +1, posNextLF - posLF-1);
+    size_t posWS1, posWS2, posWS3;
+    posWS1 = sLine.find(' ');
+    posWS2 = sLine.find(' ', posWS1+1);
+    posWS3 = sLine.find('\t', posWS2+1);
+
+    if (posWS1 == std::string::npos || posWS2 == std::string::npos || posWS3 == std::string::npos)
+      CLog::Log(logINFO, "ResHandler::GetAvailLangsGITHUB: Wrong file list format for local github clone filelist, for resource %s", m_XMLResData.sResName.c_str());
+
+    std::string sSHA = sLine.substr(posWS1 +1, posWS2 - posWS1);
+    std::string sReadPath = sLine.substr(posWS3 + 1);
+
+    posLF = posNextLF + 1;
+
+    if (sReadPath == sLPathSRC)
+    {
+      //Set version for SRC strings.po
+      CGITData GitData = m_XMLResData.UPSSRC;
+      g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + sLPathSRC, sSHA);
+    }
+    else if (sReadPath == sLAXMLPathSRC)
+    {
+      //Set version for SRC language addon.xml
+      CGITData GitData = m_XMLResData.UPSSRC;
+      g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + sLAXMLPathSRC, sSHA);
+    }
+  }
+}
 
 std::list<std::string> CResourceHandler::CreateMergedLangList()
 {
