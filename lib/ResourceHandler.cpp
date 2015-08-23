@@ -156,7 +156,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
         GitData = m_XMLResData.UPSSRC;
 
       sLangXMLPath = g_CharsetUtils.ReplaceLanginURL (GitData.AXMLPath, g_CharsetUtils.GetLFormFromPath(GitData.AXMLPath), sLCode);
-      POHandler.FetchLangAddonXML(sLangXMLPath);
+      POHandler.FetchLangAddonXML(sLangXMLPath, GitData);
     }
 
     if (bLangHasStringsPO && bHasLanguageFiles) // Download language file from upstream for language sLCode
@@ -173,7 +173,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
       sLPath = g_CharsetUtils.ReplaceLanginURL (GitData.LPath, g_CharsetUtils.GetLFormFromPath(GitData.LPath), sLCode);
 
-      POHandler.FetchPOGitPathToMem(sLPath);
+      POHandler.FetchPOGitPathToMem(sLPath, GitData);
       bHasPreviousVersion = POHandler.GetIfItHasPrevLangVersion();
     }
 

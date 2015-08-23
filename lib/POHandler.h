@@ -92,11 +92,11 @@ public:
   void SetXMLReasData (const CXMLResdata& XMLResData) {m_XMLResData = XMLResData;}
   void SetLCode (const std::string& sLCode) {m_sLCode = sLCode;}
 
-  bool FetchPOGitPathToMem(std::string strURL);
+  bool FetchPOGitPathToMem(std::string strURL, CGITData& GitData);
   bool FetchPrevPOURLToMem ();
   bool FetchPOTXPathToMem (std::string sLPath);
 
-  void FetchLangAddonXML (const std::string &strURL);
+  void FetchLangAddonXML (const std::string &strURL, CGITData& GitData);
   void WriteLangAddonXML(const std::string &strPath);
   void GeneratePOFile();
   bool GetIfItHasPrevLangVersion(){return m_bIfItHasPrevLangVersion;}

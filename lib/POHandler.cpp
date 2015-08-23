@@ -88,10 +88,10 @@ CPOHandler::~CPOHandler()
 {};
 
 
-bool CPOHandler::FetchPOGitPathToMem (std::string sLPath)
+bool CPOHandler::FetchPOGitPathToMem (std::string sLPath, CGITData& GitData)
 {
   ClearVariables();
-  m_strBuffer = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, sLPath);
+  m_strBuffer = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, GitData, sLPath);
 
   //Pass bool to indicate that we did have a file for last download that changed, thus having a previous version saved
   m_bIfItHasPrevLangVersion = g_HTTPHandler.GetIfFileHasPrevVersion();
@@ -453,9 +453,9 @@ unsigned int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralSt
   return num;
 }
 
-void CPOHandler::FetchLangAddonXML(const std::string &sLAXMLPath)
+void CPOHandler::FetchLangAddonXML(const std::string &sLAXMLPath, CGITData& GitData)
 {
-  m_strLangAddonXML = g_HTTPHandler.GetGithubPathToSTR(m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, sLAXMLPath);
+  m_strLangAddonXML = g_HTTPHandler.GetGithubPathToSTR(m_XMLResData.sUPSLocalPath, GitData, sLAXMLPath);
   if (m_strLangAddonXML.empty())
     CLog::Log(logERROR, "CPOHandler::FetchLangAddonXML: http error reading XML file from url: %s", sLAXMLPath.c_str());
 }
