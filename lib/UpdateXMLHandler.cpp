@@ -37,6 +37,7 @@ CXMLResdata::CXMLResdata()
  bForceComm = false;
  bRebrand = false;
  bForceTXUpd = false;
+ bForceGitDloadToCache = false;
  bHasOnlyAddonXML = false;
  bIsLangAddon = false;
 }
@@ -277,6 +278,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "MinComplPercent")       ResData.iMinComplPercent = strtol(&sVal[0], NULL, 10);
   else if (sVar == "CacheExpire")           ResData.iCacheExpire = strtol(&sVal[0], NULL, 10);
   else if (sVar == "ForceComm")             ResData.bForceComm = (sVal == "true");
+  else if (sVar == "ForceGitDloadToCache")  ResData.bForceGitDloadToCache = (sVal == "true");
   else if (sVar == "Rebrand")               ResData.bRebrand = (sVal == "true");
   else if (sVar == "ForceTXUpd")            ResData.bForceTXUpd = (sVal == "true");
   else if (sVar == "IsLangAddon")           ResData.bIsLangAddon = (sVal == "true");
@@ -466,6 +468,7 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.bForceComm           = ResData.bForceComm;
   ResDataToStore.bRebrand             = ResData.bRebrand;
   ResDataToStore.bForceTXUpd          = ResData.bForceTXUpd;
+  ResDataToStore.bForceGitDloadToCache= ResData.bForceGitDloadToCache;
   ResDataToStore.bIsLangAddon         = ResData.bIsLangAddon;
   ResDataToStore.bHasOnlyAddonXML     = ResData.bHasOnlyAddonXML;
   ResDataToStore.m_pMapGitRepos       = ResData.m_pMapGitRepos;

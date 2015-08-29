@@ -87,6 +87,7 @@ public:
   bool bForceComm;
   bool bRebrand;
   bool bForceTXUpd;
+  bool bForceGitDloadToCache;
   std::map<std::string, CBasicGITData> * m_pMapGitRepos;
 };
 

@@ -91,6 +91,12 @@ int main(int argc, char* argv[])
     return 1;
   }
 
+  if (WorkingDir.find('/') != 0) //We have a relative path, make it absolute
+  {
+    std::string sCurrentPath = g_File.getcwd_string();
+    WorkingDir = sCurrentPath + "/" + WorkingDir;
+  }
+
   if (argc == 3)
   {
     if (argv[2])

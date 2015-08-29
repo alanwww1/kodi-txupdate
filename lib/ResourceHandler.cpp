@@ -645,7 +645,7 @@ std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
 
 void CResourceHandler::GetSRCFilesGitData()
 {
-  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR(m_XMLResData.sUPSLocalPath, m_XMLResData.UPSSRC);
+  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPSSRC);
 
   size_t posLF = 0;
   size_t posNextLF = 0;

@@ -414,3 +414,11 @@ void CFile::listFiles(string baseDir, bool recursive)
     closedir(dp);
   }
 }
+
+std::string CFile::getcwd_string()
+{
+ char buff[PATH_MAX];
+ getcwd( buff, PATH_MAX );
+ std::string cwd( buff );
+ return cwd;
+}

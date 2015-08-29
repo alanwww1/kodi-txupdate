@@ -67,7 +67,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   std::string strURL = m_XMLResData.UPS.AXMLURL;
   TiXmlDocument xmlAddonXML;
 
-  std::string sAXMLFile = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.UPS.AXMLPath);
+  std::string sAXMLFile = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.UPS.AXMLPath, m_XMLResData.bForceGitDloadToCache);
   if (sAXMLFile.empty())
     CLog::Log(logERROR, "CAddonXMLHandler::FetchAddonXMLFileUpstr: http error getting XML file from upstream url: %s", strURL.c_str());
 
@@ -418,7 +418,7 @@ bool CAddonXMLHandler::FetchAddonChangelogFile ()
   g_HTTPHandler.SetFileName("changelog.txt");
   g_HTTPHandler.SetDataFile(false);
 
-  std::string strChangelogFile = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.UPS.ChLogPath);
+  std::string strChangelogFile = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.UPS.ChLogPath, m_XMLResData.bForceGitDloadToCache);
 
   g_File.ConvertStrLineEnds(strChangelogFile);
 

@@ -886,16 +886,23 @@ void CHTTPHandler::GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitR
 }
 
 
-std::string CHTTPHandler::GetGithubPathToSTR(const std::string& sUPSLocalPath, const CGITData& GitData, const std::string& sPath)
+std::string CHTTPHandler::GetGithubPathToSTR(const std::string& sUPSLocalPath, const CGITData& GitData, const std::string& sPath, bool bForceGitDload)
 {
   m_sCacheFilenamePrevVersion = "";
   bool bCacheFileExists, bCacheFileExpired;
   std::string sGitHubRoot = GetGithubCloneRootPath(sUPSLocalPath, GitData);
   std::string sCacheFileName = CreateCacheFilenameGitSource(GitData.Branch, bCacheFileExists, bCacheFileExpired);
 
+  if (bForceGitDload)
+    bCacheFileExpired = true; //If we have this option enabled, we consider the cache always outdated
+
   std::string strBuffer, strCachedFileVersion, strWebFileVersion;
 
   strWebFileVersion = g_Fileversion.GetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + sPath);
+
+  if (strWebFileVersion == "")
+    CLog::Log(logERROR, "HTTPHandler::GetGithubPathToSTR finished with error. Unknown git sha version for file: %s/%s/%s/%s", GitData.Owner.c_str(),
+              GitData.Repo.c_str(), GitData.Branch.c_str(), sPath.c_str());
 
   if (strWebFileVersion != "" && g_File.FileExist(sCacheFileName + ".version"))
     strCachedFileVersion = g_File.ReadFileToStr(sCacheFileName + ".version");
@@ -969,7 +976,7 @@ std::string  CHTTPHandler::GetGitFileListToSTR(const std::string& sUPSLocalPath,
   if (!bCacheFileExists || bCacheFileExpired)
   {
     //Git file list for this directory is outdated, generate a fresh one to cache
-    sCommand = "cd " + sGitHubRoot + ";";
+    sCommand += "cd " + sGitHubRoot + ";";
     sCommand += "git ls-files -s " + sGithubPathToList + " > " + sCacheFileName;
     g_File.SytemCommand(sCommand);
   }

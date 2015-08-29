@@ -71,6 +71,7 @@ public:
   void SytemCommand (const std::string &strCommand);
   bool isDir(std::string dir);
   void listFiles(std::string baseDir, bool recursive);
+  std::string getcwd_string();
 };
 
 extern CFile g_File;

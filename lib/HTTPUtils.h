@@ -76,7 +76,7 @@ public:
   std::string GetCurrentGitrevision(const std::string& sGitRootPath, const std::string& sBranch);
   std::string GetCurrentGitBranch(const std::string& sGitRootPath);
   void GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitRepos);
-  std::string GetGithubPathToSTR(const std::string& sUPSLocalPath, const CGITData& GitData, const std::string& sPath);
+  std::string GetGithubPathToSTR(const std::string& sUPSLocalPath, const CGITData& GitData, const std::string& sPath, bool bForceGitDload);
   std::string GetGitFileListToSTR(const std::string& sUPSLocalPath, const CGITData& GitData);
 
   //Cache filename generations related settings
