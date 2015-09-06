@@ -179,7 +179,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "LOCRepo")               ResData.LOC.Repo = sVal;
   else if (sVar == "LOCBranch")             ResData.LOC.Branch = sVal;
 
-  else if (sVar == "LOCLpath")              ResData.LOC.LPath = sVal;
+  else if (sVar == "LOCLPath")              ResData.LOC.LPath = sVal;
   else if (sVar == "LOCLForm")              ResData.LOC.LForm = sVal;
   else if (sVar == "LOCAXMLPath")           ResData.LOC.AXMLPath = sVal;
   else if (sVar == "LOCLFormInAXML")        ResData.LOC.LFormInAXML = sVal;
@@ -187,7 +187,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "LOCLAXMLFormat")        ResData.LOC.LAXMLForm = sVal;
   else if (sVar == "LOCChLogPath")          ResData.LOC.ChLogPath = sVal;
 
-  else if (sVar == "MRGLpath")              ResData.MRG.LPath = sVal;
+  else if (sVar == "MRGLPath")              ResData.MRG.LPath = sVal;
   else if (sVar == "MRGLForm")              ResData.MRG.LForm = sVal;
   else if (sVar == "MRGAXMLPath")           ResData.MRG.AXMLPath = sVal;
   else if (sVar == "MRGLFormInAXML")        ResData.MRG.LFormInAXML = sVal;

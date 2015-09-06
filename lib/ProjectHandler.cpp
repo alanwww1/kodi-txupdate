@@ -144,10 +144,10 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CLog::IncIdent(4);
 
     std::string sMergedLangDir = XMLResData.sProjRootDir + DirSepChar + XMLResData.sMRGLFilesDir + DirSepChar;
-    std::string sAddonXMLPath = sMergedLangDir + XMLResData.LOC.AXMLURL;
-    std::string sChangeLogPath =  sMergedLangDir + XMLResData.LOC.ChLogURL;
-    std::string sLangPath  = sMergedLangDir + XMLResData.LOC.LURL;
-    std::string sLangAddonXMLPath = sMergedLangDir + XMLResData.LOC.AXMLURL;
+    std::string sAddonXMLPath = sMergedLangDir + XMLResData.MRG.AXMLPath;
+    std::string sChangeLogPath =  sMergedLangDir + XMLResData.MRG.ChLogPath;
+    std::string sLangPath  = sMergedLangDir + XMLResData.MRG.LPath;
+    std::string sLangAddonXMLPath = sMergedLangDir + XMLResData.MRG.AXMLPath;
     ResHandler.GenerateMergedPOFiles ();
     ResHandler.WriteMergedPOFiles (sAddonXMLPath, sLangAddonXMLPath, sChangeLogPath, sLangPath);
 
