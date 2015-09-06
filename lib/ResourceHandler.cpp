@@ -144,6 +144,9 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     g_HTTPHandler.SetLCode(sLCode);
     bool bHasPreviousVersion = false;
 
+    if (bLangHasStringsPO && bHasLanguageFiles)
+      printf (" %s", sLCode.c_str());
+
     if (bLangHasStringsPO && bHasLanguageFiles && m_XMLResData.bIsLangAddon) // Download individual addon.xml files for language-addons
     {
       g_HTTPHandler.SetFileName("addon.xml");
@@ -162,7 +165,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     if (bLangHasStringsPO && bHasLanguageFiles) // Download language file from upstream for language sLCode
     {
       g_HTTPHandler.SetFileName("strings.po");
-      printf (" %s", sLCode.c_str());
+
       std::string sLPath;
       CGITData GitData;
 
@@ -571,7 +574,7 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
 
 std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
 {
-  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR(m_XMLResData.sUPSLocalPath, m_XMLResData.UPS);
+  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR(m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.bForceGitDloadToCache);
 
   size_t posLF = 0;
   size_t posNextLF = 0;
@@ -645,7 +648,7 @@ std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
 
 void CResourceHandler::GetSRCFilesGitData()
 {
-  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPSSRC);
+  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPSSRC, m_XMLResData.bForceGitDloadToCache);
 
   size_t posLF = 0;
   size_t posNextLF = 0;

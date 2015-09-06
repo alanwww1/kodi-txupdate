@@ -38,6 +38,7 @@ CXMLResdata::CXMLResdata()
  bRebrand = false;
  bForceTXUpd = false;
  bForceGitDloadToCache = false;
+ bSkipGitReset = false;
  bHasOnlyAddonXML = false;
  bIsLangAddon = false;
 }
@@ -186,6 +187,14 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "LOCLAXMLFormat")        ResData.LOC.LAXMLForm = sVal;
   else if (sVar == "LOCChLogPath")          ResData.LOC.ChLogPath = sVal;
 
+  else if (sVar == "MRGLpath")              ResData.MRG.LPath = sVal;
+  else if (sVar == "MRGLForm")              ResData.MRG.LForm = sVal;
+  else if (sVar == "MRGAXMLPath")           ResData.MRG.AXMLPath = sVal;
+  else if (sVar == "MRGLFormInAXML")        ResData.MRG.LFormInAXML = sVal;
+  else if (sVar == "MRGLAXMLPath")          ResData.MRG.LAXMLPath = sVal;
+  else if (sVar == "MRGLAXMLFormat")        ResData.MRG.LAXMLForm = sVal;
+  else if (sVar == "MRGChLogPath")          ResData.MRG.ChLogPath = sVal;
+
   else if (sVar == "UPSSRCOwner")           ResData.UPSSRC.Owner = sVal;
   else if (sVar == "UPSSRCRepo")            ResData.UPSSRC.Repo = sVal;
   else if (sVar == "UPSSRCBranch")          ResData.UPSSRC.Branch = sVal;
@@ -279,6 +288,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "CacheExpire")           ResData.iCacheExpire = strtol(&sVal[0], NULL, 10);
   else if (sVar == "ForceComm")             ResData.bForceComm = (sVal == "true");
   else if (sVar == "ForceGitDloadToCache")  ResData.bForceGitDloadToCache = (sVal == "true");
+  else if (sVar == "SkipGitReset")          ResData.bSkipGitReset = (sVal == "true");
   else if (sVar == "Rebrand")               ResData.bRebrand = (sVal == "true");
   else if (sVar == "ForceTXUpd")            ResData.bForceTXUpd = (sVal == "true");
   else if (sVar == "IsLangAddon")           ResData.bIsLangAddon = (sVal == "true");
@@ -373,6 +383,14 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.LOC.LAXMLPath        = ReplaceResName(ResData.LOC.LAXMLPath, ResDataToStore);
   ResDataToStore.LOC.LAXMLForm        = ReplaceResName(ResData.LOC.LAXMLForm, ResDataToStore);
   ResDataToStore.LOC.ChLogPath        = ReplaceResName(ResData.LOC.ChLogPath, ResDataToStore);
+
+  ResDataToStore.MRG.LPath            = ReplaceResName(ResData.MRG.LPath, ResDataToStore);
+  ResDataToStore.MRG.LForm            = ReplaceResName(ResData.MRG.LForm, ResDataToStore);
+  ResDataToStore.MRG.AXMLPath         = ReplaceResName(ResData.MRG.AXMLPath, ResDataToStore);
+  ResDataToStore.MRG.LFormInAXML      = ReplaceResName(ResData.MRG.LFormInAXML, ResDataToStore);
+  ResDataToStore.MRG.LAXMLPath        = ReplaceResName(ResData.MRG.LAXMLPath, ResDataToStore);
+  ResDataToStore.MRG.LAXMLForm        = ReplaceResName(ResData.MRG.LAXMLForm, ResDataToStore);
+  ResDataToStore.MRG.ChLogPath        = ReplaceResName(ResData.MRG.ChLogPath, ResDataToStore);
 
   ResDataToStore.UPSSRC.Owner         = ReplaceResName(ResData.UPSSRC.Owner, ResDataToStore);
   ResDataToStore.UPSSRC.Repo          = ReplaceResName(ResData.UPSSRC.Repo, ResDataToStore);
@@ -469,6 +487,7 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.bRebrand             = ResData.bRebrand;
   ResDataToStore.bForceTXUpd          = ResData.bForceTXUpd;
   ResDataToStore.bForceGitDloadToCache= ResData.bForceGitDloadToCache;
+  ResDataToStore.bSkipGitReset        = ResData.bSkipGitReset;
   ResDataToStore.bIsLangAddon         = ResData.bIsLangAddon;
   ResDataToStore.bHasOnlyAddonXML     = ResData.bHasOnlyAddonXML;
   ResDataToStore.m_pMapGitRepos       = ResData.m_pMapGitRepos;

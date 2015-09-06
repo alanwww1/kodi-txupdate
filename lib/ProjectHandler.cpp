@@ -98,7 +98,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 
 bool CProjectHandler::FetchResourcesFromUpstream()
 {
-  g_HTTPHandler.GITPullUPSRepos(m_MapGitRepos);
+  g_HTTPHandler.GITPullUPSRepos(m_MapGitRepos, m_mapResData.begin()->second.bSkipGitReset);
 
   for (std::map<std::string, CXMLResdata>::iterator it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {

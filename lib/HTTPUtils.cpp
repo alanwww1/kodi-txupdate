@@ -823,7 +823,7 @@ std::string CHTTPHandler::GetCurrentGitBranch(const std::string& sGitRootPath)
   return sHead.substr(16, posLF-16);
 }
 
-void CHTTPHandler::GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitRepos)
+void CHTTPHandler::GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitRepos, bool bSkipGitReset)
 {
   std::string sCommand;
   for (std::map<std::string, CBasicGITData>::iterator it = MapGitRepos.begin(); it != MapGitRepos.end(); it++)
@@ -849,7 +849,7 @@ void CHTTPHandler::GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitR
       printf("%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
       g_File.SytemCommand(sCommand);
     }
-    else
+    else if (!bSkipGitReset)
     {
       // We have an existing git repo. Let's clean it and update if necesarry
       printf("\n");
@@ -951,11 +951,20 @@ std::string CHTTPHandler::GetGithubPathToSTR(const std::string& sUPSLocalPath, c
 }
 
 
-std::string  CHTTPHandler::GetGitFileListToSTR(const std::string& sUPSLocalPath, const CGITData& GitData)
+std::string  CHTTPHandler::GetGitFileListToSTR(const std::string& sUPSLocalPath, const CGITData& GitData, bool bForceGitDload)
 {
   bool bCacheFileExists, bCacheFileExpired;
   std::string sGitHubRoot = GetGithubCloneRootPath(sUPSLocalPath, GitData);
   std::string sCacheFileName = CreateCacheFilenameGitSource(GitData.Branch, bCacheFileExists, bCacheFileExpired);
+
+  if (bForceGitDload)
+    bCacheFileExpired = true; //If we have this option enabled, we consider the cache for the filelist file always outdated
+
+
+  if (bCacheFileExpired || !bCacheFileExists)
+    printf("%s*%s", KGRN, RESET);
+  else
+    printf ("%s.%s", KYEL, RESET);
 
   std::string sGithubPathToList = "/" + g_CharsetUtils.GetRoot(GitData.AXMLPath, g_CharsetUtils.GetFilenameFromURL(GitData.AXMLPath));
   size_t pos;

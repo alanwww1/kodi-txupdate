@@ -67,6 +67,7 @@ public:
   //NEW
   CGITData UPS, UPSSRC;
   CGITData LOC, LOCSRC;
+  CGITData MRG;
   CTRXData TRX, UPD;
 
   std::string sChgLogFormat;
@@ -88,6 +89,7 @@ public:
   bool bRebrand;
   bool bForceTXUpd;
   bool bForceGitDloadToCache;
+  bool bSkipGitReset;
   std::map<std::string, CBasicGITData> * m_pMapGitRepos;
 };
 

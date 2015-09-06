@@ -75,9 +75,9 @@ public:
   bool UploadTranslatorsDatabase(std::string strJson, std::string strURL);
   std::string GetCurrentGitrevision(const std::string& sGitRootPath, const std::string& sBranch);
   std::string GetCurrentGitBranch(const std::string& sGitRootPath);
-  void GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitRepos);
+  void GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitRepos, bool bSkipGitReset);
   std::string GetGithubPathToSTR(const std::string& sUPSLocalPath, const CGITData& GitData, const std::string& sPath, bool bForceGitDload);
-  std::string GetGitFileListToSTR(const std::string& sUPSLocalPath, const CGITData& GitData);
+  std::string GetGitFileListToSTR(const std::string& sUPSLocalPath, const CGITData& GitData, bool bForceGitDload);
 
   //Cache filename generations related settings
   void SetResName (const std::string& sResName) {m_sResName = sResName;}
