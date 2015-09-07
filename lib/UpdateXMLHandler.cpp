@@ -220,7 +220,6 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "LOCSRCChLogPath")       ResData.LOCSRC.ChLogPath = sVal;
 
 //To be deleted
-  else if (sVar == "UPSLURL")               ResData.UPS.LURL = sVal;
   else if (sVar == "UPSLURLRoot")           ResData.UPS.LURLRoot = sVal;
   else if (sVar == "UPSAXMLURL")            ResData.UPS.AXMLURL = sVal;
   else if (sVar == "UPSAXMLURLRoot")        ResData.UPS.AXMLURLRoot = sVal;
@@ -230,7 +229,6 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "UPSChLogURLRoot")       ResData.UPS.ChLogURLRoot = sVal;
   else if (sVar == "UPSChLogName")          ResData.UPS.ChLogName = sVal;
 
-  else if (sVar == "LOCLURL")               ResData.LOC.LURL = sVal;
   else if (sVar == "LOCLURLRoot")           ResData.LOC.LURLRoot = sVal;
   else if (sVar == "LOCAXMLURL")            ResData.LOC.AXMLURL = sVal;
   else if (sVar == "LOCAXMLURLRoot")        ResData.LOC.AXMLURLRoot = sVal;
@@ -240,7 +238,6 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "LOCChLogURLRoot")       ResData.LOC.ChLogURLRoot = sVal;
   else if (sVar == "LOCChLogName")          ResData.LOC.ChLogName = sVal;
 
-  else if (sVar == "UPSSRCLURL")            ResData.UPSSRC.LURL = sVal;
   else if (sVar == "UPSSRCLURLRoot")        ResData.UPSSRC.LURLRoot = sVal;
   else if (sVar == "UPSSRCAXMLURL")         ResData.UPSSRC.AXMLURL = sVal;
   else if (sVar == "UPSSRCAXMLURLRoot")     ResData.UPSSRC.AXMLURLRoot = sVal;
@@ -250,7 +247,6 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "UPSSRCChLogURLRoot")    ResData.UPSSRC.ChLogURLRoot = sVal;
   else if (sVar == "UPSSRCChLogName")       ResData.UPSSRC.ChLogName = sVal;
 
-  else if (sVar == "LOCSRCLURL")            ResData.LOCSRC.LURL = sVal;
   else if (sVar == "LOCSRCLURLRoot")        ResData.LOCSRC.LURLRoot = sVal;
   else if (sVar == "LOCSRCAXMLURL")         ResData.LOCSRC.AXMLURL = sVal;
   else if (sVar == "LOCSRCAXMLURLRoot")     ResData.LOCSRC.AXMLURLRoot = sVal;
@@ -417,7 +413,6 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.LOCSRC.ChLogPath     = ReplaceResName(ResData.LOCSRC.ChLogPath, ResDataToStore);
 
 //To be deleted
-  ResDataToStore.UPS.LURL             = ReplaceResName(ResData.UPS.LURL, ResDataToStore);
   ResDataToStore.UPS.LURLRoot         = ReplaceResName(ResData.UPS.LURLRoot, ResDataToStore);
   ResDataToStore.UPS.AXMLURL          = ReplaceResName(ResData.UPS.AXMLURL, ResDataToStore);
   ResDataToStore.UPS.AXMLURLRoot      = ReplaceResName(ResData.UPS.AXMLURLRoot, ResDataToStore);
@@ -427,7 +422,6 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.UPS.ChLogURLRoot     = ReplaceResName(ResData.UPS.ChLogURLRoot, ResDataToStore);
   ResDataToStore.UPS.ChLogName        = ReplaceResName(ResData.UPS.ChLogName, ResDataToStore);
 
-  ResDataToStore.LOC.LURL             = ReplaceResName(ResData.LOC.LURL, ResDataToStore);
   ResDataToStore.LOC.LURLRoot         = ReplaceResName(ResData.LOC.LURLRoot, ResDataToStore);
   ResDataToStore.LOC.AXMLURL          = ReplaceResName(ResData.LOC.AXMLURL, ResDataToStore);
   ResDataToStore.LOC.AXMLURLRoot      = ReplaceResName(ResData.LOC.AXMLURLRoot, ResDataToStore);
@@ -437,7 +431,6 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.LOC.ChLogURLRoot     = ReplaceResName(ResData.LOC.ChLogURLRoot, ResDataToStore);
   ResDataToStore.LOC.ChLogName        = ReplaceResName(ResData.LOC.ChLogName, ResDataToStore);
 
-  ResDataToStore.UPSSRC.LURL          = ReplaceResName(ResData.UPSSRC.LURL, ResDataToStore);
   ResDataToStore.UPSSRC.LURLRoot      = ReplaceResName(ResData.UPSSRC.LURLRoot, ResDataToStore);
   ResDataToStore.UPSSRC.AXMLURL       = ReplaceResName(ResData.UPSSRC.AXMLURL, ResDataToStore);
   ResDataToStore.UPSSRC.AXMLURLRoot   = ReplaceResName(ResData.UPSSRC.AXMLURLRoot, ResDataToStore);
@@ -447,7 +440,6 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.UPSSRC.ChLogURLRoot  = ReplaceResName(ResData.UPSSRC.ChLogURLRoot, ResDataToStore);
   ResDataToStore.UPSSRC.ChLogName     = ReplaceResName(ResData.UPSSRC.ChLogName, ResDataToStore);
 
-  ResDataToStore.LOCSRC.LURL          = ReplaceResName(ResData.LOCSRC.LURL, ResDataToStore);
   ResDataToStore.LOCSRC.LURLRoot      = ReplaceResName(ResData.LOCSRC.LURLRoot, ResDataToStore);
   ResDataToStore.LOCSRC.AXMLURL       = ReplaceResName(ResData.LOCSRC.AXMLURL, ResDataToStore);
   ResDataToStore.LOCSRC.AXMLURLRoot   = ReplaceResName(ResData.LOCSRC.AXMLURLRoot, ResDataToStore);

@@ -64,12 +64,11 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   g_HTTPHandler.SetFileName("addon.xml");
   g_HTTPHandler.SetDataFile(false);
 
-  std::string strURL = m_XMLResData.UPS.AXMLURL;
   TiXmlDocument xmlAddonXML;
 
   std::string sAXMLFile = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.UPS.AXMLPath, m_XMLResData.bForceGitDloadToCache);
   if (sAXMLFile.empty())
-    CLog::Log(logERROR, "CAddonXMLHandler::FetchAddonXMLFileUpstr: http error getting XML file from upstream url: %s", strURL.c_str());
+    CLog::Log(logERROR, "CAddonXMLHandler::FetchAddonXMLFileUpstr: http error getting XML file from upstream url: %s", m_XMLResData.UPS.AXMLPath.c_str());
 
   g_File.ConvertStrLineEnds(sAXMLFile);
 
@@ -77,11 +76,10 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
 
   if (!xmlAddonXML.Parse(m_strAddonXMLFile.c_str(), 0, TIXML_DEFAULT_ENCODING))
   {
-    CLog::Log(logERROR, "AddonXMLHandler: AddonXML file problem: %s %s\n", xmlAddonXML.ErrorDesc(), strURL.c_str());
+    CLog::Log(logERROR, "AddonXMLHandler: AddonXML file problem: %s %s\n", xmlAddonXML.ErrorDesc(), m_XMLResData.UPS.AXMLPath.c_str());
     return false;
   }
 
-  std::string AddonXMLFilename = m_XMLResData.UPS.AXMLURL;
   std::string addonXMLEncoding;
   m_strResourceData.clear();
 
@@ -92,7 +90,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   if (!pRootElement || pRootElement->NoChildren() || pRootElement->ValueTStr()!="addon")
   {
     CLog::Log(logERROR, "AddonXMLHandler: No root element called: \"addon\" or no child found in AddonXML file: %s\n",
-            AddonXMLFilename.c_str());
+            m_XMLResData.UPS.AXMLPath.c_str());
     return false;
   }
   const char* pMainAttrId = NULL;
@@ -101,7 +99,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   m_strResourceData += "# Addon Name: ";
   if (!pMainAttrId)
   {
-    CLog::Log(logWARNING, "AddonXMLHandler: No addon name was available in addon.xml file: %s\n", AddonXMLFilename.c_str());
+    CLog::Log(logWARNING, "AddonXMLHandler: No addon name was available in addon.xml file: %s\n", m_XMLResData.UPS.AXMLPath.c_str());
     m_strResourceData += "kodi-unnamed\n";
   }
   else
@@ -111,7 +109,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   m_strResourceData += "# Addon id: ";
   if (!pMainAttrId)
   {
-    CLog::Log(logWARNING, "AddonXMLHandler: No addon name was available in addon.xml file: %s\n", AddonXMLFilename.c_str());
+    CLog::Log(logWARNING, "AddonXMLHandler: No addon name was available in addon.xml file: %s\n", m_XMLResData.UPS.AXMLPath.c_str());
     m_strResourceData +=  "unknown\n";
   }
   else
@@ -120,7 +118,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   pMainAttrId=pRootElement->Attribute("version");
   if (!pMainAttrId)
   {
-    CLog::Log(logWARNING, "AddonXMLHandler: No version name was available in addon.xml file: %s\n", AddonXMLFilename.c_str());
+    CLog::Log(logWARNING, "AddonXMLHandler: No version name was available in addon.xml file: %s\n", m_XMLResData.UPS.AXMLPath.c_str());
     m_strAddonVersion = "0.0.1";
   }
   else
@@ -133,7 +131,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   m_strResourceData += "# Addon Provider: ";
   if (!pMainAttrId)
   {
-    CLog::Log(logWARNING, "AddonXMLHandler: Warning: No addon provider was available in addon.xml file: %s\n", AddonXMLFilename.c_str());
+    CLog::Log(logWARNING, "AddonXMLHandler: Warning: No addon provider was available in addon.xml file: %s\n", m_XMLResData.UPS.AXMLPath.c_str());
     m_strResourceData += "unknown\n";
   }
   else

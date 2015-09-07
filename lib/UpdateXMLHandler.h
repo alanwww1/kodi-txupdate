@@ -42,7 +42,7 @@ struct CGITData
   std::string LAXMLPath, LAXMLForm;
   std::string ChLogPath;
   // To be deleted:
-  std::string LURL, LURLRoot;
+  std::string LURLRoot;
   std::string AXMLURL, AXMLURLRoot, ALForm;
   std::string AXMLFileName;
   std::string ChLogURL, ChLogURLRoot, ChLogName;
