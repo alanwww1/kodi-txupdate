@@ -62,7 +62,6 @@ protected:
   bool GetEncoding(const TiXmlDocument* pDoc, std::string& strEncoding);
   void BumpVersionNumber();
   void UpdateVersionNumber();
-  void ParseAddonXMLVersionGITHUB(const std::string &strJSON);
   std::string CstrToString(const char * StrToEscape);
   std::string GetXMLEntry (std::string const &strprefix, size_t &pos1, size_t &pos2);
 

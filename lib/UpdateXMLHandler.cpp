@@ -219,45 +219,6 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "LOCSRCLAXMLFormat")     ResData.LOCSRC.LAXMLForm = sVal;
   else if (sVar == "LOCSRCChLogPath")       ResData.LOCSRC.ChLogPath = sVal;
 
-//To be deleted
-  else if (sVar == "UPSLURLRoot")           ResData.UPS.LURLRoot = sVal;
-  else if (sVar == "UPSAXMLURL")            ResData.UPS.AXMLURL = sVal;
-  else if (sVar == "UPSAXMLURLRoot")        ResData.UPS.AXMLURLRoot = sVal;
-  else if (sVar == "UPSALForm")             ResData.UPS.ALForm = sVal;
-  else if (sVar == "UPSAXMLFileName")       ResData.UPS.AXMLFileName = sVal;
-  else if (sVar == "UPSChLogURL")           ResData.UPS.ChLogURL = sVal;
-  else if (sVar == "UPSChLogURLRoot")       ResData.UPS.ChLogURLRoot = sVal;
-  else if (sVar == "UPSChLogName")          ResData.UPS.ChLogName = sVal;
-
-  else if (sVar == "LOCLURLRoot")           ResData.LOC.LURLRoot = sVal;
-  else if (sVar == "LOCAXMLURL")            ResData.LOC.AXMLURL = sVal;
-  else if (sVar == "LOCAXMLURLRoot")        ResData.LOC.AXMLURLRoot = sVal;
-  else if (sVar == "LOCALForm")             ResData.LOC.ALForm = sVal;
-  else if (sVar == "LOCAXMLFileName")       ResData.LOC.AXMLFileName = sVal;
-  else if (sVar == "LOCChLogURL")           ResData.LOC.ChLogURL = sVal;
-  else if (sVar == "LOCChLogURLRoot")       ResData.LOC.ChLogURLRoot = sVal;
-  else if (sVar == "LOCChLogName")          ResData.LOC.ChLogName = sVal;
-
-  else if (sVar == "UPSSRCLURLRoot")        ResData.UPSSRC.LURLRoot = sVal;
-  else if (sVar == "UPSSRCAXMLURL")         ResData.UPSSRC.AXMLURL = sVal;
-  else if (sVar == "UPSSRCAXMLURLRoot")     ResData.UPSSRC.AXMLURLRoot = sVal;
-  else if (sVar == "UPSSRCALForm")          ResData.UPSSRC.ALForm = sVal;
-  else if (sVar == "UPSSRCAXMLFileName")    ResData.UPSSRC.AXMLFileName = sVal;
-  else if (sVar == "UPSSRCChLogURL")        ResData.UPSSRC.ChLogURL = sVal;
-  else if (sVar == "UPSSRCChLogURLRoot")    ResData.UPSSRC.ChLogURLRoot = sVal;
-  else if (sVar == "UPSSRCChLogName")       ResData.UPSSRC.ChLogName = sVal;
-
-  else if (sVar == "LOCSRCLURLRoot")        ResData.LOCSRC.LURLRoot = sVal;
-  else if (sVar == "LOCSRCAXMLURL")         ResData.LOCSRC.AXMLURL = sVal;
-  else if (sVar == "LOCSRCAXMLURLRoot")     ResData.LOCSRC.AXMLURLRoot = sVal;
-  else if (sVar == "LOCSRCALForm")          ResData.LOCSRC.ALForm = sVal;
-  else if (sVar == "LOCSRCAXMLFileName")    ResData.LOCSRC.AXMLFileName = sVal;
-  else if (sVar == "LOCSRCChLogURL")        ResData.LOCSRC.ChLogURL = sVal;
-  else if (sVar == "LOCSRCChLogURLRoot")    ResData.LOCSRC.ChLogURLRoot = sVal;
-  else if (sVar == "LOCSRCChLogName")       ResData.LOCSRC.ChLogName = sVal;
-
-//
-
   else if (sVar == "TRXProjectName")        ResData.TRX.ProjectName = sVal;
   else if (sVar == "TRXLongProjectName")    ResData.TRX.LongProjectName = sVal;
   else if (sVar == "TRXResName")            ResData.TRX.ResName = sVal;
@@ -411,45 +372,6 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.LOCSRC.LAXMLPath     = ReplaceResName(ResData.LOCSRC.LAXMLPath, ResDataToStore);
   ResDataToStore.LOCSRC.LAXMLForm     = ReplaceResName(ResData.LOCSRC.LAXMLForm, ResDataToStore);
   ResDataToStore.LOCSRC.ChLogPath     = ReplaceResName(ResData.LOCSRC.ChLogPath, ResDataToStore);
-
-//To be deleted
-  ResDataToStore.UPS.LURLRoot         = ReplaceResName(ResData.UPS.LURLRoot, ResDataToStore);
-  ResDataToStore.UPS.AXMLURL          = ReplaceResName(ResData.UPS.AXMLURL, ResDataToStore);
-  ResDataToStore.UPS.AXMLURLRoot      = ReplaceResName(ResData.UPS.AXMLURLRoot, ResDataToStore);
-  ResDataToStore.UPS.ALForm           = ReplaceResName(ResData.UPS.ALForm, ResDataToStore);
-  ResDataToStore.UPS.AXMLFileName     = ReplaceResName(ResData.UPS.AXMLFileName, ResDataToStore);
-  ResDataToStore.UPS.ChLogURL         = ReplaceResName(ResData.UPS.ChLogURL, ResDataToStore);
-  ResDataToStore.UPS.ChLogURLRoot     = ReplaceResName(ResData.UPS.ChLogURLRoot, ResDataToStore);
-  ResDataToStore.UPS.ChLogName        = ReplaceResName(ResData.UPS.ChLogName, ResDataToStore);
-
-  ResDataToStore.LOC.LURLRoot         = ReplaceResName(ResData.LOC.LURLRoot, ResDataToStore);
-  ResDataToStore.LOC.AXMLURL          = ReplaceResName(ResData.LOC.AXMLURL, ResDataToStore);
-  ResDataToStore.LOC.AXMLURLRoot      = ReplaceResName(ResData.LOC.AXMLURLRoot, ResDataToStore);
-  ResDataToStore.LOC.ALForm           = ReplaceResName(ResData.LOC.ALForm, ResDataToStore);
-  ResDataToStore.LOC.AXMLFileName     = ReplaceResName(ResData.LOC.AXMLFileName, ResDataToStore);
-  ResDataToStore.LOC.ChLogURL         = ReplaceResName(ResData.LOC.ChLogURL, ResDataToStore);
-  ResDataToStore.LOC.ChLogURLRoot     = ReplaceResName(ResData.LOC.ChLogURLRoot, ResDataToStore);
-  ResDataToStore.LOC.ChLogName        = ReplaceResName(ResData.LOC.ChLogName, ResDataToStore);
-
-  ResDataToStore.UPSSRC.LURLRoot      = ReplaceResName(ResData.UPSSRC.LURLRoot, ResDataToStore);
-  ResDataToStore.UPSSRC.AXMLURL       = ReplaceResName(ResData.UPSSRC.AXMLURL, ResDataToStore);
-  ResDataToStore.UPSSRC.AXMLURLRoot   = ReplaceResName(ResData.UPSSRC.AXMLURLRoot, ResDataToStore);
-  ResDataToStore.UPSSRC.ALForm        = ReplaceResName(ResData.UPSSRC.ALForm, ResDataToStore);
-  ResDataToStore.UPSSRC.AXMLFileName  = ReplaceResName(ResData.UPSSRC.AXMLFileName, ResDataToStore);
-  ResDataToStore.UPSSRC.ChLogURL      = ReplaceResName(ResData.UPSSRC.ChLogURL, ResDataToStore);
-  ResDataToStore.UPSSRC.ChLogURLRoot  = ReplaceResName(ResData.UPSSRC.ChLogURLRoot, ResDataToStore);
-  ResDataToStore.UPSSRC.ChLogName     = ReplaceResName(ResData.UPSSRC.ChLogName, ResDataToStore);
-
-  ResDataToStore.LOCSRC.LURLRoot      = ReplaceResName(ResData.LOCSRC.LURLRoot, ResDataToStore);
-  ResDataToStore.LOCSRC.AXMLURL       = ReplaceResName(ResData.LOCSRC.AXMLURL, ResDataToStore);
-  ResDataToStore.LOCSRC.AXMLURLRoot   = ReplaceResName(ResData.LOCSRC.AXMLURLRoot, ResDataToStore);
-  ResDataToStore.LOCSRC.ALForm        = ReplaceResName(ResData.LOCSRC.ALForm, ResDataToStore);
-  ResDataToStore.LOCSRC.AXMLFileName  = ReplaceResName(ResData.LOCSRC.AXMLFileName, ResDataToStore);
-  ResDataToStore.LOCSRC.ChLogURL      = ReplaceResName(ResData.LOCSRC.ChLogURL, ResDataToStore);
-  ResDataToStore.LOCSRC.ChLogURLRoot  = ReplaceResName(ResData.LOCSRC.ChLogURLRoot, ResDataToStore);
-  ResDataToStore.LOCSRC.ChLogName     = ReplaceResName(ResData.LOCSRC.ChLogName, ResDataToStore);
-
-//
 
   ResDataToStore.TRX.ProjectName      = ReplaceResName(ResData.TRX.ProjectName, ResDataToStore);
   ResDataToStore.TRX.LongProjectName  = ReplaceResName(ResData.TRX.LongProjectName, ResDataToStore);
