@@ -431,7 +431,7 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
   {
     const std::string& sLCode = itmapPOFiles->first;
     std::string strPODir, strAddonDir;
-    strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, m_XMLResData.LOC.LForm, sLCode);
+    strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
 
     CPOHandler& POHandler = m_mapMRG.at(sLCode);
 
@@ -440,7 +440,7 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
     // Write individual addon.xml files for language-addons
     if (m_XMLResData.bIsLangAddon)
     {
-      strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPath, m_XMLResData.LOC.LForm, sLCode);
+      strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
       POHandler.WriteLangAddonXML(strAddonDir);
     }
   }

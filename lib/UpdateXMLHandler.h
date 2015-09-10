@@ -37,9 +37,10 @@ struct CGITData
 {
   // L=Language, A = Addon
   std::string Owner, Repo, Branch;
-  std::string LPath, LForm;
+  std::string LPath;
+//std::string LForm;
   std::string AXMLPath, LFormInAXML;
-  std::string LAXMLPath, LAXMLForm;
+//std::string LAXMLPath, LAXMLForm;
   std::string ChLogPath;
 };
 
