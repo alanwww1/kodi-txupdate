@@ -86,7 +86,7 @@ public:
   void SetProjectName (const std::string& sProjName) {m_sProjectName = sProjName;}
   void SetFileName (const std::string& sFileName) {m_sFileName = sFileName;}
   void SetSkipCache (bool bSkipCache) {m_bSkipCache = bSkipCache;}
-  void SetUseGitBranch (bool bUseBranch) {m_bUseGitBranch = bUseBranch;}
+//  void SetUseGitBranch (bool bUseBranch) {m_bUseGitBranch = bUseBranch;}
   void SetDataFile (bool bDataFile) {m_bDataFile = bDataFile;}
 
 
@@ -111,7 +111,7 @@ private:
   size_t m_iHTTPCacheExp;
 
   std::string m_sResName, m_sFileLocation, m_sLCode, m_sProjectName, m_sFileName;
-  bool m_bSkipCache, m_bUseGitBranch, m_bDataFile;
+  bool m_bSkipCache, m_bDataFile;
   std::string m_sCacheFilenamePrevVersion;
 };
 

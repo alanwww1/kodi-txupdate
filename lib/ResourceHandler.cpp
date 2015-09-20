@@ -108,7 +108,6 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   bool bHasLanguageFiles = !m_XMLResData.bHasOnlyAddonXML;
 
   std::set<std::string> listLangs, listLangsWithStringsPO;
-  g_HTTPHandler.SetUseGitBranch(true);
   g_HTTPHandler.SetFileName("LocalFileList.txt");
   g_HTTPHandler.SetDataFile(true);
 
@@ -127,7 +126,6 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
   m_AddonXMLHandler.AddAddonXMLLangsToList(listLangs); // Add languages that are only in the addon.xml file
 
-  g_HTTPHandler.SetUseGitBranch(true);
   g_HTTPHandler.SetDataFile(false);
 
 

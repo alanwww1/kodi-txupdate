@@ -54,7 +54,6 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata
   g_HTTPHandler.SetResName("");
   g_HTTPHandler.SetLCode("");
   g_HTTPHandler.SetFileName("LangDatabase_FileListing.json");
-  g_HTTPHandler.SetUseGitBranch(false);
   g_HTTPHandler.SetDataFile(true);
 
   // We get the version of the language database files here

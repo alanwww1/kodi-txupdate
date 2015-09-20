@@ -38,7 +38,7 @@ CHTTPHandler::CHTTPHandler()
 {
   m_curlHandle = curl_easy_init();
   m_bSkipCache = false;
-  m_bUseGitBranch = true;
+//  m_bUseGitBranch = true;
   m_bDataFile = false;
 };
 
@@ -475,13 +475,6 @@ std::string CHTTPHandler::CreateCacheFilename(const std::string& strURL, bool &b
   {
     CGithubURLData GitData;
     GetGithubData(strURL,GitData);
-    if (!m_sResName.empty() && m_bUseGitBranch)
-      sCacheFileName += GitData.strGitBranch + DirSepChar;
-  }
-  else if (m_bUseGitBranch && strURL.find("api.github.com/") != std::string::npos)
-  {
-    size_t pos = strURL.rfind("?ref=");
-    sCacheFileName += strURL.substr(pos+5) + DirSepChar;
   }
 
   if (!m_sLCode.empty())
@@ -514,9 +507,6 @@ std::string CHTTPHandler::CreateCacheFilenameGitSource(const std::string& sBranc
     sCacheFileName += m_sProjectName + DirSepChar;
   if (!m_sResName.empty())
     sCacheFileName += m_sResName + DirSepChar;
-
-  if (!m_sResName.empty() && m_bUseGitBranch)
-    sCacheFileName += sBranch + DirSepChar;
 
   if (!m_sLCode.empty())
     sCacheFileName += m_sLCode + DirSepChar;
@@ -959,7 +949,6 @@ std::string  CHTTPHandler::GetGitFileListToSTR(const std::string& sUPSLocalPath,
 
   if (bForceGitDload)
     bCacheFileExpired = true; //If we have this option enabled, we consider the cache for the filelist file always outdated
-
 
   if (bCacheFileExpired || !bCacheFileExists)
     printf("%s*%s", KGRN, RESET);
