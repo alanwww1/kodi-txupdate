@@ -389,25 +389,38 @@ bool CFile::isDir(string dir)
   }
 }
 
-void CFile::listFiles(string baseDir, bool recursive)
+void CFile::CleanDir(string baseDir, bool recursive, const std::set<std::string>& mapValidCacheFiles)
 {
   DIR *dp;
   struct dirent *dirp;
-  if ((dp = opendir(baseDir.c_str())) == NULL) {
-    cout << "[ERROR: " << errno << " ] Couldn't open " << baseDir << "." << endl;
-    return;
-  } else {
-    while ((dirp = readdir(dp)) != NULL) {
+
+  if ((dp = opendir(baseDir.c_str())) == NULL)
+    CLog::Log(logERROR, "Could not read cache directory: %s", baseDir.c_str());
+  else
+  {
+    while ((dirp = readdir(dp)) != NULL)
+    {
       if (dirp->d_name != string(".") && dirp->d_name != string(".."))
       {
         if (isDir(baseDir + dirp->d_name) == true && recursive == true)
         {
-          cout << "[DIR]\t" << baseDir << dirp->d_name << "/" << endl;
-          listFiles(baseDir + dirp->d_name + "/", true);
+          std::string sDir = baseDir + dirp->d_name + "/";
+          if (IsValidPath(mapValidCacheFiles, sDir))
+            CleanDir(sDir, true, mapValidCacheFiles);
+          else
+          {
+            printf("\n%s", sDir.c_str());
+            DeleteDirectory(sDir);
+          }
         }
         else
         {
-          cout << "[FILE]\t" << baseDir << dirp->d_name << endl;
+          std::string sFileName = baseDir + dirp->d_name;
+          if (!IsValidPath(mapValidCacheFiles, sFileName))
+          {
+            printf("\n%s", sFileName.c_str());
+            DeleteFile(sFileName);
+          }
         }
       }
     }
@@ -421,4 +434,14 @@ std::string CFile::getcwd_string()
  getcwd( buff, PATH_MAX );
  std::string cwd( buff );
  return cwd;
+}
+
+bool CFile::IsValidPath(const std::set<std::string>& mapValidCacheFiles, const std::string& sPath)
+{
+  for (std::set<std::string>::iterator it = mapValidCacheFiles.begin(); it != mapValidCacheFiles.end(); it++)
+  {
+    if (it->find(sPath) == 0)
+      return true;
+  }
+  return false;
 }

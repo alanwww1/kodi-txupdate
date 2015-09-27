@@ -116,6 +116,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
   if (m_XMLResData.bIsLangAddon)
   {
+    g_HTTPHandler.SetFileName("LocalFileList-SRC.txt");
     GetSRCFilesGitData(); //Get version data for the SRC files reside at a different github repo
     listLangsWithStringsPO.insert(m_XMLResData.sSRCLCode);
   }

@@ -78,6 +78,8 @@ std::string CHTTPHandler::GetURLToSTR(std::string strURL)
   m_sCacheFilenamePrevVersion = "";
   bool bCacheFileExists, bCacheFileExpired;
   std::string sCacheFileName = CreateCacheFilename(strURL, bCacheFileExists, bCacheFileExpired);
+  m_mapValidCacheFiles.insert(sCacheFileName + ".version");
+  m_mapValidCacheFiles.insert(sCacheFileName + ".time");
 
   std::string strBuffer, strCachedFileVersion, strWebFileVersion;
 
@@ -96,15 +98,6 @@ std::string CHTTPHandler::GetURLToSTR(std::string strURL)
 
     curlURLToCache(strURL, strBuffer);
 
-    //Check if the changed file is an UPS one. In that case save previous version for later use,
-    //to  filter out deleted entries at Transifex and not re-adding them from UPS
-    if (m_sFileLocation == "UPS" && !m_bDataFile && bCacheFileExists && !g_File.FileExist(sCacheFileName + ".prev"))
-    {
-      g_File.CopyFile(sCacheFileName, sCacheFileName + ".prev");
-      g_File.CopyFile(sCacheFileName + ".time", sCacheFileName + ".time.prev");
-      g_File.CopyFile(sCacheFileName + ".version", sCacheFileName + ".version.prev");
-    }
-
     if (!m_bSkipCache)
       g_File.WriteFileFromStr(sCacheFileName, strBuffer);
 
@@ -121,10 +114,6 @@ std::string CHTTPHandler::GetURLToSTR(std::string strURL)
     else
       printf ("%s.%s", KYEL, RESET);
   }
-
-  //Check if we have a previous version stored in cache for the current fie
-   if (g_File.FileExist(sCacheFileName + ".prev"))
-     m_sCacheFilenamePrevVersion = sCacheFileName + ".prev";
 
   return strBuffer;
 };
@@ -492,6 +481,7 @@ std::string CHTTPHandler::CreateCacheFilename(const std::string& strURL, bool &b
 
   bCacheFileExpired = CacheFileAge > MaxCacheFileAge;
 
+  m_mapValidCacheFiles.insert(sCacheFileName);
   return sCacheFileName;
 }
 
@@ -522,6 +512,8 @@ std::string CHTTPHandler::CreateCacheFilenameGitSource(const std::string& sBranc
   size_t MaxCacheFileAge = m_iHTTPCacheExp * 60; // in seconds
 
   bCacheFileExpired = CacheFileAge > MaxCacheFileAge;
+
+  m_mapValidCacheFiles.insert(sCacheFileName);
 
   return sCacheFileName;
 }
@@ -882,6 +874,11 @@ std::string CHTTPHandler::GetGithubPathToSTR(const std::string& sUPSLocalPath, c
   bool bCacheFileExists, bCacheFileExpired;
   std::string sGitHubRoot = GetGithubCloneRootPath(sUPSLocalPath, GitData);
   std::string sCacheFileName = CreateCacheFilenameGitSource(GitData.Branch, bCacheFileExists, bCacheFileExpired);
+  m_mapValidCacheFiles.insert(sCacheFileName + ".version");
+  m_mapValidCacheFiles.insert(sCacheFileName + ".time");
+  m_mapValidCacheFiles.insert(sCacheFileName + ".prev");
+  m_mapValidCacheFiles.insert(sCacheFileName + ".version.prev");
+  m_mapValidCacheFiles.insert(sCacheFileName + ".time.prev");
 
   if (bForceGitDload)
     bCacheFileExpired = true; //If we have this option enabled, we consider the cache always outdated
@@ -946,6 +943,8 @@ std::string  CHTTPHandler::GetGitFileListToSTR(const std::string& sUPSLocalPath,
   bool bCacheFileExists, bCacheFileExpired;
   std::string sGitHubRoot = GetGithubCloneRootPath(sUPSLocalPath, GitData);
   std::string sCacheFileName = CreateCacheFilenameGitSource(GitData.Branch, bCacheFileExists, bCacheFileExpired);
+  m_mapValidCacheFiles.insert(sCacheFileName + ".time");
+
 
   if (bForceGitDload)
     bCacheFileExpired = true; //If we have this option enabled, we consider the cache for the filelist file always outdated
@@ -984,4 +983,9 @@ std::string  CHTTPHandler::GetGitFileListToSTR(const std::string& sUPSLocalPath,
 std::string CHTTPHandler::GetGithubCloneRootPath(const std::string& sUPSLocalPath, const CGITData& GitData)
 {
   return sUPSLocalPath + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch;
+}
+
+void CHTTPHandler::CleanCacheFiles()
+{
+  g_File.CleanDir(m_strCacheDir, true, m_mapValidCacheFiles);
 }

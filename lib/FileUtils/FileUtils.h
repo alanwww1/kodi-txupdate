@@ -26,6 +26,7 @@
 
 #include <string>
 #include <ctime>
+#include <set>
 
 #ifdef WINDOWS
   #include <direct.h>
@@ -70,8 +71,9 @@ public:
   void WriteNowToFileAgeFile(std::string strFileName);
   void SytemCommand (const std::string &strCommand);
   bool isDir(std::string dir);
-  void listFiles(std::string baseDir, bool recursive);
+  void CleanDir(std::string baseDir, bool recursive, const std::set<std::string>& mapValidCacheFiles);
   std::string getcwd_string();
+  bool IsValidPath(const std::set<std::string>& mapValidCacheFiles, const std::string& sPath);
 };
 
 extern CFile g_File;

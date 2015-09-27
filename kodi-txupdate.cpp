@@ -220,6 +220,8 @@ int main(int argc, char* argv[])
       TXProject.MigrateTranslators();
     }
 
+    g_HTTPHandler.CleanCacheFiles();
+
     CLog::SetbWriteSyntaxLog(bDownloadNeeded);
 
     if (CLog::GetWarnCount() ==0)

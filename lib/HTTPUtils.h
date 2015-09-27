@@ -26,6 +26,7 @@
 
 #include <string>
 #include <stdio.h>
+#include <set>
 #include <curl/curl.h>
 #include "TinyXML/tinyxml.h"
 #include "POHandler.h"
@@ -88,7 +89,7 @@ public:
   void SetSkipCache (bool bSkipCache) {m_bSkipCache = bSkipCache;}
 //  void SetUseGitBranch (bool bUseBranch) {m_bUseGitBranch = bUseBranch;}
   void SetDataFile (bool bDataFile) {m_bDataFile = bDataFile;}
-
+  void CleanCacheFiles();
 
 private:
   long curlPUTPOStrToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd);
@@ -113,6 +114,7 @@ private:
   std::string m_sResName, m_sFileLocation, m_sLCode, m_sProjectName, m_sFileName;
   bool m_bSkipCache, m_bDataFile;
   std::string m_sCacheFilenamePrevVersion;
+  std::set <std::string> m_mapValidCacheFiles;
 };
 
 size_t Write_CurlData_String(char *data, size_t size, size_t nmemb, std::string *buffer);
