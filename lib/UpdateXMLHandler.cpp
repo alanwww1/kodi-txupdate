@@ -416,6 +416,7 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResData.UPD.ResName.clear();
 
   //Store git data for git clone the repositories needed for upstream push and pull handling
+  //TODO include LOC gitrepositories as well
   if (ResDataToStore.UPS.Repo.empty() || ResDataToStore.UPS.Branch.empty() || ResDataToStore.UPS.Owner.empty())
     CLog::Log(logERROR, "Confhandler: Insufficient UPS git data. Missing Owner or Repo or Branch data.");
   if (ResDataToStore.sUPSLocalPath.empty())

@@ -36,6 +36,7 @@ public:
   bool FetchResourcesFromUpstream();
   bool CreateMergedResources();
   bool WriteResourcesToFile(std::string strProjRootDir);
+  bool WriteResourcesToLOCGitRepos(std::string strProjRootDir);
   void UploadTXUpdateFiles(std::string strProjRootDir);
   void MigrateTranslators();
   void InitLCodeHandler();

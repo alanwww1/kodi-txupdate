@@ -165,6 +165,35 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
   return true;
 };
 
+bool CProjectHandler::WriteResourcesToLOCGitRepos(std::string strProjRootDir)
+{
+//TODO
+
+  for (T_itmapRes itmapResources = m_mapResources.begin(); itmapResources != m_mapResources.end(); itmapResources++)
+  {
+    const std::string& sResName = itmapResources->first;
+    CResourceHandler& ResHandler = itmapResources->second;
+    const CXMLResdata& XMLResData = m_mapResData[sResName];
+
+    CLog::Log(logLINEFEED, "");
+    CLog::Log(logINFO, "ProjHandler: *** Write Merged Resource: %s ***", itmapResources->first.c_str());
+    CLog::IncIdent(4);
+
+    std::string sMergedLangDir = XMLResData.sProjRootDir + DirSepChar + XMLResData.sMRGLFilesDir + DirSepChar;
+    std::string sAddonXMLPath = sMergedLangDir + XMLResData.MRG.AXMLPath;
+    std::string sChangeLogPath =  sMergedLangDir + XMLResData.MRG.ChLogPath;
+    std::string sLangPath  = sMergedLangDir + XMLResData.MRG.LPath;
+    std::string sLangAddonXMLPath = sMergedLangDir + XMLResData.MRG.AXMLPath;
+    ResHandler.GenerateMergedPOFiles ();
+    ResHandler.WriteMergedPOFiles (sAddonXMLPath, sLangAddonXMLPath, sChangeLogPath, sLangPath);
+
+    CLog::DecIdent(4);
+  }
+  printf ("\n\n");
+  return true;
+};
+
+
 bool CProjectHandler::CreateMergedResources()
 {
 
