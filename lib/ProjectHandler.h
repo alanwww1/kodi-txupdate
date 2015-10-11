@@ -52,5 +52,6 @@ protected:
   std::map<std::string, CXMLResdata> m_mapResData;
   typedef std::map<std::string, CXMLResdata>::iterator T_itResData;
   std::map<std::string, CBasicGITData> m_MapGitRepos;
+  std::map<int, std::string> m_mapResOrder;
   std::string m_strProjDir;
 };

@@ -93,7 +93,8 @@ class CUpdateXMLHandler
 public:
   CUpdateXMLHandler();
   ~CUpdateXMLHandler();
-  void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos);
+  void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos,
+                         std::map<int, std::string>& mapResOrder);
 
 private:
   bool GetParamsFromURLorPath (std::string const &strURL, std::string &strLangFormat, std::string &strFileName,
@@ -107,10 +108,11 @@ private:
   void SetExternalVariables(const std::string& sLine);
   void SubstituteExternalVariables(std::string& sVar);
 protected:
-  void CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData);
+  void CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData, std::map<int, std::string>& mapResOrder);
   std::string ReplaceResName(std::string sVal, const CXMLResdata& ResData);
   void ClearVariables(const std::string& sLine, CXMLResdata& ResData);
   void SetInternalVariable(const std::string& sVar, const std::string sVal, CXMLResdata& ResData);
+  int iResCounter;
 
 };
 

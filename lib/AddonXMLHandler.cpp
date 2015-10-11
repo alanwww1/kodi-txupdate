@@ -391,7 +391,7 @@ std::string CAddonXMLHandler::GetXMLEntry (std::string const &strprefix, size_t 
   return m_strAddonXMLFile.substr(pos1, pos2 - pos1 +1);
 }
 
-bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::string strFormat)
+void CAddonXMLHandler::GenerateChangelogFile (std::string strFormat)
 {
   size_t pos1;
   if ((pos1 = strFormat.find("%i")) != std::string::npos)
@@ -408,6 +408,11 @@ bool CAddonXMLHandler::WriteAddonChangelogFile (std::string strFilename, std::st
   if  (m_bBumpAddoXMLVersion)
     m_strChangelogFile = strFormat + m_strChangelogFile;
 
+  return;
+}
+
+bool CAddonXMLHandler::WriteAddonChangelogFile (const std::string& strFilename)
+{
   return g_File.WriteFileFromStr(strFilename, m_strChangelogFile.c_str());
 }
 

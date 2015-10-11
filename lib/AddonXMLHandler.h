@@ -46,7 +46,8 @@ public:
   void GenerateAddonXMLFile ();
   void WriteAddonXMLFile (std::string strAddonXMLFilename);
 
-  bool WriteAddonChangelogFile (std::string strFilename, std::string strFormat);
+  void GenerateChangelogFile (std::string strFormat);
+  bool WriteAddonChangelogFile (const std::string& strFilename);
   bool FetchAddonChangelogFile ();
   void FetchAddonDataFiles();
   std::string GetResHeaderPretext () const {return m_strResourceData;}

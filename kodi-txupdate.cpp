@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
 
         printf("\n%s", KGRN);
         printf("--------------------------------------------\n");
-        printf("WRITING MERGED AND TXUPDATE RESOURCES TO HDD\n");
+        printf("WRITING MERGED RESOURCES TO HDD\n");
         printf("--------------------------------------------%s\n", RESET);
 
         CLog::Log(logLINEFEED, "");
@@ -198,6 +198,18 @@ int main(int argc, char* argv[])
 
         TXProject.WriteResourcesToFile(WorkingDir);
       }
+
+      if (true)
+      {
+
+        printf("\n%s", KGRN);
+        printf("--------------------------------------------\n");
+        printf("WRITING RESOURCES TO LOCAL GITHUB REPOS\n");
+        printf("--------------------------------------------%s\n", RESET);
+
+        TXProject.WriteResourcesToLOCGitRepos(WorkingDir);
+      }
+
     }
 
     bUploadNeeded = true;

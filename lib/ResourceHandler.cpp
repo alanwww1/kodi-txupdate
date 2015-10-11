@@ -419,7 +419,7 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
   {
     m_AddonXMLHandler.WriteAddonXMLFile(sAddonXMLPath);
     if (!m_XMLResData.sChgLogFormat.empty())
-      m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath, m_XMLResData.sChgLogFormat);
+      m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath);
   }
 
   if (m_XMLResData.bHasOnlyAddonXML)
@@ -445,6 +445,59 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
   }
  return;
 }
+
+void CResourceHandler::WriteLOCPOFiles()
+{
+    std::string sLOCGITDir = m_XMLResData.sUPSLocalPath + m_XMLResData.LOC.Owner + "/" + m_XMLResData.LOC.Repo + "/" + m_XMLResData.LOC.Branch + "/";
+    std::string sLOCSRCGITDir = m_XMLResData.sUPSLocalPath + m_XMLResData.LOCSRC.Owner + "/" + m_XMLResData.LOCSRC.Repo + "/" + m_XMLResData.LOCSRC.Branch + "/";
+
+    std::string sAddonXMLPath = sLOCGITDir + m_XMLResData.LOC.AXMLPath;
+    std::string sChangeLogPath =  sLOCGITDir + m_XMLResData.LOC.ChLogPath;
+    std::string sLangPath  = sLOCGITDir + m_XMLResData.LOC.LPath;
+//  std::string sLangAddonXMLPath = sLOCGITDir + m_XMLResData.LOC.AXMLPath;
+
+    std::string sLangPathSRC  = sLOCSRCGITDir + m_XMLResData.LOCSRC.LPath;
+    std::string sLangAddonXMLPathSRC = sLOCSRCGITDir + m_XMLResData.LOCSRC.AXMLPath;
+
+
+  if (!m_XMLResData.bIsLangAddon)
+  {
+    m_AddonXMLHandler.WriteAddonXMLFile(sAddonXMLPath);
+    if (!m_XMLResData.sChgLogFormat.empty())
+      m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath);
+  }
+
+  if (m_XMLResData.bHasOnlyAddonXML)
+    return;
+
+
+  for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
+  {
+    const std::string& sLCode = itmapPOFiles->first;
+    std::string strPODir, strAddonDir;
+    if (sLCode != m_XMLResData.sSRCLCode || !m_XMLResData.bIsLangAddon)
+      strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+    else
+      strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOCSRC.LPath), sLCode);
+
+    CPOHandler& POHandler = m_mapMRG.at(sLCode);
+
+    POHandler.WritePOFile(strPODir);
+
+    // Write individual addon.xml files for language-addons
+    if (m_XMLResData.bIsLangAddon)
+    {
+      if (sLCode != m_XMLResData.sSRCLCode)
+        strAddonDir = g_CharsetUtils.ReplaceLanginURL(sAddonXMLPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+      else
+        strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPathSRC, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+
+      POHandler.WriteLangAddonXML(strAddonDir);
+    }
+  }
+ return;
+}
+
 
 void CResourceHandler::WriteUpdatePOFiles(const std::string& strPath)
 {
@@ -491,7 +544,10 @@ void CResourceHandler::GenerateMergedPOFiles()
   }
 
   if (!m_XMLResData.bIsLangAddon)
+  {
     m_AddonXMLHandler.GenerateAddonXMLFile();
+    m_AddonXMLHandler.GenerateChangelogFile(m_XMLResData.sChgLogFormat);
+  }
 
   return;
 }

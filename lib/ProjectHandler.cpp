@@ -40,7 +40,7 @@ void CProjectHandler::LoadUpdXMLToMem()
 {
   CUpdateXMLHandler UpdateXMLHandler;
 //  UpdateXMLHandler.LoadUpdXMLToMem (m_strProjDir, m_mapResData);
-  UpdateXMLHandler.LoadResDataToMem(m_strProjDir, m_mapResData, &m_MapGitRepos);
+  UpdateXMLHandler.LoadResDataToMem(m_strProjDir, m_mapResData, &m_MapGitRepos, m_mapResOrder);
   g_HTTPHandler.SetHTTPCacheExpire(m_mapResData.begin()->second.iCacheExpire);
 }
 
@@ -168,26 +168,12 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
 bool CProjectHandler::WriteResourcesToLOCGitRepos(std::string strProjRootDir)
 {
 //TODO
-
-  for (T_itmapRes itmapResources = m_mapResources.begin(); itmapResources != m_mapResources.end(); itmapResources++)
+  for (std::map<int, std::string>::iterator itResOrder = m_mapResOrder.begin(); itResOrder != m_mapResOrder.end(); itResOrder++)
   {
-    const std::string& sResName = itmapResources->first;
-    CResourceHandler& ResHandler = itmapResources->second;
-    const CXMLResdata& XMLResData = m_mapResData[sResName];
+    const std::string& sResName = itResOrder->second;
+    CResourceHandler& ResHandler = m_mapResources[sResName];
 
-    CLog::Log(logLINEFEED, "");
-    CLog::Log(logINFO, "ProjHandler: *** Write Merged Resource: %s ***", itmapResources->first.c_str());
-    CLog::IncIdent(4);
-
-    std::string sMergedLangDir = XMLResData.sProjRootDir + DirSepChar + XMLResData.sMRGLFilesDir + DirSepChar;
-    std::string sAddonXMLPath = sMergedLangDir + XMLResData.MRG.AXMLPath;
-    std::string sChangeLogPath =  sMergedLangDir + XMLResData.MRG.ChLogPath;
-    std::string sLangPath  = sMergedLangDir + XMLResData.MRG.LPath;
-    std::string sLangAddonXMLPath = sMergedLangDir + XMLResData.MRG.AXMLPath;
-    ResHandler.GenerateMergedPOFiles ();
-    ResHandler.WriteMergedPOFiles (sAddonXMLPath, sLangAddonXMLPath, sChangeLogPath, sLangPath);
-
-    CLog::DecIdent(4);
+    ResHandler.WriteLOCPOFiles();
   }
   printf ("\n\n");
   return true;

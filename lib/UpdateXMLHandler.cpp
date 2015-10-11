@@ -257,8 +257,10 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   m_MapOfVariables[sVar] = sVal;
 }
 
-void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos)
+void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos,
+                                          std::map<int, std::string>& mapResOrder)
 {
+  iResCounter = 0;
   std::string sConfFile = g_File.ReadFileToStr(rootDir + "kodi-txupdate.conf");
   if (sConfFile == "")
     CLog::Log(logERROR, "Confhandler: erroe: missing conf file.");
@@ -285,7 +287,7 @@ void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::str
     else if (sLine.find("clear ") == 0)
       ClearVariables(sLine, ResData);
     else if (sLine.find("create resource ") == 0)
-      CreateResource(ResData, sLine, mapResData);
+      CreateResource(ResData, sLine, mapResData, mapResOrder);
     else
       SetExternalVariables(sLine);
   }
@@ -298,7 +300,7 @@ std::string CUpdateXMLHandler::ReplaceResName(std::string sVal, const CXMLResdat
   return sVal;
 }
 
-void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData)
+void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData, std::map<int, std::string>& mapResOrder)
 {
   CXMLResdata ResDataToStore;
 
@@ -412,6 +414,8 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
 
 
   mapResData[ResDataToStore.sResName] = ResDataToStore;
+  iResCounter++;
+  mapResOrder[iResCounter] = ResDataToStore.sResName;
 
   ResData.UPD.ResName.clear();
 

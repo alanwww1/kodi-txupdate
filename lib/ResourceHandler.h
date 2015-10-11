@@ -41,6 +41,7 @@ public:
   void GenerateMergedPOFiles();
   void GenerateUpdatePOFiles();
   void WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sChangeLogPath, const std::string& sLangPath);
+  void WriteLOCPOFiles();
   void WriteUpdatePOFiles(const std::string& strPath);
 
   bool FindUPSEntry(const CPOEntry &EntryToFind);
