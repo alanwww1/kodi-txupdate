@@ -211,7 +211,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "LOCSRCRepo")            ResData.LOCSRC.Repo = sVal;
   else if (sVar == "LOCSRCBranch")          ResData.LOCSRC.Branch = sVal;
 
-  else if (sVar == "LOCSRCLpath")           ResData.LOCSRC.LPath = sVal;
+  else if (sVar == "LOCSRCLPath")           ResData.LOCSRC.LPath = sVal;
 //else if (sVar == "LOCSRCLForm")           ResData.LOCSRC.LForm = sVal;
   else if (sVar == "LOCSRCAXMLPath")        ResData.LOCSRC.AXMLPath = sVal;
   else if (sVar == "LOCSRCLFormInAXML")     ResData.LOCSRC.LFormInAXML = sVal;
