@@ -232,6 +232,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
 
   else if (sVar == "ResName")               ResData.sResName = sVal;
   else if (sVar == "ChgLogFormat")          ResData.sChgLogFormat = sVal;
+  else if (sVar == "GitCommitText")         ResData.sGitCommitText = sVal;
 //else if (sVar == "ProjRootDir")           ResData.sProjRootDir = sVal;
   else if (sVar == "MRGLFilesDir")          ResData.sMRGLFilesDir = sVal;
   else if (sVar == "UPSLocalPath")          ResData.sUPSLocalPath = sVal;
@@ -388,6 +389,8 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
 
 //ResDataToStore.sResName             = ReplaceResName(ResData.sResName, ResDataToStore);
   ResDataToStore.sChgLogFormat        = ReplaceResName(ResData.sChgLogFormat, ResDataToStore);
+  ResDataToStore.sGitCommitText       = ReplaceResName(ResData.sGitCommitText, ResDataToStore);
+
   ResDataToStore.sProjRootDir         = ReplaceResName(ResData.sProjRootDir, ResDataToStore);
   ResDataToStore.sMRGLFilesDir        = ReplaceResName(ResData.sMRGLFilesDir, ResDataToStore);
   ResDataToStore.sUPSLocalPath        = ReplaceResName(ResData.sUPSLocalPath, ResDataToStore);
