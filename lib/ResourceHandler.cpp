@@ -467,34 +467,75 @@ void CResourceHandler::WriteLOCPOFiles()
       m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath);
   }
 
-  if (m_XMLResData.bHasOnlyAddonXML)
-    return;
-
-
-  for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
+  if (!m_XMLResData.bHasOnlyAddonXML)
   {
-    const std::string& sLCode = itmapPOFiles->first;
-    std::string strPODir, strAddonDir;
-    if (sLCode != m_XMLResData.sSRCLCode || !m_XMLResData.bIsLangAddon)
-      strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
-    else
-      strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOCSRC.LPath), sLCode);
-
-    CPOHandler& POHandler = m_mapMRG.at(sLCode);
-
-    POHandler.WritePOFile(strPODir);
-
-    // Write individual addon.xml files for language-addons
-    if (m_XMLResData.bIsLangAddon)
+    for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
     {
-      if (sLCode != m_XMLResData.sSRCLCode)
-        strAddonDir = g_CharsetUtils.ReplaceLanginURL(sAddonXMLPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+      const std::string& sLCode = itmapPOFiles->first;
+      std::string strPODir, strAddonDir;
+      if (sLCode != m_XMLResData.sSRCLCode || !m_XMLResData.bIsLangAddon)
+        strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
       else
-        strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPathSRC, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+        strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOCSRC.LPath), sLCode);
 
-      POHandler.WriteLangAddonXML(strAddonDir);
+      CPOHandler& POHandler = m_mapMRG.at(sLCode);
+
+      POHandler.WritePOFile(strPODir);
+
+      // Write individual addon.xml files for language-addons
+      if (m_XMLResData.bIsLangAddon)
+      {
+        if (sLCode != m_XMLResData.sSRCLCode)
+          strAddonDir = g_CharsetUtils.ReplaceLanginURL(sAddonXMLPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+        else
+          strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPathSRC, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+
+        POHandler.WriteLangAddonXML(strAddonDir);
+      }
     }
   }
+
+  std::string sCommand, sPOPathSRC, sGitDir;
+
+  if (!m_XMLResData.sGitCommitTextSRC.empty() && !m_XMLResData.bHasOnlyAddonXML)
+  {
+    printf("\n");
+
+    if (m_XMLResData.bIsLangAddon)
+    {
+      sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOCSRC.LPath), m_XMLResData.sSRCLCode);
+      sGitDir = sLOCSRCGITDir;
+    }
+    else
+    {
+      sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), m_XMLResData.sSRCLCode);
+      sGitDir = sLOCGITDir;
+    }
+
+    sCommand = "cd " + sGitDir + ";";
+    sCommand += "git add " + sPOPathSRC;
+    printf("%sGIT add SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+    g_File.SytemCommand(sCommand);
+
+    sCommand = "cd " + sGitDir + ";";
+    sCommand += "git commit -m \"" + m_XMLResData.sGitCommitTextSRC + "\"";
+    printf("%sGIT commit SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+    g_File.SytemCommand(sCommand);
+  }
+
+  if (!m_XMLResData.sGitCommitText.empty())
+  {
+    printf("\n");
+
+    sGitDir = sLOCGITDir;
+
+    sCommand = "cd " + sGitDir + ";";
+    sCommand += "git add -A;";
+    sCommand += "git commit -am \"" + m_XMLResData.sGitCommitText + "\"";
+    printf("%sGIT commit with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+    g_File.SytemCommand(sCommand);
+  }
+
  return;
 }
 

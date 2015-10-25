@@ -66,7 +66,7 @@ public:
   CTRXData TRX, UPD;
 
   std::string sChgLogFormat;
-  std::string sGitCommitText;
+  std::string sGitCommitText, sGitCommitTextSRC;
   bool bIsLangAddon;
   bool bHasOnlyAddonXML;
 

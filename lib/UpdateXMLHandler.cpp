@@ -233,6 +233,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "ResName")               ResData.sResName = sVal;
   else if (sVar == "ChgLogFormat")          ResData.sChgLogFormat = sVal;
   else if (sVar == "GitCommitText")         ResData.sGitCommitText = sVal;
+  else if (sVar == "GitCommitTextSRC")      ResData.sGitCommitTextSRC = sVal;
 //else if (sVar == "ProjRootDir")           ResData.sProjRootDir = sVal;
   else if (sVar == "MRGLFilesDir")          ResData.sMRGLFilesDir = sVal;
   else if (sVar == "UPSLocalPath")          ResData.sUPSLocalPath = sVal;
@@ -315,10 +316,16 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
 
   if ((posTRXResName = sLine.find("TRXResName = ")) == std::string::npos)
     CLog::Log(logERROR, "Confhandler: Cannot create resource, missing TRXResName");
-  posTRXResName = posTRXResName +13;
 
+  posTRXResName = posTRXResName +13;
   ResDataToStore.TRX.ResName = sLine.substr(posTRXResName, sLine.find('\n', posTRXResName)-posTRXResName);
 
+
+  if (sLine.find("GITCommit") != std::string::npos)
+  {
+    ResDataToStore.sGitCommitText = ReplaceResName(ResData.sGitCommitText, ResDataToStore);
+    ResDataToStore.sGitCommitTextSRC = ReplaceResName(ResData.sGitCommitTextSRC, ResDataToStore);
+  }
 
   ResDataToStore.UPS.Owner            = ReplaceResName(ResData.UPS.Owner, ResDataToStore);
   ResDataToStore.UPS.Repo             = ReplaceResName(ResData.UPS.Repo, ResDataToStore);
@@ -389,7 +396,6 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
 
 //ResDataToStore.sResName             = ReplaceResName(ResData.sResName, ResDataToStore);
   ResDataToStore.sChgLogFormat        = ReplaceResName(ResData.sChgLogFormat, ResDataToStore);
-  ResDataToStore.sGitCommitText       = ReplaceResName(ResData.sGitCommitText, ResDataToStore);
 
   ResDataToStore.sProjRootDir         = ReplaceResName(ResData.sProjRootDir, ResDataToStore);
   ResDataToStore.sMRGLFilesDir        = ReplaceResName(ResData.sMRGLFilesDir, ResDataToStore);
