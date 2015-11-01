@@ -318,7 +318,7 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
     CLog::Log(logERROR, "Confhandler: Cannot create resource, missing TRXResName");
 
   posTRXResName = posTRXResName +13;
-  ResDataToStore.TRX.ResName = sLine.substr(posTRXResName, sLine.find('\n', posTRXResName)-posTRXResName);
+  ResDataToStore.TRX.ResName = sLine.substr(posTRXResName, sLine.find_first_of(" ,\n", posTRXResName)-posTRXResName);
 
 
   if (sLine.find("GITCommit") != std::string::npos)
