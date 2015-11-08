@@ -52,7 +52,7 @@ CUpdateXMLHandler::CUpdateXMLHandler()
 CUpdateXMLHandler::~CUpdateXMLHandler()
 {};
 
-void CUpdateXMLHandler::SubstituteExternalVariables(std::string& sVal)
+void CUpdateXMLHandler::SubstituteExternalVariables(std::string& sVal, bool bIgnoreMissing)
 {
   size_t iCurrPos = 0;
   size_t iNextPos = 0;
@@ -69,7 +69,12 @@ void CUpdateXMLHandler::SubstituteExternalVariables(std::string& sVal)
     {
       size_t iMatchedEntries = FindVariable(sVal.substr(iNextPos+1, iVarLength));
       if (iMatchedEntries == std::string::npos)
-        CLog::Log(logERROR, "Undefined variable in value: %s", sVal.c_str());
+      {
+        if (!bIgnoreMissing)
+          CLog::Log(logERROR, "Undefined variable in value: %s", sVal.c_str());
+        sVal = "";
+        return;
+      }
       if (iMatchedEntries == 0)
         break;
       iVarLength++;
@@ -119,14 +124,14 @@ void CUpdateXMLHandler::SetExternalVariables(const std::string& sLine)
 
   std::string sVal = g_CharsetUtils.UnescapeCPPString(sLine.substr(iPosVar2 + 3));
 
-  SubstituteExternalVariables(sVal);
+  SubstituteExternalVariables(sVal, false);
 
   m_MapOfVariables[sVar] = sVal;
 }
 
 void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResdata& ResData)
 {
-  size_t iPosVar1 = 4;
+  size_t iPosVar1 = sLine.find(" ",0) +1;
   size_t iPosVar2 = sLine.find(" = ", iPosVar1);
 
   if (iPosVar2 == std::string::npos)
@@ -136,9 +141,43 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
 
   std::string sVal = g_CharsetUtils.UnescapeCPPString(sLine.substr(iPosVar2 + 3));
 
-  SubstituteExternalVariables(sVal);
+  std::string sVarDerived, sValDerived;
+  if (sVar == "MRG" || sVar == "LOC" || sVar == "UPS" || sVar == "UPSSRC" || sVar == "LOCSRC")
+  {
+    //Examine if we have a simplified assign of variables, by only referring to the as groups like MRG, LOC, UPS etc.
+    sValDerived = sVal + "Owner"; sVarDerived = sVar + "Owner";
+    SubstituteExternalVariables(sValDerived, true); SetInternalVariable(sVarDerived, sValDerived, ResData, true);
+    sValDerived = sVal + "Repo"; sVarDerived = sVar + "Repo";
+    SubstituteExternalVariables(sValDerived, true); SetInternalVariable(sVarDerived, sValDerived, ResData, true);
+    sValDerived = sVal + "Branch"; sVarDerived = sVar + "Branch";
+    SubstituteExternalVariables(sValDerived, true); SetInternalVariable(sVarDerived, sValDerived, ResData, true);
+    sValDerived = sVal + "LPath"; sVarDerived = sVar + "LPath";
+    SubstituteExternalVariables(sValDerived, true); SetInternalVariable(sVarDerived, sValDerived, ResData, true);
+    sValDerived = sVal + "AXMLPath"; sVarDerived = sVar + "AXMLPath";
+    SubstituteExternalVariables(sValDerived, true); SetInternalVariable(sVarDerived, sValDerived, ResData, true);
+    sValDerived = sVal + "LFormInAXML"; sVarDerived = sVar + "LFormInAXML";
+    SubstituteExternalVariables(sValDerived, true); SetInternalVariable(sVarDerived, sValDerived, ResData, true);
+    sValDerived = sVal + "ChLogPath"; sVarDerived = sVar + "ChLogPath";
+    SubstituteExternalVariables(sValDerived, true); SetInternalVariable(sVarDerived, sValDerived, ResData, true);
 
-  return SetInternalVariable(sVar, sVal, ResData);
+    return;
+  }
+
+  if (sVar == "UPD" || sVar == "TRX")
+  {
+    //Examine if we have a simplified assing of variables, by only referring to the as groups like TRX, UPD etc.
+    sValDerived = sVal + "ProjectName"; sVarDerived = sVar + "ProjectName";
+    SubstituteExternalVariables(sValDerived, true); SetInternalVariable(sVarDerived, sValDerived, ResData, true);
+    sValDerived = sVal + "LongProjectName"; sVarDerived = sVar + "LongProjectName";
+    SubstituteExternalVariables(sValDerived, true); SetInternalVariable(sVarDerived, sValDerived, ResData, true);
+    sValDerived = sVal + "LForm"; sVarDerived = sVar + "LForm";
+    SubstituteExternalVariables(sValDerived, true); SetInternalVariable(sVarDerived, sValDerived, ResData, true);
+    return;
+  }
+
+  SubstituteExternalVariables(sVal, false);
+
+  return SetInternalVariable(sVar, sVal, ResData, false);
 }
 
 void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CXMLResdata& ResData)
@@ -149,7 +188,7 @@ void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CXMLResdata& Re
     CLog::Log(logERROR, "ConfHandler: Wrong line in conf file. Clear variable name is empty.");
 
   if (sVar.find('*') != sVar.size()-1)
-    SetInternalVariable(sVar, "", ResData);
+    SetInternalVariable(sVar, "", ResData, false);
 
   //We clear variables that has a match at the begining with our string
   sVar = sVar.substr(0,sVar.size()-1);
@@ -157,11 +196,11 @@ void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CXMLResdata& Re
   for (std::map<std::string, std::string>::iterator it = m_MapOfVariables.begin(); it != m_MapOfVariables.end(); it++)
   {
     if (it->first.find(sVar) == 0)
-      SetInternalVariable(it->first, "", ResData);
+      SetInternalVariable(it->first, "", ResData, false);
   }
 }
 
-void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::string sVal, CXMLResdata& ResData)
+void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::string sVal, CXMLResdata& ResData, bool bIgnoreMissing)
 {
   if (sVar == "UPSOwner")                   ResData.UPS.Owner = sVal;
   else if (sVar == "UPSRepo")               ResData.UPS.Repo = sVal;
@@ -202,10 +241,10 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "UPSSRCLPath")           ResData.UPSSRC.LPath = sVal;
 //else if (sVar == "UPSSRCLForm")           ResData.UPSSRC.LForm = sVal;
   else if (sVar == "UPSSRCAXMLPath")        ResData.UPSSRC.AXMLPath = sVal;
-  else if (sVar == "UPSSRCLFormInAXML")     ResData.UPSSRC.LFormInAXML = sVal;
+//else if (sVar == "UPSSRCLFormInAXML")     ResData.UPSSRC.LFormInAXML = sVal;
 //else if (sVar == "UPSSRCLAXMLPath")       ResData.UPSSRC.LAXMLPath = sVal;
 //else if (sVar == "UPSSRCLAXMLFormat")     ResData.UPSSRC.LAXMLForm = sVal;
-  else if (sVar == "UPSSRCChLogPath")       ResData.UPSSRC.ChLogPath = sVal;
+//else if (sVar == "UPSSRCChLogPath")       ResData.UPSSRC.ChLogPath = sVal;
 
   else if (sVar == "LOCSRCOwner")           ResData.LOCSRC.Owner = sVal;
   else if (sVar == "LOCSRCRepo")            ResData.LOCSRC.Repo = sVal;
@@ -229,7 +268,6 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "UPDResName")            ResData.UPD.ResName = sVal;
   else if (sVar == "UPDLForm")              ResData.UPD.LForm = sVal;
 
-
   else if (sVar == "ResName")               ResData.sResName = sVal;
   else if (sVar == "ChgLogFormat")          ResData.sChgLogFormat = sVal;
   else if (sVar == "GitCommitText")         ResData.sGitCommitText = sVal;
@@ -252,6 +290,8 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   else if (sVar == "ForceTXUpd")            ResData.bForceTXUpd = (sVal == "true");
   else if (sVar == "IsLangAddon")           ResData.bIsLangAddon = (sVal == "true");
   else if (sVar == "HasOnlyAddonXML")       ResData.bHasOnlyAddonXML = (sVal == "true");
+  else if (bIgnoreMissing)
+    return;
 
   else
     CLog::Log(logERROR, "ConfHandler: Unreconised internal variable name: \"%s\"", sVar.c_str());
@@ -286,12 +326,22 @@ void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::str
 
     if (sLine.find("set ") == 0)
       SetInternalVariables(sLine, ResData);
+    else if (sLine.find("pset ") == 0)
+      m_vecPermVariables.push_back(sLine);
     else if (sLine.find("clear ") == 0)
       ClearVariables(sLine, ResData);
     else if (sLine.find("create resource ") == 0)
       CreateResource(ResData, sLine, mapResData, mapResOrder);
     else
       SetExternalVariables(sLine);
+  }
+}
+
+void CUpdateXMLHandler::HandlePermanentVariables(CXMLResdata& ResData)
+{
+  for (std::vector<std::string>::iterator itvec = m_vecPermVariables.begin(); itvec != m_vecPermVariables.end(); itvec++)
+  {
+    SetInternalVariables(*itvec, ResData);
   }
 }
 
@@ -304,6 +354,8 @@ std::string CUpdateXMLHandler::ReplaceResName(std::string sVal, const CXMLResdat
 
 void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData, std::map<int, std::string>& mapResOrder)
 {
+  HandlePermanentVariables(ResData); //Handle Permanent variable assignements, which get new values after each create resource
+
   CXMLResdata ResDataToStore;
 
   //Parse the resource names
@@ -366,10 +418,10 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
   ResDataToStore.UPSSRC.LPath         = ReplaceResName(ResData.UPSSRC.LPath, ResDataToStore);
 //ResDataToStore.UPSSRC.LForm         = ReplaceResName(ResData.UPSSRC.LForm, ResDataToStore);
   ResDataToStore.UPSSRC.AXMLPath      = ReplaceResName(ResData.UPSSRC.AXMLPath, ResDataToStore);
-  ResDataToStore.UPSSRC.LFormInAXML   = ReplaceResName(ResData.UPSSRC.LFormInAXML, ResDataToStore);
+//ResDataToStore.UPSSRC.LFormInAXML   = ReplaceResName(ResData.UPSSRC.LFormInAXML, ResDataToStore);
 //ResDataToStore.UPSSRC.LAXMLPath     = ReplaceResName(ResData.UPSSRC.LAXMLPath, ResDataToStore);
 //ResDataToStore.UPSSRC.LAXMLForm     = ReplaceResName(ResData.UPSSRC.LAXMLForm, ResDataToStore);
-  ResDataToStore.UPSSRC.ChLogPath     = ReplaceResName(ResData.UPSSRC.ChLogPath, ResDataToStore);
+//ResDataToStore.UPSSRC.ChLogPath     = ReplaceResName(ResData.UPSSRC.ChLogPath, ResDataToStore);
 
   ResDataToStore.LOCSRC.Owner         = ReplaceResName(ResData.LOCSRC.Owner, ResDataToStore);
   ResDataToStore.LOCSRC.Repo          = ReplaceResName(ResData.LOCSRC.Repo, ResDataToStore);

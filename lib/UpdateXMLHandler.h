@@ -26,6 +26,7 @@
 #include "TinyXML/tinyxml.h"
 #include <string>
 #include <map>
+#include <vector>
 
 struct CBasicGITData
 {
@@ -104,17 +105,18 @@ private:
                                std::string &strURLRoot, const char strSeparator);
 
   std::map<std::string, std::string> m_MapOfVariables;
+  std::vector<std::string> m_vecPermVariables;
   size_t FindVariable(const std::string& sVar);
   void SetInternalVariables(const std::string& sLine, CXMLResdata& ResData);
   void SetExternalVariables(const std::string& sLine);
-  void SubstituteExternalVariables(std::string& sVar);
+  void SubstituteExternalVariables(std::string& sVar, bool bIgnoreMissing);
 protected:
   void CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData, std::map<int, std::string>& mapResOrder);
+  void HandlePermanentVariables(CXMLResdata& ResData);
   std::string ReplaceResName(std::string sVal, const CXMLResdata& ResData);
   void ClearVariables(const std::string& sLine, CXMLResdata& ResData);
-  void SetInternalVariable(const std::string& sVar, const std::string sVal, CXMLResdata& ResData);
+  void SetInternalVariable(const std::string& sVar, const std::string sVal, CXMLResdata& ResData, bool bIgnoreMissing);
   int iResCounter;
-
 };
 
 #endif
