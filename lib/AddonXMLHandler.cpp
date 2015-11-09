@@ -287,7 +287,10 @@ void CAddonXMLHandler::WriteAddonXMLFile (std::string strAddonXMLFilename)
 
 void CAddonXMLHandler::GenerateAddonXMLFile ()
 {
-  if (m_bBumpAddoXMLVersion)
+  if (m_XMLResData.bSkipVersionBump)
+    sleep (1);
+
+  if (m_bBumpAddoXMLVersion && !m_XMLResData.bSkipVersionBump)
     UpdateVersionNumber();
 
   std::string strXMLEntry;

@@ -39,6 +39,7 @@ CXMLResdata::CXMLResdata()
  bForceTXUpd = false;
  bForceGitDloadToCache = false;
  bSkipGitReset = false;
+ bSkipVersionBump = false;
  bHasOnlyAddonXML = false;
  bIsLangAddon = false;
 }
@@ -378,6 +379,9 @@ void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& 
     ResDataToStore.sGitCommitText = ReplaceResName(ResData.sGitCommitText, ResDataToStore);
     ResDataToStore.sGitCommitTextSRC = ReplaceResName(ResData.sGitCommitTextSRC, ResDataToStore);
   }
+
+  if (sLine.find("SkipVersionBump") != std::string::npos)
+    ResDataToStore.bSkipVersionBump = true;
 
   ResDataToStore.UPS.Owner            = ReplaceResName(ResData.UPS.Owner, ResDataToStore);
   ResDataToStore.UPS.Repo             = ReplaceResName(ResData.UPS.Repo, ResDataToStore);
