@@ -239,7 +239,7 @@ void CHTTPHandler::SetCacheDir(std::string strCacheDir)
   if (!g_File.DirExists(strCacheDir))
     g_File.MakeDir(strCacheDir);
   m_strCacheDir = strCacheDir + DirSepChar;
-  CLog::Log(logINFO, "HTTPHandler: Cache directory set to: %s", strCacheDir.c_str());
+  CLog::Log(logDEBUG, "HTTPHandler: Cache directory set to: %s", strCacheDir.c_str());
 };
 
 bool CHTTPHandler::LoadCredentials (std::string CredentialsFilename)
@@ -248,11 +248,11 @@ bool CHTTPHandler::LoadCredentials (std::string CredentialsFilename)
 
   if (!xmlPasswords.LoadFile(CredentialsFilename.c_str()))
   {
-    CLog::Log(logINFO, "HTTPHandler: No \".passwords.xml\" file exists in project dir. No password protected web download will be available.");
+    CLog::Log(logDEBUG, "HTTPHandler: No \".passwords.xml\" file exists in project dir. No password protected web download will be available.");
     return false;
   }
 
-  CLog::Log(logINFO, "HTTPHandler: Succesfuly found the .passwsords.xml file: %s", CredentialsFilename.c_str());
+  CLog::Log(logDEBUG, "HTTPHandler: Succesfuly found the .passwsords.xml file: %s", CredentialsFilename.c_str());
 
   TiXmlElement* pRootElement = xmlPasswords.RootElement();
 
@@ -278,7 +278,7 @@ bool CHTTPHandler::LoadCredentials (std::string CredentialsFilename)
         LoginData.strPassword = pChildPASSElement->FirstChild()->Value();
 
       m_mapLoginData [strWebSitePrefix] = LoginData;
-      CLog::Log(logINFO, "HTTPHandler: found login credentials for website prefix: %s", strWebSitePrefix.c_str());
+      CLog::Log(logDEBUG, "HTTPHandler: found login credentials for website prefix: %s", strWebSitePrefix.c_str());
     }
     pChildElement = pChildElement->NextSiblingElement("website");
   }
@@ -333,7 +333,7 @@ bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &s
 
   if (sCacheFile == sPOFile)
   {
-    CLog::Log(logINFO, "HTTPHandler::PutFileToURL: not necesarry to upload file as it has not changed from last upload.");
+    CLog::Log(logDEBUG, "HTTPHandler::PutFileToURL: not necesarry to upload file as it has not changed from last upload.");
     return true;
   }
 
@@ -345,7 +345,7 @@ bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &s
     return false;
   }
 
-  CLog::Log(logINFO, "HTTPHandler::PutFileToURL: File upload was successful so creating a copy at the .httpcache directory");
+  CLog::Log(logDEBUG, "HTTPHandler::PutFileToURL: File upload was successful so creating a copy at the .httpcache directory");
 
   if (!bCacheFileExists || bCacheFileExpired)
   {
@@ -425,7 +425,7 @@ long CHTTPHandler::curlPUTPOStrToURL(std::string const &strPOFile, std::string c
     while (nretry < 5 && !bSuccess);
 
     if (bSuccess)
-      CLog::Log(logINFO, "HTTPHandler::curlFileToURL finished with success from File to URL %s", strURL.c_str());
+      CLog::Log(logDEBUG, "HTTPHandler::curlFileToURL finished with success from File to URL %s", strURL.c_str());
     else
       CLog::Log(logERROR, "HTTPHandler::curlFileToURL finished with error: \ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\n",
                 curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), strURL.c_str());
@@ -544,7 +544,7 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
 
   if (sCacheFile == sPOFile)
   {
-    CLog::Log(logINFO, "HTTPHandler::PutFileToURL: not necesarry to upload file as it has not changed from last upload.");
+    CLog::Log(logDEBUG, "HTTPHandler::PutFileToURL: not necesarry to upload file as it has not changed from last upload.");
     return true;
   }
 
@@ -605,7 +605,7 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResda
     while (nretry < 5 && !bSuccess);
 
     if (bSuccess)
-      CLog::Log(logINFO, "CHTTPHandler::CreateNewResource finished with success for resource %s from EN PO file %s to URL %s",
+      CLog::Log(logDEBUG, "CHTTPHandler::CreateNewResource finished with success for resource %s from SRC PO file %s to URL %s",
                 XMLResData.sResName.c_str(), sURLSRCRes.c_str(), sURLCreateRes.c_str());
     else
       CLog::Log(logERROR, "CHTTPHandler::CreateNewResource finished with error:\ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\nlocaldir: %s\nREsource: %s",

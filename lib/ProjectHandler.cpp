@@ -73,9 +73,6 @@ bool CProjectHandler::FetchResourcesFromTransifex()
     const std::string& sResName = it->second.sResName;
 
     printf("%s%s%s (", KMAG, sResName.c_str(), RESET);
-    CLog::Log(logLINEFEED, "");
-    CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from TRANSIFEX: %s", sResName.c_str());
-    CLog::IncIdent(4);
 
     if (listResNamesAvailOnTX.find(sResName) == listResNamesAvailOnTX.end())
     {
@@ -90,7 +87,6 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 
     m_mapResources[sResName] = NewResHandler;
     m_mapResources[sResName].FetchPOFilesTXToMem();
-    CLog::DecIdent(4);
     printf(" )\n");
   }
   return true;
@@ -106,10 +102,6 @@ bool CProjectHandler::FetchResourcesFromUpstream()
     const std::string& sResName = it->first;
 
     printf("%s%s%s (", KMAG, sResName.c_str(), RESET);
-    CLog::Log(logLINEFEED, "");
-    CLog::Log(logINFO, "ProjHandler: ****** FETCH Resource from UPSTREAM: %s ******", sResName.c_str());
-
-    CLog::IncIdent(4);
 
     if (m_mapResources.find(sResName) == m_mapResources.end()) // if it was not created in the map (by TX pull), make a new entry
     {
@@ -120,7 +112,6 @@ bool CProjectHandler::FetchResourcesFromUpstream()
     g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
 
     m_mapResources[sResName].FetchPOFilesUpstreamToMem();
-    CLog::DecIdent(4);
     printf(" )\n");
   }
   return true;
@@ -139,10 +130,6 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     CResourceHandler& ResHandler = itmapResources->second;
     const CXMLResdata& XMLResData = m_mapResData[sResName];
 
-    CLog::Log(logLINEFEED, "");
-    CLog::Log(logINFO, "ProjHandler: *** Write Merged Resource: %s ***", itmapResources->first.c_str());
-    CLog::IncIdent(4);
-
     std::string sMergedLangDir = XMLResData.sProjRootDir + DirSepChar + XMLResData.sMRGLFilesDir + DirSepChar;
     std::string sAddonXMLPath = sMergedLangDir + XMLResData.MRG.AXMLPath;
     std::string sChangeLogPath =  sMergedLangDir + XMLResData.MRG.ChLogPath;
@@ -157,10 +144,8 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
 
     ResHandler.WriteUpdatePOFiles (sPathUpdate);
-
-
-    CLog::DecIdent(4);
   }
+
   printf ("\n\n");
   return true;
 };
@@ -182,9 +167,6 @@ bool CProjectHandler::WriteResourcesToLOCGitRepos(std::string strProjRootDir)
 
 bool CProjectHandler::CreateMergedResources()
 {
-
-  CLog::Log(logINFO, "CreateMergedResources started");
-
   for (T_itmapRes it = m_mapResources.begin(); it != m_mapResources.end(); it++)
   {
     CResourceHandler& ResHandler = it->second;

@@ -54,7 +54,6 @@ bool CResourceHandler::FetchPOFilesTXToMem()
   std::string strURL = "https://www.transifex.com/api/2/project/" + m_XMLResData.TRX.ProjectName + "/resource/" + m_XMLResData.TRX.ResName + "/";
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
-  CLog::Log(logINFO, "ResHandler: Starting to load resource from TX URL: %s into memory",strURL.c_str());
   printf(" Langlist");
 
   g_HTTPHandler.SetFileName("LanguageList.json");
@@ -85,13 +84,7 @@ bool CResourceHandler::FetchPOFilesTXToMem()
     std::string sLangNameTX = g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.TRX.LForm);
     POHandler.FetchPOTXPathToMem(strURL + "translation/" + sLangNameTX + "/?file");
     POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
-
-    CLog::LogTable(logINFO, "txfetch", "\t\t\t%s\t\t%i", sLCode.c_str(), POHandler.GetClassEntriesCount());
   }
-  CLog::LogTable(logADDTABLEHEADER, "txfetch", "--------------------------------------------------------------\n");
-  CLog::LogTable(logADDTABLEHEADER, "txfetch", "FetchPOFilesTX:\tLang\t\tIDEntry\t\tClassEntry\n");
-  CLog::LogTable(logADDTABLEHEADER, "txfetch", "--------------------------------------------------------------\n");
-  CLog::LogTable(logCLOSETABLE, "txfetch", "");
   return true;
 }
 
@@ -194,10 +187,6 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     }
   }
 
-  CLog::LogTable(logADDTABLEHEADER, "upstrFetch", "-----------------------------------------------------------------------------\n");
-  CLog::LogTable(logADDTABLEHEADER, "upstrFetch", "FetchPOFilesUpstr:\tLang\t\tIDEntry\t\tClassEntry\tCommEntry\n");
-  CLog::LogTable(logADDTABLEHEADER, "upstrFetch", "-----------------------------------------------------------------------------\n");
-  CLog::LogTable(logCLOSETABLE, "upstrFetch", "");
   return true;
 }
 
@@ -663,8 +652,7 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
     else
       strLangsToDrop += LCode + ": " + strCompletedPerc + ", ";
   };
-  CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Fetcehed: %s", strLangsToFetch.c_str());
-  CLog::Log(logINFO, "JSONHandler: ParseAvailLangs: Languages to be Dropped (not enough completion): %s", strLangsToDrop.c_str());
+
   return listLangs;
 };
 
@@ -690,7 +678,7 @@ std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
     posWS3 = sLine.find('\t', posWS2+1);
 
     if (posWS1 == std::string::npos || posWS2 == std::string::npos || posWS3 == std::string::npos)
-      CLog::Log(logINFO, "ResHandler::GetAvailLangsGITHUB: Wrong file list format for local github clone filelist, for resource %s", m_XMLResData.sResName.c_str());
+      CLog::Log(logERROR, "ResHandler::GetAvailLangsGITHUB: Wrong file list format for local github clone filelist, for resource %s", m_XMLResData.sResName.c_str());
 
     std::string sSHA = sLine.substr(posWS1 +1, posWS2 - posWS1);
     std::string sReadPath = sLine.substr(posWS3 + 1);
@@ -763,7 +751,7 @@ void CResourceHandler::GetSRCFilesGitData()
     posWS3 = sLine.find('\t', posWS2+1);
 
     if (posWS1 == std::string::npos || posWS2 == std::string::npos || posWS3 == std::string::npos)
-      CLog::Log(logINFO, "ResHandler::GetAvailLangsGITHUB: Wrong file list format for local github clone filelist, for resource %s", m_XMLResData.sResName.c_str());
+      CLog::Log(logERROR, "ResHandler::GetAvailLangsGITHUB: Wrong file list format for local github clone filelist, for resource %s", m_XMLResData.sResName.c_str());
 
     std::string sSHA = sLine.substr(posWS1 +1, posWS2 - posWS1);
     std::string sReadPath = sLine.substr(posWS3 + 1);

@@ -139,9 +139,7 @@ int main(int argc, char* argv[])
     if (WorkingDir[WorkingDir.length()-1] != DirSepChar)
       WorkingDir.append(&DirSepChar);
 
-    CLog::SetbWriteSyntaxLog(bDownloadNeeded);
-    CLog::Init(WorkingDir + "kodi-txupdate.log", WorkingDir + "txupdate-syntax.log");
-    CLog::Log(logINFO, "Root Directory: %s", WorkingDir.c_str());
+    CLog::Log(logDEBUG, "Root Directory: %s", WorkingDir.c_str());
 
     g_HTTPHandler.LoadCredentials(WorkingDir + ".passwords.xml");
     g_HTTPHandler.SetCacheDir(WorkingDir + ".httpcache");
@@ -162,22 +160,12 @@ int main(int argc, char* argv[])
       printf("DOWNLOADING RESOURCES FROM TRANSIFEX.NET\n");
       printf("----------------------------------------%s\n", RESET);
 
-      CLog::Log(logLINEFEED, "");
-      CLog::Log(logINFO, "****************************************");
-      CLog::Log(logINFO, "DOWNLOADING RESOURCES FROM TRANSIFEX.NET");
-      CLog::Log(logINFO, "****************************************");
-
       TXProject.FetchResourcesFromTransifex();
 
       printf("\n%s", KGRN);
       printf("-----------------------------------\n");
       printf("DOWNLOADING RESOURCES FROM UPSTREAM\n");
       printf("-----------------------------------%s\n", RESET);
-
-      CLog::Log(logLINEFEED, "");
-      CLog::Log(logINFO, "***********************************");
-      CLog::Log(logINFO, "DOWNLOADING RESOURCES FROM UPSTREAM");
-      CLog::Log(logINFO, "***********************************");
 
       TXProject.FetchResourcesFromUpstream();
 
@@ -191,17 +179,11 @@ int main(int argc, char* argv[])
         printf("WRITING MERGED RESOURCES TO HDD\n");
         printf("--------------------------------------------%s\n", RESET);
 
-        CLog::Log(logLINEFEED, "");
-        CLog::Log(logINFO, "********************************************");
-        CLog::Log(logINFO, "WRITING MERGED AND TXUPDATE RESOURCES TO HDD");
-        CLog::Log(logINFO, "********************************************");
-
         TXProject.WriteResourcesToFile(WorkingDir);
       }
 
       if (true)
       {
-
         printf("\n%s", KGRN);
         printf("--------------------------------------------\n");
         printf("WRITING RESOURCES TO LOCAL GITHUB REPOS\n");
@@ -234,14 +216,11 @@ int main(int argc, char* argv[])
 
     g_HTTPHandler.CleanCacheFiles();
 
-    CLog::SetbWriteSyntaxLog(bDownloadNeeded);
-
     if (CLog::GetWarnCount() ==0)
     {
       printf("\n%s", KGRN);
       printf("--------------------------------------------\n");
       printf("PROCESS FINISHED SUCCESFULLY WITHOUT WARNINGS\n");
-      printf("SYNTAX WARNINGS %s%i%s\n", KRED, CLog::GetSyntaxWarnCount(), KGRN);
       printf("--------------------------------------------%s\n\n", RESET);
     }
     else
@@ -249,18 +228,15 @@ int main(int argc, char* argv[])
       printf("\n");
       printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
       printf("PROCESS FINISHED WITH %i WARNINGS\n", CLog::GetWarnCount());
-      printf("SYNTAX WARNINGS %i\n", CLog::GetSyntaxWarnCount());
       printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
     }
 
-    CLog::Close();
     g_HTTPHandler.Cleanup();
     return 0;
   }
   catch (const int calcError)
   {
     g_HTTPHandler.Cleanup();
-    CLog::Close();
     return 100;
   }
 }

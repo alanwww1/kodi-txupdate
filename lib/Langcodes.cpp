@@ -74,7 +74,7 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata
 
   m_mapLCodes = ParseTransifexLanguageDatabase(strtemp, XMLResData);
 
-  CLog::Log(logINFO, "LCodeHandler: Succesfully fetched %i language codes from URL %s", m_mapLCodes.size(), strLangDatabaseURL.c_str());
+  CLog::Log(logDEBUG, "LCodeHandler: Succesfully fetched %i language codes from URL %s", m_mapLCodes.size(), strLangDatabaseURL.c_str());
 }
 
 int CLCodeHandler::GetnPlurals(std::string LangCode)

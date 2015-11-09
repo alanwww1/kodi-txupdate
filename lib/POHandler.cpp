@@ -557,7 +557,7 @@ bool CPOHandler::GetNextEntry(bool bSkipError)
     if (m_nextEntryPos != m_POfilelength-1 && !bSkipError)
     {
       if (m_CurrentEntryText.find_first_not_of("\n") == std::string::npos)
-        CLog::Log(logINFO, "POParser: Empty line(s) found at position: %i, ignored.", oldCursorPos);
+        CLog::Log(logDEBUG, "POParser: Empty line(s) found at position: %i, ignored.", oldCursorPos);
       else
         CLog::Log(logWARNING, "POParser: unknown entry found at position %i, Failed entry: %s", oldCursorPos,
                   m_CurrentEntryText.substr(0,m_CurrentEntryText.size()-1).c_str());
@@ -670,7 +670,7 @@ void CPOHandler::ParseEntry()
       if (strCommnt.at(0) != ' ')
       {
         strCommnt = " " + strCommnt;
-        CLog::SyntaxLog(logWARNING, "POParser: Wrong comment format. Space needed. Failed entry: %s", m_CurrentEntryText.c_str());
+        CLog::Log(logWARNING, "POParser: Wrong comment format. Space needed. Failed entry: %s", m_CurrentEntryText.c_str());
       }
       m_Entry.referenceComm.push_back(strCommnt);
     }
@@ -683,7 +683,7 @@ void CPOHandler::ParseEntry()
       if (strCommnt.at(0) != ' ')
       {
         strCommnt = " " + strCommnt;
-        CLog::SyntaxLog(logWARNING, "POParser: Wrong comment format. Space needed. Failed entry: %s", m_CurrentEntryText.c_str());
+        CLog::Log(logWARNING, "POParser: Wrong comment format. Space needed. Failed entry: %s", m_CurrentEntryText.c_str());
       }
       m_Entry.extractedComm.push_back(strCommnt);
     }
@@ -714,7 +714,6 @@ void CPOHandler::ParseEntry()
   {
     m_Entry.msgID = " ";
     CLog::Log(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_CurrentEntryText.c_str());
-    CLog::SyntaxLog(logWARNING, "POParser: empty msgid field corrected to a space char. Failed entry: %s", m_CurrentEntryText.c_str());
   }
   return;
 };
