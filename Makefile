@@ -38,7 +38,7 @@ lib/Log.cpp \
 lib/POHandler.cpp \
 lib/ResourceHandler.cpp \
 lib/ProjectHandler.cpp \
-lib/UpdateXMLHandler.cpp \
+lib/ConfigHandler.cpp \
 lib/AddonXMLHandler.cpp \
 $(OUTPUT)
 
@@ -66,7 +66,7 @@ FileUtils.o: FileUtils.h FileUtils.cpp Log.cpp Log.h
 POHandler.o: POHandler.h POHandler.cpp Log.cpp Log.h
 ResourceHandler.o: ResourceHandler.h ResourceHandler.cpp POHandler.h POHandler.cpp Log.cpp Log.h
 ProjectHandler.o: ProjectHandler.h ProjectHandler.cpp ResourceHandler.h ResourceHandler.cpp Log.cpp Log.h
-UpdateXMLHandler.o: UpdateXMLHandler.h Log.cpp Log.h tinyxml.o
+ConfigHandler.o: ConfigHandler.h Log.cpp Log.h tinyxml.o
 HTTPUtils.o: HTTPUtils.h Log.h Log.cpp
 Fileversioning.o: Fileversioning.h HTTPUtils.h HTTPUtils.cpp
 AddonXMLHandler.cpp: AddonXMLHandler.h

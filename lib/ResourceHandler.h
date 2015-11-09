@@ -22,7 +22,7 @@
 
 #include "POHandler.h"
 #include "AddonXMLHandler.h"
-#include "UpdateXMLHandler.h"
+#include "ConfigHandler.h"
 #include <list>
 
 typedef std::map<std::string, CPOHandler>::iterator T_itmapPOFiles;

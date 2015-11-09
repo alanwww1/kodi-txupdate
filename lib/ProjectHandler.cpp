@@ -24,7 +24,7 @@
 #include "HTTPUtils.h"
 #include "jsoncpp/json/json.h"
 #include <algorithm>
-#include "UpdateXMLHandler.h"
+#include "ConfigHandler.h"
 #include "Log.h"
 #include "CharsetUtils/CharsetUtils.h"
 #include "FileUtils/FileUtils.h"

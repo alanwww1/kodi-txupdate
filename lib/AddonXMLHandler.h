@@ -22,7 +22,7 @@
 
 #include "POHandler.h"
 #include "TinyXML/tinyxml.h"
-#include "UpdateXMLHandler.h"
+#include "ConfigHandler.h"
 #include <set>
 
 struct COtherAddonMetadata

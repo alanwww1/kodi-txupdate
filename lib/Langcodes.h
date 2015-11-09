@@ -27,7 +27,7 @@
 #include <string>
 #include <map>
 #include <list>
-#include "UpdateXMLHandler.h"
+#include "ConfigHandler.h"
 
 struct CLangcodes
 {

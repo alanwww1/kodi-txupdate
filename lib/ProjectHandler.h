@@ -21,7 +21,7 @@
 #pragma once
 
 #include "ResourceHandler.h"
-#include "UpdateXMLHandler.h"
+#include "ConfigHandler.h"
 #include <list>
 
 

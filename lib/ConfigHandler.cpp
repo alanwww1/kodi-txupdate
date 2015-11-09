@@ -19,7 +19,7 @@
  *
  */
 
-#include "UpdateXMLHandler.h"
+#include "ConfigHandler.h"
 #include "Log.h"
 #include <stdlib.h>
 #include <sstream>

@@ -25,7 +25,7 @@
 #include <vector>
 #include <algorithm>
 #include "HTTPUtils.h"
-#include "UpdateXMLHandler.h"
+#include "ConfigHandler.h"
 #include "FileUtils/FileUtils.h"
 #include "CharsetUtils/CharsetUtils.h"
 #include "Log.h"

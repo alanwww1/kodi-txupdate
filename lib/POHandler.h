@@ -23,7 +23,7 @@
 
 #include <map>
 #include "TinyXML/tinyxml.h"
-#include "UpdateXMLHandler.h"
+#include "ConfigHandler.h"
 #include <vector>
 #include <stdint.h>
 #include <stdio.h>
