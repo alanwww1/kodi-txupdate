@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
   if (argc == 2)
     {bDownloadNeeded = true; bMergeNeeded = true;}
 
-  printf("\nKODI-TXUPDATE v%s by Team Kodi\n", VERSION.c_str());
+  CLog::Log (logPRINT, "\nKODI-TXUPDATE v%s by Team Kodi\n", VERSION.c_str());
 
   try
   {

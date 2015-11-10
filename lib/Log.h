@@ -27,9 +27,8 @@
 
 using namespace std;
 
-enum TLogLevel { logERROR, logWARNING, logDEBUG, logLINEFEED, logCLOSETABLE, logADDTABLEHEADER };
+enum TLogLevel { logPRINT, logERROR, logWARNING, logDEBUG};
 
-const std::string listLogTypes[] = {"ERROR", "WARNING", "DEBUG"};
 const std::string VERSION = "0.600";
 
 // std::out colorcodes
@@ -42,12 +41,6 @@ const std::string VERSION = "0.600";
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 #define RESET "\033[0m"
-
-struct CLogIdent
-{
-  std::string logPrefix;
-  int ident;
-};
 
 class CLog
 {

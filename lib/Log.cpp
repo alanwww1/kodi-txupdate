@@ -36,13 +36,6 @@ CLog::~CLog()
 
 void CLog::Log(TLogLevel loglevel, const char *format, ... )
 {
-
-  if (loglevel == logLINEFEED)
-  {
-    printf("\n");
-    return;
-  }
-
   if (loglevel == logWARNING)
     m_numWarnings++;
 
@@ -53,25 +46,24 @@ void CLog::Log(TLogLevel loglevel, const char *format, ... )
 
   std::string strFormat = format;
 
-  printf(strFormat.c_str(), va);
-  printf("\n");
-  va_end(va);
+  if (loglevel == logPRINT)
+    vprintf(strFormat.c_str(), va);
 
-  if (loglevel == logERROR || loglevel == logWARNING)
+  else if (loglevel == logWARNING)
   {
-    va_list va1;
-    va_start(va1, format);
-    char cstrLogMessage[1024];
-    vsprintf(cstrLogMessage, format, va1);
-    va_end(va1);
-    if (loglevel == logERROR)
-    {
-      printf ("\nError message thrown: %s\n\n", cstrLogMessage);
-      throw 1;
-    }
-    else
-      printf ("\n%sWarning log message: %s%s\n\n", KRED, cstrLogMessage, RESET);
+    printf("\n%sWarning log message:", KRED);
+    vprintf(strFormat.c_str(), va);
+    printf("%s\n\n", RESET);
   }
+  else if (loglevel == logERROR)
+  {
+    printf("\n%sError message thrown:", KRED);
+    vprintf(strFormat.c_str(), va);
+    printf("%s\n\n", RESET);
+    throw 1;
+  }
+
+  va_end(va);
 
   return;
 };
