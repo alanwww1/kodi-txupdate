@@ -49,7 +49,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
-  printf ("TXresourcelist");
+  CLog::Log(logPRINT, "TXresourcelist");
 
   //TODO multiple projects
   const std::string& sProjectName = m_mapResData.begin()->second.TRX.ProjectName;
@@ -64,7 +64,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   if (strtemp.empty())
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
 
-  printf ("\n\n");
+  CLog::Log(logPRINT, "\n\n");
 
   std::set<std::string> listResNamesAvailOnTX = ParseResources(strtemp);
 //TODO collect out txprojectnames, check all resources in them, if we need to download
@@ -72,11 +72,11 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   {
     const std::string& sResName = it->second.sResName;
 
-    printf("%s%s%s (", KMAG, sResName.c_str(), RESET);
+    CLog::Log(logPRINT, "%s%s%s (", KMAG, sResName.c_str(), RESET);
 
     if (listResNamesAvailOnTX.find(sResName) == listResNamesAvailOnTX.end())
     {
-      printf(" ) Not yet available at Transifex\n");
+      CLog::Log(logPRINT, " ) Not yet available at Transifex\n");
       continue;
     }
 
@@ -87,7 +87,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
 
     m_mapResources[sResName] = NewResHandler;
     m_mapResources[sResName].FetchPOFilesTXToMem();
-    printf(" )\n");
+    CLog::Log(logPRINT, " )\n");
   }
   return true;
 };
@@ -101,7 +101,7 @@ bool CProjectHandler::FetchResourcesFromUpstream()
     const CXMLResdata& XMLResData = it->second;
     const std::string& sResName = it->first;
 
-    printf("%s%s%s (", KMAG, sResName.c_str(), RESET);
+    CLog::Log(logPRINT, "%s%s%s (", KMAG, sResName.c_str(), RESET);
 
     if (m_mapResources.find(sResName) == m_mapResources.end()) // if it was not created in the map (by TX pull), make a new entry
     {
@@ -112,7 +112,7 @@ bool CProjectHandler::FetchResourcesFromUpstream()
     g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
 
     m_mapResources[sResName].FetchPOFilesUpstreamToMem();
-    printf(" )\n");
+    CLog::Log(logPRINT, " )\n");
   }
   return true;
 };
@@ -146,7 +146,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     ResHandler.WriteUpdatePOFiles (sPathUpdate);
   }
 
-  printf ("\n\n");
+  CLog::Log(logPRINT, "\n\n");
   return true;
 };
 
@@ -160,7 +160,7 @@ bool CProjectHandler::WriteResourcesToLOCGitRepos(std::string strProjRootDir)
 
     ResHandler.WriteLOCPOFiles();
   }
-  printf ("\n\n");
+  CLog::Log(logPRINT, "\n\n");
   return true;
 };
 
@@ -179,10 +179,10 @@ bool CProjectHandler::CreateMergedResources()
 void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 {
   char charInput;
-  printf ("\n");
+  CLog::Log(logPRINT, "\n");
   do
   {
-    printf ("%sChoose option:%s %s0%s:Continue with update Transifex %s1%s:VIM UPD files %s2%s:VIM MRG files %ss%s:Skip. Your Choice:   \b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
+    CLog::Log(logPRINT, "%sChoose option:%s %s0%s:Continue with update Transifex %s1%s:VIM UPD files %s2%s:VIM MRG files %ss%s:Skip. Your Choice:   \b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
     cin >> charInput;
 
     if (charInput == '1')
@@ -198,15 +198,15 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
     else if (charInput == 's')
       return;
 
-    printf ("\e[A");
+    CLog::Log(logPRINT, "\e[A");
   }
   while (charInput != '0');
 
-  printf ("                                                                                                                                        \n\e[A");
+  CLog::Log(logPRINT, "                                                                                                                                        \n\e[A");
 
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
-  printf ("TXresourcelist");
+  CLog::Log(logPRINT, "TXresourcelist");
 
   //TODO
   const std::string& strTargetProjectName = m_mapResData.begin()->second.UPD.ProjectName;
@@ -219,7 +219,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
     CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
 
   g_HTTPHandler.SetSkipCache(false);
-  printf ("\n\n");
+  CLog::Log(logPRINT, "\n\n");
 
   std::set<std::string> lResourcesAtTX = ParseResources(strtemp);
 
@@ -253,19 +253,19 @@ void CProjectHandler::MigrateTranslators()
 
   std::map<std::string, std::string> mapCoordinators, mapReviewers, mapTranslators;
 
-  printf("\n%sCoordinators:%s\n", KGRN, RESET);
+  CLog::Log(logPRINT, "\n%sCoordinators:%s\n", KGRN, RESET);
   mapCoordinators = g_LCodeHandler.GetTranslatorsDatabase("coordinators", strProjectName, XMLResdata);
 
-  printf("\n%sReviewers:%s\n", KGRN, RESET);
+  CLog::Log(logPRINT, "\n%sReviewers:%s\n", KGRN, RESET);
   mapReviewers = g_LCodeHandler.GetTranslatorsDatabase("reviewers", strProjectName, XMLResdata);
 
-  printf("\n%sTranslators:%s\n", KGRN, RESET);
+  CLog::Log(logPRINT, "\n%sTranslators:%s\n", KGRN, RESET);
   mapTranslators = g_LCodeHandler.GetTranslatorsDatabase("translators", strProjectName, XMLResdata);
 
-  printf("\n%s", KGRN);
-  printf("-----------------------------\n");
-  printf("PUSH TRANSLATION GROUPS TO TX\n");
-  printf("-----------------------------%s\n", RESET);
+  CLog::Log(logPRINT, "\n%s", KGRN);
+  CLog::Log(logPRINT, "-----------------------------\n");
+  CLog::Log(logPRINT, "PUSH TRANSLATION GROUPS TO TX\n");
+  CLog::Log(logPRINT, "-----------------------------%s\n", RESET);
 
   g_LCodeHandler.UploadTranslatorsDatabase(mapCoordinators, mapReviewers, mapTranslators, strTargetProjectName, strTargetTXLangFormat);
 };

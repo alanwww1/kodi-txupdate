@@ -54,7 +54,7 @@ bool CResourceHandler::FetchPOFilesTXToMem()
   std::string strURL = "https://www.transifex.com/api/2/project/" + m_XMLResData.TRX.ProjectName + "/resource/" + m_XMLResData.TRX.ResName + "/";
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
-  printf(" Langlist");
+  CLog::Log(logPRINT, " Langlist");
 
   g_HTTPHandler.SetFileName("LanguageList.json");
   g_HTTPHandler.SetDataFile(true);
@@ -73,7 +73,7 @@ bool CResourceHandler::FetchPOFilesTXToMem()
   for (std::list<std::string>::iterator it = listLCodesTX.begin(); it != listLCodesTX.end(); it++)
   {
     const std::string& sLCode = *it;
-    printf (" %s", sLCode.c_str());
+    CLog::Log(logPRINT, " %s", sLCode.c_str());
     m_mapTRX[sLCode] = newPOHandler;
 
     CPOHandler& POHandler = m_mapTRX[sLCode];
@@ -104,7 +104,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   g_HTTPHandler.SetFileName("LocalFileList.txt");
   g_HTTPHandler.SetDataFile(true);
 
-  printf(" GitDir");
+  CLog::Log(logPRINT, " GitDir");
   listLangsWithStringsPO = GetAvailLangsGITHUB();
 
   if (m_XMLResData.bIsLangAddon)
@@ -137,7 +137,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     bool bHasPreviousVersion = false;
 
     if (bLangHasStringsPO && bHasLanguageFiles)
-      printf (" %s", sLCode.c_str());
+      CLog::Log(logPRINT, " %s", sLCode.c_str());
 
     if (bLangHasStringsPO && bHasLanguageFiles && m_XMLResData.bIsLangAddon) // Download individual addon.xml files for language-addons
     {
@@ -488,7 +488,7 @@ void CResourceHandler::WriteLOCPOFiles()
 
   if (!m_XMLResData.sGitCommitTextSRC.empty() && !m_XMLResData.bHasOnlyAddonXML)
   {
-    printf("\n");
+    CLog::Log(logPRINT, "\n");
 
     if (m_XMLResData.bIsLangAddon)
     {
@@ -503,25 +503,25 @@ void CResourceHandler::WriteLOCPOFiles()
 
     sCommand = "cd " + sGitDir + ";";
     sCommand += "git add " + sPOPathSRC;
-    printf("%sGIT add SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+    CLog::Log(logPRINT, "%sGIT add SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
     g_File.SytemCommand(sCommand);
 
     sCommand = "cd " + sGitDir + ";";
     sCommand += "git commit -m \"" + m_XMLResData.sGitCommitTextSRC + "\"";
-    printf("%sGIT commit SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+    CLog::Log(logPRINT, "%sGIT commit SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
     g_File.SytemCommand(sCommand);
   }
 
   if (!m_XMLResData.sGitCommitText.empty())
   {
-    printf("\n");
+    CLog::Log(logPRINT, "\n");
 
     sGitDir = sLOCGITDir;
 
     sCommand = "cd " + sGitDir + ";";
     sCommand += "git add -A;";
     sCommand += "git commit -am \"" + m_XMLResData.sGitCommitText + "\"";
-    printf("%sGIT commit with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+    CLog::Log(logPRINT, "%sGIT commit with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
     g_File.SytemCommand(sCommand);
   }
 
@@ -547,18 +547,18 @@ void CResourceHandler::WriteUpdatePOFiles(const std::string& strPath)
 void CResourceHandler::GenerateMergedPOFiles()
 {
 
-  printf ("%s", RESET);
+  CLog::Log(logPRINT, "%s", RESET);
 
   if (!m_XMLResData.bIsLangAddon)
     m_AddonXMLHandler.ClearAllAddonXMLEntries();
 
 
-  printf("Generating merged and update PO files: %s%s%s\n", KMAG, m_XMLResData.sResName.c_str(), RESET);
+  CLog::Log(logPRINT, "Generating merged and update PO files: %s%s%s\n", KMAG, m_XMLResData.sResName.c_str(), RESET);
   if (!m_lChangedLangsFromUPS.empty())
   {
-    printf("  Changed Langs in strings files from upstream: ");
+    CLog::Log(logPRINT, "  Changed Langs in strings files from upstream: ");
     PrintChangedLangs(m_lChangedLangsFromUPS);
-    printf ("\n");
+    CLog::Log(logPRINT, "\n");
   }
 
   for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
@@ -586,16 +586,16 @@ void CResourceHandler::GenerateUpdatePOFiles()
 {
   if (!m_lLangsToUPD.empty())
   {
-    printf("%s  Langs to update%s to Transifex from upstream: ", KRED, RESET);
+    CLog::Log(logPRINT, "%s  Langs to update%s to Transifex from upstream: ", KRED, RESET);
     PrintChangedLangs(m_lLangsToUPD);
-    printf ("\n");
+    CLog::Log(logPRINT, "\n");
   }
 
   if (!m_lLangsWithDeletedEntry.empty())
   {
-    printf("  Langs which has entry to %sdelete upstream%s, like deleted at Transifex: ", KRED, RESET);
+    CLog::Log(logPRINT, "  Langs which has entry to %sdelete upstream%s, like deleted at Transifex: ", KRED, RESET);
     PrintChangedLangs(m_lLangsWithDeletedEntry);
-    printf ("\n");
+    CLog::Log(logPRINT, "\n");
   }
 
   for (T_itmapPOFiles itmapPOFiles = m_mapUPD.begin(); itmapPOFiles != m_mapUPD.end(); itmapPOFiles++)
@@ -801,18 +801,18 @@ void CResourceHandler::PrintChangedLangs(const std::set<std::string>& lChangedLa
 {
   std::set<std::string>::iterator itLangs;
   std::size_t counter = 0;
-  printf ("%s", KCYN);
+  CLog::Log(logPRINT, "%s", KCYN);
   for (itLangs = lChangedLangs.begin() ; itLangs != lChangedLangs.end(); itLangs++)
   {
-    printf ("%s ", itLangs->c_str());
+    CLog::Log(logPRINT, "%s ", itLangs->c_str());
     counter++;
     if (counter > 10)
     {
-      printf ("+ %i langs ", (int)lChangedLangs.size() - 10);
+      CLog::Log(logPRINT, "+ %i langs ", (int)lChangedLangs.size() - 10);
       break;
     }
   }
-  printf ("%s", RESET);
+  CLog::Log(logPRINT, "%s", RESET);
 }
 
 void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
@@ -820,12 +820,12 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
 
-  printf ("Uploading files for resource: %s%s%s", KMAG, m_XMLResData.sResName.c_str(), RESET);
+  CLog::Log(logPRINT, "Uploading files for resource: %s%s%s", KMAG, m_XMLResData.sResName.c_str(), RESET);
 
 
   if (m_mapUPD.empty()) // No update needed for the specific resource (not even an English one)
   {
-    printf (", no upload was necesarry.\n");
+    CLog::Log(logPRINT, ", no upload was necesarry.\n");
     return;
   }
 
@@ -847,7 +847,7 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
     g_HTTPHandler.ReInit();
   }
 
-  printf ("\n");
+  CLog::Log(logPRINT, "\n");
 
   // Upload the source file in case there is one to update
   if (m_mapUPD.find(m_XMLResData.sSRCLCode) != m_mapUPD.end() && !bNewResourceOnTRX)

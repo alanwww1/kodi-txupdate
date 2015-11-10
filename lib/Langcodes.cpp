@@ -45,9 +45,9 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit(); 
 
-  printf("-----------------------------\n");
-  printf("DOWNLOADING LANGUAGE DATABASE\n");
-  printf("-----------------------------\n");
+  CLog::Log(logPRINT, "-----------------------------\n");
+  CLog::Log(logPRINT, "DOWNLOADING LANGUAGE DATABASE\n");
+  CLog::Log(logPRINT, "-----------------------------\n");
 
   g_HTTPHandler.SetLocation("UPS");
   g_HTTPHandler.SetProjectName("");
@@ -58,7 +58,7 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata
 
   // We get the version of the language database files here
   std::string strGitHubURL = g_HTTPHandler.GetGitHUBAPIURL(strLangDatabaseURL.substr(0,strLangDatabaseURL.find_last_of("/")+1));
-  printf("Langdatabaseversion");
+  CLog::Log(logPRINT, "Langdatabaseversion");
   std::string strtemp = g_HTTPHandler.GetURLToSTR(strGitHubURL);
   if (strtemp.empty())
     CLog::Log(logERROR, "CLCodeHandler::Init: error getting language file version from github.com with URL: %s", strLangDatabaseURL.c_str());
@@ -67,7 +67,7 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata
 
   g_HTTPHandler.SetFileName("LangDatabase.json");
 
-  printf(" Langdatabase");
+  CLog::Log(logPRINT, " Langdatabase");
   strtemp = g_HTTPHandler.GetURLToSTR(strLangDatabaseURL);
   if (strtemp.empty())
     CLog::Log(logERROR, "LangCode::Init: error getting available language list from URL %s", strLangDatabaseURL.c_str());
@@ -182,7 +182,7 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const 
     const Json::Value JRoot = root;
     const Json::Value JNames = JRoot[strContributorType];
 
-    printf ("\n%s%s%s ", KMAG, strLangCode.c_str(), RESET);
+    CLog::Log(logPRINT, "\n%s%s%s ", KMAG, strLangCode.c_str(), RESET);
 
     std::list<std::string> listNames;
 
@@ -194,7 +194,7 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const 
       if (strName == "")
         CLog::Log(logERROR, "CJSONHandler::ParseTranslatorsDatabase: no valid JSON data downloaded from Github");
 
-      printf ("%s%s%s ", KCYN, strName.c_str(), RESET);
+      CLog::Log(logPRINT, "%s%s%s ", KCYN, strName.c_str(), RESET);
       listNames.push_back(strName);
     }
 
@@ -228,8 +228,8 @@ void  CLCodeHandler::UploadTranslatorsDatabase(std::map<std::string, std::string
 
     strJson += "}";
 
-    printf ("%s%s%s ", KMAG, strLangCode.c_str(), RESET);
-    printf("strjson: %s\nstrurl: %s\n\n\n", strJson.c_str(), strURL.c_str());
+    CLog::Log(logPRINT, "%s%s%s ", KMAG, strLangCode.c_str(), RESET);
+    CLog::Log(logPRINT, "strjson: %s\nstrurl: %s\n\n\n", strJson.c_str(), strURL.c_str());
 
     g_HTTPHandler.UploadTranslatorsDatabase(strJson, strURL);
 

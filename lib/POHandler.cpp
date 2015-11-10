@@ -870,7 +870,7 @@ void CPOHandler::CreateNewResource()
 
   size_t iAddedNew = 0;
   g_HTTPHandler.CreateNewResource(m_strOutBuffer, m_XMLResData, iAddedNew);
-  printf (", newly created on Transifex with %s%lu%s English strings.\n", KGRN, iAddedNew, RESET);
+  CLog::Log(logPRINT, ", newly created on Transifex with %s%lu%s English strings.\n", KGRN, iAddedNew, RESET);
 }
 
 void CPOHandler::PutSRCFileToTRX()
@@ -885,9 +885,9 @@ void CPOHandler::PutSRCFileToTRX()
   "/resource/" + m_XMLResData.UPD.ResName + "/content/", bUploaded, iAddedNew, iUpdated);
 
   if (bUploaded)
-    printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
+    CLog::Log(logPRINT, "\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
   else
-    printf ("\tlangcode: %s:\t no change, skipping.\n", m_sLCode.c_str());
+    CLog::Log(logPRINT, "\tlangcode: %s:\t no change, skipping.\n", m_sLCode.c_str());
 }
 
 void CPOHandler::PutTranslFileToTRX()
@@ -903,7 +903,7 @@ void CPOHandler::PutTranslFileToTRX()
                              "/resource/" + m_XMLResData.UPD.ResName + "/translation/"
                              + g_LCodeHandler.GetLangFromLCode(m_sLCode, m_XMLResData.UPD.LForm) + "/", bUploaded, iAddedNew, iUpdated);
   if (bUploaded)
-    printf ("\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
+    CLog::Log(logPRINT, "\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
   else
-    printf ("\tlangcode: %s:\t no change, skipping.\n", m_sLCode.c_str());
+    CLog::Log(logPRINT, "\tlangcode: %s:\t no change, skipping.\n", m_sLCode.c_str());
 }

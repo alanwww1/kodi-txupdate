@@ -37,7 +37,7 @@ CFileversion::~CFileversion()
 
 void CFileversion::SetVersionForURL(const string& strURL, const string& strVersion)
 {
-//  printf ("%s:%s\n", strURL.c_str(), strVersion.c_str());
+//  CLog::Log(logPRINT, "%s:%s\n", strURL.c_str(), strVersion.c_str());
   m_mapVersions[strURL] = strVersion;
 }
 

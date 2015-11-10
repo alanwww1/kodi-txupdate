@@ -50,11 +50,11 @@ void CAddonXMLHandler::FetchAddonDataFiles()
   if (m_XMLResData.bIsLangAddon)
     return; // kodi language-addons have individual addon.xml files
 
-  printf(" Addxml");
+  CLog::Log(logPRINT, " Addxml");
   FetchAddonXMLFileUpstr();
   if (!m_XMLResData.sChgLogFormat.empty())
   {
-    printf(" Chlog");
+    CLog::Log(logPRINT, " Chlog");
     FetchAddonChangelogFile();
   }
 }

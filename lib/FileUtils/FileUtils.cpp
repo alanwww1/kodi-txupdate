@@ -409,7 +409,7 @@ void CFile::CleanDir(string baseDir, bool recursive, const std::set<std::string>
             CleanDir(sDir, true, mapValidCacheFiles);
           else
           {
-            printf("\n%s", sDir.c_str());
+            CLog::Log(logPRINT, "\n%s", sDir.c_str());
             DeleteDirectory(sDir);
           }
         }
@@ -418,7 +418,7 @@ void CFile::CleanDir(string baseDir, bool recursive, const std::set<std::string>
           std::string sFileName = baseDir + dirp->d_name;
           if (!IsValidPath(mapValidCacheFiles, sFileName))
           {
-            printf("\n%s", sFileName.c_str());
+            CLog::Log(logPRINT, "\n%s", sFileName.c_str());
             DeleteFile(sFileName);
           }
         }

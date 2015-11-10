@@ -42,8 +42,7 @@ using namespace std;
 
 void PrintUsage()
 {
-  printf
-  (
+  CLog::Log(logPRINT,
   "Usage: kodi-txpudate PROJECTDIR [working mode]\n\n"
   "PROJECTDIR: the directory which contains the kodi-txupdate.xml settings file and the .passwords file.\n"
   "            This will be the directory where your merged and transifex update files get generated.\n\n"
@@ -55,8 +54,7 @@ void PrintUsage()
   "     No working mode arguments used, performs as -dm\n\n"
   );
   #ifdef _MSC_VER
-  printf
-  (
+  CLog::Log(logPRINT,
   "Note for Windows users: In case you have whitespace or any special character\n"
   "in the directory argument, please use apostrophe around them. For example:\n"
   "kodi-txupdate.exe \"C:\\kodi dir\\language\"\n"
@@ -70,7 +68,7 @@ int main(int argc, char* argv[])
   setbuf(stdout, NULL);
   if (argc > 3 || argc < 2)
   {
-    printf ("\nBad arguments given\n\n");
+    CLog::Log(logPRINT, "\nBad arguments given\n\n");
     PrintUsage();
     return 1;
   }
@@ -86,7 +84,7 @@ int main(int argc, char* argv[])
    WorkingDir = argv[1];
   if (WorkingDir.empty() || !g_File.DirExists(WorkingDir))
   {
-    printf ("\nMissing or wrong project directory specified: %s, stopping.\n\n", WorkingDir.c_str());
+    CLog::Log(logPRINT, "\nMissing or wrong project directory specified: %s, stopping.\n\n", WorkingDir.c_str());
     PrintUsage();
     return 1;
   }
@@ -103,7 +101,7 @@ int main(int argc, char* argv[])
       strMode = argv[2];
     if (strMode.empty() && strMode[0] != '-')
     {
-      printf ("\nMissing or wrong working mode format used. Stopping.\n\n");
+      CLog::Log(logPRINT, "\nMissing or wrong working mode format used. Stopping.\n\n");
       PrintUsage();
       return 1;
     }
@@ -124,7 +122,7 @@ int main(int argc, char* argv[])
 
     else
     {
-      printf ("\nWrong working mode arguments used. Stopping.\n\n");
+      CLog::Log(logPRINT, "\nWrong working mode arguments used. Stopping.\n\n");
       PrintUsage();
       return 1;
     }
@@ -132,7 +130,7 @@ int main(int argc, char* argv[])
   if (argc == 2)
     {bDownloadNeeded = true; bMergeNeeded = true;}
 
-  CLog::Log (logPRINT, "\nKODI-TXUPDATE v%s by Team Kodi\n", VERSION.c_str());
+  CLog::Log(logPRINT, "\nKODI-TXUPDATE v%s by Team Kodi\n", VERSION.c_str());
 
   try
   {
@@ -155,17 +153,17 @@ int main(int argc, char* argv[])
 
     if (bDownloadNeeded && !bTransferTranslators)
     {
-      printf("\n\n%s", KGRN);
-      printf("----------------------------------------\n");
-      printf("DOWNLOADING RESOURCES FROM TRANSIFEX.NET\n");
-      printf("----------------------------------------%s\n", RESET);
+      CLog::Log(logPRINT, "\n\n%s", KGRN);
+      CLog::Log(logPRINT, "----------------------------------------\n");
+      CLog::Log(logPRINT, "DOWNLOADING RESOURCES FROM TRANSIFEX.NET\n");
+      CLog::Log(logPRINT, "----------------------------------------%s\n", RESET);
 
       TXProject.FetchResourcesFromTransifex();
 
-      printf("\n%s", KGRN);
-      printf("-----------------------------------\n");
-      printf("DOWNLOADING RESOURCES FROM UPSTREAM\n");
-      printf("-----------------------------------%s\n", RESET);
+      CLog::Log(logPRINT, "\n%s", KGRN);
+      CLog::Log(logPRINT, "-----------------------------------\n");
+      CLog::Log(logPRINT, "DOWNLOADING RESOURCES FROM UPSTREAM\n");
+      CLog::Log(logPRINT, "-----------------------------------%s\n", RESET);
 
       TXProject.FetchResourcesFromUpstream();
 
@@ -174,20 +172,20 @@ int main(int argc, char* argv[])
 
         TXProject.CreateMergedResources();
 
-        printf("\n%s", KGRN);
-        printf("--------------------------------------------\n");
-        printf("WRITING MERGED RESOURCES TO HDD\n");
-        printf("--------------------------------------------%s\n", RESET);
+        CLog::Log(logPRINT, "\n%s", KGRN);
+        CLog::Log(logPRINT, "--------------------------------------------\n");
+        CLog::Log(logPRINT, "WRITING MERGED RESOURCES TO HDD\n");
+        CLog::Log(logPRINT, "--------------------------------------------%s\n", RESET);
 
         TXProject.WriteResourcesToFile(WorkingDir);
       }
 
       if (true)
       {
-        printf("\n%s", KGRN);
-        printf("--------------------------------------------\n");
-        printf("WRITING RESOURCES TO LOCAL GITHUB REPOS\n");
-        printf("--------------------------------------------%s\n", RESET);
+        CLog::Log(logPRINT, "\n%s", KGRN);
+        CLog::Log(logPRINT, "--------------------------------------------\n");
+        CLog::Log(logPRINT, "WRITING RESOURCES TO LOCAL GITHUB REPOS\n");
+        CLog::Log(logPRINT, "--------------------------------------------%s\n", RESET);
 
         TXProject.WriteResourcesToLOCGitRepos(WorkingDir);
       }
@@ -197,19 +195,19 @@ int main(int argc, char* argv[])
     bUploadNeeded = true;
     if (bUploadNeeded && !bTransferTranslators)
     {
-      printf("\n%s", KGRN);
-      printf("-----------------------------------------\n");
-      printf("UPLOADING LANGUAGE FILES TO TRANSIFEX.NET\n");
-      printf("-----------------------------------------%s\n", RESET);
+      CLog::Log(logPRINT, "\n%s", KGRN);
+      CLog::Log(logPRINT, "-----------------------------------------\n");
+      CLog::Log(logPRINT, "UPLOADING LANGUAGE FILES TO TRANSIFEX.NET\n");
+      CLog::Log(logPRINT, "-----------------------------------------%s\n", RESET);
 
       TXProject.UploadTXUpdateFiles(WorkingDir);
     }
     if (bTransferTranslators)
     {
-      printf("\n%s", KGRN);
-      printf("-------------------------------\n");
-      printf("GET TRANSLATION GROUPS\n");
-      printf("-------------------------------%s\n", RESET);
+      CLog::Log(logPRINT, "\n%s", KGRN);
+      CLog::Log(logPRINT, "-------------------------------\n");
+      CLog::Log(logPRINT, "GET TRANSLATION GROUPS\n");
+      CLog::Log(logPRINT, "-------------------------------%s\n", RESET);
 
       TXProject.MigrateTranslators();
     }
@@ -218,17 +216,17 @@ int main(int argc, char* argv[])
 
     if (CLog::GetWarnCount() ==0)
     {
-      printf("\n%s", KGRN);
-      printf("--------------------------------------------\n");
-      printf("PROCESS FINISHED SUCCESFULLY WITHOUT WARNINGS\n");
-      printf("--------------------------------------------%s\n\n", RESET);
+      CLog::Log(logPRINT, "\n%s", KGRN);
+      CLog::Log(logPRINT, "--------------------------------------------\n");
+      CLog::Log(logPRINT, "PROCESS FINISHED SUCCESFULLY WITHOUT WARNINGS\n");
+      CLog::Log(logPRINT, "--------------------------------------------%s\n\n", RESET);
     }
     else
     {
-      printf("\n");
-      printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-      printf("PROCESS FINISHED WITH %i WARNINGS\n", CLog::GetWarnCount());
-      printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+      CLog::Log(logPRINT, "\n");
+      CLog::Log(logPRINT, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+      CLog::Log(logPRINT, "PROCESS FINISHED WITH %i WARNINGS\n", CLog::GetWarnCount());
+      CLog::Log(logPRINT, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
     }
 
     g_HTTPHandler.Cleanup();
