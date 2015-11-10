@@ -62,6 +62,17 @@ void CLog::Log(TLogLevel loglevel, const char *format, ... )
     printf("%s\n\n", RESET);
     throw 1;
   }
+  else if (loglevel == LogHEADLINE)
+  {
+    printf("\n%s", KGRN);
+    std::string strHeader;
+    strHeader.assign(strFormat.size()-1, '-');
+    strHeader += "\n";
+    printf("%s", strHeader.c_str());
+    vprintf(strFormat.c_str(), va);
+    printf("%s", strHeader.c_str());
+    printf("%s\n", RESET);
+  }
 
   va_end(va);
 

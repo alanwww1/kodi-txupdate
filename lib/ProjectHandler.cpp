@@ -262,10 +262,7 @@ void CProjectHandler::MigrateTranslators()
   CLog::Log(logPRINT, "\n%sTranslators:%s\n", KGRN, RESET);
   mapTranslators = g_LCodeHandler.GetTranslatorsDatabase("translators", strProjectName, XMLResdata);
 
-  CLog::Log(logPRINT, "\n%s", KGRN);
-  CLog::Log(logPRINT, "-----------------------------\n");
-  CLog::Log(logPRINT, "PUSH TRANSLATION GROUPS TO TX\n");
-  CLog::Log(logPRINT, "-----------------------------%s\n", RESET);
+  CLog::Log(LogHEADLINE, "PUSH TRANSLATION GROUPS TO TX\n");
 
   g_LCodeHandler.UploadTranslatorsDatabase(mapCoordinators, mapReviewers, mapTranslators, strTargetProjectName, strTargetTXLangFormat);
 };

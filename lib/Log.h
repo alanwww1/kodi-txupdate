@@ -27,7 +27,7 @@
 
 using namespace std;
 
-enum TLogLevel { logPRINT, logERROR, logWARNING, logDEBUG};
+enum TLogLevel { logPRINT, logERROR, logWARNING, logDEBUG, LogHEADLINE};
 
 const std::string VERSION = "0.600";
 

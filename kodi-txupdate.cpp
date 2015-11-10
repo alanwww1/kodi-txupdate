@@ -153,17 +153,11 @@ int main(int argc, char* argv[])
 
     if (bDownloadNeeded && !bTransferTranslators)
     {
-      CLog::Log(logPRINT, "\n\n%s", KGRN);
-      CLog::Log(logPRINT, "----------------------------------------\n");
-      CLog::Log(logPRINT, "DOWNLOADING RESOURCES FROM TRANSIFEX.NET\n");
-      CLog::Log(logPRINT, "----------------------------------------%s\n", RESET);
+      CLog::Log(LogHEADLINE, "DOWNLOADING RESOURCES FROM TRANSIFEX.NET\n");
 
       TXProject.FetchResourcesFromTransifex();
 
-      CLog::Log(logPRINT, "\n%s", KGRN);
-      CLog::Log(logPRINT, "-----------------------------------\n");
-      CLog::Log(logPRINT, "DOWNLOADING RESOURCES FROM UPSTREAM\n");
-      CLog::Log(logPRINT, "-----------------------------------%s\n", RESET);
+      CLog::Log(LogHEADLINE, "DOWNLOADING RESOURCES FROM UPSTREAM\n");
 
       TXProject.FetchResourcesFromUpstream();
 
@@ -172,20 +166,14 @@ int main(int argc, char* argv[])
 
         TXProject.CreateMergedResources();
 
-        CLog::Log(logPRINT, "\n%s", KGRN);
-        CLog::Log(logPRINT, "--------------------------------------------\n");
-        CLog::Log(logPRINT, "WRITING MERGED RESOURCES TO HDD\n");
-        CLog::Log(logPRINT, "--------------------------------------------%s\n", RESET);
+        CLog::Log(LogHEADLINE, "WRITING MERGED RESOURCES TO HDD\n");
 
         TXProject.WriteResourcesToFile(WorkingDir);
       }
 
       if (true)
       {
-        CLog::Log(logPRINT, "\n%s", KGRN);
-        CLog::Log(logPRINT, "--------------------------------------------\n");
-        CLog::Log(logPRINT, "WRITING RESOURCES TO LOCAL GITHUB REPOS\n");
-        CLog::Log(logPRINT, "--------------------------------------------%s\n", RESET);
+        CLog::Log(LogHEADLINE, "WRITING RESOURCES TO LOCAL GITHUB REPOS\n");
 
         TXProject.WriteResourcesToLOCGitRepos(WorkingDir);
       }
@@ -195,19 +183,13 @@ int main(int argc, char* argv[])
     bUploadNeeded = true;
     if (bUploadNeeded && !bTransferTranslators)
     {
-      CLog::Log(logPRINT, "\n%s", KGRN);
-      CLog::Log(logPRINT, "-----------------------------------------\n");
-      CLog::Log(logPRINT, "UPLOADING LANGUAGE FILES TO TRANSIFEX.NET\n");
-      CLog::Log(logPRINT, "-----------------------------------------%s\n", RESET);
+      CLog::Log(LogHEADLINE, "UPLOADING LANGUAGE FILES TO TRANSIFEX.NET\n");
 
       TXProject.UploadTXUpdateFiles(WorkingDir);
     }
     if (bTransferTranslators)
     {
-      CLog::Log(logPRINT, "\n%s", KGRN);
-      CLog::Log(logPRINT, "-------------------------------\n");
-      CLog::Log(logPRINT, "GET TRANSLATION GROUPS\n");
-      CLog::Log(logPRINT, "-------------------------------%s\n", RESET);
+      CLog::Log(LogHEADLINE, "GET TRANSLATION GROUPS\n");
 
       TXProject.MigrateTranslators();
     }
@@ -215,19 +197,9 @@ int main(int argc, char* argv[])
     g_HTTPHandler.CleanCacheFiles();
 
     if (CLog::GetWarnCount() ==0)
-    {
-      CLog::Log(logPRINT, "\n%s", KGRN);
-      CLog::Log(logPRINT, "--------------------------------------------\n");
-      CLog::Log(logPRINT, "PROCESS FINISHED SUCCESFULLY WITHOUT WARNINGS\n");
-      CLog::Log(logPRINT, "--------------------------------------------%s\n\n", RESET);
-    }
+      CLog::Log(LogHEADLINE, "PROCESS FINISHED SUCCESFULLY WITHOUT WARNINGS\n");
     else
-    {
-      CLog::Log(logPRINT, "\n");
-      CLog::Log(logPRINT, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-      CLog::Log(logPRINT, "PROCESS FINISHED WITH %i WARNINGS\n", CLog::GetWarnCount());
-      CLog::Log(logPRINT, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
-    }
+      CLog::Log(LogHEADLINE, "%sPROCESS FINISHED WITH %i WARNINGS%s\n", KRED, CLog::GetWarnCount(), KGRN);
 
     g_HTTPHandler.Cleanup();
     return 0;

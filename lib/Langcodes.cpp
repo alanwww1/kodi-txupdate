@@ -45,9 +45,7 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit(); 
 
-  CLog::Log(logPRINT, "-----------------------------\n");
-  CLog::Log(logPRINT, "DOWNLOADING LANGUAGE DATABASE\n");
-  CLog::Log(logPRINT, "-----------------------------\n");
+  CLog::Log(LogHEADLINE, "DOWNLOADING LANGUAGE DATABASE\n");
 
   g_HTTPHandler.SetLocation("UPS");
   g_HTTPHandler.SetProjectName("");
