@@ -47,12 +47,12 @@ void CAddonXMLHandler::FetchAddonDataFiles()
 {
   std::string sGitHubURL, sTemp;
 
-  if (m_XMLResData.bIsLangAddon)
+  if (m_ResData.bIsLangAddon)
     return; // kodi language-addons have individual addon.xml files
 
   CLog::Log(logPRINT, " Addxml");
   FetchAddonXMLFileUpstr();
-  if (!m_XMLResData.sChgLogFormat.empty())
+  if (!m_ResData.sChgLogFormat.empty())
   {
     CLog::Log(logPRINT, " Chlog");
     FetchAddonChangelogFile();
@@ -66,9 +66,9 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
 
   TiXmlDocument xmlAddonXML;
 
-  std::string sAXMLFile = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.UPS.AXMLPath, m_XMLResData.bForceGitDloadToCache);
+  std::string sAXMLFile = g_HTTPHandler.GetGithubPathToSTR (m_ResData.sUPSLocalPath, m_ResData.UPS, m_ResData.UPS.AXMLPath, m_ResData.bForceGitDloadToCache);
   if (sAXMLFile.empty())
-    CLog::Log(logERROR, "CAddonXMLHandler::FetchAddonXMLFileUpstr: http error getting XML file from upstream url: %s", m_XMLResData.UPS.AXMLPath.c_str());
+    CLog::Log(logERROR, "CAddonXMLHandler::FetchAddonXMLFileUpstr: http error getting XML file from upstream url: %s", m_ResData.UPS.AXMLPath.c_str());
 
   g_File.ConvertStrLineEnds(sAXMLFile);
 
@@ -76,7 +76,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
 
   if (!xmlAddonXML.Parse(m_strAddonXMLFile.c_str(), 0, TIXML_DEFAULT_ENCODING))
   {
-    CLog::Log(logERROR, "AddonXMLHandler: AddonXML file problem: %s %s\n", xmlAddonXML.ErrorDesc(), m_XMLResData.UPS.AXMLPath.c_str());
+    CLog::Log(logERROR, "AddonXMLHandler: AddonXML file problem: %s %s\n", xmlAddonXML.ErrorDesc(), m_ResData.UPS.AXMLPath.c_str());
     return false;
   }
 
@@ -90,7 +90,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   if (!pRootElement || pRootElement->NoChildren() || pRootElement->ValueTStr()!="addon")
   {
     CLog::Log(logERROR, "AddonXMLHandler: No root element called: \"addon\" or no child found in AddonXML file: %s\n",
-            m_XMLResData.UPS.AXMLPath.c_str());
+            m_ResData.UPS.AXMLPath.c_str());
     return false;
   }
   const char* pMainAttrId = NULL;
@@ -99,7 +99,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   m_strResourceData += "# Addon Name: ";
   if (!pMainAttrId)
   {
-    CLog::Log(logWARNING, "AddonXMLHandler: No addon name was available in addon.xml file: %s\n", m_XMLResData.UPS.AXMLPath.c_str());
+    CLog::Log(logWARNING, "AddonXMLHandler: No addon name was available in addon.xml file: %s\n", m_ResData.UPS.AXMLPath.c_str());
     m_strResourceData += "kodi-unnamed\n";
   }
   else
@@ -109,7 +109,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   m_strResourceData += "# Addon id: ";
   if (!pMainAttrId)
   {
-    CLog::Log(logWARNING, "AddonXMLHandler: No addon name was available in addon.xml file: %s\n", m_XMLResData.UPS.AXMLPath.c_str());
+    CLog::Log(logWARNING, "AddonXMLHandler: No addon name was available in addon.xml file: %s\n", m_ResData.UPS.AXMLPath.c_str());
     m_strResourceData +=  "unknown\n";
   }
   else
@@ -118,7 +118,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   pMainAttrId=pRootElement->Attribute("version");
   if (!pMainAttrId)
   {
-    CLog::Log(logWARNING, "AddonXMLHandler: No version name was available in addon.xml file: %s\n", m_XMLResData.UPS.AXMLPath.c_str());
+    CLog::Log(logWARNING, "AddonXMLHandler: No version name was available in addon.xml file: %s\n", m_ResData.UPS.AXMLPath.c_str());
     m_strAddonVersion = "0.0.1";
   }
   else
@@ -131,7 +131,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   m_strResourceData += "# Addon Provider: ";
   if (!pMainAttrId)
   {
-    CLog::Log(logWARNING, "AddonXMLHandler: Warning: No addon provider was available in addon.xml file: %s\n", m_XMLResData.UPS.AXMLPath.c_str());
+    CLog::Log(logWARNING, "AddonXMLHandler: Warning: No addon provider was available in addon.xml file: %s\n", m_ResData.UPS.AXMLPath.c_str());
     m_strResourceData += "unknown\n";
   }
   else
@@ -150,14 +150,14 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     if (pChildSummElement->Attribute("lang"))
       strAlias = pChildSummElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.UPS.LFormInAXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.UPS.LFormInAXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_ResData.sSRCLCode, m_ResData.UPS.LFormInAXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_ResData.UPS.LFormInAXML);
 
     if (pChildSummElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildSummElement->FirstChild()->Value());
             strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
-      if (m_XMLResData.bRebrand)
+      if (m_ResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
       m_mapAddonXMLData[strLCode].strSummary = strValue;
     }
@@ -171,14 +171,14 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     if (pChildDescElement->Attribute("lang"))
       strAlias = pChildDescElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.UPS.LFormInAXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.UPS.LFormInAXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_ResData.sSRCLCode, m_ResData.UPS.LFormInAXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_ResData.UPS.LFormInAXML);
 
     if (pChildDescElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildDescElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
-      if (m_XMLResData.bRebrand)
+      if (m_ResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
       m_mapAddonXMLData[strLCode].strDescription = strValue;
     }
@@ -192,14 +192,14 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     if (pChildDisclElement->Attribute("lang"))
       strAlias = pChildDisclElement->Attribute("lang");
     else
-      strAlias = g_LCodeHandler.GetLangFromLCode(m_XMLResData.sSRCLCode, m_XMLResData.UPS.LFormInAXML);
-    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_XMLResData.UPS.LFormInAXML);
+      strAlias = g_LCodeHandler.GetLangFromLCode(m_ResData.sSRCLCode, m_ResData.UPS.LFormInAXML);
+    strLCode = g_LCodeHandler.GetLangCodeFromAlias(strAlias, m_ResData.UPS.LFormInAXML);
 
     if (pChildDisclElement->FirstChild() && strLCode != "")
     {
       std::string strValue = CstrToString(pChildDisclElement->FirstChild()->Value());
       strValue = g_CharsetUtils.ToUTF8(addonXMLEncoding, strValue);
-      if (m_XMLResData.bRebrand)
+      if (m_ResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strValue);
       m_mapAddonXMLData[strLCode].strDisclaimer = strValue;
     }
@@ -287,10 +287,10 @@ void CAddonXMLHandler::WriteAddonXMLFile (std::string strAddonXMLFilename)
 
 void CAddonXMLHandler::GenerateAddonXMLFile ()
 {
-  if (m_XMLResData.bSkipVersionBump)
+  if (m_ResData.bSkipVersionBump)
     sleep (1);
 
-  if (m_bBumpAddoXMLVersion && !m_XMLResData.bSkipVersionBump)
+  if (m_bBumpAddoXMLVersion && !m_ResData.bSkipVersionBump)
     UpdateVersionNumber();
 
   std::string strXMLEntry;
@@ -322,7 +322,7 @@ void CAddonXMLHandler::GenerateAddonXMLFile ()
   std::list<std::string> listAddonDataLangs;
 
   for (T_itAddonXMLData itAddonXMLData = m_mapAddonXMLData.begin(); itAddonXMLData != m_mapAddonXMLData.end(); itAddonXMLData++)
-    listAddonDataLangs.push_back(g_LCodeHandler.GetLangFromLCode(itAddonXMLData->first, m_XMLResData.LOC.LFormInAXML));
+    listAddonDataLangs.push_back(g_LCodeHandler.GetLangFromLCode(itAddonXMLData->first, m_ResData.LOC.LFormInAXML));
 
   listAddonDataLangs.sort();
 
@@ -331,21 +331,21 @@ void CAddonXMLHandler::GenerateAddonXMLFile ()
 
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
-    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strSummary.empty())
+    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_ResData.LOC.LFormInAXML)].strSummary.empty())
       strNewMetadata += strAllign + "<summary lang=\"" + *it + "\">" + 
-                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strSummary) + "</summary>\n";
+                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_ResData.LOC.LFormInAXML)].strSummary) + "</summary>\n";
   }
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
-    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strDescription.empty())
+    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_ResData.LOC.LFormInAXML)].strDescription.empty())
       strNewMetadata += strAllign + "<description lang=\"" + *it + "\">" +
-                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strDescription) + "</description>\n";
+                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_ResData.LOC.LFormInAXML)].strDescription) + "</description>\n";
   }
   for (std::list<std::string>::iterator it = listAddonDataLangs.begin(); it != listAddonDataLangs.end(); it++)
   {
-    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strDisclaimer.empty())
+    if (!m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_ResData.LOC.LFormInAXML)].strDisclaimer.empty())
       strNewMetadata += strAllign + "<disclaimer lang=\"" + *it + "\">" +
-                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_XMLResData.LOC.LFormInAXML)].strDisclaimer) + "</disclaimer>\n";
+                        g_CharsetUtils.EscapeStringXML(m_mapAddonXMLData[g_LCodeHandler.GetLangCodeFromAlias(*it, m_ResData.LOC.LFormInAXML)].strDisclaimer) + "</disclaimer>\n";
   }
 
   if (!m_AddonMetadata.strLanguage.empty())
@@ -424,7 +424,7 @@ bool CAddonXMLHandler::FetchAddonChangelogFile ()
   g_HTTPHandler.SetFileName("changelog.txt");
   g_HTTPHandler.SetDataFile(false);
 
-  std::string strChangelogFile = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.UPS.ChLogPath, m_XMLResData.bForceGitDloadToCache);
+  std::string strChangelogFile = g_HTTPHandler.GetGithubPathToSTR (m_ResData.sUPSLocalPath, m_ResData.UPS, m_ResData.UPS.ChLogPath, m_ResData.bForceGitDloadToCache);
 
   g_File.ConvertStrLineEnds(strChangelogFile);
 

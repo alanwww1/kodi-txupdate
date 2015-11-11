@@ -37,7 +37,7 @@ CResourceHandler::CResourceHandler()
 
 CResourceHandler::CResourceHandler(const CXMLResdata& XMLResdata) : m_XMLResData(XMLResdata)
 {
-  m_AddonXMLHandler.SetXMLReasData(XMLResdata);
+  m_AddonXMLHandler.SetResData(XMLResdata);
 };
 
 CResourceHandler::~CResourceHandler()
