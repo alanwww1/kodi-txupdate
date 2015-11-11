@@ -78,7 +78,7 @@ bool CPOEntry::MatchMsgid(const CPOEntry& poentry) const
 CPOHandler::CPOHandler()
 {};
 
-CPOHandler::CPOHandler(const CResData& XMLResdata) : m_XMLResData(XMLResdata)
+CPOHandler::CPOHandler(const CResData& Resdata) : m_ResData(Resdata)
 {
   m_POType = UNKNOWNPO;
   m_bIfItHasPrevLangVersion = false;
@@ -91,7 +91,7 @@ CPOHandler::~CPOHandler()
 bool CPOHandler::FetchPOGitPathToMem (std::string sLPath, CGITData& GitData)
 {
   ClearVariables();
-  m_strBuffer = g_HTTPHandler.GetGithubPathToSTR (m_XMLResData.sUPSLocalPath, GitData, sLPath, m_XMLResData.bForceGitDloadToCache);
+  m_strBuffer = g_HTTPHandler.GetGithubPathToSTR (m_ResData.sUPSLocalPath, GitData, sLPath, m_ResData.bForceGitDloadToCache);
 
   //Pass bool to indicate that we did have a file for last download that changed, thus having a previous version saved
   m_bIfItHasPrevLangVersion = g_HTTPHandler.GetIfFileHasPrevVersion();
@@ -427,18 +427,18 @@ void CPOHandler::CreateHeader (const std::string &strPreText, const std::string&
 
   m_strHeader += "msgid \"\"\n";
   m_strHeader += "msgstr \"\"\n";
-  m_strHeader += "\"Project-Id-Version: " + m_XMLResData.UPD.LongProjectName + "\\n\"\n";
-  m_strHeader += "\"Report-Msgid-Bugs-To: " + m_XMLResData.sSupportEmailAddr + "\\n\"\n";
+  m_strHeader += "\"Project-Id-Version: " + m_ResData.UPD.LongProjectName + "\\n\"\n";
+  m_strHeader += "\"Report-Msgid-Bugs-To: " + m_ResData.sSupportEmailAddr + "\\n\"\n";
   m_strHeader += "\"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n";
   m_strHeader += "\"Last-Translator: Kodi Translation Team\\n\"\n";
-  m_strHeader += "\"Language-Team: " + g_LCodeHandler.GetLangFromLCode(sLCode, m_XMLResData.sLTeamLFormat) +
-                 " (http://www.transifex.com/projects/p/" + m_XMLResData.UPD.ProjectName +"/language/"
-                 + g_LCodeHandler.GetLangFromLCode(sLCode, m_XMLResData.UPD.LForm) +"/)" + "\\n\"\n";
+  m_strHeader += "\"Language-Team: " + g_LCodeHandler.GetLangFromLCode(sLCode, m_ResData.sLTeamLFormat) +
+                 " (http://www.transifex.com/projects/p/" + m_ResData.UPD.ProjectName +"/language/"
+                 + g_LCodeHandler.GetLangFromLCode(sLCode, m_ResData.UPD.LForm) +"/)" + "\\n\"\n";
   m_strHeader += "\"MIME-Version: 1.0\\n\"\n";
   m_strHeader += "\"Content-Type: text/plain; charset=UTF-8\\n\"\n";
   m_strHeader += "\"Content-Transfer-Encoding: 8bit\\n\"\n";
-  m_strHeader +=  "\"Language: " + g_LCodeHandler.GetLangFromLCode(sLCode, m_XMLResData.UPD.LForm) + "\\n\"\n";
+  m_strHeader +=  "\"Language: " + g_LCodeHandler.GetLangFromLCode(sLCode, m_ResData.UPD.LForm) + "\\n\"\n";
   m_strHeader +=  "\"Plural-Forms: nplurals=" + strnplurals + "; plural=" + g_LCodeHandler.GetPlurForm(sLCode) + ";\\n\"\n";
 }
 
@@ -455,7 +455,7 @@ unsigned int CPOHandler::GetPluralNumOfVec(std::vector<std::string> &vecPluralSt
 
 void CPOHandler::FetchLangAddonXML(const std::string &sLAXMLPath, CGITData& GitData)
 {
-  m_strLangAddonXML = g_HTTPHandler.GetGithubPathToSTR(m_XMLResData.sUPSLocalPath, GitData, sLAXMLPath, m_XMLResData.bForceGitDloadToCache);
+  m_strLangAddonXML = g_HTTPHandler.GetGithubPathToSTR(m_ResData.sUPSLocalPath, GitData, sLAXMLPath, m_ResData.bForceGitDloadToCache);
   if (m_strLangAddonXML.empty())
     CLog::Log(logERROR, "CPOHandler::FetchLangAddonXML: http error reading XML file from url: %s", sLAXMLPath.c_str());
 }
@@ -606,7 +606,7 @@ void CPOHandler::ParseEntry()
       continue; // we are reading a continous multilne string
     else
     {
-      if (m_XMLResData.bRebrand && pPlaceToParse)
+      if (m_ResData.bRebrand && pPlaceToParse)
         g_CharsetUtils.reBrandXBMCToKodi(pPlaceToParse);
       pPlaceToParse= NULL; // end of reading the multiline string
     }
@@ -678,7 +678,7 @@ void CPOHandler::ParseEntry()
     else if (HasPrefix(strLine, "#.") && strLine.size() > 2)
     {
       std::string strCommnt = strLine.substr(2);
-      if (m_XMLResData.bRebrand)
+      if (m_ResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strCommnt);
       if (strCommnt.at(0) != ' ')
       {
@@ -692,7 +692,7 @@ void CPOHandler::ParseEntry()
       strLine[1] != ':' && strLine[1] != ' ')
     {
       std::string strCommnt = strLine.substr(1);
-      if (m_XMLResData.bRebrand)
+      if (m_ResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strCommnt);
       if (strCommnt.substr(0,5) != "empty")
         m_Entry.interlineComm.push_back(strCommnt);
@@ -700,7 +700,7 @@ void CPOHandler::ParseEntry()
     else if (HasPrefix(strLine, "# "))
     {
       std::string strCommnt = strLine.substr(2);
-      if (m_XMLResData.bRebrand)
+      if (m_ResData.bRebrand)
         g_CharsetUtils.reBrandXBMCToKodi(&strCommnt);
       m_Entry.translatorComm.push_back(strCommnt);
     }
@@ -708,7 +708,7 @@ void CPOHandler::ParseEntry()
       CLog::Log(logWARNING, "POParser: unknown line type found. Failed entry: %s", m_CurrentEntryText.c_str());
   }
 
-  if (m_XMLResData.bRebrand && pPlaceToParse)
+  if (m_ResData.bRebrand && pPlaceToParse)
     g_CharsetUtils.reBrandXBMCToKodi(pPlaceToParse);
   if ((m_Entry.Type == MSGID || m_Entry.Type == MSGID_PLURAL) &&  m_Entry.msgID == "")
   {
@@ -771,7 +771,7 @@ void CPOHandler::WritePOEntry(const CPOEntry &currEntry)
   m_bhasLFWritten = false;
 
 
-  if ((m_bIsSRCLang || m_XMLResData.bForceComm) && currEntry.Type == NUMID && m_POType == MERGEDPO)
+  if ((m_bIsSRCLang || m_ResData.bForceComm) && currEntry.Type == NUMID && m_POType == MERGEDPO)
   {
     int id = currEntry.numID;
     if (id-m_previd >= 2 && m_previd > -1 && m_bIsSRCLang)
@@ -788,7 +788,7 @@ void CPOHandler::WritePOEntry(const CPOEntry &currEntry)
 
   m_bhasLFWritten = false;
 
-  if (m_bIsSRCLang || m_XMLResData.bForceComm)
+  if (m_bIsSRCLang || m_ResData.bForceComm)
   {
     WriteMultilineComment(currEntry.translatorComm, "# ");
     WriteMultilineComment(currEntry.extractedComm,  "#.");
@@ -869,7 +869,7 @@ void CPOHandler::CreateNewResource()
   g_HTTPHandler.ReInit();
 
   size_t iAddedNew = 0;
-  g_HTTPHandler.CreateNewResource(m_strOutBuffer, m_XMLResData, iAddedNew);
+  g_HTTPHandler.CreateNewResource(m_strOutBuffer, m_ResData, iAddedNew);
   CLog::Log(logPRINT, ", newly created on Transifex with %s%lu%s English strings.\n", KGRN, iAddedNew, RESET);
 }
 
@@ -881,8 +881,8 @@ void CPOHandler::PutSRCFileToTRX()
   bool bUploaded;
   size_t iAddedNew =0;
   size_t iUpdated = 0;
-  g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_XMLResData.UPD.ProjectName +
-  "/resource/" + m_XMLResData.UPD.ResName + "/content/", bUploaded, iAddedNew, iUpdated);
+  g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_ResData.UPD.ProjectName +
+  "/resource/" + m_ResData.UPD.ResName + "/content/", bUploaded, iAddedNew, iUpdated);
 
   if (bUploaded)
     CLog::Log(logPRINT, "\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
@@ -899,9 +899,9 @@ void CPOHandler::PutTranslFileToTRX()
   size_t iAddedNew =0;
   size_t iUpdated = 0;
 
-  g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_XMLResData.UPD.ProjectName +
-                             "/resource/" + m_XMLResData.UPD.ResName + "/translation/"
-                             + g_LCodeHandler.GetLangFromLCode(m_sLCode, m_XMLResData.UPD.LForm) + "/", bUploaded, iAddedNew, iUpdated);
+  g_HTTPHandler.PutFileToURL(m_strOutBuffer, "https://www.transifex.com/api/2/project/" + m_ResData.UPD.ProjectName +
+                             "/resource/" + m_ResData.UPD.ResName + "/translation/"
+                             + g_LCodeHandler.GetLangFromLCode(m_sLCode, m_ResData.UPD.LForm) + "/", bUploaded, iAddedNew, iUpdated);
   if (bUploaded)
     CLog::Log(logPRINT, "\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
   else

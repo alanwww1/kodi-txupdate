@@ -80,10 +80,10 @@ bool CProjectHandler::FetchResourcesFromTransifex()
       continue;
     }
 
-    const CResData& XMLResData = m_mapResData[sResName];
-    CResourceHandler NewResHandler(XMLResData);
+    const CResData& ResData = m_mapResData[sResName];
+    CResourceHandler NewResHandler(ResData);
 
-    g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
+    g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
 
     m_mapResources[sResName] = NewResHandler;
     m_mapResources[sResName].FetchPOFilesTXToMem();
@@ -98,18 +98,18 @@ bool CProjectHandler::FetchResourcesFromUpstream()
 
   for (std::map<std::string, CResData>::iterator it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {
-    const CResData& XMLResData = it->second;
+    const CResData& ResData = it->second;
     const std::string& sResName = it->first;
 
     CLog::Log(logPRINT, "%s%s%s (", KMAG, sResName.c_str(), RESET);
 
     if (m_mapResources.find(sResName) == m_mapResources.end()) // if it was not created in the map (by TX pull), make a new entry
     {
-      CResourceHandler NewResHandler(XMLResData);
+      CResourceHandler NewResHandler(ResData);
       m_mapResources[sResName] = NewResHandler;
     }
 
-    g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
+    g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
 
     m_mapResources[sResName].FetchPOFilesUpstreamToMem();
     CLog::Log(logPRINT, " )\n");
@@ -128,20 +128,20 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
   {
     const std::string& sResName = itmapResources->first;
     CResourceHandler& ResHandler = itmapResources->second;
-    const CResData& XMLResData = m_mapResData[sResName];
+    const CResData& ResData = m_mapResData[sResName];
 
-    std::string sMergedLangDir = XMLResData.sProjRootDir + DirSepChar + XMLResData.sMRGLFilesDir + DirSepChar;
-    std::string sAddonXMLPath = sMergedLangDir + XMLResData.MRG.AXMLPath;
-    std::string sChangeLogPath =  sMergedLangDir + XMLResData.MRG.ChLogPath;
-    std::string sLangPath  = sMergedLangDir + XMLResData.MRG.LPath;
-    std::string sLangAddonXMLPath = sMergedLangDir + XMLResData.MRG.AXMLPath;
+    std::string sMergedLangDir = ResData.sProjRootDir + DirSepChar + ResData.sMRGLFilesDir + DirSepChar;
+    std::string sAddonXMLPath = sMergedLangDir + ResData.MRG.AXMLPath;
+    std::string sChangeLogPath =  sMergedLangDir + ResData.MRG.ChLogPath;
+    std::string sLangPath  = sMergedLangDir + ResData.MRG.LPath;
+    std::string sLangAddonXMLPath = sMergedLangDir + ResData.MRG.AXMLPath;
     ResHandler.GenerateMergedPOFiles ();
     ResHandler.WriteMergedPOFiles (sAddonXMLPath, sLangAddonXMLPath, sChangeLogPath, sLangPath);
 
-    std::string sPathUpdate = XMLResData.sProjRootDir + XMLResData.sUPDLFilesDir + DirSepChar + XMLResData.sResName + DirSepChar + XMLResData.sBaseLForm + DirSepChar + "strings.po";
+    std::string sPathUpdate = ResData.sProjRootDir + ResData.sUPDLFilesDir + DirSepChar + ResData.sResName + DirSepChar + ResData.sBaseLForm + DirSepChar + "strings.po";
     ResHandler.GenerateUpdatePOFiles ();
 
-    g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
+    g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
 
     ResHandler.WriteUpdatePOFiles (sPathUpdate);
   }
@@ -230,9 +230,9 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   {
     CResourceHandler& ResHandler = it->second;
     const std::string& sResName = it->first;
-    const CResData& XMLResData = m_mapResData[sResName];
+    const CResData& ResData = m_mapResData[sResName];
 
-    g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
+    g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
 
     ResHandler.UploadResourceToTransifex(lResourcesAtTX.find(sResName) == lResourcesAtTX.end());
   }
@@ -243,10 +243,10 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 void CProjectHandler::MigrateTranslators()
 {
   //TODO
-  CResData XMLResdata = m_mapResData.begin()->second;
-  const std::string& strProjectName = XMLResdata.TRX.ProjectName;
-  const std::string& strTargetProjectName = XMLResdata.UPD.ProjectName;
-  const std::string& strTargetTXLangFormat = XMLResdata.UPD.LForm;
+  CResData Resdata = m_mapResData.begin()->second;
+  const std::string& strProjectName = Resdata.TRX.ProjectName;
+  const std::string& strTargetProjectName = Resdata.UPD.ProjectName;
+  const std::string& strTargetTXLangFormat = Resdata.UPD.LForm;
 
   if (strProjectName.empty() || strTargetProjectName.empty() || strProjectName == strTargetProjectName)
     CLog::Log(logERROR, "Cannot tranfer translators database. Wrong projectname and/or target projectname,");
@@ -254,13 +254,13 @@ void CProjectHandler::MigrateTranslators()
   std::map<std::string, std::string> mapCoordinators, mapReviewers, mapTranslators;
 
   CLog::Log(logPRINT, "\n%sCoordinators:%s\n", KGRN, RESET);
-  mapCoordinators = g_LCodeHandler.GetTranslatorsDatabase("coordinators", strProjectName, XMLResdata);
+  mapCoordinators = g_LCodeHandler.GetTranslatorsDatabase("coordinators", strProjectName, Resdata);
 
   CLog::Log(logPRINT, "\n%sReviewers:%s\n", KGRN, RESET);
-  mapReviewers = g_LCodeHandler.GetTranslatorsDatabase("reviewers", strProjectName, XMLResdata);
+  mapReviewers = g_LCodeHandler.GetTranslatorsDatabase("reviewers", strProjectName, Resdata);
 
   CLog::Log(logPRINT, "\n%sTranslators:%s\n", KGRN, RESET);
-  mapTranslators = g_LCodeHandler.GetTranslatorsDatabase("translators", strProjectName, XMLResdata);
+  mapTranslators = g_LCodeHandler.GetTranslatorsDatabase("translators", strProjectName, Resdata);
 
   CLog::Log(LogHEADLINE, "PUSH TRANSLATION GROUPS TO TX\n");
 
@@ -270,8 +270,8 @@ void CProjectHandler::MigrateTranslators()
 void CProjectHandler::InitLCodeHandler()
 {
 //TODO
-  CResData XMLResdata = m_mapResData.begin()->second;
-  g_LCodeHandler.Init(XMLResdata.sLDatabaseURL, XMLResdata);
+  CResData Resdata = m_mapResData.begin()->second;
+  g_LCodeHandler.Init(Resdata.sLDatabaseURL, Resdata);
 }
 
 std::set<std::string> CProjectHandler::ParseResources(std::string strJSON)
@@ -305,10 +305,10 @@ std::set<std::string> CProjectHandler::ParseResources(std::string strJSON)
 
 std::string CProjectHandler::GetResNameFromTXResName(const std::string& strTXResName)
 {
-  for (T_itResData itXMLResdata = m_mapResData.begin(); itXMLResdata != m_mapResData.end(); itXMLResdata++)
+  for (T_itResData itResdata = m_mapResData.begin(); itResdata != m_mapResData.end(); itResdata++)
   {
-    if (itXMLResdata->second.TRX.ResName == strTXResName)
-      return itXMLResdata->first;
+    if (itResdata->second.TRX.ResName == strTXResName)
+      return itResdata->first;
   }
   return "";
 }

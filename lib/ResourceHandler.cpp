@@ -35,9 +35,9 @@ using namespace std;
 CResourceHandler::CResourceHandler()
 {};
 
-CResourceHandler::CResourceHandler(const CResData& XMLResdata) : m_XMLResData(XMLResdata)
+CResourceHandler::CResourceHandler(const CResData& Resdata) : m_ResData(Resdata)
 {
-  m_AddonXMLHandler.SetResData(XMLResdata);
+  m_AddonXMLHandler.SetResData(Resdata);
 };
 
 CResourceHandler::~CResourceHandler()
@@ -47,11 +47,11 @@ CResourceHandler::~CResourceHandler()
 bool CResourceHandler::FetchPOFilesTXToMem()
 {
   g_HTTPHandler.SetLocation("TRX");
-  g_HTTPHandler.SetResName(m_XMLResData.sResName);
+  g_HTTPHandler.SetResName(m_ResData.sResName);
   g_HTTPHandler.SetLCode("");
-  g_HTTPHandler.SetProjectName(m_XMLResData.TRX.ProjectName);
+  g_HTTPHandler.SetProjectName(m_ResData.TRX.ProjectName);
 
-  std::string strURL = "https://www.transifex.com/api/2/project/" + m_XMLResData.TRX.ProjectName + "/resource/" + m_XMLResData.TRX.ResName + "/";
+  std::string strURL = "https://www.transifex.com/api/2/project/" + m_ResData.TRX.ProjectName + "/resource/" + m_ResData.TRX.ResName + "/";
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
   CLog::Log(logPRINT, " Langlist");
@@ -65,7 +65,7 @@ bool CResourceHandler::FetchPOFilesTXToMem()
 
   std::list<std::string> listLCodesTX = ParseAvailLanguagesTX(strtemp, strURL);
 
-  CPOHandler newPOHandler(m_XMLResData);
+  CPOHandler newPOHandler(m_ResData);
 
   g_HTTPHandler.SetFileName("strings.po");
   g_HTTPHandler.SetDataFile(false);
@@ -77,13 +77,13 @@ bool CResourceHandler::FetchPOFilesTXToMem()
     m_mapTRX[sLCode] = newPOHandler;
 
     CPOHandler& POHandler = m_mapTRX[sLCode];
-    POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
+    POHandler.SetIfIsSourceLang(sLCode == m_ResData.sSRCLCode);
     POHandler.SetLCode(sLCode);
     g_HTTPHandler.SetLCode(sLCode);
 
-    std::string sLangNameTX = g_LCodeHandler.GetLangFromLCode(*it, m_XMLResData.TRX.LForm);
+    std::string sLangNameTX = g_LCodeHandler.GetLangFromLCode(*it, m_ResData.TRX.LForm);
     POHandler.FetchPOTXPathToMem(strURL + "translation/" + sLangNameTX + "/?file");
-    POHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
+    POHandler.SetIfIsSourceLang(sLCode == m_ResData.sSRCLCode);
   }
   return true;
 }
@@ -94,11 +94,11 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   g_HTTPHandler.ReInit();
 
   g_HTTPHandler.SetLocation("UPS");
-  g_HTTPHandler.SetResName(m_XMLResData.sResName);
+  g_HTTPHandler.SetResName(m_ResData.sResName);
   g_HTTPHandler.SetLCode("");
   g_HTTPHandler.SetProjectName("");
 
-  bool bHasLanguageFiles = !m_XMLResData.bHasOnlyAddonXML;
+  bool bHasLanguageFiles = !m_ResData.bHasOnlyAddonXML;
 
   std::set<std::string> listLangs, listLangsWithStringsPO;
   g_HTTPHandler.SetFileName("LocalFileList.txt");
@@ -107,11 +107,11 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
   CLog::Log(logPRINT, " GitDir");
   listLangsWithStringsPO = GetAvailLangsGITHUB();
 
-  if (m_XMLResData.bIsLangAddon)
+  if (m_ResData.bIsLangAddon)
   {
     g_HTTPHandler.SetFileName("LocalFileList-SRC.txt");
     GetSRCFilesGitData(); //Get version data for the SRC files reside at a different github repo
-    listLangsWithStringsPO.insert(m_XMLResData.sSRCLCode);
+    listLangsWithStringsPO.insert(m_ResData.sSRCLCode);
   }
 
   m_AddonXMLHandler.FetchAddonDataFiles();
@@ -125,12 +125,12 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
   for (std::set<std::string>::iterator it = listLangs.begin(); it != listLangs.end(); it++)
   {
-    CPOHandler POHandler(m_XMLResData);
+    CPOHandler POHandler(m_ResData);
     const std::string& sLCode = *it;
 
     bool bLangHasStringsPO = listLangsWithStringsPO.find(sLCode) != listLangsWithStringsPO.end();
 
-    bool bIsSourceLang = sLCode == m_XMLResData.sSRCLCode;
+    bool bIsSourceLang = sLCode == m_ResData.sSRCLCode;
     POHandler.SetIfIsSourceLang(bIsSourceLang);
     POHandler.SetLCode(sLCode);
     g_HTTPHandler.SetLCode(sLCode);
@@ -139,16 +139,16 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     if (bLangHasStringsPO && bHasLanguageFiles)
       CLog::Log(logPRINT, " %s", sLCode.c_str());
 
-    if (bLangHasStringsPO && bHasLanguageFiles && m_XMLResData.bIsLangAddon) // Download individual addon.xml files for language-addons
+    if (bLangHasStringsPO && bHasLanguageFiles && m_ResData.bIsLangAddon) // Download individual addon.xml files for language-addons
     {
       g_HTTPHandler.SetFileName("addon.xml");
       std::string sLangXMLPath;
       CGITData GitData;
 
       if (!bIsSourceLang)
-        GitData = m_XMLResData.UPS;
+        GitData = m_ResData.UPS;
       else
-        GitData = m_XMLResData.UPSSRC;
+        GitData = m_ResData.UPSSRC;
 
       sLangXMLPath = g_CharsetUtils.ReplaceLanginURL (GitData.AXMLPath, g_CharsetUtils.GetLFormFromPath(GitData.AXMLPath), sLCode);
       POHandler.FetchLangAddonXML(sLangXMLPath, GitData);
@@ -161,10 +161,10 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
       std::string sLPath;
       CGITData GitData;
 
-      if (bIsSourceLang && m_XMLResData.bIsLangAddon) // If we have a different URL for source language, use that for download
-        GitData = m_XMLResData.UPSSRC;
+      if (bIsSourceLang && m_ResData.bIsLangAddon) // If we have a different URL for source language, use that for download
+        GitData = m_ResData.UPSSRC;
       else
-        GitData = m_XMLResData.UPS;
+        GitData = m_ResData.UPS;
 
       sLPath = g_CharsetUtils.ReplaceLanginURL (GitData.LPath, g_CharsetUtils.GetLFormFromPath(GitData.LPath), sLCode);
 
@@ -173,13 +173,13 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     }
 
     if (m_AddonXMLHandler.FindAddonXMLEntry(sLCode))
-      POHandler.AddAddonXMLEntries(m_AddonXMLHandler.GetAddonXMLEntry(sLCode), m_AddonXMLHandler.GetAddonXMLEntry(m_XMLResData.sSRCLCode));
+      POHandler.AddAddonXMLEntries(m_AddonXMLHandler.GetAddonXMLEntry(sLCode), m_AddonXMLHandler.GetAddonXMLEntry(m_ResData.sSRCLCode));
 
     m_mapUPS[sLCode] = POHandler;
 
     if (bHasPreviousVersion)
     {
-      CPOHandler POHandlerPrev(m_XMLResData);
+      CPOHandler POHandlerPrev(m_ResData);
       POHandlerPrev.SetIfIsSourceLang(bIsSourceLang);
       POHandlerPrev.SetLCode(sLCode);
       POHandlerPrev.FetchPrevPOURLToMem();
@@ -212,7 +212,7 @@ bool CResourceHandler::ComparePOFiles(CPOHandler& POHandler1, CPOHandler& POHand
 void CResourceHandler::MergeResource()
 {
   std::list<std::string> listMergedLangs = CreateMergedLangList();
-  CPOHandler& POHandlUPSSRC = m_mapUPS.at(m_XMLResData.sSRCLCode);
+  CPOHandler& POHandlUPSSRC = m_mapUPS.at(m_ResData.sSRCLCode);
   bool bResChangedFromUPS = false;
 
   for (std::list<std::string>::iterator itlang = listMergedLangs.begin(); itlang != listMergedLangs.end(); itlang++)
@@ -223,11 +223,11 @@ void CResourceHandler::MergeResource()
     // check if lcode is the source lcode. If so we check if it has changed from the last uploaded one
     // if it has has changed set flag that we need to write a complete update PO file for the SRC language
     bool bWriteUPDFileSRC = false;
-    if (sLCode == m_XMLResData.sSRCLCode)
+    if (sLCode == m_ResData.sSRCLCode)
     {
-      if (m_mapTRX.find(m_XMLResData.sSRCLCode) != m_mapTRX.end())
+      if (m_mapTRX.find(m_ResData.sSRCLCode) != m_mapTRX.end())
       {
-        CPOHandler& POHandlTRXSRC = m_mapTRX.at(m_XMLResData.sSRCLCode);
+        CPOHandler& POHandlTRXSRC = m_mapTRX.at(m_ResData.sSRCLCode);
         if (!ComparePOFiles(POHandlTRXSRC, POHandlUPSSRC))       // if the source po file differs from the one at transifex we need to update it
           bWriteUPDFileSRC = true;
       }
@@ -247,7 +247,7 @@ void CResourceHandler::MergeResource()
       bool bisInTRX = FindTRXEntry(sLCode, EntrySRC);
 
       //Handle the source language
-      if (sLCode == m_XMLResData.sSRCLCode)
+      if (sLCode == m_ResData.sSRCLCode)
       {
         T_itPOData itPOUPS = GetUPSItFoundEntry();
         m_mapMRG[sLCode].AddItEntry(itPOUPS);
@@ -290,16 +290,16 @@ void CResourceHandler::MergeResource()
     if (m_mapMRG.find(sLCode) != m_mapMRG.end())
     {
       CPOHandler& MRGPOHandler = m_mapMRG.at(sLCode);
-      MRGPOHandler.SetXMLReasData(m_XMLResData);
-      MRGPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
+      MRGPOHandler.SetReasData(m_ResData);
+      MRGPOHandler.SetIfIsSourceLang(sLCode == m_ResData.sSRCLCode);
       MRGPOHandler.SetPOType(MERGEDPO);
       MRGPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
-      if (m_XMLResData.bIsLangAddon)
+      if (m_ResData.bIsLangAddon)
         MRGPOHandler.SetLangAddonXMLString(m_mapUPS[sLCode].GetLangAddonXMLString());
 
       if (bPOChangedFromUPS)
       {
-        if (m_XMLResData.bIsLangAddon)
+        if (m_ResData.bIsLangAddon)
           MRGPOHandler.BumpLangAddonXMLVersion();
         bResChangedFromUPS = true;
         m_lChangedLangsFromUPS.insert(sLCode);
@@ -310,8 +310,8 @@ void CResourceHandler::MergeResource()
     if (m_mapUPD.find(sLCode) != m_mapUPD.end())
     {
       CPOHandler& UPDPOHandler = m_mapUPD.at(sLCode);
-      UPDPOHandler.SetXMLReasData(m_XMLResData);
-      UPDPOHandler.SetIfIsSourceLang(sLCode == m_XMLResData.sSRCLCode);
+      UPDPOHandler.SetReasData(m_ResData);
+      UPDPOHandler.SetIfIsSourceLang(sLCode == m_ResData.sSRCLCode);
       UPDPOHandler.SetPOType(UPDATEPO);
       UPDPOHandler.CreateHeader(m_AddonXMLHandler.GetResHeaderPretext(), sLCode);
 
@@ -320,7 +320,7 @@ void CResourceHandler::MergeResource()
   }
 
   //If resource has been changed in any language, bump the language addon version
-  if (bResChangedFromUPS && !m_XMLResData.bIsLangAddon)
+  if (bResChangedFromUPS && !m_ResData.bIsLangAddon)
     m_AddonXMLHandler.SetBumpAddonVersion();
 
   return;
@@ -404,14 +404,14 @@ T_itPOData CResourceHandler::GetTRXItFoundEntry()
 
 void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sChangeLogPath, const std::string& sLangPath)
 {
-  if (!m_XMLResData.bIsLangAddon)
+  if (!m_ResData.bIsLangAddon)
   {
     m_AddonXMLHandler.WriteAddonXMLFile(sAddonXMLPath);
-    if (!m_XMLResData.sChgLogFormat.empty())
+    if (!m_ResData.sChgLogFormat.empty())
       m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath);
   }
 
-  if (m_XMLResData.bHasOnlyAddonXML)
+  if (m_ResData.bHasOnlyAddonXML)
     return;
 
 
@@ -419,16 +419,16 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
   {
     const std::string& sLCode = itmapPOFiles->first;
     std::string strPODir, strAddonDir;
-    strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+    strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), sLCode);
 
     CPOHandler& POHandler = m_mapMRG.at(sLCode);
 
     POHandler.WritePOFile(strPODir);
 
     // Write individual addon.xml files for language-addons
-    if (m_XMLResData.bIsLangAddon)
+    if (m_ResData.bIsLangAddon)
     {
-      strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+      strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), sLCode);
       POHandler.WriteLangAddonXML(strAddonDir);
     }
   }
@@ -437,47 +437,47 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
 
 void CResourceHandler::WriteLOCPOFiles()
 {
-    std::string sLOCGITDir = m_XMLResData.sUPSLocalPath + m_XMLResData.LOC.Owner + "/" + m_XMLResData.LOC.Repo + "/" + m_XMLResData.LOC.Branch + "/";
-    std::string sLOCSRCGITDir = m_XMLResData.sUPSLocalPath + m_XMLResData.LOCSRC.Owner + "/" + m_XMLResData.LOCSRC.Repo + "/" + m_XMLResData.LOCSRC.Branch + "/";
+    std::string sLOCGITDir = m_ResData.sUPSLocalPath + m_ResData.LOC.Owner + "/" + m_ResData.LOC.Repo + "/" + m_ResData.LOC.Branch + "/";
+    std::string sLOCSRCGITDir = m_ResData.sUPSLocalPath + m_ResData.LOCSRC.Owner + "/" + m_ResData.LOCSRC.Repo + "/" + m_ResData.LOCSRC.Branch + "/";
 
-    std::string sAddonXMLPath = sLOCGITDir + m_XMLResData.LOC.AXMLPath;
-    std::string sChangeLogPath =  sLOCGITDir + m_XMLResData.LOC.ChLogPath;
-    std::string sLangPath  = sLOCGITDir + m_XMLResData.LOC.LPath;
-//  std::string sLangAddonXMLPath = sLOCGITDir + m_XMLResData.LOC.AXMLPath;
+    std::string sAddonXMLPath = sLOCGITDir + m_ResData.LOC.AXMLPath;
+    std::string sChangeLogPath =  sLOCGITDir + m_ResData.LOC.ChLogPath;
+    std::string sLangPath  = sLOCGITDir + m_ResData.LOC.LPath;
+//  std::string sLangAddonXMLPath = sLOCGITDir + m_ResData.LOC.AXMLPath;
 
-    std::string sLangPathSRC  = sLOCSRCGITDir + m_XMLResData.LOCSRC.LPath;
-    std::string sLangAddonXMLPathSRC = sLOCSRCGITDir + m_XMLResData.LOCSRC.AXMLPath;
+    std::string sLangPathSRC  = sLOCSRCGITDir + m_ResData.LOCSRC.LPath;
+    std::string sLangAddonXMLPathSRC = sLOCSRCGITDir + m_ResData.LOCSRC.AXMLPath;
 
 
-  if (!m_XMLResData.bIsLangAddon)
+  if (!m_ResData.bIsLangAddon)
   {
     m_AddonXMLHandler.WriteAddonXMLFile(sAddonXMLPath);
-    if (!m_XMLResData.sChgLogFormat.empty())
+    if (!m_ResData.sChgLogFormat.empty())
       m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath);
   }
 
-  if (!m_XMLResData.bHasOnlyAddonXML)
+  if (!m_ResData.bHasOnlyAddonXML)
   {
     for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
     {
       const std::string& sLCode = itmapPOFiles->first;
       std::string strPODir, strAddonDir;
-      if (sLCode != m_XMLResData.sSRCLCode || !m_XMLResData.bIsLangAddon)
-        strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+      if (sLCode != m_ResData.sSRCLCode || !m_ResData.bIsLangAddon)
+        strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), sLCode);
       else
-        strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOCSRC.LPath), sLCode);
+        strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_ResData.LOCSRC.LPath), sLCode);
 
       CPOHandler& POHandler = m_mapMRG.at(sLCode);
 
       POHandler.WritePOFile(strPODir);
 
       // Write individual addon.xml files for language-addons
-      if (m_XMLResData.bIsLangAddon)
+      if (m_ResData.bIsLangAddon)
       {
-        if (sLCode != m_XMLResData.sSRCLCode)
-          strAddonDir = g_CharsetUtils.ReplaceLanginURL(sAddonXMLPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+        if (sLCode != m_ResData.sSRCLCode)
+          strAddonDir = g_CharsetUtils.ReplaceLanginURL(sAddonXMLPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), sLCode);
         else
-          strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPathSRC, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), sLCode);
+          strAddonDir = g_CharsetUtils.ReplaceLanginURL(sLangAddonXMLPathSRC, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), sLCode);
 
         POHandler.WriteLangAddonXML(strAddonDir);
       }
@@ -486,18 +486,18 @@ void CResourceHandler::WriteLOCPOFiles()
 
   std::string sCommand, sPOPathSRC, sGitDir;
 
-  if (!m_XMLResData.sGitCommitTextSRC.empty() && !m_XMLResData.bHasOnlyAddonXML)
+  if (!m_ResData.sGitCommitTextSRC.empty() && !m_ResData.bHasOnlyAddonXML)
   {
     CLog::Log(logPRINT, "\n");
 
-    if (m_XMLResData.bIsLangAddon)
+    if (m_ResData.bIsLangAddon)
     {
-      sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOCSRC.LPath), m_XMLResData.sSRCLCode);
+      sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_ResData.LOCSRC.LPath), m_ResData.sSRCLCode);
       sGitDir = sLOCSRCGITDir;
     }
     else
     {
-      sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.LOC.LPath), m_XMLResData.sSRCLCode);
+      sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), m_ResData.sSRCLCode);
       sGitDir = sLOCGITDir;
     }
 
@@ -507,12 +507,12 @@ void CResourceHandler::WriteLOCPOFiles()
     g_File.SytemCommand(sCommand);
 
     sCommand = "cd " + sGitDir + ";";
-    sCommand += "git commit -m \"" + m_XMLResData.sGitCommitTextSRC + "\"";
+    sCommand += "git commit -m \"" + m_ResData.sGitCommitTextSRC + "\"";
     CLog::Log(logPRINT, "%sGIT commit SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
     g_File.SytemCommand(sCommand);
   }
 
-  if (!m_XMLResData.sGitCommitText.empty())
+  if (!m_ResData.sGitCommitText.empty())
   {
     CLog::Log(logPRINT, "\n");
 
@@ -520,7 +520,7 @@ void CResourceHandler::WriteLOCPOFiles()
 
     sCommand = "cd " + sGitDir + ";";
     sCommand += "git add -A;";
-    sCommand += "git commit -am \"" + m_XMLResData.sGitCommitText + "\"";
+    sCommand += "git commit -am \"" + m_ResData.sGitCommitText + "\"";
     CLog::Log(logPRINT, "%sGIT commit with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
     g_File.SytemCommand(sCommand);
   }
@@ -535,7 +535,7 @@ void CResourceHandler::WriteUpdatePOFiles(const std::string& strPath)
   {
     const std::string& sLCode = itmapPOFiles->first;
     std::string strPODir;
-    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, m_XMLResData.sBaseLForm, sLCode);
+    strPODir = g_CharsetUtils.ReplaceLanginURL(strPath, m_ResData.sBaseLForm, sLCode);
 
     CPOHandler& POHandler = m_mapUPD.at(sLCode);
 
@@ -549,11 +549,11 @@ void CResourceHandler::GenerateMergedPOFiles()
 
   CLog::Log(logPRINT, "%s", RESET);
 
-  if (!m_XMLResData.bIsLangAddon)
+  if (!m_ResData.bIsLangAddon)
     m_AddonXMLHandler.ClearAllAddonXMLEntries();
 
 
-  CLog::Log(logPRINT, "Generating merged and update PO files: %s%s%s\n", KMAG, m_XMLResData.sResName.c_str(), RESET);
+  CLog::Log(logPRINT, "Generating merged and update PO files: %s%s%s\n", KMAG, m_ResData.sResName.c_str(), RESET);
   if (!m_lChangedLangsFromUPS.empty())
   {
     CLog::Log(logPRINT, "  Changed Langs in strings files from upstream: ");
@@ -569,14 +569,14 @@ void CResourceHandler::GenerateMergedPOFiles()
 
     POHandler.GeneratePOFile();
 
-    if (!m_XMLResData.bIsLangAddon)
+    if (!m_ResData.bIsLangAddon)
       m_AddonXMLHandler.SetAddonXMLEntry(POHandler.GetAddonXMLEntry(), sLCode);
   }
 
-  if (!m_XMLResData.bIsLangAddon)
+  if (!m_ResData.bIsLangAddon)
   {
     m_AddonXMLHandler.GenerateAddonXMLFile();
-    m_AddonXMLHandler.GenerateChangelogFile(m_XMLResData.sChgLogFormat);
+    m_AddonXMLHandler.GenerateChangelogFile(m_ResData.sChgLogFormat);
   }
 
   return;
@@ -632,7 +632,7 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
     if (LCode == "unknown")
       CLog::Log(logERROR, "JSONHandler: ParseLangs: no language code in json data. json string:\n %s", strJSON.c_str());
 
-    LCode = g_LCodeHandler.VerifyLangCode(LCode, m_XMLResData.TRX.LForm);
+    LCode = g_LCodeHandler.VerifyLangCode(LCode, m_ResData.TRX.LForm);
 
     if (LCode == "")
       continue;
@@ -643,11 +643,11 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
 
     // we only add language codes to the list which has a minimum ready percentage defined in the xml file
     // we make an exception with all English derived languages, as they can have only a few srings changed
-    if (LCode.find("en_") != std::string::npos || strtol(&strCompletedPerc[0], NULL, 10) > m_XMLResData.iMinComplPercent-1)
+    if (LCode.find("en_") != std::string::npos || strtol(&strCompletedPerc[0], NULL, 10) > m_ResData.iMinComplPercent-1)
     {
       strLangsToFetch += LCode + ": " + strCompletedPerc + ", ";
       listLangs.push_back(LCode);
-      g_Fileversion.SetVersionForURL(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(LCode, m_XMLResData.TRX.LForm) + "/?file", strModTime);
+      g_Fileversion.SetVersionForURL(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(LCode, m_ResData.TRX.LForm) + "/?file", strModTime);
     }
     else
       strLangsToDrop += LCode + ": " + strCompletedPerc + ", ";
@@ -658,13 +658,13 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
 
 std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
 {
-  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR(m_XMLResData.sUPSLocalPath, m_XMLResData.UPS, m_XMLResData.bForceGitDloadToCache);
+  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR(m_ResData.sUPSLocalPath, m_ResData.UPS, m_ResData.bForceGitDloadToCache);
 
   size_t posLF = 0;
   size_t posNextLF = 0;
 
-  std::string sAXMLLForm = g_CharsetUtils.GetLFormFromPath(m_XMLResData.UPS.AXMLPath);
-  std::string sLForm = g_CharsetUtils.GetLFormFromPath(m_XMLResData.UPS.LPath);
+  std::string sAXMLLForm = g_CharsetUtils.GetLFormFromPath(m_ResData.UPS.AXMLPath);
+  std::string sLForm = g_CharsetUtils.GetLFormFromPath(m_ResData.UPS.LPath);
 
   std::string sVersion;
   std::set<std::string> listLangs;
@@ -678,51 +678,51 @@ std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
     posWS3 = sLine.find('\t', posWS2+1);
 
     if (posWS1 == std::string::npos || posWS2 == std::string::npos || posWS3 == std::string::npos)
-      CLog::Log(logERROR, "ResHandler::GetAvailLangsGITHUB: Wrong file list format for local github clone filelist, for resource %s", m_XMLResData.sResName.c_str());
+      CLog::Log(logERROR, "ResHandler::GetAvailLangsGITHUB: Wrong file list format for local github clone filelist, for resource %s", m_ResData.sResName.c_str());
 
     std::string sSHA = sLine.substr(posWS1 +1, posWS2 - posWS1);
     std::string sReadPath = sLine.substr(posWS3 + 1);
 
     posLF = posNextLF + 1;
 
-    if (!m_XMLResData.bHasOnlyAddonXML)
+    if (!m_ResData.bHasOnlyAddonXML)
     {
       //Get version of strings.po files
-      std::string sMatchedLangalias = g_CharsetUtils.GetLangnameFromPath(sReadPath,  m_XMLResData.UPS.LPath, sLForm);
+      std::string sMatchedLangalias = g_CharsetUtils.GetLangnameFromPath(sReadPath,  m_ResData.UPS.LPath, sLForm);
       std::string sFoundLangCode = g_LCodeHandler.GetLangCodeFromAlias(sMatchedLangalias, sLForm);
 
       if (sFoundLangCode != "")
       {
         listLangs.insert(sFoundLangCode);
-        CGITData GitData = m_XMLResData.UPS;
+        CGITData GitData = m_ResData.UPS;
         g_CharsetUtils.replaceAllStrParts(&GitData.LPath, sLForm, sMatchedLangalias);
         g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + GitData.LPath, sSHA);
         continue;
       }
     }
-    if (m_XMLResData.bIsLangAddon)
+    if (m_ResData.bIsLangAddon)
     {
       //If we have a language addon, we also check if there is any language name dependent addon.xml file
-      std::string sMatchedLangalias = g_CharsetUtils.GetLangnameFromPath(sReadPath, m_XMLResData.UPS.AXMLPath, sAXMLLForm);
+      std::string sMatchedLangalias = g_CharsetUtils.GetLangnameFromPath(sReadPath, m_ResData.UPS.AXMLPath, sAXMLLForm);
       std::string sFoundLangCode = g_LCodeHandler.GetLangCodeFromAlias(sMatchedLangalias, sAXMLLForm);
       if (sFoundLangCode != "")
       {
         listLangs.insert(sFoundLangCode);
-        CGITData GitData = m_XMLResData.UPS;
+        CGITData GitData = m_ResData.UPS;
         g_CharsetUtils.replaceAllStrParts(&GitData.AXMLPath, sAXMLLForm, sMatchedLangalias);
         g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + GitData.AXMLPath, sSHA);
       }
     }
-    else if (sReadPath == m_XMLResData.UPS.AXMLPath)
+    else if (sReadPath == m_ResData.UPS.AXMLPath)
     {
       //Get version for addon.xml file
-      CGITData GitData = m_XMLResData.UPS;
+      CGITData GitData = m_ResData.UPS;
       g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + GitData.AXMLPath, sSHA);
     }
-    else if (sReadPath == m_XMLResData.UPS.ChLogPath)
+    else if (sReadPath == m_ResData.UPS.ChLogPath)
     {
       //Get version for changelog.txt file
-      CGITData GitData = m_XMLResData.UPS;
+      CGITData GitData = m_ResData.UPS;
       g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + GitData.ChLogPath, sSHA);
     }
   }
@@ -732,15 +732,15 @@ std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
 
 void CResourceHandler::GetSRCFilesGitData()
 {
-  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR (m_XMLResData.sUPSLocalPath, m_XMLResData.UPSSRC, m_XMLResData.bForceGitDloadToCache);
+  std::string sFileList = g_HTTPHandler.GetGitFileListToSTR (m_ResData.sUPSLocalPath, m_ResData.UPSSRC, m_ResData.bForceGitDloadToCache);
 
   size_t posLF = 0;
   size_t posNextLF = 0;
 
   std::string sVersion;
 
-  std::string sLPathSRC = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.UPSSRC.LPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.UPSSRC.LPath), m_XMLResData.sSRCLCode);
-  std::string sLAXMLPathSRC = g_CharsetUtils.ReplaceLanginURL(m_XMLResData.UPSSRC.AXMLPath, g_CharsetUtils.GetLFormFromPath(m_XMLResData.UPSSRC.AXMLPath), m_XMLResData.sSRCLCode);
+  std::string sLPathSRC = g_CharsetUtils.ReplaceLanginURL(m_ResData.UPSSRC.LPath, g_CharsetUtils.GetLFormFromPath(m_ResData.UPSSRC.LPath), m_ResData.sSRCLCode);
+  std::string sLAXMLPathSRC = g_CharsetUtils.ReplaceLanginURL(m_ResData.UPSSRC.AXMLPath, g_CharsetUtils.GetLFormFromPath(m_ResData.UPSSRC.AXMLPath), m_ResData.sSRCLCode);
 
   while ((posNextLF = sFileList.find('\n', posLF)) != std::string::npos)
   {
@@ -751,7 +751,7 @@ void CResourceHandler::GetSRCFilesGitData()
     posWS3 = sLine.find('\t', posWS2+1);
 
     if (posWS1 == std::string::npos || posWS2 == std::string::npos || posWS3 == std::string::npos)
-      CLog::Log(logERROR, "ResHandler::GetAvailLangsGITHUB: Wrong file list format for local github clone filelist, for resource %s", m_XMLResData.sResName.c_str());
+      CLog::Log(logERROR, "ResHandler::GetAvailLangsGITHUB: Wrong file list format for local github clone filelist, for resource %s", m_ResData.sResName.c_str());
 
     std::string sSHA = sLine.substr(posWS1 +1, posWS2 - posWS1);
     std::string sReadPath = sLine.substr(posWS3 + 1);
@@ -761,13 +761,13 @@ void CResourceHandler::GetSRCFilesGitData()
     if (sReadPath == sLPathSRC)
     {
       //Set version for SRC strings.po
-      CGITData GitData = m_XMLResData.UPSSRC;
+      CGITData GitData = m_ResData.UPSSRC;
       g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + sLPathSRC, sSHA);
     }
     else if (sReadPath == sLAXMLPathSRC)
     {
       //Set version for SRC language addon.xml
-      CGITData GitData = m_XMLResData.UPSSRC;
+      CGITData GitData = m_ResData.UPSSRC;
       g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + sLAXMLPathSRC, sSHA);
     }
   }
@@ -820,7 +820,7 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
 
-  CLog::Log(logPRINT, "Uploading files for resource: %s%s%s", KMAG, m_XMLResData.sResName.c_str(), RESET);
+  CLog::Log(logPRINT, "Uploading files for resource: %s%s%s", KMAG, m_ResData.sResName.c_str(), RESET);
 
 
   if (m_mapUPD.empty()) // No update needed for the specific resource (not even an English one)
@@ -830,18 +830,18 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
   }
 
   g_HTTPHandler.SetLocation("UPD");
-  g_HTTPHandler.SetProjectName(m_XMLResData.UPD.ProjectName);
-  g_HTTPHandler.SetResName(m_XMLResData.sResName);
+  g_HTTPHandler.SetProjectName(m_ResData.UPD.ProjectName);
+  g_HTTPHandler.SetResName(m_ResData.sResName);
   g_HTTPHandler.SetFileName("string.po");
   g_HTTPHandler.SetDataFile(false);
 
-  g_HTTPHandler.SetLCode(m_XMLResData.sSRCLCode);
+  g_HTTPHandler.SetLCode(m_ResData.sSRCLCode);
 
   if (bNewResourceOnTRX)
   {
     // We create the new resource on transifex and also upload the English source file at once
 
-    m_mapUPD.at(m_XMLResData.sSRCLCode).CreateNewResource();
+    m_mapUPD.at(m_ResData.sSRCLCode).CreateNewResource();
 
     g_HTTPHandler.Cleanup();
     g_HTTPHandler.ReInit();
@@ -850,8 +850,8 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
   CLog::Log(logPRINT, "\n");
 
   // Upload the source file in case there is one to update
-  if (m_mapUPD.find(m_XMLResData.sSRCLCode) != m_mapUPD.end() && !bNewResourceOnTRX)
-    m_mapUPD.at(m_XMLResData.sSRCLCode).PutSRCFileToTRX();
+  if (m_mapUPD.find(m_ResData.sSRCLCode) != m_mapUPD.end() && !bNewResourceOnTRX)
+    m_mapUPD.at(m_ResData.sSRCLCode).PutSRCFileToTRX();
 
 
   for (T_itmapPOFiles it = m_mapUPD.begin(); it!=m_mapUPD.end(); it++)
@@ -859,7 +859,7 @@ void CResourceHandler::UploadResourceToTransifex(bool bNewResourceOnTRX)
     const std::string& sLCode = it->first;
     CPOHandler& POHandler = it->second;
 
-    if (sLCode == m_XMLResData.sSRCLCode) // Let's not upload the Source language file again
+    if (sLCode == m_ResData.sSRCLCode) // Let's not upload the Source language file again
       continue;
 
     g_HTTPHandler.SetLCode(sLCode);

@@ -82,14 +82,14 @@ class CPOHandler
 {
 public:
   CPOHandler();
-  CPOHandler(const CResData& XMLResdata);
+  CPOHandler(const CResData& Resdata);
   ~CPOHandler();
   typedef std::map <unsigned long long, CPOEntry>::iterator T_itPOData;
   typedef std::map <unsigned long long, T_itPOData>::iterator T_itPOItData;
   typedef std::map <std::string, unsigned long long>::iterator T_itClassicPOData;
   typedef std::map <size_t, unsigned long long>::iterator T_itSequenceIndex;
 
-  void SetXMLReasData (const CResData& XMLResData) {m_XMLResData = XMLResData;}
+  void SetReasData (const CResData& ResData) {m_ResData = ResData;}
   void SetLCode (const std::string& sLCode) {m_sLCode = sLCode;}
 
   bool FetchPOGitPathToMem(std::string strURL, CGITData& GitData);
@@ -147,7 +147,7 @@ protected:
   bool m_bIsSRCLang;
   int m_POType;
   std::string m_strLangAddonXML;
-  CResData m_XMLResData;
+  CResData m_ResData;
   T_itPOData m_itLastFound;
 
 

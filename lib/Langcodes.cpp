@@ -40,7 +40,7 @@ CLCodeHandler::CLCodeHandler()
 CLCodeHandler::~CLCodeHandler()
 {}
 
-void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CResData& XMLResData)
+void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CResData& ResData)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit(); 
@@ -70,7 +70,7 @@ void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CResData& X
   if (strtemp.empty())
     CLog::Log(logERROR, "LangCode::Init: error getting available language list from URL %s", strLangDatabaseURL.c_str());
 
-  m_mapLCodes = ParseTransifexLanguageDatabase(strtemp, XMLResData);
+  m_mapLCodes = ParseTransifexLanguageDatabase(strtemp, ResData);
 
   CLog::Log(logDEBUG, "LCodeHandler: Succesfully fetched %i language codes from URL %s", m_mapLCodes.size(), strLangDatabaseURL.c_str());
 }
@@ -146,7 +146,7 @@ void CLCodeHandler::CleanLangform (std::string &strLangform)
 }
 
 std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const std::string& strContributorType, const std::string& strProjectName,
-                                                                          const CResData& XMLResData)
+                                                                          const CResData& ResData)
 {
   std::map<std::string, std::string> mapOfContributors;
 
@@ -156,10 +156,10 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const 
   for (itmapLCodes = m_mapLCodes.begin(); itmapLCodes != m_mapLCodes.end() ; itmapLCodes++)
   {
     std::string strLangCode = itmapLCodes->first;
-    std::string strTXLformat = XMLResData.TRX.LForm;
+    std::string strTXLformat = ResData.TRX.LForm;
 
     g_HTTPHandler.SetLocation("TRX");
-    g_HTTPHandler.SetProjectName(XMLResData.TRX.ProjectName);
+    g_HTTPHandler.SetProjectName(ResData.TRX.ProjectName);
     g_HTTPHandler.SetResName("");
     g_HTTPHandler.SetLCode(strLangCode);
     g_HTTPHandler.SetFileName("ContributorList.json");
@@ -234,7 +234,7 @@ void  CLCodeHandler::UploadTranslatorsDatabase(std::map<std::string, std::string
   }
 }
 
-std::map<std::string, CLangcodes> CLCodeHandler::ParseTransifexLanguageDatabase(std::string strJSON, const CResData& XMLResData)
+std::map<std::string, CLangcodes> CLCodeHandler::ParseTransifexLanguageDatabase(std::string strJSON, const CResData& ResData)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
@@ -264,7 +264,7 @@ std::map<std::string, CLangcodes> CLCodeHandler::ParseTransifexLanguageDatabase(
       std::string langstrKey = itralias.key().asString();
       std::string langstrName = (*itralias).asString();
       LangData.mapLangdata[langstrKey] = langstrName;
-      if ( "$(" + langstrKey + ")" == XMLResData.sBaseLForm)
+      if ( "$(" + langstrKey + ")" == ResData.sBaseLForm)
         strLCode = langstrName;
     }
 
