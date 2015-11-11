@@ -91,11 +91,11 @@ public:
   std::map<std::string, CBasicGITData> * m_pMapGitRepos;
 };
 
-class CUpdateXMLHandler
+class CConfigHandler
 {
 public:
-  CUpdateXMLHandler();
-  ~CUpdateXMLHandler();
+  CConfigHandler();
+  ~CConfigHandler();
   void LoadResDataToMem (std::string rootDir, std::map<std::string, CResData> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos,
                          std::map<int, std::string>& mapResOrder);
 

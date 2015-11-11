@@ -38,7 +38,7 @@ CProjectHandler::~CProjectHandler()
 
 void CProjectHandler::LoadUpdXMLToMem()
 {
-  CUpdateXMLHandler UpdateXMLHandler;
+  CConfigHandler UpdateXMLHandler;
 //  UpdateXMLHandler.LoadUpdXMLToMem (m_strProjDir, m_mapResData);
   UpdateXMLHandler.LoadResDataToMem(m_strProjDir, m_mapResData, &m_MapGitRepos, m_mapResOrder);
   g_HTTPHandler.SetHTTPCacheExpire(m_mapResData.begin()->second.iCacheExpire);

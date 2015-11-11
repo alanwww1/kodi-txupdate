@@ -47,13 +47,13 @@ CResData::CResData()
 CResData::~CResData()
 {}
 
-CUpdateXMLHandler::CUpdateXMLHandler()
+CConfigHandler::CConfigHandler()
 {};
 
-CUpdateXMLHandler::~CUpdateXMLHandler()
+CConfigHandler::~CConfigHandler()
 {};
 
-void CUpdateXMLHandler::SubstituteExternalVariables(std::string& sVal, bool bIgnoreMissing)
+void CConfigHandler::SubstituteExternalVariables(std::string& sVal, bool bIgnoreMissing)
 {
   size_t iCurrPos = 0;
   size_t iNextPos = 0;
@@ -92,7 +92,7 @@ void CUpdateXMLHandler::SubstituteExternalVariables(std::string& sVal, bool bIgn
   }
 }
 
-size_t CUpdateXMLHandler::FindVariable(const std::string& sVar)
+size_t CConfigHandler::FindVariable(const std::string& sVar)
 {
   size_t iMatchedEntries = 0;
   bool bExactMatchFound = false;
@@ -113,7 +113,7 @@ size_t CUpdateXMLHandler::FindVariable(const std::string& sVar)
   return iMatchedEntries;
 }
 
-void CUpdateXMLHandler::SetExternalVariables(const std::string& sLine)
+void CConfigHandler::SetExternalVariables(const std::string& sLine)
 {
   size_t iPosVar1 = 0;
   size_t iPosVar2 = sLine.find(" = ", iPosVar1);
@@ -130,7 +130,7 @@ void CUpdateXMLHandler::SetExternalVariables(const std::string& sLine)
   m_MapOfVariables[sVar] = sVal;
 }
 
-void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CResData& ResData)
+void CConfigHandler::SetInternalVariables(const std::string& sLine, CResData& ResData)
 {
   size_t iPosVar1 = sLine.find(" ",0) +1;
   size_t iPosVar2 = sLine.find(" = ", iPosVar1);
@@ -181,7 +181,7 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CResData&
   return SetInternalVariable(sVar, sVal, ResData, false);
 }
 
-void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CResData& ResData)
+void CConfigHandler::ClearVariables(const std::string& sLine, CResData& ResData)
 {
   std::string sVar = sLine.substr(6);
 
@@ -201,7 +201,7 @@ void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CResData& ResDa
   }
 }
 
-void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::string sVal, CResData& ResData, bool bIgnoreMissing)
+void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::string sVal, CResData& ResData, bool bIgnoreMissing)
 {
   if (sVar == "UPSOwner")                   ResData.UPS.Owner = sVal;
   else if (sVar == "UPSRepo")               ResData.UPS.Repo = sVal;
@@ -300,7 +300,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   m_MapOfVariables[sVar] = sVal;
 }
 
-void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CResData> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos,
+void CConfigHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CResData> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos,
                                           std::map<int, std::string>& mapResOrder)
 {
   iResCounter = 0;
@@ -338,7 +338,7 @@ void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::str
   }
 }
 
-void CUpdateXMLHandler::HandlePermanentVariables(CResData& ResData)
+void CConfigHandler::HandlePermanentVariables(CResData& ResData)
 {
   for (std::vector<std::string>::iterator itvec = m_vecPermVariables.begin(); itvec != m_vecPermVariables.end(); itvec++)
   {
@@ -346,14 +346,14 @@ void CUpdateXMLHandler::HandlePermanentVariables(CResData& ResData)
   }
 }
 
-std::string CUpdateXMLHandler::ReplaceResName(std::string sVal, const CResData& ResData)
+std::string CConfigHandler::ReplaceResName(std::string sVal, const CResData& ResData)
 {
   g_CharsetUtils.replaceAllStrParts (&sVal, "$(RESNAME)", ResData.sResName);
   g_CharsetUtils.replaceAllStrParts (&sVal, "$(TRXRESNAME)", ResData.TRX.ResName);
   return sVal;
 }
 
-void CUpdateXMLHandler::CreateResource(CResData& ResData, const std::string& sLine, std::map<std::string, CResData> & mapResData, std::map<int, std::string>& mapResOrder)
+void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine, std::map<std::string, CResData> & mapResData, std::map<int, std::string>& mapResOrder)
 {
   HandlePermanentVariables(ResData); //Handle Permanent variable assignements, which get new values after each create resource
 
@@ -506,7 +506,7 @@ void CUpdateXMLHandler::CreateResource(CResData& ResData, const std::string& sLi
   }
 }
 
-bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,
+bool CConfigHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,
                                                  string &strURLRoot, const char strSeparator)
 {
   if (strURL.empty())
@@ -521,7 +521,7 @@ bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &st
   return GetParamsFromURLorPath (strURL, strFileName, strURLRoot, strSeparator);
 }
 
-bool CUpdateXMLHandler::GetParamsFromURLorPath (string const &strURL, string &strFileName,
+bool CConfigHandler::GetParamsFromURLorPath (string const &strURL, string &strFileName,
                                                  string &strURLRoot, const char strSeparator)
 {
   if (strURL.empty())
