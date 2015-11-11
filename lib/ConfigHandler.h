@@ -53,11 +53,11 @@ struct CTRXData
   std::string LForm;
 };
 
-class CXMLResdata
+class CResData
 {
 public:
-  CXMLResdata();
-  ~CXMLResdata();
+  CResData();
+  ~CResData();
   std::string sResName;
 
   //NEW
@@ -96,7 +96,7 @@ class CUpdateXMLHandler
 public:
   CUpdateXMLHandler();
   ~CUpdateXMLHandler();
-  void LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos,
+  void LoadResDataToMem (std::string rootDir, std::map<std::string, CResData> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos,
                          std::map<int, std::string>& mapResOrder);
 
 private:
@@ -108,15 +108,15 @@ private:
   std::map<std::string, std::string> m_MapOfVariables;
   std::vector<std::string> m_vecPermVariables;
   size_t FindVariable(const std::string& sVar);
-  void SetInternalVariables(const std::string& sLine, CXMLResdata& ResData);
+  void SetInternalVariables(const std::string& sLine, CResData& ResData);
   void SetExternalVariables(const std::string& sLine);
   void SubstituteExternalVariables(std::string& sVar, bool bIgnoreMissing);
 protected:
-  void CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData, std::map<int, std::string>& mapResOrder);
-  void HandlePermanentVariables(CXMLResdata& ResData);
-  std::string ReplaceResName(std::string sVal, const CXMLResdata& ResData);
-  void ClearVariables(const std::string& sLine, CXMLResdata& ResData);
-  void SetInternalVariable(const std::string& sVar, const std::string sVal, CXMLResdata& ResData, bool bIgnoreMissing);
+  void CreateResource(CResData& ResData, const std::string& sLine, std::map<std::string, CResData> & mapResData, std::map<int, std::string>& mapResOrder);
+  void HandlePermanentVariables(CResData& ResData);
+  std::string ReplaceResName(std::string sVal, const CResData& ResData);
+  void ClearVariables(const std::string& sLine, CResData& ResData);
+  void SetInternalVariable(const std::string& sVar, const std::string sVal, CResData& ResData, bool bIgnoreMissing);
   int iResCounter;
 };
 

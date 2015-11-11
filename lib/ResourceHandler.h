@@ -32,7 +32,7 @@ class CResourceHandler
 {
 public:
   CResourceHandler();
-  CResourceHandler(const CXMLResdata& XMLResdata);
+  CResourceHandler(const CResData& XMLResdata);
   ~CResourceHandler();
   bool FetchPOFilesTXToMem();
   bool FetchPOFilesUpstreamToMem();
@@ -67,7 +67,7 @@ protected:
   CAddonXMLHandler m_AddonXMLHandler;
   std::set<std::string> m_lChangedLangsFromUPS, m_lLangsToUPD, m_lLangsWithDeletedEntry;
 
-  CXMLResdata m_XMLResData;
+  CResData m_XMLResData;
 
   bool m_bLastUPSHandlerFound;
   bool m_bLastTRXHandlerFound;

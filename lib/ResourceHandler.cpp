@@ -35,7 +35,7 @@ using namespace std;
 CResourceHandler::CResourceHandler()
 {};
 
-CResourceHandler::CResourceHandler(const CXMLResdata& XMLResdata) : m_XMLResData(XMLResdata)
+CResourceHandler::CResourceHandler(const CResData& XMLResdata) : m_XMLResData(XMLResdata)
 {
   m_AddonXMLHandler.SetResData(XMLResdata);
 };

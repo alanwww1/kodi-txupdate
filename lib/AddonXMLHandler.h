@@ -41,7 +41,7 @@ class CAddonXMLHandler
 public:
   CAddonXMLHandler();
   ~CAddonXMLHandler();
-  void SetResData (const CXMLResdata& ResData) {m_ResData = ResData;}
+  void SetResData (const CResData& ResData) {m_ResData = ResData;}
   void SetBumpAddonVersion () {m_bBumpAddoXMLVersion = true;}
   void GenerateAddonXMLFile ();
   void WriteAddonXMLFile (std::string strAddonXMLFilename);
@@ -75,5 +75,5 @@ protected:
   std::string m_strChangelogFile;
   bool m_bBumpAddoXMLVersion;
   COtherAddonMetadata m_AddonMetadata;
-  CXMLResdata m_ResData;
+  CResData m_ResData;
 };

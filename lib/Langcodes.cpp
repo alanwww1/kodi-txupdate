@@ -40,7 +40,7 @@ CLCodeHandler::CLCodeHandler()
 CLCodeHandler::~CLCodeHandler()
 {}
 
-void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CXMLResdata& XMLResData)
+void CLCodeHandler::Init(const std::string strLangDatabaseURL, const CResData& XMLResData)
 {
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit(); 
@@ -146,7 +146,7 @@ void CLCodeHandler::CleanLangform (std::string &strLangform)
 }
 
 std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const std::string& strContributorType, const std::string& strProjectName,
-                                                                          const CXMLResdata& XMLResData)
+                                                                          const CResData& XMLResData)
 {
   std::map<std::string, std::string> mapOfContributors;
 
@@ -234,7 +234,7 @@ void  CLCodeHandler::UploadTranslatorsDatabase(std::map<std::string, std::string
   }
 }
 
-std::map<std::string, CLangcodes> CLCodeHandler::ParseTransifexLanguageDatabase(std::string strJSON, const CXMLResdata& XMLResData)
+std::map<std::string, CLangcodes> CLCodeHandler::ParseTransifexLanguageDatabase(std::string strJSON, const CResData& XMLResData)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;

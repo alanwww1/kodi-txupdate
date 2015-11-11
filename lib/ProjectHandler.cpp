@@ -80,7 +80,7 @@ bool CProjectHandler::FetchResourcesFromTransifex()
       continue;
     }
 
-    const CXMLResdata& XMLResData = m_mapResData[sResName];
+    const CResData& XMLResData = m_mapResData[sResName];
     CResourceHandler NewResHandler(XMLResData);
 
     g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
@@ -96,9 +96,9 @@ bool CProjectHandler::FetchResourcesFromUpstream()
 {
   g_HTTPHandler.GITPullUPSRepos(m_MapGitRepos, m_mapResData.begin()->second.bSkipGitReset);
 
-  for (std::map<std::string, CXMLResdata>::iterator it = m_mapResData.begin(); it != m_mapResData.end(); it++)
+  for (std::map<std::string, CResData>::iterator it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {
-    const CXMLResdata& XMLResData = it->second;
+    const CResData& XMLResData = it->second;
     const std::string& sResName = it->first;
 
     CLog::Log(logPRINT, "%s%s%s (", KMAG, sResName.c_str(), RESET);
@@ -128,7 +128,7 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
   {
     const std::string& sResName = itmapResources->first;
     CResourceHandler& ResHandler = itmapResources->second;
-    const CXMLResdata& XMLResData = m_mapResData[sResName];
+    const CResData& XMLResData = m_mapResData[sResName];
 
     std::string sMergedLangDir = XMLResData.sProjRootDir + DirSepChar + XMLResData.sMRGLFilesDir + DirSepChar;
     std::string sAddonXMLPath = sMergedLangDir + XMLResData.MRG.AXMLPath;
@@ -230,7 +230,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   {
     CResourceHandler& ResHandler = it->second;
     const std::string& sResName = it->first;
-    const CXMLResdata& XMLResData = m_mapResData[sResName];
+    const CResData& XMLResData = m_mapResData[sResName];
 
     g_HTTPHandler.SetHTTPCacheExpire(XMLResData.iCacheExpire);
 
@@ -243,7 +243,7 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
 void CProjectHandler::MigrateTranslators()
 {
   //TODO
-  CXMLResdata XMLResdata = m_mapResData.begin()->second;
+  CResData XMLResdata = m_mapResData.begin()->second;
   const std::string& strProjectName = XMLResdata.TRX.ProjectName;
   const std::string& strTargetProjectName = XMLResdata.UPD.ProjectName;
   const std::string& strTargetTXLangFormat = XMLResdata.UPD.LForm;
@@ -270,7 +270,7 @@ void CProjectHandler::MigrateTranslators()
 void CProjectHandler::InitLCodeHandler()
 {
 //TODO
-  CXMLResdata XMLResdata = m_mapResData.begin()->second;
+  CResData XMLResdata = m_mapResData.begin()->second;
   g_LCodeHandler.Init(XMLResdata.sLDatabaseURL, XMLResdata);
 }
 

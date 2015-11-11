@@ -78,7 +78,7 @@ bool CPOEntry::MatchMsgid(const CPOEntry& poentry) const
 CPOHandler::CPOHandler()
 {};
 
-CPOHandler::CPOHandler(const CXMLResdata& XMLResdata) : m_XMLResData(XMLResdata)
+CPOHandler::CPOHandler(const CResData& XMLResdata) : m_XMLResData(XMLResdata)
 {
   m_POType = UNKNOWNPO;
   m_bIfItHasPrevLangVersion = false;

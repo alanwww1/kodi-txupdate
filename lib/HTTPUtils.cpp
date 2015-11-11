@@ -518,7 +518,7 @@ std::string CHTTPHandler::CreateCacheFilenameGitSource(const std::string& sBranc
   return sCacheFileName;
 }
 
-bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CXMLResdata& XMLResData, size_t &iAddedNew)
+bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CResData& XMLResData, size_t &iAddedNew)
 {
 
 

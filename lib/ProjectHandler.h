@@ -49,8 +49,8 @@ protected:
   std::map<std::string, CResourceHandler> m_mapResources;
   typedef std::map<std::string, CResourceHandler>::iterator T_itmapRes;
 
-  std::map<std::string, CXMLResdata> m_mapResData;
-  typedef std::map<std::string, CXMLResdata>::iterator T_itResData;
+  std::map<std::string, CResData> m_mapResData;
+  typedef std::map<std::string, CResData>::iterator T_itResData;
   std::map<std::string, CBasicGITData> m_MapGitRepos;
   std::map<int, std::string> m_mapResOrder;
   std::string m_strProjDir;

@@ -41,7 +41,7 @@ class CLCodeHandler
 public:
   CLCodeHandler();
   ~CLCodeHandler();
-  void Init(const std::string strLangDatabaseURL, const CXMLResdata& XMLResData);
+  void Init(const std::string strLangDatabaseURL, const CResData& XMLResData);
   std::string GetLangCodeFromAlias(std::string Alias, std::string AliasForm);
   std::string GetLangFromLCode(std::string LangCode, std::string AliasForm);
   int GetnPlurals(std::string LangToLook);
@@ -49,13 +49,13 @@ public:
   std::string VerifyLangCode(std::string LangCode, const std::string &strLangformat);
   void CleanLangform (std::string &strLangform);
   std::map<std::string, std::string>  GetTranslatorsDatabase(const std::string& strContributorType, const std::string& strProjectName,
-                                                             const CXMLResdata& XMLResData);
+                                                             const CResData& XMLResData);
   void  UploadTranslatorsDatabase(std::map<std::string, std::string> &mapOfCoordinators,
                                   std::map<std::string, std::string> &mapOfReviewers,
                                   std::map<std::string, std::string> &mapOfTranslators,
                                   const std::string& strProjectName, const std::string& strTargetTXLFormat);
 private:
-  std::map<std::string, CLangcodes> ParseTransifexLanguageDatabase(std::string strJSON, const CXMLResdata& XMLResData);
+  std::map<std::string, CLangcodes> ParseTransifexLanguageDatabase(std::string strJSON, const CResData& XMLResData);
   void AddGeneralRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLeft, std::string strRight);
   void AddCustomRule(std::map<std::string, CLangcodes> &mapTXLangs, const std::string &strLangformat,
                      const std::string &strLeft, const std::string &strRight);

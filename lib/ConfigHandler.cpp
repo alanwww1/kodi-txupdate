@@ -30,7 +30,7 @@
 
 using namespace std;
 
-CXMLResdata::CXMLResdata()
+CResData::CResData()
 {
  iMinComplPercent = 40;
  iCacheExpire = 60;
@@ -44,7 +44,7 @@ CXMLResdata::CXMLResdata()
  bIsLangAddon = false;
 }
 
-CXMLResdata::~CXMLResdata()
+CResData::~CResData()
 {}
 
 CUpdateXMLHandler::CUpdateXMLHandler()
@@ -130,7 +130,7 @@ void CUpdateXMLHandler::SetExternalVariables(const std::string& sLine)
   m_MapOfVariables[sVar] = sVal;
 }
 
-void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResdata& ResData)
+void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CResData& ResData)
 {
   size_t iPosVar1 = sLine.find(" ",0) +1;
   size_t iPosVar2 = sLine.find(" = ", iPosVar1);
@@ -181,7 +181,7 @@ void CUpdateXMLHandler::SetInternalVariables(const std::string& sLine, CXMLResda
   return SetInternalVariable(sVar, sVal, ResData, false);
 }
 
-void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CXMLResdata& ResData)
+void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CResData& ResData)
 {
   std::string sVar = sLine.substr(6);
 
@@ -201,7 +201,7 @@ void CUpdateXMLHandler::ClearVariables(const std::string& sLine, CXMLResdata& Re
   }
 }
 
-void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::string sVal, CXMLResdata& ResData, bool bIgnoreMissing)
+void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::string sVal, CResData& ResData, bool bIgnoreMissing)
 {
   if (sVar == "UPSOwner")                   ResData.UPS.Owner = sVal;
   else if (sVar == "UPSRepo")               ResData.UPS.Repo = sVal;
@@ -300,7 +300,7 @@ void CUpdateXMLHandler::SetInternalVariable(const std::string& sVar, const std::
   m_MapOfVariables[sVar] = sVal;
 }
 
-void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CXMLResdata> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos,
+void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::string, CResData> & mapResData, std::map<std::string, CBasicGITData> * pMapGitRepos,
                                           std::map<int, std::string>& mapResOrder)
 {
   iResCounter = 0;
@@ -311,7 +311,7 @@ void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::str
   size_t iPos1 = 0;
   size_t iPos2 = 0;
 
-  CXMLResdata ResData;
+  CResData ResData;
 
   ResData.sProjRootDir = rootDir;
   ResData.m_pMapGitRepos = pMapGitRepos;
@@ -338,7 +338,7 @@ void CUpdateXMLHandler::LoadResDataToMem (std::string rootDir, std::map<std::str
   }
 }
 
-void CUpdateXMLHandler::HandlePermanentVariables(CXMLResdata& ResData)
+void CUpdateXMLHandler::HandlePermanentVariables(CResData& ResData)
 {
   for (std::vector<std::string>::iterator itvec = m_vecPermVariables.begin(); itvec != m_vecPermVariables.end(); itvec++)
   {
@@ -346,18 +346,18 @@ void CUpdateXMLHandler::HandlePermanentVariables(CXMLResdata& ResData)
   }
 }
 
-std::string CUpdateXMLHandler::ReplaceResName(std::string sVal, const CXMLResdata& ResData)
+std::string CUpdateXMLHandler::ReplaceResName(std::string sVal, const CResData& ResData)
 {
   g_CharsetUtils.replaceAllStrParts (&sVal, "$(RESNAME)", ResData.sResName);
   g_CharsetUtils.replaceAllStrParts (&sVal, "$(TRXRESNAME)", ResData.TRX.ResName);
   return sVal;
 }
 
-void CUpdateXMLHandler::CreateResource(CXMLResdata& ResData, const std::string& sLine, std::map<std::string, CXMLResdata> & mapResData, std::map<int, std::string>& mapResOrder)
+void CUpdateXMLHandler::CreateResource(CResData& ResData, const std::string& sLine, std::map<std::string, CResData> & mapResData, std::map<int, std::string>& mapResOrder)
 {
   HandlePermanentVariables(ResData); //Handle Permanent variable assignements, which get new values after each create resource
 
-  CXMLResdata ResDataToStore;
+  CResData ResDataToStore;
 
   //Parse the resource names
   size_t posResName, posTRXResName;
