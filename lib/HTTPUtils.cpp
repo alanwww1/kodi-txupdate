@@ -518,15 +518,15 @@ std::string CHTTPHandler::CreateCacheFilenameGitSource(const std::string& sBranc
   return sCacheFileName;
 }
 
-bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CResData& XMLResData, size_t &iAddedNew)
+bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CResData& ResData, size_t &iAddedNew)
 {
 
 
-  std::string sURLCreateRes = "https://www.transifex.com/api/2/project/" + XMLResData.UPD.ProjectName + "/resources/";
+  std::string sURLCreateRes = "https://www.transifex.com/api/2/project/" + ResData.UPD.ProjectName + "/resources/";
 
-  std::string sURLSRCRes = "https://www.transifex.com/api/2/project/" + XMLResData.UPD.ProjectName + "/resource/" +
-                           XMLResData.UPD.ResName + "/translation/" +
-                           g_LCodeHandler.GetLangFromLCode(XMLResData.sSRCLCode, XMLResData.UPD.LForm) + "/";
+  std::string sURLSRCRes = "https://www.transifex.com/api/2/project/" + ResData.UPD.ProjectName + "/resource/" +
+                           ResData.UPD.ResName + "/translation/" +
+                           g_LCodeHandler.GetLangFromLCode(ResData.sSRCLCode, ResData.UPD.LForm) + "/";
 
   bool bCacheFileExists, bCacheFileExpired;
 
@@ -552,7 +552,7 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CResData&
 
   sURLCreateRes = URLEncode(sURLCreateRes);
 
-  std::string strPOJson = CreateNewresJSONStrFromPOStr(XMLResData.UPD.ResName, sPOFile);
+  std::string strPOJson = CreateNewresJSONStrFromPOStr(ResData.UPD.ResName, sPOFile);
 
   std::string strServerResp;
   CLoginData LoginData = GetCredentials(sURLCreateRes);
@@ -606,11 +606,11 @@ bool CHTTPHandler::CreateNewResource(const std::string& sPOFile, const CResData&
 
     if (bSuccess)
       CLog::Log(logDEBUG, "CHTTPHandler::CreateNewResource finished with success for resource %s from SRC PO file %s to URL %s",
-                XMLResData.sResName.c_str(), sURLSRCRes.c_str(), sURLCreateRes.c_str());
+                ResData.sResName.c_str(), sURLSRCRes.c_str(), sURLCreateRes.c_str());
     else
       CLog::Log(logERROR, "CHTTPHandler::CreateNewResource finished with error:\ncurl error: %i, %s\nhttp error: %i%s\nURL: %s\nlocaldir: %s\nREsource: %s",
                 curlResult, curl_easy_strerror(curlResult), http_code, GetHTTPErrorFromCode(http_code).c_str(), sURLCreateRes.c_str(),
-                sURLSRCRes.c_str(), XMLResData.sResName.c_str());
+                sURLSRCRes.c_str(), ResData.sResName.c_str());
 
     if (!bCacheFileExists || bCacheFileExpired)
     {

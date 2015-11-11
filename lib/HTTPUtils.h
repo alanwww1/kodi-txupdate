@@ -69,7 +69,7 @@ public:
   bool LoadCredentials (std::string CredentialsFilename);
   bool PutFileToURL(std::string const &strFilePath, std::string const &strURL, bool &buploaded,
                     size_t &stradded, size_t &strupd);
-  bool CreateNewResource(const std::string& sPOFile, const CResData& XMLResData, size_t &iAddedNew);
+  bool CreateNewResource(const std::string& sPOFile, const CResData& ResData, size_t &iAddedNew);
   void GetGithubData (const std::string &strURL, CGithubURLData &GithubURLData);
   std::string GetGitHUBAPIURL(std::string const & strURL);
   void GetGitCloneURL(std::string const & strURL, std::string &strGitHubURL, CGithubURLData &GithubURLData);
