@@ -28,21 +28,11 @@
 #include <ctime>
 #include <set>
 
-#ifdef WINDOWS
-  #include <direct.h>
-  #define GetCurrentDir _getcwd
-#else
-  #include <unistd.h>
-  #define GetCurrentDir getcwd
-#endif
+#include <unistd.h>
+#define GetCurrentDir getcwd
 
-#ifdef _MSC_VER
-static const char DirSepChar = '\\';
-#include "dirent.h"
-#else
 static const char DirSepChar = '/';
 #include <dirent.h>
-#endif
 
 class CFile
 {

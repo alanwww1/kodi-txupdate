@@ -26,11 +26,7 @@
 
 #include <string>
 #include <string.h>
-#ifdef _MSC_VER
-  #include "vc_project/libiconv/include/iconv.h"
-#else
-  #include <iconv.h>
-#endif
+#include <iconv.h>
 #include <stdio.h>
 #include <stdlib.h>
 

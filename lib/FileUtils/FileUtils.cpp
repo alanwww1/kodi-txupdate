@@ -56,21 +56,13 @@ bool CFile::MakeDir(std::string Path)
 
 bool CFile::MakeOneDir(std::string Path)
 {
-  #ifdef _MSC_VER
-  return CreateDirectory (Path.c_str(), NULL) != 0;
-  #else
   return mkdir(Path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0;
-  #endif
 };
 
 bool CFile::DirExists(std::string Path)
 {
-  #ifdef _MSC_VER
-  return !(INVALID_FILE_ATTRIBUTES == GetFileAttributes(Path.c_str()) && GetLastError()==ERROR_FILE_NOT_FOUND);
-  #else 
   struct stat st;
   return (stat(Path.c_str(), &st) == 0);
-  #endif
 };
 
 bool CFile::FileExist(std::string filename) 

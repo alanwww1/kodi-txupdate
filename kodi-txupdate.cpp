@@ -19,16 +19,6 @@
  *
  */
 
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
-#if defined( WIN32 ) && defined( TUNE )
-  #include <crtdbg.h>
-  _CrtMemState startMemState;
-  _CrtMemState endMemState;
-#endif
-
 #include <string>
 #include <stdio.h>
 #include "lib/ProjectHandler.h"
@@ -53,13 +43,6 @@ void PrintUsage()
   "     -u   Only upload the previously prepared files. Note that this needs download and merge ran before.\n\n"
   "     No working mode arguments used, performs as -dm\n\n"
   );
-  #ifdef _MSC_VER
-  CLog::Log(logPRINT,
-  "Note for Windows users: In case you have whitespace or any special character\n"
-  "in the directory argument, please use apostrophe around them. For example:\n"
-  "kodi-txupdate.exe \"C:\\kodi dir\\language\"\n"
-  );
-  #endif
   return;
 };
 
