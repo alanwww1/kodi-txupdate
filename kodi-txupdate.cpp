@@ -44,7 +44,7 @@ void PrintUsage()
 {
   CLog::Log(logPRINT,
   "Usage: kodi-txpudate PROJECTDIR [working mode]\n\n"
-  "PROJECTDIR: the directory which contains the kodi-txupdate.xml settings file and the .passwords file.\n"
+  "PROJECTDIR: the directory which contains the kodi-txupdate.conf settings file and the .passwords file.\n"
   "            This will be the directory where your merged and transifex update files get generated.\n\n"
   "Working modes:\n"
   "     -d   Only download to local cache, without performing a merge.\n"
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 
     CProjectHandler TXProject;
     TXProject.SetProjectDir(WorkingDir);
-    TXProject.LoadUpdXMLToMem();
+    TXProject.LoadConfigToMem();
 
     if (bInfiniteCacheTime)
       g_HTTPHandler.SetHTTPCacheExpire ((size_t)-1);

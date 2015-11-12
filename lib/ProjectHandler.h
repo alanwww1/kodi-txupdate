@@ -31,7 +31,7 @@ public:
   CProjectHandler();
   ~CProjectHandler();
   void SetProjectDir (std::string const &strDir) {m_strProjDir = strDir;}
-  void LoadUpdXMLToMem();
+  void LoadConfigToMem();
   bool FetchResourcesFromTransifex();
   bool FetchResourcesFromUpstream();
   bool CreateMergedResources();

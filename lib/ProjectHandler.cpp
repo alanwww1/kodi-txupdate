@@ -36,7 +36,7 @@ CProjectHandler::CProjectHandler()
 CProjectHandler::~CProjectHandler()
 {};
 
-void CProjectHandler::LoadUpdXMLToMem()
+void CProjectHandler::LoadConfigToMem()
 {
   CConfigHandler UpdateXMLHandler;
 //  UpdateXMLHandler.LoadUpdXMLToMem (m_strProjDir, m_mapResData);

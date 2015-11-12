@@ -18,8 +18,8 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-#ifndef UPDXMLHANDLER_H
-#define UPDXMLHANDLER_H
+#ifndef CONFIGHANDLER_H
+#define CONFIGHANDLER_H
 
 #pragma once
 
