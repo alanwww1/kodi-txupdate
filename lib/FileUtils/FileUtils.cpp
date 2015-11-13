@@ -437,3 +437,13 @@ bool CFile::IsValidPath(const std::set<std::string>& mapValidCacheFiles, const s
   }
   return false;
 }
+
+string CFile::GetHomePath()
+{
+    const char* home = getenv("HOME");
+    if (!home)
+      CLog::Log(logERROR, "unable to determine HOME environment variable");
+
+    std::string sHomePath(home);
+    return sHomePath;
+}

@@ -78,7 +78,9 @@ int main(int argc, char* argv[])
 
     CLog::Log(logDEBUG, "Root Directory: %s", WorkingDir.c_str());
 
-    g_HTTPHandler.LoadCredentials(WorkingDir + ".passwords.xml");
+    std::string sHomePath = g_File.GetHomePath();
+
+    g_HTTPHandler.LoadCredentials(sHomePath + "/.config/kodi-txupdate/passwords.xml");
     g_HTTPHandler.SetCacheDir(WorkingDir + ".httpcache");
 
     CProjectHandler TXProject;
