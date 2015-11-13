@@ -38,7 +38,6 @@ CHTTPHandler::CHTTPHandler()
 {
   m_curlHandle = curl_easy_init();
   m_bSkipCache = false;
-//  m_bUseGitBranch = true;
   m_bDataFile = false;
 };
 
@@ -147,9 +146,7 @@ void CHTTPHandler::curlURLToCache(std::string strURL, std::string &strBuffer)
         curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &strBuffer);
         curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT, sUSERAGENT.c_str());
         curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, 0);
-//        curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, 0);
         curl_easy_setopt(m_curlHandle, CURLOPT_VERBOSE, 0);
-//        curl_easy_setopt(m_curlHandle, CURLOPT_SSLVERSION, 3);
         curl_easy_setopt(m_curlHandle, CURLOPT_FOLLOWLOCATION, true);
 
         curlResult = curl_easy_perform(m_curlHandle);

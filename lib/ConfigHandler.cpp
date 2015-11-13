@@ -208,11 +208,8 @@ void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::str
   else if (sVar == "UPSBranch")             ResData.UPS.Branch = sVal;
 
   else if (sVar == "UPSLPath")              ResData.UPS.LPath = sVal;
-//else if (sVar == "UPSLForm")              ResData.UPS.LForm = sVal;
   else if (sVar == "UPSAXMLPath")           ResData.UPS.AXMLPath = sVal;
   else if (sVar == "UPSLFormInAXML")        ResData.UPS.LFormInAXML = sVal;
-//else if (sVar == "UPSLAXMLPath")          ResData.UPS.LAXMLPath = sVal;
-//else if (sVar == "UPSLAXMLFormat")        ResData.UPS.LAXMLForm = sVal;
   else if (sVar == "UPSChLogPath")          ResData.UPS.ChLogPath = sVal;
 
   else if (sVar == "LOCOwner")              ResData.LOC.Owner = sVal;
@@ -220,19 +217,12 @@ void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::str
   else if (sVar == "LOCBranch")             ResData.LOC.Branch = sVal;
 
   else if (sVar == "LOCLPath")              ResData.LOC.LPath = sVal;
-//else if (sVar == "LOCLForm")              ResData.LOC.LForm = sVal;
   else if (sVar == "LOCAXMLPath")           ResData.LOC.AXMLPath = sVal;
   else if (sVar == "LOCLFormInAXML")        ResData.LOC.LFormInAXML = sVal;
-//else if (sVar == "LOCLAXMLPath")          ResData.LOC.LAXMLPath = sVal;
-//else if (sVar == "LOCLAXMLFormat")        ResData.LOC.LAXMLForm = sVal;
   else if (sVar == "LOCChLogPath")          ResData.LOC.ChLogPath = sVal;
 
   else if (sVar == "MRGLPath")              ResData.MRG.LPath = sVal;
-//else if (sVar == "MRGLForm")              ResData.MRG.LForm = sVal;
   else if (sVar == "MRGAXMLPath")           ResData.MRG.AXMLPath = sVal;
-//else if (sVar == "MRGLFormInAXML")        ResData.MRG.LFormInAXML = sVal;
-//else if (sVar == "MRGLAXMLPath")          ResData.MRG.LAXMLPath = sVal;
-//else if (sVar == "MRGLAXMLFormat")        ResData.MRG.LAXMLForm = sVal;
   else if (sVar == "MRGChLogPath")          ResData.MRG.ChLogPath = sVal;
 
   else if (sVar == "UPSSRCOwner")           ResData.UPSSRC.Owner = sVal;
@@ -240,23 +230,15 @@ void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::str
   else if (sVar == "UPSSRCBranch")          ResData.UPSSRC.Branch = sVal;
 
   else if (sVar == "UPSSRCLPath")           ResData.UPSSRC.LPath = sVal;
-//else if (sVar == "UPSSRCLForm")           ResData.UPSSRC.LForm = sVal;
   else if (sVar == "UPSSRCAXMLPath")        ResData.UPSSRC.AXMLPath = sVal;
-//else if (sVar == "UPSSRCLFormInAXML")     ResData.UPSSRC.LFormInAXML = sVal;
-//else if (sVar == "UPSSRCLAXMLPath")       ResData.UPSSRC.LAXMLPath = sVal;
-//else if (sVar == "UPSSRCLAXMLFormat")     ResData.UPSSRC.LAXMLForm = sVal;
-//else if (sVar == "UPSSRCChLogPath")       ResData.UPSSRC.ChLogPath = sVal;
 
   else if (sVar == "LOCSRCOwner")           ResData.LOCSRC.Owner = sVal;
   else if (sVar == "LOCSRCRepo")            ResData.LOCSRC.Repo = sVal;
   else if (sVar == "LOCSRCBranch")          ResData.LOCSRC.Branch = sVal;
 
   else if (sVar == "LOCSRCLPath")           ResData.LOCSRC.LPath = sVal;
-//else if (sVar == "LOCSRCLForm")           ResData.LOCSRC.LForm = sVal;
   else if (sVar == "LOCSRCAXMLPath")        ResData.LOCSRC.AXMLPath = sVal;
   else if (sVar == "LOCSRCLFormInAXML")     ResData.LOCSRC.LFormInAXML = sVal;
-//else if (sVar == "LOCSRCLAXMLPath")       ResData.LOCSRC.LAXMLPath = sVal;
-//else if (sVar == "LOCSRCLAXMLFormat")     ResData.LOCSRC.LAXMLForm = sVal;
   else if (sVar == "LOCSRCChLogPath")       ResData.LOCSRC.ChLogPath = sVal;
 
   else if (sVar == "TRXProjectName")        ResData.TRX.ProjectName = sVal;
@@ -273,7 +255,6 @@ void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::str
   else if (sVar == "ChgLogFormat")          ResData.sChgLogFormat = sVal;
   else if (sVar == "GitCommitText")         ResData.sGitCommitText = sVal;
   else if (sVar == "GitCommitTextSRC")      ResData.sGitCommitTextSRC = sVal;
-//else if (sVar == "ProjRootDir")           ResData.sProjRootDir = sVal;
   else if (sVar == "MRGLFilesDir")          ResData.sMRGLFilesDir = sVal;
   else if (sVar == "UPSLocalPath")          ResData.sUPSLocalPath = sVal;
   else if (sVar == "UPDLFilesDir")          ResData.sUPDLFilesDir = sVal;
@@ -388,11 +369,8 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   ResDataToStore.UPS.Branch           = ReplaceResName(ResData.UPS.Branch, ResDataToStore);
 
   ResDataToStore.UPS.LPath            = ReplaceResName(ResData.UPS.LPath, ResDataToStore);
-//ResDataToStore.UPS.LForm            = ReplaceResName(ResData.UPS.LForm, ResDataToStore);
   ResDataToStore.UPS.AXMLPath         = ReplaceResName(ResData.UPS.AXMLPath, ResDataToStore);
   ResDataToStore.UPS.LFormInAXML      = ReplaceResName(ResData.UPS.LFormInAXML, ResDataToStore);
-//ResDataToStore.UPS.LAXMLPath        = ReplaceResName(ResData.UPS.LAXMLPath, ResDataToStore);
-//ResDataToStore.UPS.LAXMLForm        = ReplaceResName(ResData.UPS.LAXMLForm, ResDataToStore);
   ResDataToStore.UPS.ChLogPath        = ReplaceResName(ResData.UPS.ChLogPath, ResDataToStore);
 
   ResDataToStore.LOC.Owner            = ReplaceResName(ResData.LOC.Owner, ResDataToStore);
@@ -400,19 +378,13 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   ResDataToStore.LOC.Branch           = ReplaceResName(ResData.LOC.Branch, ResDataToStore);
 
   ResDataToStore.LOC.LPath            = ReplaceResName(ResData.LOC.LPath, ResDataToStore);
-//ResDataToStore.LOC.LForm            = ReplaceResName(ResData.LOC.LForm, ResDataToStore);
   ResDataToStore.LOC.AXMLPath         = ReplaceResName(ResData.LOC.AXMLPath, ResDataToStore);
   ResDataToStore.LOC.LFormInAXML      = ReplaceResName(ResData.LOC.LFormInAXML, ResDataToStore);
-//ResDataToStore.LOC.LAXMLPath        = ReplaceResName(ResData.LOC.LAXMLPath, ResDataToStore);
-//ResDataToStore.LOC.LAXMLForm        = ReplaceResName(ResData.LOC.LAXMLForm, ResDataToStore);
   ResDataToStore.LOC.ChLogPath        = ReplaceResName(ResData.LOC.ChLogPath, ResDataToStore);
 
   ResDataToStore.MRG.LPath            = ReplaceResName(ResData.MRG.LPath, ResDataToStore);
-//ResDataToStore.MRG.LForm            = ReplaceResName(ResData.MRG.LForm, ResDataToStore);
   ResDataToStore.MRG.AXMLPath         = ReplaceResName(ResData.MRG.AXMLPath, ResDataToStore);
 //ResDataToStore.MRG.LFormInAXML      = ReplaceResName(ResData.MRG.LFormInAXML, ResDataToStore);
-//ResDataToStore.MRG.LAXMLPath        = ReplaceResName(ResData.MRG.LAXMLPath, ResDataToStore);
-//ResDataToStore.MRG.LAXMLForm        = ReplaceResName(ResData.MRG.LAXMLForm, ResDataToStore);
   ResDataToStore.MRG.ChLogPath        = ReplaceResName(ResData.MRG.ChLogPath, ResDataToStore);
 
   ResDataToStore.UPSSRC.Owner         = ReplaceResName(ResData.UPSSRC.Owner, ResDataToStore);
@@ -420,11 +392,8 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   ResDataToStore.UPSSRC.Branch        = ReplaceResName(ResData.UPSSRC.Branch, ResDataToStore);
 
   ResDataToStore.UPSSRC.LPath         = ReplaceResName(ResData.UPSSRC.LPath, ResDataToStore);
-//ResDataToStore.UPSSRC.LForm         = ReplaceResName(ResData.UPSSRC.LForm, ResDataToStore);
   ResDataToStore.UPSSRC.AXMLPath      = ReplaceResName(ResData.UPSSRC.AXMLPath, ResDataToStore);
 //ResDataToStore.UPSSRC.LFormInAXML   = ReplaceResName(ResData.UPSSRC.LFormInAXML, ResDataToStore);
-//ResDataToStore.UPSSRC.LAXMLPath     = ReplaceResName(ResData.UPSSRC.LAXMLPath, ResDataToStore);
-//ResDataToStore.UPSSRC.LAXMLForm     = ReplaceResName(ResData.UPSSRC.LAXMLForm, ResDataToStore);
 //ResDataToStore.UPSSRC.ChLogPath     = ReplaceResName(ResData.UPSSRC.ChLogPath, ResDataToStore);
 
   ResDataToStore.LOCSRC.Owner         = ReplaceResName(ResData.LOCSRC.Owner, ResDataToStore);
@@ -432,11 +401,8 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   ResDataToStore.LOCSRC.Branch        = ReplaceResName(ResData.LOCSRC.Branch, ResDataToStore);
 
   ResDataToStore.LOCSRC.LPath         = ReplaceResName(ResData.LOCSRC.LPath, ResDataToStore);
-//ResDataToStore.LOCSRC.LForm         = ReplaceResName(ResData.LOCSRC.LForm, ResDataToStore);
   ResDataToStore.LOCSRC.AXMLPath      = ReplaceResName(ResData.LOCSRC.AXMLPath, ResDataToStore);
   ResDataToStore.LOCSRC.LFormInAXML   = ReplaceResName(ResData.LOCSRC.LFormInAXML, ResDataToStore);
-//ResDataToStore.LOCSRC.LAXMLPath     = ReplaceResName(ResData.LOCSRC.LAXMLPath, ResDataToStore);
-//ResDataToStore.LOCSRC.LAXMLForm     = ReplaceResName(ResData.LOCSRC.LAXMLForm, ResDataToStore);
   ResDataToStore.LOCSRC.ChLogPath     = ReplaceResName(ResData.LOCSRC.ChLogPath, ResDataToStore);
 
   ResDataToStore.TRX.ProjectName      = ReplaceResName(ResData.TRX.ProjectName, ResDataToStore);

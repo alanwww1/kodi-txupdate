@@ -87,7 +87,6 @@ public:
   void SetProjectName (const std::string& sProjName) {m_sProjectName = sProjName;}
   void SetFileName (const std::string& sFileName) {m_sFileName = sFileName;}
   void SetSkipCache (bool bSkipCache) {m_bSkipCache = bSkipCache;}
-//  void SetUseGitBranch (bool bUseBranch) {m_bUseGitBranch = bUseBranch;}
   void SetDataFile (bool bDataFile) {m_bDataFile = bDataFile;}
   void CleanCacheFiles();
 

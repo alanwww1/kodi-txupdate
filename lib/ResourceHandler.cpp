@@ -443,7 +443,6 @@ void CResourceHandler::WriteLOCPOFiles()
     std::string sAddonXMLPath = sLOCGITDir + m_ResData.LOC.AXMLPath;
     std::string sChangeLogPath =  sLOCGITDir + m_ResData.LOC.ChLogPath;
     std::string sLangPath  = sLOCGITDir + m_ResData.LOC.LPath;
-//  std::string sLangAddonXMLPath = sLOCGITDir + m_ResData.LOC.AXMLPath;
 
     std::string sLangPathSRC  = sLOCSRCGITDir + m_ResData.LOCSRC.LPath;
     std::string sLangAddonXMLPathSRC = sLOCSRCGITDir + m_ResData.LOCSRC.AXMLPath;
