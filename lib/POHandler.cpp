@@ -351,7 +351,7 @@ void CPOHandler::AddPOEntryToMaps (const CPOEntry& Entry)
   {
     unsigned long long iKey = Entry.numID + 0x100;
     if (m_mapPOData.find(iKey) != m_mapPOData.end())
-      CLog::Log(logERROR, "POParser: duplicated numeric entry in PO file.");
+      CLog::Log(logERROR, "POParser: duplicated numeric entry in PO file with key: %i", iKey);
     m_mapPOData[iKey] = Entry;
     m_mapSequenceIndex[iEntryCounter] = iKey;
   }
