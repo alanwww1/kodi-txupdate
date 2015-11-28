@@ -121,7 +121,9 @@ public:
   void SetPOType(int type) {m_POType = type;}
   void SetLangAddonXMLString(const std::string& strXMLfile) {m_strLangAddonXML = strXMLfile;}
   std::string& GetLangAddonXMLString () {return m_strLangAddonXML;}
-  void BumpLangAddonXMLVersion();
+  void BumpLangAddonXMLVersion(bool bMajorBump);
+  std::string BumpMinorVersion(const std::string& sVersion);
+  std::string BumpMajorVersion(const std::string& sVersion);
   void CreateNewResource();
   void PutSRCFileToTRX();
   void PutTranslFileToTRX();

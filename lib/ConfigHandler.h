@@ -86,6 +86,7 @@ public:
   bool bForceGitDloadToCache;
   bool bSkipGitReset;
   bool bSkipVersionBump;
+  bool bMajorBump;
   std::map<std::string, CBasicGITData> * m_pMapGitRepos;
 };
 

@@ -466,7 +466,7 @@ void CPOHandler::WriteLangAddonXML(const std::string &strPath)
     CLog::Log(logERROR, "CPOHandler::WriteLangAddonXML: file write error, to output file: %s", strPath.c_str());
 }
 
-void CPOHandler::BumpLangAddonXMLVersion()
+void CPOHandler::BumpLangAddonXMLVersion(bool bMajorBump)
 {
   size_t pos0, pos1, pos2;
   pos0 = m_strLangAddonXML.find("<addon");
@@ -484,18 +484,42 @@ void CPOHandler::BumpLangAddonXMLVersion()
 
   std::string strVersion = m_strLangAddonXML.substr(pos1, pos2-pos1);
 
-  size_t posLastDot = strVersion.find_last_of(".");
+  if (bMajorBump)
+    strVersion = BumpMajorVersion(strVersion);
+  else
+    strVersion = BumpMinorVersion(strVersion);
+
+  m_strLangAddonXML = m_strLangAddonXML.substr(0,pos1) + strVersion + m_strLangAddonXML.substr(pos2);
+}
+
+std::string CPOHandler::BumpMinorVersion(const std::string& sVersion)
+{
+  size_t posLastDot = sVersion.find_last_of(".");
   if (posLastDot == std::string::npos)
     CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_sLCode.c_str());
 
-  std::string strLastNumber = strVersion.substr(posLastDot+1);
+  std::string strLastNumber = sVersion.substr(posLastDot+1);
   if (strLastNumber.find_first_not_of("0123456789") != std::string::npos)
     CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_sLCode.c_str());
 
   int LastNum = atoi (strLastNumber.c_str());
   strLastNumber = g_CharsetUtils.IntToStr(LastNum +1);
-  strVersion = strVersion.substr(0, posLastDot +1) +strLastNumber;
-  m_strLangAddonXML = m_strLangAddonXML.substr(0,pos1) + strVersion + m_strLangAddonXML.substr(pos2);
+  return sVersion.substr(0, posLastDot +1) +strLastNumber;
+}
+
+std::string CPOHandler::BumpMajorVersion(const std::string& sVersion)
+{
+  size_t posFirstDot = sVersion.find_first_of(".");
+  if (posFirstDot == std::string::npos)
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_sLCode.c_str());
+
+  std::string sFirstNumber = sVersion.substr(0,posFirstDot);
+  if (sFirstNumber.find_first_not_of("0123456789") != std::string::npos)
+    CLog::Log(logERROR, "CPOHandler::BumpLangAddonXMLVersion: Wrong Version format for language: %s", m_sLCode.c_str());
+
+  int FirstNum = atoi (sFirstNumber.c_str());
+  sFirstNumber = g_CharsetUtils.IntToStr(FirstNum +1);
+  return sFirstNumber + ".0.0"; //we reset the rest of the minor versions
 }
 
 void CPOHandler::ClearVariables()

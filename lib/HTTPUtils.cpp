@@ -885,7 +885,7 @@ std::string CHTTPHandler::GetGithubPathToSTR(const std::string& sUPSLocalPath, c
   strWebFileVersion = g_Fileversion.GetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + sPath);
 
   if (strWebFileVersion == "")
-    CLog::Log(logERROR, "HTTPHandler::GetGithubPathToSTR finished with error. Unknown git sha version for file: %s/%s/%s/%s", GitData.Owner.c_str(),
+    CLog::Log(logERROR, "HTTPHandler::GetGithubPathToSTR finished with error. Unknown git sha version for file: \n%s/%s/%s/%s\nMight be that this file was removed from the repo.", GitData.Owner.c_str(),
               GitData.Repo.c_str(), GitData.Branch.c_str(), sPath.c_str());
 
   if (strWebFileVersion != "" && g_File.FileExist(sCacheFileName + ".version"))

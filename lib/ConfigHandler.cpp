@@ -364,6 +364,9 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   if (sLine.find("SkipVersionBump") != std::string::npos)
     ResDataToStore.bSkipVersionBump = true;
 
+    if (sLine.find("MajorVersionBump") != std::string::npos)
+    ResDataToStore.bMajorBump = true;
+
   ResDataToStore.UPS.Owner            = ReplaceResName(ResData.UPS.Owner, ResDataToStore);
   ResDataToStore.UPS.Repo             = ReplaceResName(ResData.UPS.Repo, ResDataToStore);
   ResDataToStore.UPS.Branch           = ReplaceResName(ResData.UPS.Branch, ResDataToStore);
@@ -470,6 +473,11 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
     BasicGitData.sUPSLocalPath = ResDataToStore.sUPSLocalPath;
     ResDataToStore.m_pMapGitRepos->operator[](ResDataToStore.UPSSRC.Owner + "/" + ResDataToStore.UPSSRC.Repo + "/" + ResDataToStore.UPSSRC.Branch) = BasicGitData;
   }
+}
+
+void AddGitRepoToList(CResData& ResDataToStore, CGITData& GITData, CGITData& GITDataSRC)
+{
+  
 }
 
 bool CConfigHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,

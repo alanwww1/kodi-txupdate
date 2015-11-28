@@ -297,10 +297,10 @@ void CResourceHandler::MergeResource()
       if (m_ResData.bIsLangAddon)
         MRGPOHandler.SetLangAddonXMLString(m_mapUPS[sLCode].GetLangAddonXMLString());
 
-      if (bPOChangedFromUPS)
+      if (bPOChangedFromUPS || m_ResData.bMajorBump)
       {
         if (m_ResData.bIsLangAddon)
-          MRGPOHandler.BumpLangAddonXMLVersion();
+          MRGPOHandler.BumpLangAddonXMLVersion(m_ResData.bMajorBump);
         bResChangedFromUPS = true;
         m_lChangedLangsFromUPS.insert(sLCode);
       }
