@@ -116,6 +116,7 @@ protected:
   std::string ReplaceResName(std::string sVal, const CResData& ResData);
   void ClearVariables(const std::string& sLine, CResData& ResData);
   void SetInternalVariable(const std::string& sVar, const std::string sVal, CResData& ResData, bool bIgnoreMissing);
+  void AddGitRepoToList(CResData& ResDataToStore, CGITData& GITData);
   int iResCounter;
 };
 

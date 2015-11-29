@@ -454,30 +454,29 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   ResData.UPD.ResName.clear();
 
   //Store git data for git clone the repositories needed for upstream push and pull handling
-  //TODO include LOC gitrepositories as well
-  if (ResDataToStore.UPS.Repo.empty() || ResDataToStore.UPS.Branch.empty() || ResDataToStore.UPS.Owner.empty())
-    CLog::Log(logERROR, "Confhandler: Insufficient UPS git data. Missing Owner or Repo or Branch data.");
   if (ResDataToStore.sUPSLocalPath.empty())
     CLog::Log(logERROR, "Confhandler: missing folder path for local upstream git clone data.");
 
-  CBasicGITData BasicGitData;
-  BasicGitData.Owner = ResDataToStore.UPS.Owner; BasicGitData.Repo = ResDataToStore.UPS.Repo; BasicGitData.Branch = ResDataToStore.UPS.Branch;
-  BasicGitData.sUPSLocalPath = ResDataToStore.sUPSLocalPath;
-  ResDataToStore.m_pMapGitRepos->operator[](ResDataToStore.UPS.Owner + "/" + ResDataToStore.UPS.Repo + "/" + ResDataToStore.UPS.Branch) = BasicGitData;
+  AddGitRepoToList(ResDataToStore, ResDataToStore.UPS);
+  AddGitRepoToList(ResDataToStore, ResDataToStore.LOC);
+
   if (ResDataToStore.bIsLangAddon)
   {
-    if (ResDataToStore.UPSSRC.Repo.empty() || ResDataToStore.UPSSRC.Branch.empty() || ResDataToStore.UPSSRC.Owner.empty())
-      CLog::Log(logERROR, "Confhandler: Insufficient UPSSRC git data. Missing owner or Repo or Branch data.");
-
-    BasicGitData.Owner = ResDataToStore.UPSSRC.Owner; BasicGitData.Repo = ResDataToStore.UPSSRC.Repo; BasicGitData.Branch = ResDataToStore.UPSSRC.Branch;
-    BasicGitData.sUPSLocalPath = ResDataToStore.sUPSLocalPath;
-    ResDataToStore.m_pMapGitRepos->operator[](ResDataToStore.UPSSRC.Owner + "/" + ResDataToStore.UPSSRC.Repo + "/" + ResDataToStore.UPSSRC.Branch) = BasicGitData;
+    AddGitRepoToList(ResDataToStore, ResDataToStore.UPSSRC);
+    AddGitRepoToList(ResDataToStore, ResDataToStore.LOCSRC);
   }
+
 }
 
-void AddGitRepoToList(CResData& ResDataToStore, CGITData& GITData, CGITData& GITDataSRC)
+void CConfigHandler::AddGitRepoToList(CResData& ResDataToStore, CGITData& GITData)
 {
-  
+  if (GITData.Repo.empty() || GITData.Branch.empty() || GITData.Owner.empty())
+    CLog::Log(logERROR, "Confhandler: Insufficient git data. Missing Owner or Repo or Branch data.");
+
+  CBasicGITData BasicGitData;
+  BasicGitData.Owner = GITData.Owner; BasicGitData.Repo = GITData.Repo; BasicGitData.Branch = GITData.Branch;
+  BasicGitData.sUPSLocalPath = ResDataToStore.sUPSLocalPath;
+  ResDataToStore.m_pMapGitRepos->operator[](GITData.Owner + "/" + GITData.Repo + "/" + GITData.Branch) = BasicGitData;
 }
 
 bool CConfigHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,
