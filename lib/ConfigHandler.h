@@ -106,6 +106,7 @@ private:
 
   std::map<std::string, std::string> m_MapOfVariables;
   std::vector<std::string> m_vecPermVariables;
+  std::vector<std::string> m_vecTempVariables;
   size_t FindVariable(const std::string& sVar);
   void SetInternalVariables(const std::string& sLine, CResData& ResData);
   void SetExternalVariables(const std::string& sLine);
@@ -113,6 +114,7 @@ private:
 protected:
   void CreateResource(CResData& ResData, const std::string& sLine, std::map<std::string, CResData> & mapResData, std::map<int, std::string>& mapResOrder);
   void HandlePermanentVariables(CResData& ResData);
+  void HandleTemporaryVariables(CResData& ResData);
   std::string ReplaceResName(std::string sVal, const CResData& ResData);
   void ClearVariables(const std::string& sLine, CResData& ResData);
   void SetInternalVariable(const std::string& sVar, const std::string sVal, CResData& ResData, bool bIgnoreMissing);

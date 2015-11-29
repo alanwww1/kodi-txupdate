@@ -310,6 +310,9 @@ void CConfigHandler::LoadResDataToMem (std::string rootDir, std::map<std::string
       SetInternalVariables(sLine, ResData);
     else if (sLine.find("pset ") == 0)
       m_vecPermVariables.push_back(sLine);
+    else if (sLine.find("tset ") == 0)
+      m_vecTempVariables.push_back(sLine);
+
     else if (sLine.find("clear ") == 0)
       ClearVariables(sLine, ResData);
     else if (sLine.find("create resource ") == 0)
@@ -327,6 +330,15 @@ void CConfigHandler::HandlePermanentVariables(CResData& ResData)
   }
 }
 
+void CConfigHandler::HandleTemporaryVariables(CResData& ResData)
+{
+  for (std::vector<std::string>::iterator itvec = m_vecTempVariables.begin(); itvec != m_vecTempVariables.end(); itvec++)
+  {
+    SetInternalVariables(*itvec, ResData);
+  }
+}
+
+
 std::string CConfigHandler::ReplaceResName(std::string sVal, const CResData& ResData)
 {
   g_CharsetUtils.replaceAllStrParts (&sVal, "$(RESNAME)", ResData.sResName);
@@ -337,6 +349,7 @@ std::string CConfigHandler::ReplaceResName(std::string sVal, const CResData& Res
 void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine, std::map<std::string, CResData> & mapResData, std::map<int, std::string>& mapResOrder)
 {
   HandlePermanentVariables(ResData); //Handle Permanent variable assignements, which get new values after each create resource
+  HandleTemporaryVariables(ResData); //Handle Temporary variable assignements, this happens only once, after create resource it gets cleared
 
   CResData ResDataToStore;
 
@@ -452,6 +465,7 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   mapResOrder[iResCounter] = ResDataToStore.sResName;
 
   ResData.UPD.ResName.clear();
+  m_vecTempVariables.clear();
 
   //Store git data for git clone the repositories needed for upstream push and pull handling
   if (ResDataToStore.sUPSLocalPath.empty())
