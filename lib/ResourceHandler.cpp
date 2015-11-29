@@ -211,6 +211,8 @@ bool CResourceHandler::ComparePOFiles(CPOHandler& POHandler1, CPOHandler& POHand
 
 void CResourceHandler::MergeResource()
 {
+  CLog::Log(logPRINT, "%s%s%s\n", KMAG, m_ResData.sResName.c_str(), RESET);
+
   std::list<std::string> listMergedLangs = CreateMergedLangList();
   CPOHandler& POHandlUPSSRC = m_mapUPS.at(m_ResData.sSRCLCode);
   bool bResChangedFromUPS = false;

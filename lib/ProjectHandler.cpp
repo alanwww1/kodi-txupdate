@@ -166,6 +166,8 @@ bool CProjectHandler::WriteResourcesToLOCGitRepos(std::string strProjRootDir)
 
 bool CProjectHandler::CreateMergedResources()
 {
+  CLog::Log(LogHEADLINE, "MERGING RESOURCES\n");
+
   for (T_itmapRes it = m_mapResources.begin(); it != m_mapResources.end(); it++)
   {
     CResourceHandler& ResHandler = it->second;
