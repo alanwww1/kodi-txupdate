@@ -63,8 +63,6 @@ public:
   void SetCacheDir(std::string strCacheDir);
   std::string GetCacheDir() {return m_strCacheDir;}
   void SetHTTPCacheExpire(size_t iCacheTimeInMins) {m_iHTTPCacheExp = iCacheTimeInMins;}
-  bool GetIfFileHasPrevVersion() {return !m_sCacheFilenamePrevVersion.empty();}
-  std::string GetPrevURLToSTR() {return g_File.ReadFileToStr(m_sCacheFilenamePrevVersion);}
 
   bool LoadCredentials (std::string CredentialsFilename);
   bool PutFileToURL(std::string const &strFilePath, std::string const &strURL, bool &buploaded,
@@ -112,7 +110,6 @@ private:
 
   std::string m_sResName, m_sFileLocation, m_sLCode, m_sProjectName, m_sFileName;
   bool m_bSkipCache, m_bDataFile;
-  std::string m_sCacheFilenamePrevVersion;
   std::set <std::string> m_mapValidCacheFiles;
 };
 

@@ -56,16 +56,15 @@ protected:
   void GetSRCFilesGitData();
   std::list<std::string> CreateMergedLangList();
   bool FindUPSEntry(const std::string sLCode, CPOEntry &EntryToFind);
-  bool FindPrevUPSEntry(const std::string sLCode, CPOEntry &EntryToFind);
   bool FindTRXEntry(const std::string sLCode, CPOEntry &EntryToFind);
   T_itPOData GetUPSItFoundEntry();
   T_itPOData GetTRXItFoundEntry();
   void PrintChangedLangs(const std::set<std::string>& lChangedLangs);
 
-  std::map<std::string, CPOHandler> m_mapUPS, m_mapTRX, m_mapUPD, m_mapMRG, m_mapPREV;
+  std::map<std::string, CPOHandler> m_mapUPS, m_mapTRX, m_mapUPD, m_mapMRG;
 
   CAddonXMLHandler m_AddonXMLHandler;
-  std::set<std::string> m_lChangedLangsFromUPS, m_lLangsToUPD, m_lLangsWithDeletedEntry;
+  std::set<std::string> m_lChangedLangsFromUPS, m_lLangsToUPD;
 
   CResData m_ResData;
 

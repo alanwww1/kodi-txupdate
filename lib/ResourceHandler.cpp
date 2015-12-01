@@ -134,7 +134,6 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
     POHandler.SetIfIsSourceLang(bIsSourceLang);
     POHandler.SetLCode(sLCode);
     g_HTTPHandler.SetLCode(sLCode);
-    bool bHasPreviousVersion = false;
 
     if (bLangHasStringsPO && bHasLanguageFiles)
       CLog::Log(logPRINT, " %s", sLCode.c_str());
@@ -169,7 +168,6 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
       sLPath = g_CharsetUtils.ReplaceLanginURL (GitData.LPath, g_CharsetUtils.GetLFormFromPath(GitData.LPath), sLCode);
 
       POHandler.FetchPOGitPathToMem(sLPath, GitData);
-      bHasPreviousVersion = POHandler.GetIfItHasPrevLangVersion();
     }
 
     if (m_AddonXMLHandler.FindAddonXMLEntry(sLCode))
@@ -177,14 +175,6 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
     m_mapUPS[sLCode] = POHandler;
 
-    if (bHasPreviousVersion)
-    {
-      CPOHandler POHandlerPrev(m_ResData);
-      POHandlerPrev.SetIfIsSourceLang(bIsSourceLang);
-      POHandlerPrev.SetLCode(sLCode);
-      POHandlerPrev.FetchPrevPOURLToMem();
-      m_mapPREV[sLCode] = POHandlerPrev;
-    }
   }
 
   return true;
@@ -276,15 +266,9 @@ void CResourceHandler::MergeResource()
       //Entry was not on Transifex, check if it has a new translation at upstream
       else if (bisInUPS)
       {
-        bool bIsInPrevUPS = FindPrevUPSEntry(sLCode, EntrySRC);
-        if (!bIsInPrevUPS)
-        {
-          T_itPOData itPOUPS = GetUPSItFoundEntry();
-          m_mapMRG[sLCode].AddItEntry(itPOUPS);
-          m_mapUPD[sLCode].AddItEntry(itPOUPS);
-        }
-        else
-          m_lLangsWithDeletedEntry.insert(sLCode);
+        T_itPOData itPOUPS = GetUPSItFoundEntry();
+        m_mapMRG[sLCode].AddItEntry(itPOUPS);
+        m_mapUPD[sLCode].AddItEntry(itPOUPS);
       }
     }
 
@@ -380,16 +364,6 @@ bool CResourceHandler::FindTRXEntry(const std::string sLCode, CPOEntry &EntryToF
     m_bLastTRXHandlerFound = true;
     return m_lastTRXIterator->second.FindEntry(EntryToFind);
   }
-}
-
-//Check if in previous upstream PO file we can find the particular entry or not
-//if not, that means that we have a true new translation coming from UPS not from TRX
-bool CResourceHandler::FindPrevUPSEntry(const std::string sLCode, CPOEntry &EntryToFind)
-{
-  T_itmapPOFiles PrevUPSIterator = m_mapPREV.find(sLCode);
-  if (PrevUPSIterator == m_mapPREV.end())
-    return false;
-  return PrevUPSIterator->second.FindEntry(EntryToFind);
 }
 
 // Read iterator to the last found entry stored by function FindUPSEntry.
@@ -589,13 +563,6 @@ void CResourceHandler::GenerateUpdatePOFiles()
   {
     CLog::Log(logPRINT, "%s  Langs to update%s to Transifex from upstream: ", KRED, RESET);
     PrintChangedLangs(m_lLangsToUPD);
-    CLog::Log(logPRINT, "\n");
-  }
-
-  if (!m_lLangsWithDeletedEntry.empty())
-  {
-    CLog::Log(logPRINT, "  Langs which has entry to %sdelete upstream%s, like deleted at Transifex: ", KRED, RESET);
-    PrintChangedLangs(m_lLangsWithDeletedEntry);
     CLog::Log(logPRINT, "\n");
   }
 

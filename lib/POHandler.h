@@ -93,13 +93,11 @@ public:
   void SetLCode (const std::string& sLCode) {m_sLCode = sLCode;}
 
   bool FetchPOGitPathToMem(std::string strURL, CGITData& GitData);
-  bool FetchPrevPOURLToMem ();
   bool FetchPOTXPathToMem (std::string sLPath);
 
   void FetchLangAddonXML (const std::string &strURL, CGITData& GitData);
   void WriteLangAddonXML(const std::string &strPath);
   void GeneratePOFile();
-  bool GetIfItHasPrevLangVersion(){return m_bIfItHasPrevLangVersion;}
 
   void WritePOFile(const std::string &strOutputPOFilename);
   bool FindEntry (const CPOEntry &EntryToFind);
@@ -137,7 +135,6 @@ protected:
   std::string m_strHeader;
   std::string m_CurrentEntryText;
   std::string m_sLCode;
-  bool m_bIfItHasPrevLangVersion;
   unsigned int m_nplurals;
 
   std::map <unsigned long long, CPOEntry> m_mapPOData;

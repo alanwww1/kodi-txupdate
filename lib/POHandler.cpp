@@ -81,7 +81,6 @@ CPOHandler::CPOHandler()
 CPOHandler::CPOHandler(const CResData& Resdata) : m_ResData(Resdata)
 {
   m_POType = UNKNOWNPO;
-  m_bIfItHasPrevLangVersion = false;
 };
 
 CPOHandler::~CPOHandler()
@@ -93,9 +92,6 @@ bool CPOHandler::FetchPOGitPathToMem (std::string sLPath, CGITData& GitData)
   ClearVariables();
   m_strBuffer = g_HTTPHandler.GetGithubPathToSTR (m_ResData.sUPSLocalPath, GitData, sLPath, m_ResData.bForceGitDloadToCache);
 
-  //Pass bool to indicate that we did have a file for last download that changed, thus having a previous version saved
-  m_bIfItHasPrevLangVersion = g_HTTPHandler.GetIfFileHasPrevVersion();
-
   return ProcessPOFile();
 };
 
@@ -103,17 +99,6 @@ bool CPOHandler::FetchPOTXPathToMem (std::string sLPath)
 {
   ClearVariables();
   m_strBuffer = g_HTTPHandler.GetURLToSTR(sLPath);
-
-  //Pass bool to indicate that we did have a file for last download that changed, thus having a previous version saved
-  m_bIfItHasPrevLangVersion = g_HTTPHandler.GetIfFileHasPrevVersion();
-
-  return ProcessPOFile();
-};
-
-bool CPOHandler::FetchPrevPOURLToMem ()
-{
-  ClearVariables();
-  m_strBuffer = g_HTTPHandler.GetPrevURLToSTR();
 
   return ProcessPOFile();
 };
