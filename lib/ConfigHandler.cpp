@@ -40,6 +40,7 @@ CResData::CResData()
  bForceGitDloadToCache = false;
  bSkipGitReset = false;
  bSkipVersionBump = false;
+ bMajorBump = false;
  bHasOnlyAddonXML = false;
  bIsLangAddon = false;
 }
