@@ -285,7 +285,7 @@ void CResourceHandler::MergeResource()
 
       if (bPOChangedFromUPS || m_ResData.bMajorBump)
       {
-        if (m_ResData.bIsLangAddon)
+        if (m_ResData.bIsLangAddon && sLCode != m_ResData.sSRCLCode)
           MRGPOHandler.BumpLangAddonXMLVersion(m_ResData.bMajorBump);
         bResChangedFromUPS = true;
         m_lChangedLangsFromUPS.insert(sLCode);
