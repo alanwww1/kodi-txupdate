@@ -486,7 +486,9 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
 void CConfigHandler::AddGitRepoToList(CResData& ResDataToStore, CGITData& GITData)
 {
   if (GITData.Repo.empty() || GITData.Branch.empty() || GITData.Owner.empty())
-    CLog::Log(logERROR, "Confhandler: Insufficient git data. Missing Owner or Repo or Branch data.");
+    CLog::Log(logERROR, "Config handler: Insufficient git data. Missing Owner or Repo or Branch data.\n"
+                        "Resname: %s\nRepo: %s\nBranch:%s\nOwner: %s\n",
+                        ResDataToStore.sResName.c_str(), GITData.Repo.c_str(), GITData.Branch.c_str(), GITData.Owner.c_str());
 
   CBasicGITData BasicGitData;
   BasicGitData.Owner = GITData.Owner; BasicGitData.Repo = GITData.Repo; BasicGitData.Branch = GITData.Branch;
