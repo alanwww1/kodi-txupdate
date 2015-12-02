@@ -36,11 +36,17 @@ CProjectHandler::CProjectHandler()
 CProjectHandler::~CProjectHandler()
 {};
 
-void CProjectHandler::LoadConfigToMem()
+void CProjectHandler::LoadConfigToMem(bool bForceUseCache)
 {
   CConfigHandler ConfigHandler;
   ConfigHandler.LoadResDataToMem(m_strProjDir, m_mapResData, &m_MapGitRepos, m_mapResOrder);
-  g_HTTPHandler.SetHTTPCacheExpire(m_mapResData.begin()->second.iCacheExpire);
+
+  size_t iCacheExpire = -1; //in case we are in force cache use, we set cache expiration to the highest possible value
+  if (!bForceUseCache)
+    iCacheExpire = m_mapResData.begin()->second.iCacheExpire;
+
+  g_HTTPHandler.SetHTTPCacheExpire(iCacheExpire);
+  m_BForceUseCache = bForceUseCache;
 }
 
 bool CProjectHandler::FetchResourcesFromTransifex()
@@ -82,7 +88,8 @@ bool CProjectHandler::FetchResourcesFromTransifex()
     const CResData& ResData = m_mapResData[sResName];
     CResourceHandler NewResHandler(ResData);
 
-    g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
+    if (!m_BForceUseCache)
+      g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
 
     m_mapResources[sResName] = NewResHandler;
     m_mapResources[sResName].FetchPOFilesTXToMem();
@@ -108,7 +115,8 @@ bool CProjectHandler::FetchResourcesFromUpstream()
       m_mapResources[sResName] = NewResHandler;
     }
 
-    g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
+    if (!m_BForceUseCache)
+      g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
 
     m_mapResources[sResName].FetchPOFilesUpstreamToMem();
     CLog::Log(logPRINT, " )\n");
@@ -140,7 +148,8 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
     std::string sPathUpdate = ResData.sProjRootDir + ResData.sUPDLFilesDir + DirSepChar + ResData.sResName + DirSepChar + ResData.sBaseLForm + DirSepChar + "strings.po";
     ResHandler.GenerateUpdatePOFiles ();
 
-    g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
+    if (!m_BForceUseCache)
+      g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
 
     ResHandler.WriteUpdatePOFiles (sPathUpdate);
   }
@@ -233,7 +242,8 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
     const std::string& sResName = it->first;
     const CResData& ResData = m_mapResData[sResName];
 
-    g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
+    if (!m_BForceUseCache)
+      g_HTTPHandler.SetHTTPCacheExpire(ResData.iCacheExpire);
 
     ResHandler.UploadResourceToTransifex(lResourcesAtTX.find(sResName) == lResourcesAtTX.end());
   }

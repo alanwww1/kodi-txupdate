@@ -31,7 +31,7 @@ public:
   CProjectHandler();
   ~CProjectHandler();
   void SetProjectDir (std::string const &strDir) {m_strProjDir = strDir;}
-  void LoadConfigToMem();
+  void LoadConfigToMem(bool bForceUseCache);
   bool FetchResourcesFromTransifex();
   bool FetchResourcesFromUpstream();
   bool CreateMergedResources();
@@ -54,4 +54,5 @@ protected:
   std::map<std::string, CBasicGITData> m_MapGitRepos;
   std::map<int, std::string> m_mapResOrder;
   std::string m_strProjDir;
+  bool m_BForceUseCache;
 };

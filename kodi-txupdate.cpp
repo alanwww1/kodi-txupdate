@@ -33,9 +33,12 @@ using namespace std;
 void PrintUsage()
 {
   CLog::Log(logPRINT,
-  "Usage: kodi-txpudate PROJECTDIR\n\n"
-  "PROJECTDIR: the directory which contains the kodi-txupdate.conf settings file and the .passwords file.\n"
-  "            This will be the directory where your merged and transifex update files get generated.\n\n"
+  "Usage: kodi-txpudate PROJECTDIR (CMDARG)\n\n"
+  "PROJECTDIR: the directory which contains the kodi-txupdate.conf settings file.\n"
+  "            This will be the directory where your merged and transifex update files get generated.\n"
+  "CMDARG:     Command line argument to control special modes. Available:\n"
+  "            -c or --ForceUseCache : ensures to use the previously cached UPS, TRX files.\n\n"
+
   );
   return;
 };
@@ -43,16 +46,17 @@ void PrintUsage()
 int main(int argc, char* argv[])
 {
   setbuf(stdout, NULL);
-  if (argc != 2)
+  if (argc > 3 || argc < 2)
   {
     CLog::Log(logPRINT, "\nBad arguments given\n\n");
     PrintUsage();
     return 1;
   }
 
-  std::string WorkingDir;
+  std::string WorkingDir, sCMDOption;
 
   bool bTransferTranslators = false; // In a VERY special case when transfer of translator database needed, set this to true
+  bool bForceUseCache = false;
 
   if (argv[1])
    WorkingDir = argv[1];
@@ -61,6 +65,26 @@ int main(int argc, char* argv[])
     CLog::Log(logPRINT, "\nMissing or wrong project directory specified: %s, stopping.\n\n", WorkingDir.c_str());
     PrintUsage();
     return 1;
+  }
+
+  if (argc == 3) //we have an additional command line argument
+  {
+    if ( argv[2])
+      sCMDOption = argv[2];
+    if (WorkingDir.empty())
+    {
+      CLog::Log(logPRINT, "\nMissing command line argument, stopping.\n\n");
+      PrintUsage();
+      return 1;
+    }
+    if (sCMDOption == "-c" || sCMDOption == "--ForceUseCache")
+      bForceUseCache = true;
+    else
+    {
+      CLog::Log(logPRINT, "\nWrong command line argument: %s, stopping.\n\n", sCMDOption.c_str());
+      PrintUsage();
+      return 1;
+    }
   }
 
   if (WorkingDir.find('/') != 0) //We have a relative path, make it absolute
@@ -85,7 +109,7 @@ int main(int argc, char* argv[])
 
     CProjectHandler TXProject;
     TXProject.SetProjectDir(WorkingDir);
-    TXProject.LoadConfigToMem();
+    TXProject.LoadConfigToMem(bForceUseCache);
 
     TXProject.InitLCodeHandler();
 
