@@ -370,15 +370,15 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
 
 
   if (sLine.find("GITCommit") != std::string::npos)
-  {
     ResDataToStore.sGitCommitText = ReplaceResName(ResData.sGitCommitText, ResDataToStore);
-    ResDataToStore.sGitCommitTextSRC = ReplaceResName(ResData.sGitCommitTextSRC, ResDataToStore);
-  }
+
+  //Changes in SRC file will be handled for ALL resources separately no matter where we have a GITCommit command
+  ResDataToStore.sGitCommitTextSRC = ReplaceResName(ResData.sGitCommitTextSRC, ResDataToStore);
 
   if (sLine.find("SkipVersionBump") != std::string::npos)
     ResDataToStore.bSkipVersionBump = true;
 
-    if (sLine.find("MajorVersionBump") != std::string::npos)
+  if (sLine.find("MajorVersionBump") != std::string::npos)
     ResDataToStore.bMajorBump = true;
 
   ResDataToStore.UPS.Owner            = ReplaceResName(ResData.UPS.Owner, ResDataToStore);
