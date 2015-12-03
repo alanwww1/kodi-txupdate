@@ -333,6 +333,7 @@ void CConfigHandler::HandlePermanentVariables(CResData& ResData)
 
 void CConfigHandler::HandleTemporaryVariables(CResData& ResData)
 {
+
   for (std::vector<std::string>::iterator itvec = m_vecTempVariables.begin(); itvec != m_vecTempVariables.end(); itvec++)
   {
     SetInternalVariables(*itvec, ResData);
@@ -350,7 +351,11 @@ std::string CConfigHandler::ReplaceResName(std::string sVal, const CResData& Res
 void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine, std::map<std::string, CResData> & mapResData, std::map<int, std::string>& mapResOrder)
 {
   HandlePermanentVariables(ResData); //Handle Permanent variable assignements, which get new values after each create resource
-  HandleTemporaryVariables(ResData); //Handle Temporary variable assignements, this happens only once, after create resource it gets cleared
+
+  //save variable and resdata state before we handle the temporary assignments. After creating the resource we will reset this state
+  CResData SavedResdata = ResData;
+  map <string, string >  Saved_MapOfVariables = m_MapOfVariables;
+  HandleTemporaryVariables(ResData);
 
   CResData ResDataToStore;
 
@@ -465,6 +470,8 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   iResCounter++;
   mapResOrder[iResCounter] = ResDataToStore.sResName;
 
+  ResData = SavedResdata;
+  m_MapOfVariables = Saved_MapOfVariables;
   ResData.UPD.ResName.clear();
   m_vecTempVariables.clear();
 
