@@ -67,6 +67,7 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   TiXmlDocument xmlAddonXML;
 
   std::string sAXMLFile = g_HTTPHandler.GetGithubPathToSTR (m_ResData.sUPSLocalPath, m_ResData.UPS, m_ResData.UPS.AXMLPath, m_ResData.bForceGitDloadToCache);
+
   if (sAXMLFile.empty())
     CLog::Log(logERROR, "CAddonXMLHandler::FetchAddonXMLFileUpstr: http error getting XML file from upstream url: %s", m_ResData.UPS.AXMLPath.c_str());
 
@@ -74,7 +75,11 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
 
   m_strAddonXMLFile = sAXMLFile.substr(0,sAXMLFile.find_last_of(">")+1) + "\n";
 
-  if (!xmlAddonXML.Parse(m_strAddonXMLFile.c_str(), 0, TIXML_DEFAULT_ENCODING))
+  size_t pos = m_strAddonXMLFile.find("library_@PLATFORM@=\"@LIBRARY_FILENAME@\""); //In some addon.xml.in files we have this symbol which is not a valid xml tag
+  if (pos != std::string::npos)
+    sAXMLFile = m_strAddonXMLFile.substr(0,pos) + m_strAddonXMLFile.substr(pos+39);
+
+  if (!xmlAddonXML.Parse(sAXMLFile.c_str(), 0, TIXML_DEFAULT_ENCODING))
   {
     CLog::Log(logERROR, "AddonXMLHandler: AddonXML file problem: %s %s\n", xmlAddonXML.ErrorDesc(), m_ResData.UPS.AXMLPath.c_str());
     return false;
