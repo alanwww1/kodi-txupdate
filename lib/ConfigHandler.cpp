@@ -277,7 +277,7 @@ void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::str
     return;
 
   else
-    CLog::Log(logERROR, "ConfHandler: Unreconised internal variable name: \"%s\"", sVar.c_str());
+    CLog::Log(logERROR, "ConfHandler: Unrecognised internal variable name: \"%s\"", sVar.c_str());
 
   m_MapOfVariables[sVar] = sVal;
 }
@@ -318,8 +318,11 @@ void CConfigHandler::LoadResDataToMem (std::string rootDir, std::map<std::string
       ClearVariables(sLine, ResData);
     else if (sLine.find("create resource ") == 0)
       CreateResource(ResData, sLine, mapResData, mapResOrder);
+    else if (sLine.find("setvar ") == 0)
+      SetExternalVariables(sLine.substr(7));
     else
-      SetExternalVariables(sLine);
+      CLog::Log(logERROR, "ConfHandler: Unrecognised command in line: %s", sLine.c_str());
+
   }
 }
 
