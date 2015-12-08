@@ -126,11 +126,11 @@ int main(int argc, char* argv[])
       CLog::Log(LogHEADLINE, "WRITING MERGED RESOURCES TO HDD\n");
       TXProject.WriteResourcesToFile(WorkingDir);
 
-      CLog::Log(LogHEADLINE, "WRITING RESOURCES TO LOCAL GITHUB REPOS\n");
-      TXProject.WriteResourcesToLOCGitRepos(WorkingDir);
-
       CLog::Log(LogHEADLINE, "UPLOADING LANGUAGE FILES TO TRANSIFEX.NET\n");
       TXProject.UploadTXUpdateFiles(WorkingDir);
+
+      CLog::Log(LogHEADLINE, "WRITING RESOURCES TO LOCAL GITHUB REPOS\n");
+      TXProject.WriteResourcesToLOCGitRepos(WorkingDir);
     }
 
     if (bTransferTranslators)
