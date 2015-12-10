@@ -339,9 +339,7 @@ std::string CCharsetUtils::GetFilenameFromURL(const std::string &sURL)
   size_t lastpos = sURL.find_last_of(DirSepChar);
   if (lastpos != std::string::npos)
     return sURL.substr(lastpos+1);
-  else
-    CLog::Log(logERROR, "CharsetUtils::GetFilenameFromURL Wrong URL format: %s", sURL.c_str());
-  return "";
+  return sURL;
 }
 
 std::string CCharsetUtils::GetLangnameFromPath(std::string sExtractPath, std::string sPath, std::string sLForm)
