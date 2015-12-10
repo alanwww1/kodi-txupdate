@@ -480,6 +480,17 @@ std::string CHTTPHandler::CreateCacheFilename(const std::string& strURL, bool &b
   return sCacheFileName;
 }
 
+void CHTTPHandler::SetGitPushTime(const std::string& sOwner, const std::string& sRepo, const std::string& sBranch)
+{
+  std::string sCacheFileName = m_strCacheDir;
+  if (!m_sFileLocation.empty())
+    sCacheFileName += m_sFileLocation + DirSepChar;
+  if (!m_sProjectName.empty())
+    sCacheFileName += sOwner + "-"  + sRepo + "-"+ sBranch + DirSepChar;
+  if (!m_sResName.empty())
+    sCacheFileName += "gitpush.time" + DirSepChar;
+}
+
 std::string CHTTPHandler::CreateCacheFilenameGitSource(const std::string& sBranch, bool &bCacheFileExists, bool &bCacheFileExpired)
 {
   if (m_bSkipCache)

@@ -80,6 +80,7 @@ public:
   std::string sLDatabaseURL;
   int iMinComplPercent;
   int iCacheExpire;
+  int iGitPushInterval; //in days
   bool bForceComm;
   bool bRebrand;
   bool bForceTXUpd;

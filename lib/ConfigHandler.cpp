@@ -33,7 +33,8 @@ using namespace std;
 CResData::CResData()
 {
  iMinComplPercent = 40;
- iCacheExpire = 60;
+ iCacheExpire = 60; //minutes
+ iGitPushInterval = 5; //days
  bForceComm = false;
  bRebrand = false;
  bForceTXUpd = false;
@@ -265,7 +266,8 @@ void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::str
   else if (sVar == "LTeamLFormat")          ResData.sLTeamLFormat = sVal;
   else if (sVar == "LDatabaseURL")          ResData.sLDatabaseURL = sVal;
   else if (sVar == "MinComplPercent")       ResData.iMinComplPercent = strtol(&sVal[0], NULL, 10);
-  else if (sVar == "CacheExpire")           ResData.iCacheExpire = strtol(&sVal[0], NULL, 10);
+  else if (sVar == "CacheExpire")           ResData.iCacheExpire = strtol(&sVal[0], NULL, 10); //in minutes
+  else if (sVar == "GitPushInterval")       ResData.iGitPushInterval = strtol(&sVal[0], NULL, 10); //in minutes
   else if (sVar == "ForceComm")             ResData.bForceComm = (sVal == "true");
   else if (sVar == "ForceGitDloadToCache")  ResData.bForceGitDloadToCache = (sVal == "true");
   else if (sVar == "SkipGitReset")          ResData.bSkipGitReset = (sVal == "true");
