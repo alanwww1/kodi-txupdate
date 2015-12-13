@@ -457,6 +457,7 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   ResDataToStore.sLDatabaseURL        = ReplaceResName(ResData.sLDatabaseURL, ResDataToStore);
   ResDataToStore.iMinComplPercent     = ResData.iMinComplPercent;
   ResDataToStore.iCacheExpire         = ResData.iCacheExpire;
+  ResDataToStore.iGitPushInterval     = ResData.iGitPushInterval;
   ResDataToStore.bForceComm           = ResData.bForceComm;
   ResDataToStore.bRebrand             = ResData.bRebrand;
   ResDataToStore.bForceTXUpd          = ResData.bForceTXUpd;

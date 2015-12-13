@@ -116,7 +116,7 @@ std::string CFile::GetCurrMonth()
   std::string strTime(64, '\0');
   time_t now = std::time(0);
   struct std::tm* gmtm = std::gmtime(&now);
-  
+
   if (gmtm != NULL)
   {
     sprintf(&strTime[0], "%02i", gmtm->tm_mon + 1);
@@ -130,7 +130,7 @@ std::string CFile::GetCurrDay()
   std::string strTime(64, '\0');
   time_t now = std::time(0);
   struct std::tm* gmtm = std::gmtime(&now);
-  
+
   if (gmtm != NULL)
   {
     sprintf(&strTime[0], "%02i", gmtm->tm_mday);
@@ -201,6 +201,18 @@ size_t CFile::GetFileAge(std::string strFileName)
     return 0;
   }
 };
+
+size_t CFile::GetStoredAgeFromTimeFile(std::string strTimeFileName)
+{
+  strTimeFileName += ".time";
+  if (!FileExist(strTimeFileName))
+    return -1;
+
+  time_t now = std::time(0);
+
+  time_t ReadFileAge = GetFileAgeFromFile(strTimeFileName);
+  return now-ReadFileAge;
+}
 
 size_t CFile::GetAgeOfGitRepoPull(std::string strFileName)
 {

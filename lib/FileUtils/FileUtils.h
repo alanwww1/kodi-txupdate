@@ -58,6 +58,7 @@ public:
   std::string GetCurrMonthText();
   std::string GetHomePath();
   time_t GetFileAgeFromFile(std::string strFileName);
+  size_t GetStoredAgeFromTimeFile(std::string strTimeFileName);
   bool WriteFileAgeToFile(std::string strFileName, time_t FileAgeTime);
   void WriteNowToFileAgeFile(std::string strFileName);
   void SytemCommand (const std::string &strCommand);

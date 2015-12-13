@@ -483,12 +483,19 @@ std::string CHTTPHandler::CreateCacheFilename(const std::string& strURL, bool &b
 void CHTTPHandler::SetGitPushTime(const std::string& sOwner, const std::string& sRepo, const std::string& sBranch)
 {
   std::string sCacheFileName = m_strCacheDir;
-  if (!m_sFileLocation.empty())
-    sCacheFileName += m_sFileLocation + DirSepChar;
-  if (!m_sProjectName.empty())
-    sCacheFileName += sOwner + "-"  + sRepo + "-"+ sBranch + DirSepChar;
-  if (!m_sResName.empty())
-    sCacheFileName += "gitpush.time" + DirSepChar;
+  sCacheFileName += "UPS" + DirSepChar + sCACHEDATADIRNAME + DirSepChar + "0_PushTimes" +DirSepChar;
+  sCacheFileName += sOwner + "-"  + sRepo + "-"+ sBranch;
+
+  g_File.WriteNowToFileAgeFile(sCacheFileName);
+}
+
+void CHTTPHandler::GetLastGitPushAge(const string& sOwner, const string& sRepo, const string& sBranch)
+{
+  std::string sCacheFileName = m_strCacheDir;
+  sCacheFileName += "UPS" + DirSepChar + sCACHEDATADIRNAME + DirSepChar + "0_PushTimes" +DirSepChar;
+  sCacheFileName += sOwner + "-"  + sRepo + "-"+ sBranch;
+
+  g_File.GetStoredAgeFromTimeFile(sCacheFileName);
 }
 
 std::string CHTTPHandler::CreateCacheFilenameGitSource(const std::string& sBranch, bool &bCacheFileExists, bool &bCacheFileExpired)
