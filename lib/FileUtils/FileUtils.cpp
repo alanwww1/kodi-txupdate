@@ -204,8 +204,7 @@ size_t CFile::GetFileAge(std::string strFileName)
 
 size_t CFile::GetStoredAgeFromTimeFile(std::string strTimeFileName)
 {
-  strTimeFileName += ".time";
-  if (!FileExist(strTimeFileName))
+  if (!FileExist(strTimeFileName + ".time"))
     return -1;
 
   time_t now = std::time(0);
@@ -355,6 +354,10 @@ time_t CFile::GetFileAgeFromFile(std::string strFileName)
 bool CFile::WriteFileAgeToFile(std::string strFileName, time_t FileAgeTime)
 {
   strFileName = strFileName + ".time";
+
+  std::string strDir = GetPath(strFileName);
+  MakeDir(strDir);
+
   FILE * pFile = fopen (strFileName.c_str(),"wb");
   if (pFile == NULL)
   {

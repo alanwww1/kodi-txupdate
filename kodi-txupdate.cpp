@@ -131,6 +131,9 @@ int main(int argc, char* argv[])
 
       CLog::Log(LogHEADLINE, "WRITING RESOURCES TO LOCAL GITHUB REPOS\n");
       TXProject.WriteResourcesToLOCGitRepos(WorkingDir);
+
+      CLog::Log(LogHEADLINE, "GIT PUSHING LOCAL GIT REPOS\n");
+      TXProject.GITPushLOCGitRepos();
     }
 
     if (bTransferTranslators)

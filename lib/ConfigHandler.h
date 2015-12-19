@@ -32,6 +32,8 @@ struct CBasicGITData
 {
   std::string Owner, Repo, Branch;
   std::string sUPSLocalPath;
+  size_t iGitPushInterval; //in days
+  size_t bSkipGitPush, bForceGitPush;
 };
 
 struct CGITData
@@ -85,7 +87,7 @@ public:
   bool bRebrand;
   bool bForceTXUpd;
   bool bForceGitDloadToCache;
-  bool bSkipGitReset;
+  bool bSkipGitReset, bSkipGitPush, bForceGitPush;
   bool bSkipVersionBump;
   bool bMajorBump;
   std::map<std::string, CBasicGITData> * m_pMapGitRepos;

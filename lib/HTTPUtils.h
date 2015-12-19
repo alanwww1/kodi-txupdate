@@ -88,7 +88,9 @@ public:
   void SetDataFile (bool bDataFile) {m_bDataFile = bDataFile;}
   void CleanCacheFiles();
   void SetGitPushTime(const std::string& sOwner, const std::string& sRepo, const std::string& sBranch);
-  void GetLastGitPushAge(const std::string& sOwner, const std::string& sRepo, const std::string& sBranch);
+  size_t GetLastGitPushAge(const std::string& sOwner, const std::string& sRepo, const std::string& sBranch);
+  void AddValidGitPushTimeCachefile(const std::string& sOwner, const std::string& sRepo, const std::string& sBranch);
+
 
 private:
   long curlPUTPOStrToURL(std::string const &strFilePath, std::string const &strURL, size_t &stradded, size_t &strupd);

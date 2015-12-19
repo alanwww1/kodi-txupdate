@@ -98,6 +98,145 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   return true;
 };
 
+void CProjectHandler::GITPushLOCGitRepos()
+{
+  unsigned int iCounter = 0;
+  std::map<unsigned int, CBasicGITData> MapReposToPush;
+  for (std::map<std::string, CBasicGITData>::iterator it = m_MapGitRepos.begin(); it != m_MapGitRepos.end(); it++)
+  {
+    iCounter++;
+    CBasicGITData GitData = it->second;
+    MapReposToPush[iCounter] = GitData;
+  }
+
+
+  // Get an input from the user
+  char charInput;
+  CLog::Log(logPRINT, "\n");
+  do
+  {
+    //Print current state
+    for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
+    {
+      CBasicGITData GitData = it->second;
+      size_t iLastPushAge = g_HTTPHandler.GetLastGitPushAge(GitData.Owner, GitData.Repo, GitData.Branch);
+      bool bGitPush = ((GitData.iGitPushInterval * 24 * 60 * 60) < iLastPushAge);
+      bGitPush = bGitPush||GitData.bForceGitPush;
+      bGitPush = bGitPush&&!GitData.bSkipGitPush;
+      float fLastPushAge = (float)iLastPushAge / (float)86400;
+      unsigned int iLastPushAgeDays = (unsigned int)fLastPushAge;
+
+      if (iLastPushAgeDays > 100)
+        iLastPushAgeDays = 99;
+
+      CLog::Log(logPRINT, "%s%i|%s%s%s|%s%i /%s%i|%s|%s%s%s\n",
+                (it->first < 10)?" ":"", it->first,
+                bGitPush?KRED:KWHT, bGitPush?"*":" ", RESET,
+                (iLastPushAgeDays < 10)?" ":"", iLastPushAgeDays,
+                (GitData.iGitPushInterval < 10)?" ":"", GitData.iGitPushInterval,
+                (GitData.bForceGitPush||GitData.bSkipGitPush)?(GitData.bForceGitPush?"Force":" Skip"):"     ",
+                KMAG, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
+    }
+
+    CLog::Log(logPRINT, "\n%sChoose option:%s %s0%s:Continue with update Transifex %s1%s:Option 1 %s2%s:Option 2 %ss%s:Skip. Your Choice:   \b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
+    cin >> charInput;
+
+/*    if (charInput == '1')
+    {
+    }
+    else if (charInput == '2')
+    {
+    } */
+    if (charInput == 's')
+      return;
+
+    CLog::Log(logPRINT, "\033[22A");
+  }
+  while (charInput != '0');
+
+  CLog::Log(logPRINT, "                                                                                                                                        \n\e[A");
+
+
+  //Make the actual push
+    for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
+  {
+    CBasicGITData GitData = it->second;
+    size_t iLastPushAge = g_HTTPHandler.GetLastGitPushAge(GitData.Owner, GitData.Repo, GitData.Branch);
+    bool bGitPush = ((GitData.iGitPushInterval * 24 * 60 * 60) < iLastPushAge);
+    bGitPush = bGitPush||GitData.bForceGitPush;
+    bGitPush = bGitPush&&!GitData.bSkipGitPush;
+
+    if (bGitPush)
+      g_HTTPHandler.SetGitPushTime(GitData.Owner, GitData.Repo, GitData.Branch);
+
+    CLog::Log(logPRINT, "%s%s%s\n", KMAG, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
+  }
+
+
+/*  std::string sCommand;
+  for (std::map<std::string, CBasicGITData>::iterator it = m_MapGitRepos.begin(); it != m_MapGitRepos.end(); it++)
+  {
+    CBasicGITData GitData = it->second;
+    std::string sGitHubRootNoBranch = GitData.sUPSLocalPath + GitData.Owner + "/" + GitData.Repo;
+    std::string sGitHubRoot = sGitHubRootNoBranch + "/" + GitData.Branch;
+    if (!g_File.FileExist(sGitHubRoot +  "/.git/config"))
+      CLog::Log(logERROR, "Directory is not a  GIT repo for Owner: %s, Repo: %s, Branch: %s\n", GitData.Owner.c_str(), GitData.Repo.c_str(), GitData.Branch.c_str());
+
+    {
+      //no local directory present, cloning one
+      CLog::Log(logPRINT, "\n");
+      // clean directory if exists, unless git clone fails
+      g_File.DeleteDirectory(sGitHubRoot);
+      g_File.MakeDir(sGitHubRoot);
+
+      sCommand = "cd " + sGitHubRootNoBranch + ";";
+      sCommand += "git clone git@github.com:" + GitData.Owner + "/" + GitData.Repo + ".git " + GitData.Branch;
+      CLog::Log(logPRINT, "%sGIT cloning with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+      g_File.SytemCommand(sCommand);
+
+      sCommand = "cd " + sGitHubRoot + ";";
+      sCommand += "git checkout " + GitData.Branch;
+      CLog::Log(logPRINT, "%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
+      g_File.SytemCommand(sCommand);
+    }
+    else if (!bSkipGitReset)
+    {
+      // We have an existing git repo. Let's clean it and update if necesarry
+      CLog::Log(logPRINT, "\n");
+
+      if (GitData.Branch != GetCurrentGitBranch(sGitHubRoot))
+      {
+        //Curent branch differs from the neede one, so check out the needed branch
+        sCommand = "cd " + sGitHubRoot + ";";
+        sCommand += "git checkout " + GitData.Branch;
+        CLog::Log(logPRINT, "%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
+        g_File.SytemCommand(sCommand);
+      }
+
+      sCommand = "cd " + sGitHubRoot + ";";
+      sCommand += "git reset --hard origin/" + GitData.Branch;
+      CLog::Log(logPRINT, "%sGIT reset existing local repo to branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
+      g_File.SytemCommand(sCommand);
+
+      sCommand = "cd " + sGitHubRoot + ";";
+      sCommand += "git clean -f -d -x";
+      CLog::Log(logPRINT, "%sRemove untracked files%s\n%s%s%s\n", KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+      g_File.SytemCommand(sCommand);
+
+      if (g_File.GetAgeOfGitRepoPull(sGitHubRoot + "/.git/HEAD") > m_iHTTPCacheExp * 60)
+      {
+        //Git repo pull is outdated, make a fresh pull
+        sCommand = "cd " + sGitHubRoot + ";";
+        sCommand += "git pull";
+        CLog::Log(logPRINT, "%sPull latest git changes%s\n%s%s%s\n", KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+        g_File.SytemCommand(sCommand);
+      }
+    }
+  }
+
+  */
+}
+
 bool CProjectHandler::FetchResourcesFromUpstream()
 {
   g_HTTPHandler.GITPullUPSRepos(m_MapGitRepos, m_mapResData.begin()->second.bSkipGitReset);

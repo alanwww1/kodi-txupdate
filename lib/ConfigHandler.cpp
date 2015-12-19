@@ -44,6 +44,8 @@ CResData::CResData()
  bMajorBump = false;
  bHasOnlyAddonXML = false;
  bIsLangAddon = false;
+ bForceGitPush = false;
+ bSkipGitPush = false;
 }
 
 CResData::~CResData()
@@ -271,6 +273,8 @@ void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::str
   else if (sVar == "ForceComm")             ResData.bForceComm = (sVal == "true");
   else if (sVar == "ForceGitDloadToCache")  ResData.bForceGitDloadToCache = (sVal == "true");
   else if (sVar == "SkipGitReset")          ResData.bSkipGitReset = (sVal == "true");
+  else if (sVar == "SkipGitPush")           ResData.bSkipGitPush = (sVal == "true");
+  else if (sVar == "ForceGitPush")          ResData.bForceGitPush = (sVal == "true");
   else if (sVar == "Rebrand")               ResData.bRebrand = (sVal == "true");
   else if (sVar == "ForceTXUpd")            ResData.bForceTXUpd = (sVal == "true");
   else if (sVar == "IsLangAddon")           ResData.bIsLangAddon = (sVal == "true");
@@ -463,6 +467,8 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   ResDataToStore.bForceTXUpd          = ResData.bForceTXUpd;
   ResDataToStore.bForceGitDloadToCache= ResData.bForceGitDloadToCache;
   ResDataToStore.bSkipGitReset        = ResData.bSkipGitReset;
+  ResDataToStore.bSkipGitPush         = ResData.bSkipGitPush;
+  ResDataToStore.bForceGitPush        = ResData.bForceGitPush;
   ResDataToStore.bIsLangAddon         = ResData.bIsLangAddon;
   ResDataToStore.bHasOnlyAddonXML     = ResData.bHasOnlyAddonXML;
   ResDataToStore.m_pMapGitRepos       = ResData.m_pMapGitRepos;
@@ -505,8 +511,10 @@ void CConfigHandler::AddGitRepoToList(CResData& ResDataToStore, CGITData& GITDat
 
   CBasicGITData BasicGitData;
   BasicGitData.Owner = GITData.Owner; BasicGitData.Repo = GITData.Repo; BasicGitData.Branch = GITData.Branch;
-  BasicGitData.sUPSLocalPath = ResDataToStore.sUPSLocalPath;
+  BasicGitData.sUPSLocalPath = ResDataToStore.sUPSLocalPath; BasicGitData.iGitPushInterval = ResDataToStore.iGitPushInterval;
+  BasicGitData.bSkipGitPush = ResDataToStore.bSkipGitPush; BasicGitData.bForceGitPush = ResDataToStore. bForceGitPush;
   ResDataToStore.m_pMapGitRepos->operator[](GITData.Owner + "/" + GITData.Repo + "/" + GITData.Branch) = BasicGitData;
+  g_HTTPHandler.AddValidGitPushTimeCachefile(GITData.Owner, GITData.Repo, GITData.Branch);
 }
 
 bool CConfigHandler::GetParamsFromURLorPath (string const &strURL, string &strLangFormat, string &strFileName,

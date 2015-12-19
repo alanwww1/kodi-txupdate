@@ -483,20 +483,36 @@ std::string CHTTPHandler::CreateCacheFilename(const std::string& strURL, bool &b
 void CHTTPHandler::SetGitPushTime(const std::string& sOwner, const std::string& sRepo, const std::string& sBranch)
 {
   std::string sCacheFileName = m_strCacheDir;
-  sCacheFileName += "UPS" + DirSepChar + sCACHEDATADIRNAME + DirSepChar + "0_PushTimes" +DirSepChar;
-  sCacheFileName += sOwner + "-"  + sRepo + "-"+ sBranch;
+  sCacheFileName += "UPS";
+  sCacheFileName += DirSepChar + sCACHEDATADIRNAME + DirSepChar;
+  sCacheFileName += "0_PushTimes";
+  sCacheFileName += DirSepChar + sOwner + DirSepChar  + sRepo + DirSepChar+ sBranch;
 
   g_File.WriteNowToFileAgeFile(sCacheFileName);
 }
 
-void CHTTPHandler::GetLastGitPushAge(const string& sOwner, const string& sRepo, const string& sBranch)
+size_t CHTTPHandler::GetLastGitPushAge(const string& sOwner, const string& sRepo, const string& sBranch)
 {
   std::string sCacheFileName = m_strCacheDir;
-  sCacheFileName += "UPS" + DirSepChar + sCACHEDATADIRNAME + DirSepChar + "0_PushTimes" +DirSepChar;
-  sCacheFileName += sOwner + "-"  + sRepo + "-"+ sBranch;
+  sCacheFileName += "UPS";
+  sCacheFileName += DirSepChar + sCACHEDATADIRNAME + DirSepChar;
+  sCacheFileName += "0_PushTimes";
+  sCacheFileName += DirSepChar + sOwner + DirSepChar  + sRepo + DirSepChar+ sBranch;
 
-  g_File.GetStoredAgeFromTimeFile(sCacheFileName);
+  return g_File.GetStoredAgeFromTimeFile(sCacheFileName);
 }
+
+void CHTTPHandler::AddValidGitPushTimeCachefile(const std::string& sOwner, const std::string& sRepo, const std::string& sBranch)
+{
+  std::string sCacheFileName = m_strCacheDir;
+  sCacheFileName += "UPS";
+  sCacheFileName += DirSepChar + sCACHEDATADIRNAME + DirSepChar;
+  sCacheFileName += "0_PushTimes";
+  sCacheFileName += DirSepChar + sOwner + DirSepChar  + sRepo + DirSepChar+ sBranch;
+
+  m_mapValidCacheFiles.insert(sCacheFileName + ".time");
+}
+
 
 std::string CHTTPHandler::CreateCacheFilenameGitSource(const std::string& sBranch, bool &bCacheFileExists, bool &bCacheFileExpired)
 {
