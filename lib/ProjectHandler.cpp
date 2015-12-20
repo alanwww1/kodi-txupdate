@@ -151,6 +151,39 @@ void CProjectHandler::GITPushLOCGitRepos()
     CLog::Log(logPRINT, "\n%sChoose option:%s %s0%s:Continue with pushing to Github %s1%s:Option 1 %s2%s:Option 2 %ss%s:Skip. Your Choice:                           \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
     cin >> strInput;
 
+    if (strInput.find("fp") == 0 || strInput.find("sp") == 0)
+    {
+      // We have a forcepush or skippush request
+      size_t pos = 2;
+      size_t nextPos;
+      do
+      {
+        nextPos = strInput.find_first_of(",-", pos);
+        if (nextPos == std::string::npos || strInput.at(nextPos) == ',')
+        {
+          std::string sNumber = strInput.substr(pos, nextPos-pos);
+          if (!isdigit(sNumber.at(0))) // verify if the first char is digit
+            break;
+          // we check for the numeric id for the fist 3 chars
+          int iNum  = strtol(sNumber.c_str(), NULL, 10);
+          if (MapReposToPush.find(iNum) == MapReposToPush.end())
+            break;
+          if (strInput.find("fp") == 0)
+          {
+            MapReposToPush[iNum].bForceGitPush = true;
+            MapReposToPush[iNum].bSkipGitPush = false;
+          }
+          else
+          {
+            MapReposToPush[iNum].bForceGitPush = false;
+            MapReposToPush[iNum].bSkipGitPush = true;
+          }
+        }
+        pos = nextPos +1;
+      }
+      while (nextPos != std::string::npos);
+    }
+
 /*    if (charInput == '1')
     {
     }
