@@ -109,12 +109,21 @@ void CProjectHandler::GITPushLOCGitRepos()
     MapReposToPush[iCounter] = GitData;
   }
 
-
+  bool bFirstRun = true;
   // Get an input from the user
-  char charInput;
+  std::string strInput;
   CLog::Log(logPRINT, "\n");
   do
   {
+    if (!bFirstRun)
+    {
+      //Jump back to the start of list with the cursor
+      int iLines = MapReposToPush.size() +2;
+      std::string sNumOfLines = g_CharsetUtils.IntToStr(iLines);
+      std::string sEscapeCode = "\033[" +sNumOfLines + "A";
+      CLog::Log(logPRINT, "%s", sEscapeCode.c_str());
+    }
+
     //Print current state
     for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
     {
@@ -138,8 +147,9 @@ void CProjectHandler::GITPushLOCGitRepos()
                 KMAG, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
     }
 
-    CLog::Log(logPRINT, "\n%sChoose option:%s %s0%s:Continue with update Transifex %s1%s:Option 1 %s2%s:Option 2 %ss%s:Skip. Your Choice:   \b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
-    cin >> charInput;
+    CLog::Log(logPRINT, "\n\n\033[2A");
+    CLog::Log(logPRINT, "\n%sChoose option:%s %s0%s:Continue with pushing to Github %s1%s:Option 1 %s2%s:Option 2 %ss%s:Skip. Your Choice:                           \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
+    cin >> strInput;
 
 /*    if (charInput == '1')
     {
@@ -147,18 +157,16 @@ void CProjectHandler::GITPushLOCGitRepos()
     else if (charInput == '2')
     {
     } */
-    if (charInput == 's')
+    if (strInput == "s")
       return;
 
-    CLog::Log(logPRINT, "\033[22A");
+    bFirstRun = false;
   }
-  while (charInput != '0');
-
-  CLog::Log(logPRINT, "                                                                                                                                        \n\e[A");
+  while (strInput != "0");
 
 
   //Make the actual push
-    for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
+  for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
   {
     CBasicGITData GitData = it->second;
     size_t iLastPushAge = g_HTTPHandler.GetLastGitPushAge(GitData.Owner, GitData.Repo, GitData.Branch);
@@ -167,9 +175,23 @@ void CProjectHandler::GITPushLOCGitRepos()
     bGitPush = bGitPush&&!GitData.bSkipGitPush;
 
     if (bGitPush)
+    {
       g_HTTPHandler.SetGitPushTime(GitData.Owner, GitData.Repo, GitData.Branch);
+      CLog::Log(logPRINT, "\nPushing: %s%s%s\n", KMAG, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
 
-    CLog::Log(logPRINT, "%s%s%s\n", KMAG, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
+      std::string sGitHubRootNoBranch = GitData.sUPSLocalPath + GitData.Owner + "/" + GitData.Repo;
+      std::string sGitHubRoot = sGitHubRootNoBranch + "/" + GitData.Branch;
+      std::string sCommand;
+
+      if (!g_File.FileExist(sGitHubRoot +  "/.git/config"))
+        CLog::Log(logERROR, "Error while pushing. Directory is not a  GIT repo for Owner: %s, Repo: %s, Branch: %s\n", GitData.Owner.c_str(), GitData.Repo.c_str(), GitData.Branch.c_str());
+
+      sCommand = "cd " + sGitHubRoot + ";";
+      sCommand += "git push origin " + GitData.Branch;
+      CLog::Log(logPRINT, "%s%s%s\n", KYEL, sCommand.c_str(), RESET);
+//      g_File.SytemCommand(sCommand);
+
+    }
   }
 
 
