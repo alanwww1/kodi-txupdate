@@ -896,7 +896,7 @@ void CPOHandler::PutSRCFileToTRX()
   if (bUploaded)
     CLog::Log(logPRINT, "\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
   else
-    CLog::Log(logPRINT, "\tlangcode: %s:\t no change, skipping.\n", m_sLCode.c_str());
+    CLog::Log(logPRINT, "\tlangcode: %s:\t no change from last upload, skipping.\n", m_sLCode.c_str());
 }
 
 void CPOHandler::PutTranslFileToTRX()
@@ -914,5 +914,5 @@ void CPOHandler::PutTranslFileToTRX()
   if (bUploaded)
     CLog::Log(logPRINT, "\tlangcode: %s%s%s:\t added strings:%s%lu%s, updated strings:%s%lu%s\n", KCYN, m_sLCode.c_str(), RESET, KCYN, iAddedNew, RESET, KCYN, iUpdated, RESET);
   else
-    CLog::Log(logPRINT, "\tlangcode: %s:\t no change, skipping.\n", m_sLCode.c_str());
+    CLog::Log(logPRINT, "\tlangcode: %s:\t no change from last upload, skipping.\n", m_sLCode.c_str());
 }
