@@ -23,6 +23,7 @@
 #include "ResourceHandler.h"
 #include "ConfigHandler.h"
 #include <list>
+#include <set>
 
 
 class CProjectHandler
@@ -46,6 +47,8 @@ protected:
   std::string GetResNameFromTXResName(std::string const &strTXResName);
 
   std::set<std::string> ParseResources(std::string strJSON);
+  bool ParseRepoList(const std::string& sStringToParse, std::set<int>& ListRepos);
+
 
   std::map<std::string, CResourceHandler> m_mapResources;
   typedef std::map<std::string, CResourceHandler>::iterator T_itmapRes;

@@ -110,9 +110,9 @@ void CProjectHandler::GITPushLOCGitRepos()
   }
 
   bool bFirstRun = true;
-  // Get an input from the user
   std::string strInput;
   CLog::Log(logPRINT, "\n");
+
   do
   {
     if (!bFirstRun)
@@ -154,34 +154,22 @@ void CProjectHandler::GITPushLOCGitRepos()
     if (strInput.find("fp") == 0 || strInput.find("sp") == 0)
     {
       // We have a forcepush or skippush request
-      size_t pos = 2;
-      size_t nextPos;
-      do
+      bool bForceGitPush = strInput.find("fp") ==0;
+      bool bSkipGitPush = !bForceGitPush;
+
+      std::set<int> ListRepos;
+
+      if (!ParseRepoList(strInput, ListRepos))
+        CLog::Log(logERROR, "Unable to parse command, with wron syntax: %s", strInput.c_str());
+
+      for (std::set<int>::iterator it = ListRepos.begin(); it!= ListRepos.end(); it++)
       {
-        nextPos = strInput.find_first_of(",-", pos);
-        if (nextPos == std::string::npos || strInput.at(nextPos) == ',')
-        {
-          std::string sNumber = strInput.substr(pos, nextPos-pos);
-          if (!isdigit(sNumber.at(0))) // verify if the first char is digit
-            break;
-          // we check for the numeric id for the fist 3 chars
-          int iNum  = strtol(sNumber.c_str(), NULL, 10);
-          if (MapReposToPush.find(iNum) == MapReposToPush.end())
-            break;
-          if (strInput.find("fp") == 0)
-          {
-            MapReposToPush[iNum].bForceGitPush = true;
-            MapReposToPush[iNum].bSkipGitPush = false;
-          }
-          else
-          {
-            MapReposToPush[iNum].bForceGitPush = false;
-            MapReposToPush[iNum].bSkipGitPush = true;
-          }
-        }
-        pos = nextPos +1;
+        if (MapReposToPush.find(*it) == MapReposToPush.end())
+          CLog::Log(logERROR, "Wrong projectnumber given in command %s, wrong number: %i", strInput.c_str(), *it);
+
+        MapReposToPush[*it].bForceGitPush = bForceGitPush;
+        MapReposToPush[*it].bSkipGitPush = bSkipGitPush;
       }
-      while (nextPos != std::string::npos);
     }
 
 /*    if (charInput == '1')
@@ -195,7 +183,7 @@ void CProjectHandler::GITPushLOCGitRepos()
 
     bFirstRun = false;
   }
-  while (strInput != "0");
+  while (strInput != "0" && strInput != "dr");
 
 
   //Make the actual push
@@ -222,75 +210,57 @@ void CProjectHandler::GITPushLOCGitRepos()
       sCommand = "cd " + sGitHubRoot + ";";
       sCommand += "git push origin " + GitData.Branch;
       CLog::Log(logPRINT, "%s%s%s\n", KYEL, sCommand.c_str(), RESET);
-//      g_File.SytemCommand(sCommand);
 
+      if (strInput == "0") // if it was "dr" we are in "dry run" mode
+        g_File.SytemCommand(sCommand);
     }
   }
-
-
-/*  std::string sCommand;
-  for (std::map<std::string, CBasicGITData>::iterator it = m_MapGitRepos.begin(); it != m_MapGitRepos.end(); it++)
-  {
-    CBasicGITData GitData = it->second;
-    std::string sGitHubRootNoBranch = GitData.sUPSLocalPath + GitData.Owner + "/" + GitData.Repo;
-    std::string sGitHubRoot = sGitHubRootNoBranch + "/" + GitData.Branch;
-    if (!g_File.FileExist(sGitHubRoot +  "/.git/config"))
-      CLog::Log(logERROR, "Directory is not a  GIT repo for Owner: %s, Repo: %s, Branch: %s\n", GitData.Owner.c_str(), GitData.Repo.c_str(), GitData.Branch.c_str());
-
-    {
-      //no local directory present, cloning one
-      CLog::Log(logPRINT, "\n");
-      // clean directory if exists, unless git clone fails
-      g_File.DeleteDirectory(sGitHubRoot);
-      g_File.MakeDir(sGitHubRoot);
-
-      sCommand = "cd " + sGitHubRootNoBranch + ";";
-      sCommand += "git clone git@github.com:" + GitData.Owner + "/" + GitData.Repo + ".git " + GitData.Branch;
-      CLog::Log(logPRINT, "%sGIT cloning with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
-      g_File.SytemCommand(sCommand);
-
-      sCommand = "cd " + sGitHubRoot + ";";
-      sCommand += "git checkout " + GitData.Branch;
-      CLog::Log(logPRINT, "%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
-      g_File.SytemCommand(sCommand);
-    }
-    else if (!bSkipGitReset)
-    {
-      // We have an existing git repo. Let's clean it and update if necesarry
-      CLog::Log(logPRINT, "\n");
-
-      if (GitData.Branch != GetCurrentGitBranch(sGitHubRoot))
-      {
-        //Curent branch differs from the neede one, so check out the needed branch
-        sCommand = "cd " + sGitHubRoot + ";";
-        sCommand += "git checkout " + GitData.Branch;
-        CLog::Log(logPRINT, "%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
-        g_File.SytemCommand(sCommand);
-      }
-
-      sCommand = "cd " + sGitHubRoot + ";";
-      sCommand += "git reset --hard origin/" + GitData.Branch;
-      CLog::Log(logPRINT, "%sGIT reset existing local repo to branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
-      g_File.SytemCommand(sCommand);
-
-      sCommand = "cd " + sGitHubRoot + ";";
-      sCommand += "git clean -f -d -x";
-      CLog::Log(logPRINT, "%sRemove untracked files%s\n%s%s%s\n", KMAG, RESET, KYEL, sCommand.c_str(), RESET);
-      g_File.SytemCommand(sCommand);
-
-      if (g_File.GetAgeOfGitRepoPull(sGitHubRoot + "/.git/HEAD") > m_iHTTPCacheExp * 60)
-      {
-        //Git repo pull is outdated, make a fresh pull
-        sCommand = "cd " + sGitHubRoot + ";";
-        sCommand += "git pull";
-        CLog::Log(logPRINT, "%sPull latest git changes%s\n%s%s%s\n", KMAG, RESET, KYEL, sCommand.c_str(), RESET);
-        g_File.SytemCommand(sCommand);
-      }
-    }
-  }
-
-  */
 }
+
+bool CProjectHandler::ParseRepoList(const std::string& sStringToParse, std::set<int>& ListRepos)
+{
+  if (sStringToParse.size() == 2)
+    return false;
+
+  size_t pos = 2;
+  size_t nextPos;
+  do
+  {
+    nextPos = sStringToParse.find_first_of(",-", pos);
+    if (nextPos == std::string::npos || sStringToParse.at(nextPos) == ',')
+    {
+      std::string sNumber = sStringToParse.substr(pos, nextPos-pos);
+      if (!isdigit(sNumber.at(0))) // verify if the first char is digit
+        return false;
+
+      int iNum  = strtol(sNumber.c_str(), NULL, 10);
+      ListRepos.insert(iNum);
+    }
+    else
+    {
+      std::string sNumberFrom = sStringToParse.substr(pos, nextPos-pos);
+      if (!isdigit(sNumberFrom.at(0))) // verify if the first char is digit
+        return false;
+
+      int iNumFrom  = strtol(sNumberFrom.c_str(), NULL, 10);
+
+      pos =nextPos +1;
+      nextPos = sStringToParse.find_first_of(",", pos);
+      std::string sNumberTo = sStringToParse.substr(pos, (nextPos == std::string::npos)?std::string::npos:nextPos-pos);
+      if (!isdigit(sNumberTo.at(0))) // verify if the first char is digit
+        return false;
+
+      int iNumTo  = strtol(sNumberTo.c_str(), NULL, 10);
+      for (int i=iNumFrom; i<=iNumTo; i++)
+        ListRepos.insert(i);
+    }
+    pos = nextPos +1;
+  }
+  while (nextPos != std::string::npos);
+
+  return true;
+}
+
 
 bool CProjectHandler::FetchResourcesFromUpstream()
 {
