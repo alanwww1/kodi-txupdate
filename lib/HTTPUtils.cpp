@@ -76,8 +76,12 @@ std::string CHTTPHandler::GetURLToSTR(std::string strURL)
 {
   bool bCacheFileExists, bCacheFileExpired;
   std::string sCacheFileName = CreateCacheFilename(strURL, bCacheFileExists, bCacheFileExpired);
-  m_mapValidCacheFiles.insert(sCacheFileName + ".version");
-  m_mapValidCacheFiles.insert(sCacheFileName + ".time");
+  if (sCacheFileName != "")
+  {
+    m_mapValidCacheFiles.insert(sCacheFileName + ".version");
+    m_mapValidCacheFiles.insert(sCacheFileName + ".time");
+    m_mapValidCacheFiles.insert(sCacheFileName);
+  }
 
   std::string strBuffer, strCachedFileVersion, strWebFileVersion;
 
@@ -102,7 +106,8 @@ std::string CHTTPHandler::GetURLToSTR(std::string strURL)
     if (strWebFileVersion != "")
       g_File.WriteFileFromStr(sCacheFileName + ".version", strWebFileVersion);
 
-    g_File.WriteNowToFileAgeFile(sCacheFileName);
+    if (!m_bSkipCache)
+      g_File.WriteNowToFileAgeFile(sCacheFileName);
   }
   else
   {
@@ -315,16 +320,14 @@ bool CHTTPHandler::PutFileToURL(std::string const &sPOFile, std::string const &s
   bool bCacheFileExists, bCacheFileExpired;
 
   std::string sCacheFileName = CreateCacheFilename(strURL, bCacheFileExists, bCacheFileExpired);
-
-  if (bCacheFileExpired)  //In case cachefile expired, delete it so forcing upload of current uploadable
-  {
-    g_File.DeleteFile(sCacheFileName);
-    g_File.DeleteFile(sCacheFileName + ".time");
-  }
-
   std::string sCacheFile;
-  if (bCacheFileExists && !bCacheFileExpired)
+
+  if (bCacheFileExists && !bCacheFileExpired)  //In case cachefile expired, mark it as unvalid for later clean
     sCacheFile = g_File.ReadFileToStr(sCacheFileName);
+
+  m_mapValidCacheFiles.insert(sCacheFileName);
+  m_mapValidCacheFiles.insert(sCacheFileName + ".time");
+
 
   if (sCacheFile == sPOFile)
   {
