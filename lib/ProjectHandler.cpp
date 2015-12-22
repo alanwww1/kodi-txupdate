@@ -197,7 +197,9 @@ void CProjectHandler::GITPushLOCGitRepos()
 
     if (bGitPush)
     {
-      g_HTTPHandler.SetGitPushTime(GitData.Owner, GitData.Repo, GitData.Branch);
+      if (strInput == "0") // if it was "dr" we are in "dry run" mode
+        g_HTTPHandler.SetGitPushTime(GitData.Owner, GitData.Repo, GitData.Branch);
+
       CLog::Log(logPRINT, "\nPushing: %s%s%s\n", KMAG, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
 
       std::string sGitHubRootNoBranch = GitData.sUPSLocalPath + GitData.Owner + "/" + GitData.Repo;
