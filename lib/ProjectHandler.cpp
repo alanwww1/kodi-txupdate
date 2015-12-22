@@ -185,6 +185,7 @@ void CProjectHandler::GITPushLOCGitRepos()
   }
   while (strInput != "0" && strInput != "dr");
 
+  bool bDryRun = strInput == "dr";
 
   //Make the actual push
   for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
@@ -197,10 +198,10 @@ void CProjectHandler::GITPushLOCGitRepos()
 
     if (bGitPush)
     {
-      if (strInput == "0") // if it was "dr" we are in "dry run" mode
+      if (!bDryRun)
         g_HTTPHandler.SetGitPushTime(GitData.Owner, GitData.Repo, GitData.Branch);
 
-      CLog::Log(logPRINT, "\nPushing: %s%s%s\n", KMAG, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
+      CLog::Log(logPRINT, "\nPushing%s: %s%s%s\n", bDryRun?"(dry run)":"", KMAG, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
 
       std::string sGitHubRootNoBranch = GitData.sUPSLocalPath + GitData.Owner + "/" + GitData.Repo;
       std::string sGitHubRoot = sGitHubRootNoBranch + "/" + GitData.Branch;
@@ -210,11 +211,11 @@ void CProjectHandler::GITPushLOCGitRepos()
         CLog::Log(logERROR, "Error while pushing. Directory is not a  GIT repo for Owner: %s, Repo: %s, Branch: %s\n", GitData.Owner.c_str(), GitData.Repo.c_str(), GitData.Branch.c_str());
 
       sCommand = "cd " + sGitHubRoot + ";";
-      sCommand += "git push origin " + GitData.Branch;
+      std::string sDryRun = bDryRun?"--dry-run ":"";
+      sCommand += "git push " + sDryRun + "origin " + GitData.Branch;
       CLog::Log(logPRINT, "%s%s%s\n", KYEL, sCommand.c_str(), RESET);
 
-      if (strInput == "0") // if it was "dr" we are in "dry run" mode
-        g_File.SytemCommand(sCommand);
+      g_File.SytemCommand(sCommand);
     }
   }
 }
