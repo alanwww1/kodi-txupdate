@@ -27,6 +27,14 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <list>
+
+
+struct CCommitData
+{
+  std::string sCommitMessage;
+  bool bContainsSRCFileChange;
+};
 
 struct CBasicGITData
 {
@@ -34,6 +42,7 @@ struct CBasicGITData
   std::string sUPSLocalPath;
   size_t iGitPushInterval; //in days
   size_t bSkipGitPush, bForceGitPush;
+  std::list<CCommitData> listPushData;
 };
 
 struct CGITData

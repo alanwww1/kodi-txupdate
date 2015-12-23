@@ -465,15 +465,19 @@ void CResourceHandler::WriteLOCPOFiles()
   {
     CLog::Log(logPRINT, "\n");
 
+    CGITData CurrGITData;
+
     if (m_ResData.bIsLangAddon)
     {
       sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_ResData.LOCSRC.LPath), m_ResData.sSRCLCode);
       sGitDir = sLOCSRCGITDir;
+      CurrGITData = m_ResData.LOCSRC;
     }
     else
     {
       sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), m_ResData.sSRCLCode);
       sGitDir = sLOCGITDir;
+      CurrGITData = m_ResData.LOC;
     }
 
     sCommand = "cd " + sGitDir + ";";
@@ -485,6 +489,15 @@ void CResourceHandler::WriteLOCPOFiles()
     sCommand += "git commit -m \"" + m_ResData.sGitCommitTextSRC + "\"";
     CLog::Log(logPRINT, "%sGIT commit SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
     g_File.SytemCommand(sCommand);
+
+    //Fill in the commitdata for later use at git push time
+    CCommitData CommitData;
+    CommitData.bContainsSRCFileChange = true;
+    CommitData.sCommitMessage = m_ResData.sGitCommitTextSRC;
+    if (m_ResData.m_pMapGitRepos->find(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch) == m_ResData.m_pMapGitRepos->end())
+      CLog::Log(logERROR, "CResourceHandler::WriteLOCPOFiles: internal error: gitdata does not exist in map.");
+
+    m_ResData.m_pMapGitRepos->at(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch).listPushData.push_front(CommitData);
   }
 
   if (!m_ResData.sGitCommitText.empty())
@@ -498,6 +511,17 @@ void CResourceHandler::WriteLOCPOFiles()
     sCommand += "git commit -am \"" + m_ResData.sGitCommitText + "\"";
     CLog::Log(logPRINT, "%sGIT commit with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
     g_File.SytemCommand(sCommand);
+
+    //Fill in the commitdata for later use at git push time
+    CGITData CurrGITData = m_ResData.LOC;
+    CCommitData CommitData;
+    CommitData.bContainsSRCFileChange = false;
+    CommitData.sCommitMessage = m_ResData.sGitCommitText;
+    if (m_ResData.m_pMapGitRepos->find(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch) == m_ResData.m_pMapGitRepos->end())
+      CLog::Log(logERROR, "CResourceHandler::WriteLOCPOFiles: internal error: gitdata does not exist in map.");
+
+    m_ResData.m_pMapGitRepos->at(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch).listPushData.push_front(CommitData);
+
   }
 
  return;
