@@ -29,6 +29,7 @@
 #include "CharsetUtils/CharsetUtils.h"
 #include "FileUtils/FileUtils.h"
 #include "Langcodes.h"
+#include <iostream>
 
 CProjectHandler::CProjectHandler()
 {};

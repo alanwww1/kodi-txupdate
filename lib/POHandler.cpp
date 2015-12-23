@@ -51,7 +51,7 @@ bool CPOEntry::operator==(const CPOEntry& poentry) const
     bhasMatch = bhasMatch && (poentry.msgStr == msgStr);
   if (!poentry.msgStrPlural.empty())
     bhasMatch = bhasMatch && (poentry.msgStrPlural == msgStrPlural);
-  if (!poentry.Type == NUMID)
+  if (poentry.Type == NUMID)
     bhasMatch = bhasMatch && (poentry.numID == numID);
   if (poentry.Type != UNKNOWN && poentry.Type != 0)
     bhasMatch = bhasMatch && (poentry.Type == Type);
@@ -67,7 +67,7 @@ bool CPOEntry::MatchMsgid(const CPOEntry& poentry) const
     bhasMatch = bhasMatch && (poentry.msgID == msgID);
   if (!poentry.msgIDPlur.empty())
     bhasMatch = bhasMatch && (poentry.msgIDPlur == msgIDPlur);
-  if (!poentry.Type == NUMID)
+  if (poentry.Type == NUMID)
     bhasMatch = bhasMatch && (poentry.numID == numID);
   if (poentry.Type != UNKNOWN && poentry.Type != 0)
     bhasMatch = bhasMatch && (poentry.Type == Type);
