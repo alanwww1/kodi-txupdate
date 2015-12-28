@@ -59,4 +59,6 @@ protected:
   std::map<int, std::string> m_mapResOrder;
   std::string m_strProjDir;
   bool m_BForceUseCache;
+
+  CCommitData m_CommitData, m_CommitDataSRC;
 };

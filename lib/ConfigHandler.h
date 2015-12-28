@@ -29,11 +29,19 @@
 #include <vector>
 #include <list>
 
+struct CResChangeData
+{
+  std::string sResName;
+  std::string sLangPath;
+  std::string sLOCGITDir;
+  std::string sGitCommitTextSRC;
+};
 
 struct CCommitData
 {
   std::string sCommitMessage;
-  bool bContainsSRCFileChange;
+  std::list<CResChangeData> listResWithSRCChange;
+  std::list<CResChangeData> listResWithChange;
 };
 
 struct CBasicGITData
@@ -42,7 +50,7 @@ struct CBasicGITData
   std::string sUPSLocalPath;
   size_t iGitPushInterval; //in days
   size_t bSkipGitPush, bForceGitPush;
-  std::list<CCommitData> listPushData;
+  std::list<CCommitData> listCommitData;
 };
 
 struct CGITData

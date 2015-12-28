@@ -261,6 +261,15 @@ void CPOHandler::WritePOFile(const std::string& strOutputPOFilename)
   return;
 };
 
+bool CPOHandler::CheckIfPOIsSameAsTheOverwritten(const std::string& strOutputPOFilename)
+{
+  if (!g_File.FileExist(strOutputPOFilename))
+    return false;
+
+  std::string sPOFileToBeOverwritten = g_File.ReadFileToStr(strOutputPOFilename);
+  return m_strOutBuffer == sPOFileToBeOverwritten;
+}
+
 // Data manipulation functions
 
 bool CPOHandler::FindEntry (const CPOEntry &EntryToFind)

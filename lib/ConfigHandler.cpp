@@ -46,10 +46,10 @@ CResData::CResData()
  bIsLangAddon = false;
  bForceGitPush = false;
  bSkipGitPush = false;
-}
+};
 
 CResData::~CResData()
-{}
+{};
 
 CConfigHandler::CConfigHandler()
 {};

@@ -334,7 +334,7 @@ bool CProjectHandler::WriteResourcesToLOCGitRepos(std::string strProjRootDir)
     const std::string& sResName = itResOrder->second;
     CResourceHandler& ResHandler = m_mapResources[sResName];
 
-    ResHandler.WriteLOCPOFiles();
+    ResHandler.WriteLOCPOFiles(m_CommitData, m_CommitDataSRC);
   }
   CLog::Log(logPRINT, "\n\n");
   return true;

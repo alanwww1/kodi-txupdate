@@ -118,6 +118,9 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
   listLangs = listLangsWithStringsPO;
 
+  if (!m_ResData.bHasOnlyAddonXML && listLangs.find(m_ResData.sSRCLCode) == listLangs.end())
+    CLog::Log(logERROR, "Could not find source language file at the UPS github repo for resource: %s\n", m_ResData.sResName.c_str());
+
   m_AddonXMLHandler.AddAddonXMLLangsToList(listLangs); // Add languages that are only in the addon.xml file
 
   g_HTTPHandler.SetDataFile(false);
@@ -205,7 +208,7 @@ void CResourceHandler::MergeResource()
 
   std::list<std::string> listMergedLangs = CreateMergedLangList();
   CPOHandler& POHandlUPSSRC = m_mapUPS.at(m_ResData.sSRCLCode);
-  bool bResChangedFromUPS = false;
+  m_bResChangedFromUPS = false;
 
   for (std::list<std::string>::iterator itlang = listMergedLangs.begin(); itlang != listMergedLangs.end(); itlang++)
   {
@@ -287,7 +290,7 @@ void CResourceHandler::MergeResource()
       {
         if (m_ResData.bIsLangAddon && sLCode != m_ResData.sSRCLCode)
           MRGPOHandler.BumpLangAddonXMLVersion(m_ResData.bMajorBump);
-        bResChangedFromUPS = true;
+        m_bResChangedFromUPS = true;
         m_lChangedLangsFromUPS.insert(sLCode);
       }
     }
@@ -306,7 +309,7 @@ void CResourceHandler::MergeResource()
   }
 
   //If resource has been changed in any language, bump the language addon version
-  if (bResChangedFromUPS && !m_ResData.bIsLangAddon)
+  if (m_bResChangedFromUPS && !m_ResData.bIsLangAddon)
     m_AddonXMLHandler.SetBumpAddonVersion();
 
   return;
@@ -411,7 +414,7 @@ void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, cons
  return;
 }
 
-void CResourceHandler::WriteLOCPOFiles()
+void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& CommitDataSRC)
 {
     std::string sLOCGITDir = m_ResData.sUPSLocalPath + m_ResData.LOC.Owner + "/" + m_ResData.LOC.Repo + "/" + m_ResData.LOC.Branch + "/";
     std::string sLOCSRCGITDir = m_ResData.sUPSLocalPath + m_ResData.LOCSRC.Owner + "/" + m_ResData.LOCSRC.Repo + "/" + m_ResData.LOCSRC.Branch + "/";
@@ -437,12 +440,36 @@ void CResourceHandler::WriteLOCPOFiles()
     {
       const std::string& sLCode = itmapPOFiles->first;
       std::string strPODir, strAddonDir;
-      if (sLCode != m_ResData.sSRCLCode || !m_ResData.bIsLangAddon)
-        strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), sLCode);
-      else
-        strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_ResData.LOCSRC.LPath), sLCode);
 
       CPOHandler& POHandler = m_mapMRG.at(sLCode);
+
+      if (sLCode != m_ResData.sSRCLCode || !m_ResData.bIsLangAddon)
+      {
+        strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), sLCode);
+        if (sLCode == m_ResData.sSRCLCode && !POHandler.CheckIfPOIsSameAsTheOverwritten(strPODir))
+        {
+          CResChangeData ResChangeData;
+          ResChangeData.sResName = m_ResData.sResName;
+          ResChangeData.sGitCommitTextSRC = m_ResData.sGitCommitTextSRC;
+          ResChangeData.sLangPath = g_CharsetUtils.ReplaceLanginURL(m_ResData.LOC.LPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), sLCode);
+          ResChangeData.sLOCGITDir = sLOCGITDir;
+          CommitData.listResWithSRCChange.push_front(ResChangeData); // check if the SRC file differs from the one to be overwritten and note it
+        }
+      }
+      else
+      {
+        strPODir = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_ResData.LOCSRC.LPath), sLCode);
+        if (!POHandler.CheckIfPOIsSameAsTheOverwritten(strPODir))
+        {
+          CResChangeData ResChangeData;
+          ResChangeData.sResName = m_ResData.sResName;
+          ResChangeData.sGitCommitTextSRC = m_ResData.sGitCommitTextSRC;
+          ResChangeData.sLangPath = g_CharsetUtils.ReplaceLanginURL(m_ResData.LOCSRC.LPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOCSRC.LPath), sLCode);
+          ResChangeData.sLOCGITDir = sLOCSRCGITDir;
+          CommitDataSRC.listResWithSRCChange.push_front(ResChangeData); // check if the SRC file differs from the one to be overwritten and note it
+        }
+      }
+
 
       POHandler.WritePOFile(strPODir);
 
@@ -459,9 +486,23 @@ void CResourceHandler::WriteLOCPOFiles()
     }
   }
 
-  std::string sCommand, sPOPathSRC, sGitDir;
+  if (m_bResChangedFromUPS)
+  {
+    CResChangeData ResChangeData;
+    ResChangeData.sResName = m_ResData.sResName;
+    ResChangeData.sLOCGITDir = sLOCGITDir;
 
-  if (!m_ResData.sGitCommitTextSRC.empty() && !m_ResData.bHasOnlyAddonXML)
+    CommitData.listResWithChange.push_front(ResChangeData);
+  }
+
+  //GIT commit changes to SRC language for all resources which changed
+  std::string sCommand, sPOPathSRC, sGitDir;
+  CCommitData CurrCommData;
+
+  bool bHadChangedSRCChange = (!m_ResData.bIsLangAddon && !CommitData.listResWithSRCChange.empty());
+  bool bHadChangedSRCChangeInLangAddon = (m_ResData.bIsLangAddon && !CommitDataSRC.listResWithSRCChange.empty());
+
+  if (!m_ResData.sGitCommitText.empty() && (bHadChangedSRCChange || bHadChangedSRCChangeInLangAddon))
   {
     CLog::Log(logPRINT, "\n");
 
@@ -472,35 +513,42 @@ void CResourceHandler::WriteLOCPOFiles()
       sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_ResData.LOCSRC.LPath), m_ResData.sSRCLCode);
       sGitDir = sLOCSRCGITDir;
       CurrGITData = m_ResData.LOCSRC;
+      CurrCommData = CommitDataSRC;
     }
     else
     {
       sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), m_ResData.sSRCLCode);
       sGitDir = sLOCGITDir;
       CurrGITData = m_ResData.LOC;
+      CurrCommData = CommitData;
     }
 
-    sCommand = "cd " + sGitDir + ";";
-    sCommand += "git add " + sPOPathSRC;
-    CLog::Log(logPRINT, "%sGIT add SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
-    g_File.SytemCommand(sCommand);
-
-    sCommand = "cd " + sGitDir + ";";
-    sCommand += "git commit -m \"" + m_ResData.sGitCommitTextSRC + "\"";
-    CLog::Log(logPRINT, "%sGIT commit SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
-    g_File.SytemCommand(sCommand);
-
     //Fill in the commitdata for later use at git push time
-    CCommitData CommitData;
-    CommitData.bContainsSRCFileChange = true;
-    CommitData.sCommitMessage = m_ResData.sGitCommitTextSRC;
+    CommitDataSRC.sCommitMessage = m_ResData.sGitCommitTextSRC;
     if (m_ResData.m_pMapGitRepos->find(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch) == m_ResData.m_pMapGitRepos->end())
       CLog::Log(logERROR, "CResourceHandler::WriteLOCPOFiles: internal error: gitdata does not exist in map.");
+    m_ResData.m_pMapGitRepos->at(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch).listCommitData.push_front(CommitDataSRC);
 
-    m_ResData.m_pMapGitRepos->at(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch).listPushData.push_front(CommitData);
+//    std::string sRepoKey = CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch;
+
+
+    for (std::list<CResChangeData>::iterator itChange = CurrCommData.listResWithSRCChange.begin(); itChange != CurrCommData.listResWithSRCChange.end(); itChange++)
+    {
+      sCommand = "cd " + itChange->sLOCGITDir + ";";
+      sCommand += "git add " + itChange->sLangPath;
+      CLog::Log(logPRINT, "%sGIT add %sSRC file%s with the following command:%s\n%s%s%s\n",KMAG, KRED, KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+      g_File.SytemCommand(sCommand);
+
+      sCommand = "cd " + itChange->sLOCGITDir + ";";
+      sCommand += "git commit -m \"" + itChange->sGitCommitTextSRC + "\"";
+      CLog::Log(logPRINT, "%sGIT commit SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+      g_File.SytemCommand(sCommand);
+    }
   }
 
-  if (!m_ResData.sGitCommitText.empty())
+
+  //GIT commit changes to non-SRC language for all resources which changed
+  if (!m_ResData.sGitCommitText.empty() && !CommitData.listResWithChange.empty())
   {
     CLog::Log(logPRINT, "\n");
 
@@ -514,14 +562,18 @@ void CResourceHandler::WriteLOCPOFiles()
 
     //Fill in the commitdata for later use at git push time
     CGITData CurrGITData = m_ResData.LOC;
-    CCommitData CommitData;
-    CommitData.bContainsSRCFileChange = false;
     CommitData.sCommitMessage = m_ResData.sGitCommitText;
     if (m_ResData.m_pMapGitRepos->find(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch) == m_ResData.m_pMapGitRepos->end())
       CLog::Log(logERROR, "CResourceHandler::WriteLOCPOFiles: internal error: gitdata does not exist in map.");
 
-    m_ResData.m_pMapGitRepos->at(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch).listPushData.push_front(CommitData);
+    m_ResData.m_pMapGitRepos->at(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch).listCommitData.push_front(CommitData);
+  }
 
+  if (!m_ResData.sGitCommitText.empty())
+  {
+    //Clear data of changes for next upcoming commit
+    CommitDataSRC.listResWithChange.clear(); CommitDataSRC.listResWithSRCChange.clear(); CommitDataSRC.sCommitMessage.clear();
+    CommitData.listResWithChange.clear(); CommitData.listResWithSRCChange.clear(); CommitData.sCommitMessage.clear();
   }
 
  return;

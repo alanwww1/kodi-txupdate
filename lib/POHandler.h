@@ -103,6 +103,8 @@ public:
   bool FindEntry (const CPOEntry &EntryToFind);
   T_itPOData GetItFoundEntry() {return m_itLastFound;}
 
+  bool CheckIfPOIsSameAsTheOverwritten(const std::string& strOutputPOFilename);
+
   void AddAddonXMLEntries (const CAddonXMLEntry& AddonXMLEntry, const CAddonXMLEntry& AddonXMLEntrySRC);
   void AddItEntry (T_itPOData it) {m_mapItPOData[it->first] = it;}
   bool ModifyClassicEntry (CPOEntry &EntryToFind, CPOEntry EntryNewValue);
