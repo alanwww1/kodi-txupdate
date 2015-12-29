@@ -129,10 +129,16 @@ void CProjectHandler::GITPushLOCGitRepos()
     for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
     {
       CBasicGITData GitData = it->second;
+      std::list<CCommitData>& listCommitData = GitData.listCommitData;
+      size_t iNumOfCommits = listCommitData.size();
+      bool bRepoHasCommit = iNumOfCommits != 0;
+
       size_t iLastPushAge = g_HTTPHandler.GetLastGitPushAge(GitData.Owner, GitData.Repo, GitData.Branch);
       bool bGitPush = ((GitData.iGitPushInterval * 24 * 60 * 60) < iLastPushAge);
       bGitPush = bGitPush||GitData.bForceGitPush;
       bGitPush = bGitPush&&!GitData.bSkipGitPush;
+      bGitPush = bGitPush && bRepoHasCommit;
+
       float fLastPushAge = (float)iLastPushAge / (float)86400;
       unsigned int iLastPushAgeDays = (unsigned int)fLastPushAge;
 
@@ -141,11 +147,11 @@ void CProjectHandler::GITPushLOCGitRepos()
 
       CLog::Log(logPRINT, "%s%i|%s%s%s|%s%i /%s%i|%s|%s%s%s\n",
                 (it->first < 10)?" ":"", it->first,
-                bGitPush?KRED:KWHT, bGitPush?"*":" ", RESET,
+                bGitPush?KRED:KLGRAY, bGitPush?"*":" ", RESET,
                 (iLastPushAgeDays < 10)?" ":"", iLastPushAgeDays,
                 (GitData.iGitPushInterval < 10)?" ":"", GitData.iGitPushInterval,
                 (GitData.bForceGitPush||GitData.bSkipGitPush)?(GitData.bForceGitPush?"Force":" Skip"):"     ",
-                KMAG, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
+                bRepoHasCommit?KMAG:KGRAY, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
     }
 
     CLog::Log(logPRINT, "\n\n\033[2A");
@@ -214,7 +220,7 @@ void CProjectHandler::GITPushLOCGitRepos()
       sCommand = "cd " + sGitHubRoot + ";";
       std::string sDryRun = bDryRun?"--dry-run ":"";
       sCommand += "git push " + sDryRun + "origin " + GitData.Branch;
-      CLog::Log(logPRINT, "%s%s%s\n", KYEL, sCommand.c_str(), RESET);
+      CLog::Log(logPRINT, "%s%s%s\n", KORNG, sCommand.c_str(), RESET);
 
       g_File.SytemCommand(sCommand);
     }

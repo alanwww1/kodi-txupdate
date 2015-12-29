@@ -536,12 +536,12 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
     {
       sCommand = "cd " + itChange->sLOCGITDir + ";";
       sCommand += "git add " + itChange->sLangPath;
-      CLog::Log(logPRINT, "%sGIT add %sSRC file%s with the following command:%s\n%s%s%s\n",KMAG, KRED, KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+      CLog::Log(logPRINT, "%sGIT add %sSRC file%s with the following command:%s\n%s%s%s\n",KMAG, KRED, KMAG, RESET, KORNG, sCommand.c_str(), RESET);
       g_File.SytemCommand(sCommand);
 
       sCommand = "cd " + itChange->sLOCGITDir + ";";
       sCommand += "git commit -m \"" + itChange->sGitCommitTextSRC + "\"";
-      CLog::Log(logPRINT, "%sGIT commit SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+      CLog::Log(logPRINT, "%sGIT commit SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KORNG, sCommand.c_str(), RESET);
       g_File.SytemCommand(sCommand);
     }
   }
@@ -557,7 +557,7 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
     sCommand = "cd " + sGitDir + ";";
     sCommand += "git add -A;";
     sCommand += "git commit -am \"" + m_ResData.sGitCommitText + "\"";
-    CLog::Log(logPRINT, "%sGIT commit with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+    CLog::Log(logPRINT, "%sGIT commit with the following command:%s\n%s%s%s\n",KMAG, RESET, KORNG, sCommand.c_str(), RESET);
     g_File.SytemCommand(sCommand);
 
     //Fill in the commitdata for later use at git push time

@@ -115,7 +115,7 @@ std::string CHTTPHandler::GetURLToSTR(std::string strURL)
     if (bCacheFileExpired)
       CLog::Log(logPRINT, "%s-%s", KCYN, RESET);
     else
-      CLog::Log(logPRINT, "%s.%s", KYEL, RESET);
+      CLog::Log(logPRINT, "%s.%s", KORNG, RESET);
   }
 
   return strBuffer;
@@ -855,12 +855,12 @@ void CHTTPHandler::GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitR
 
       sCommand = "cd " + sGitHubRootNoBranch + ";";
       sCommand += "git clone git@github.com:" + GitData.Owner + "/" + GitData.Repo + ".git " + GitData.Branch;
-      CLog::Log(logPRINT, "%sGIT cloning with the following command:%s\n%s%s%s\n",KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+      CLog::Log(logPRINT, "%sGIT cloning with the following command:%s\n%s%s%s\n",KMAG, RESET, KORNG, sCommand.c_str(), RESET);
       g_File.SytemCommand(sCommand);
 
       sCommand = "cd " + sGitHubRoot + ";";
       sCommand += "git checkout " + GitData.Branch;
-      CLog::Log(logPRINT, "%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
+      CLog::Log(logPRINT, "%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KORNG, sCommand.c_str(), RESET);
       g_File.SytemCommand(sCommand);
     }
     else if (!bSkipGitReset)
@@ -873,18 +873,18 @@ void CHTTPHandler::GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitR
         //Curent branch differs from the neede one, so check out the needed branch
         sCommand = "cd " + sGitHubRoot + ";";
         sCommand += "git checkout " + GitData.Branch;
-        CLog::Log(logPRINT, "%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
+        CLog::Log(logPRINT, "%sGIT checkout branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KORNG, sCommand.c_str(), RESET);
         g_File.SytemCommand(sCommand);
       }
 
       sCommand = "cd " + sGitHubRoot + ";";
       sCommand += "git reset --hard origin/" + GitData.Branch;
-      CLog::Log(logPRINT, "%sGIT reset existing local repo to branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KYEL, sCommand.c_str(), RESET);
+      CLog::Log(logPRINT, "%sGIT reset existing local repo to branch: %s%s%s%s\n%s%s%s\n",KMAG, RESET, KCYN,GitData.Branch.c_str(), RESET, KORNG, sCommand.c_str(), RESET);
       g_File.SytemCommand(sCommand);
 
       sCommand = "cd " + sGitHubRoot + ";";
       sCommand += "git clean -f -d -x";
-      CLog::Log(logPRINT, "%sRemove untracked files%s\n%s%s%s\n", KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+      CLog::Log(logPRINT, "%sRemove untracked files%s\n%s%s%s\n", KMAG, RESET, KORNG, sCommand.c_str(), RESET);
       g_File.SytemCommand(sCommand);
 
       if (g_File.GetAgeOfGitRepoPull(sGitHubRoot + "/.git/HEAD") > m_iHTTPCacheExp * 60)
@@ -892,7 +892,7 @@ void CHTTPHandler::GITPullUPSRepos(std::map<std::string, CBasicGITData>& MapGitR
         //Git repo pull is outdated, make a fresh pull
         sCommand = "cd " + sGitHubRoot + ";";
         sCommand += "git pull";
-        CLog::Log(logPRINT, "%sPull latest git changes%s\n%s%s%s\n", KMAG, RESET, KYEL, sCommand.c_str(), RESET);
+        CLog::Log(logPRINT, "%sPull latest git changes%s\n%s%s%s\n", KMAG, RESET, KORNG, sCommand.c_str(), RESET);
         g_File.SytemCommand(sCommand);
       }
     }
@@ -946,7 +946,7 @@ std::string CHTTPHandler::GetGithubPathToSTR(const std::string& sUPSLocalPath, c
     if (bCacheFileExpired)
       CLog::Log(logPRINT, "%s-%s", KCYN, RESET);
     else
-      CLog::Log(logPRINT, "%s.%s", KYEL, RESET);
+      CLog::Log(logPRINT, "%s.%s", KORNG, RESET);
   }
 
   return strBuffer;
@@ -967,7 +967,7 @@ std::string  CHTTPHandler::GetGitFileListToSTR(const std::string& sUPSLocalPath,
   if (bCacheFileExpired || !bCacheFileExists)
     CLog::Log(logPRINT, "%s*%s", KGRN, RESET);
   else
-    CLog::Log(logPRINT, "%s.%s", KYEL, RESET);
+    CLog::Log(logPRINT, "%s.%s", KORNG, RESET);
 
   std::string sGithubPathToList = "/" + g_CharsetUtils.GetRoot(GitData.AXMLPath, g_CharsetUtils.GetFilenameFromURL(GitData.AXMLPath));
   size_t pos;
