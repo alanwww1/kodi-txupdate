@@ -48,7 +48,9 @@ protected:
 
   std::set<std::string> ParseResources(std::string strJSON);
   bool ParseRepoList(const std::string& sStringToParse, std::set<int>& ListRepos);
-
+  void GenerateDiffListsPerRepo(std::string sPath, std::set<int> listReposToInclude);
+  void GenerateCombinedDiffLists(std::string sPath, std::set<int> listReposToInclude);
+  void RunGitCommandIntoFile(const CBasicGITData& RepoData, std::string sGitCommand, std::string sFilePath, std::string sHeader);
 
   std::map<std::string, CResourceHandler> m_mapResources;
   typedef std::map<std::string, CResourceHandler>::iterator T_itmapRes;

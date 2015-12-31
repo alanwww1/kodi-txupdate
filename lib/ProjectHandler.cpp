@@ -125,6 +125,7 @@ void CProjectHandler::GITPushLOCGitRepos()
       CLog::Log(logPRINT, "%s", sEscapeCode.c_str());
     }
 
+    std::set<int> listReposToIncludeInLists;
     //Print current state
     for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
     {
@@ -145,6 +146,9 @@ void CProjectHandler::GITPushLOCGitRepos()
       if (iLastPushAgeDays > 100)
         iLastPushAgeDays = 99;
 
+      if (bGitPush)
+        listReposToIncludeInLists.insert(it->first);
+
       CLog::Log(logPRINT, "%s%i|%s%s%s|%s%i /%s%i|%s|%s%s%s\n",
                 (it->first < 10)?" ":"", it->first,
                 bGitPush?KRED:KLGRAY, bGitPush?"*":" ", RESET,
@@ -154,8 +158,17 @@ void CProjectHandler::GITPushLOCGitRepos()
                 bRepoHasCommit?KMAG:KGRAY, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
     }
 
+    //Clean cache Directory
+    std::string sCachePath = g_File.GetHomePath();
+    sCachePath += "/.cache/kodi-txupdate";
+    g_File.DeleteDirectory(sCachePath);
+    g_File.MakeDir(sCachePath);
+
+    GenerateDiffListsPerRepo(sCachePath + DirSepChar + "Separate diff Lists", listReposToIncludeInLists);
+    GenerateCombinedDiffLists(sCachePath + DirSepChar + "Combined diff Lists", listReposToIncludeInLists);
+
     CLog::Log(logPRINT, "\n\n\033[2A");
-    CLog::Log(logPRINT, "\n%sChoose option:%s %s0%s:Continue with pushing to Github %s1%s:Option 1 %s2%s:Option 2 %ss%s:Skip. Your Choice:                           \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
+    CLog::Log(logPRINT, "\n%sChoose option:%s %s0%s:Continue with pushing to Github %s1%s:Check diff lists by repo %s2%s:Option 2 %ss%s:Skip. Your Choice:                           \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
     cin >> strInput;
 
     if (strInput.find("fp") == 0 || strInput.find("sp") == 0)
@@ -226,6 +239,125 @@ void CProjectHandler::GITPushLOCGitRepos()
     }
   }
 }
+
+void CProjectHandler::GenerateDiffListsPerRepo(std::string sPath, std::set<int> listReposToInclude)
+{
+  //Create a numeric repo list
+  unsigned int iCounter = 0;
+  std::map<unsigned int, CBasicGITData> MapReposToPush;
+  for (std::map<std::string, CBasicGITData>::iterator it = m_MapGitRepos.begin(); it != m_MapGitRepos.end(); it++)
+  {
+    iCounter++;
+    CBasicGITData GitData = it->second;
+    if (listReposToInclude.find(iCounter) != listReposToInclude.end() && !GitData.listCommitData.empty())
+      MapReposToPush[iCounter] = GitData;
+  }
+
+  std::string sPathListFiles = sPath;
+  g_File.MakeDir(sPathListFiles);
+
+  for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
+  {
+    const CBasicGITData& RepoData = it->second;
+    const int& iRepoIndex = it->first;
+    std::string sRepoName = ((iRepoIndex < 10)?"0":"") + g_CharsetUtils.IntToStr(iRepoIndex) + "_" + RepoData.Owner + "_" + RepoData.Repo + "_" + RepoData.Branch;
+
+    g_File.MakeDir(sPathListFiles + DirSepChar + sRepoName);
+    int iNumOfCommit = 0;
+    for (std::list<CCommitData>::const_iterator itcommlist = RepoData.listCommitData.begin(); itcommlist != RepoData.listCommitData.end(); itcommlist++)
+    {
+      const CCommitData& CommitData = *itcommlist;
+      std::string sFilePath = sPathListFiles + DirSepChar + sRepoName + DirSepChar + CommitData.sCommitMessage + ".diff";
+
+      //write header
+      std::string sHeader = "Repo: " + sRepoName + "\n";
+      g_File.WriteFileFromStr(sFilePath, sHeader);
+
+      //write git log
+      std::string sGitCommand = "git log -n ";
+      sGitCommand += g_CharsetUtils.IntToStr(RepoData.listCommitData.size()+2);
+      sGitCommand += " --oneline";
+      RunGitCommandIntoFile(RepoData, sGitCommand, sFilePath, "GIT LOG");
+
+      //write short list of changed files
+      sGitCommand = "git diff --name-status HEAD~";
+      sGitCommand += g_CharsetUtils.IntToStr(iNumOfCommit+1);
+      sGitCommand += "..HEAD~" + g_CharsetUtils.IntToStr(iNumOfCommit);
+      RunGitCommandIntoFile(RepoData, sGitCommand, sFilePath, "LIST OF CHANGED FILES:");
+
+      //write git diff of changed files
+      sGitCommand = "git diff HEAD~";
+      sGitCommand += g_CharsetUtils.IntToStr(iNumOfCommit+1);
+      sGitCommand += "..HEAD~" + g_CharsetUtils.IntToStr(iNumOfCommit);
+      RunGitCommandIntoFile(RepoData, sGitCommand, sFilePath, "DIFF OF CHANGED FILES:");
+      iNumOfCommit++;
+    }
+  }
+}
+
+void CProjectHandler::GenerateCombinedDiffLists(std::string sPath, set< int > listReposToInclude)
+{
+  //Create a numeric repo list
+  unsigned int iCounter = 0;
+  std::map<unsigned int, CBasicGITData> MapReposToPush;
+  for (std::map<std::string, CBasicGITData>::iterator it = m_MapGitRepos.begin(); it != m_MapGitRepos.end(); it++)
+  {
+    iCounter++;
+    CBasicGITData GitData = it->second;
+    if (listReposToInclude.find(iCounter) != listReposToInclude.end() && !GitData.listCommitData.empty())
+      MapReposToPush[iCounter] = GitData;
+  }
+
+  std::string sPathListFiles = sPath;
+  g_File.MakeDir(sPathListFiles);
+
+
+  //write header
+  std::string sPathToCombinedFile = sPathListFiles + DirSepChar + "GIT Logs.diff";
+
+  std::string sHeader = "Combined GIT Logs of all repos:\n";
+  g_File.WriteFileFromStr(sPathToCombinedFile, sHeader);
+
+  for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
+  {
+    const CBasicGITData& RepoData = it->second;
+
+    int iNumOfCommit = 0;
+    for (std::list<CCommitData>::const_iterator itcommlist = RepoData.listCommitData.begin(); itcommlist != RepoData.listCommitData.end(); itcommlist++)
+    {
+      //write git log
+      std::string sGitCommand = "git log -n ";
+      sGitCommand += g_CharsetUtils.IntToStr(RepoData.listCommitData.size()+2);
+      sGitCommand += " --oneline";
+      RunGitCommandIntoFile(RepoData, sGitCommand, sPathToCombinedFile, "GIT LOG");
+
+      iNumOfCommit++;
+    }
+  }
+}
+
+
+void CProjectHandler::RunGitCommandIntoFile(const CBasicGITData& RepoData, std::string sGitCommand, std::string sFilePath, std::string sHeader)
+{
+  std::string sGitHubRootNoBranch = RepoData.sUPSLocalPath + RepoData.Owner + "/" + RepoData.Repo;
+  std::string sGitHubRoot = sGitHubRootNoBranch + "/" + RepoData.Branch;
+  std::string sCommand;
+
+  if (!g_File.FileExist(sGitHubRoot +  "/.git/config"))
+    CLog::Log(logERROR, "Error while creatin diff lists. Directory is not a  GIT repo for Owner: %s, Repo: %s, Branch: %s\n", RepoData.Owner.c_str(), RepoData.Repo.c_str(), RepoData.Branch.c_str());
+
+  sCommand = "cd " + sGitHubRoot + ";";
+  sCommand += sGitCommand + " >> '" + sFilePath + "'";
+  std::string sFile = g_File.ReadFileToStr(sFilePath);
+  sFile += "\n\n------------------------------------------------------------------------";
+  sFile += "\n" + sHeader + "\n";
+  sFile += "Path: " + sGitHubRoot + "\n";
+  sFile += "Git command: " + sGitCommand + "\n\n";
+  g_File.WriteFileFromStr(sFilePath, sFile);
+
+  g_File.SytemCommand(sCommand);
+}
+
 
 bool CProjectHandler::ParseRepoList(const std::string& sStringToParse, std::set<int>& ListRepos)
 {
