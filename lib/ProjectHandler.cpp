@@ -149,12 +149,13 @@ void CProjectHandler::GITPushLOCGitRepos()
       if (bGitPush)
         listReposToIncludeInLists.insert(it->first);
 
-      CLog::Log(logPRINT, "%s%i|%s%s%s|%s%i /%s%i|%s|%s%s%s\n",
+      CLog::Log(logPRINT, "%s%i|%s%s%s|%s%i /%s%i|%s|%s|%s%s%s\n",
                 (it->first < 10)?" ":"", it->first,
                 bGitPush?KRED:KLGRAY, bGitPush?"*":" ", RESET,
                 (iLastPushAgeDays < 10)?" ":"", iLastPushAgeDays,
                 (GitData.iGitPushInterval < 10)?" ":"", GitData.iGitPushInterval,
                 (GitData.bForceGitPush||GitData.bSkipGitPush)?(GitData.bForceGitPush?"Force":" Skip"):"     ",
+                GitData.bHasBeenAnSRCFileChange?"SRC":"   ",
                 bRepoHasCommit?KMAG:KGRAY, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
     }
 
@@ -266,14 +267,14 @@ void CProjectHandler::GenerateDiffListsPerRepo(std::string sPath, std::set<int> 
   {
     const CBasicGITData& RepoData = it->second;
     const int& iRepoIndex = it->first;
-    std::string sRepoName = ((iRepoIndex < 10)?"0":"") + g_CharsetUtils.IntToStr(iRepoIndex) + "_" + RepoData.Owner + "_" + RepoData.Repo + "_" + RepoData.Branch;
+    std::string sRepoName = ((iRepoIndex < 10)?"0":"") + g_CharsetUtils.IntToStr(iRepoIndex) + "_" + RepoData.Owner + "_" + RepoData.Repo + "_" + RepoData.Branch + (RepoData.bHasBeenAnSRCFileChange?" (SRC)":"");
 
     g_File.MakeDir(sPathListFiles + DirSepChar + sRepoName);
     int iNumOfCommit = 0;
     for (std::list<CCommitData>::const_iterator itcommlist = RepoData.listCommitData.begin(); itcommlist != RepoData.listCommitData.end(); itcommlist++)
     {
       const CCommitData& CommitData = *itcommlist;
-      std::string sFilePath = sPathListFiles + DirSepChar + sRepoName + DirSepChar + CommitData.sCommitMessage + ".diff";
+      std::string sFilePath = sPathListFiles + DirSepChar + sRepoName + DirSepChar + CommitData.sCommitMessage + (RepoData.bHasBeenAnSRCFileChange?" (SRC)":"") + ".diff";
 
       //write header
       std::string sHeader = "Repo: " + sRepoName + "\n";
