@@ -44,13 +44,17 @@ struct CCommitData
   std::list<CResChangeData> listResWithChange;
 };
 
-struct CBasicGITData
+class CBasicGITData
 {
+public:
+  CBasicGITData();
+  ~CBasicGITData();
   std::string Owner, Repo, Branch;
   std::string sUPSLocalPath;
   size_t iGitPushInterval; //in days
   size_t bSkipGitPush, bForceGitPush;
   std::list<CCommitData> listCommitData;
+  bool bHasBeenAnSRCFileChange;
 };
 
 struct CGITData

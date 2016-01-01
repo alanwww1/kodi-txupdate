@@ -51,6 +51,14 @@ CResData::CResData()
 CResData::~CResData()
 {};
 
+CBasicGITData::CBasicGITData()
+{
+  bHasBeenAnSRCFileChange = false;
+};
+
+CBasicGITData::~CBasicGITData()
+{};
+
 CConfigHandler::CConfigHandler()
 {};
 

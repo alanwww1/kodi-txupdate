@@ -528,6 +528,7 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
     if (m_ResData.m_pMapGitRepos->find(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch) == m_ResData.m_pMapGitRepos->end())
       CLog::Log(logERROR, "CResourceHandler::WriteLOCPOFiles: internal error: gitdata does not exist in map.");
     m_ResData.m_pMapGitRepos->at(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch).listCommitData.push_front(CommitDataSRC);
+    m_ResData.m_pMapGitRepos->at(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch).bHasBeenAnSRCFileChange = true;
 
 //    std::string sRepoKey = CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch;
 
