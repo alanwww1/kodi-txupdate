@@ -453,7 +453,7 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
           ResChangeData.sGitCommitTextSRC = m_ResData.sGitCommitTextSRC;
           ResChangeData.sLangPath = g_CharsetUtils.ReplaceLanginURL(m_ResData.LOC.LPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), sLCode);
           ResChangeData.sLOCGITDir = sLOCGITDir;
-          CommitData.listResWithSRCChange.push_front(ResChangeData); // check if the SRC file differs from the one to be overwritten and note it
+          CommitDataSRC.listResWithSRCChange.push_front(ResChangeData); // check if the SRC file differs from the one to be overwritten and note it
         }
       }
       else
@@ -497,9 +497,8 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
 
   //GIT commit changes to SRC language for all resources which changed
   std::string sCommand, sPOPathSRC, sGitDir;
-  CCommitData CurrCommData;
 
-  bool bHadChangedSRCChange = (!m_ResData.bIsLangAddon && !CommitData.listResWithSRCChange.empty());
+  bool bHadChangedSRCChange = (!m_ResData.bIsLangAddon && !CommitDataSRC.listResWithSRCChange.empty());
   bool bHadChangedSRCChangeInLangAddon = (m_ResData.bIsLangAddon && !CommitDataSRC.listResWithSRCChange.empty());
 
   if (!m_ResData.sGitCommitText.empty() && (bHadChangedSRCChange || bHadChangedSRCChangeInLangAddon))
@@ -513,14 +512,12 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
       sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPathSRC, g_CharsetUtils.GetLFormFromPath(m_ResData.LOCSRC.LPath), m_ResData.sSRCLCode);
       sGitDir = sLOCSRCGITDir;
       CurrGITData = m_ResData.LOCSRC;
-      CurrCommData = CommitDataSRC;
     }
     else
     {
       sPOPathSRC = g_CharsetUtils.ReplaceLanginURL(sLangPath, g_CharsetUtils.GetLFormFromPath(m_ResData.LOC.LPath), m_ResData.sSRCLCode);
       sGitDir = sLOCGITDir;
       CurrGITData = m_ResData.LOC;
-      CurrCommData = CommitData;
     }
 
     //Fill in the commitdata for later use at git push time
@@ -533,7 +530,7 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
 //    std::string sRepoKey = CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch;
 
 
-    for (std::list<CResChangeData>::iterator itChange = CurrCommData.listResWithSRCChange.begin(); itChange != CurrCommData.listResWithSRCChange.end(); itChange++)
+    for (std::list<CResChangeData>::iterator itChange = CommitDataSRC.listResWithSRCChange.begin(); itChange != CommitDataSRC.listResWithSRCChange.end(); itChange++)
     {
       sCommand = "cd " + itChange->sLOCGITDir + ";";
       sCommand += "git add " + itChange->sLangPath;
@@ -545,6 +542,8 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
       CLog::Log(logPRINT, "%sGIT commit SRC file with the following command:%s\n%s%s%s\n",KMAG, RESET, KORNG, sCommand.c_str(), RESET);
       g_File.SytemCommand(sCommand);
     }
+
+    CommitDataSRC.listResWithChange.clear(); CommitDataSRC.listResWithSRCChange.clear(); CommitDataSRC.sCommitMessage.clear();
   }
 
 
@@ -568,12 +567,7 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
       CLog::Log(logERROR, "CResourceHandler::WriteLOCPOFiles: internal error: gitdata does not exist in map.");
 
     m_ResData.m_pMapGitRepos->at(CurrGITData.Owner + "/" + CurrGITData.Repo + "/" + CurrGITData.Branch).listCommitData.push_front(CommitData);
-  }
 
-  if (!m_ResData.sGitCommitText.empty())
-  {
-    //Clear data of changes for next upcoming commit
-    CommitDataSRC.listResWithChange.clear(); CommitDataSRC.listResWithSRCChange.clear(); CommitDataSRC.sCommitMessage.clear();
     CommitData.listResWithChange.clear(); CommitData.listResWithSRCChange.clear(); CommitData.sCommitMessage.clear();
   }
 
