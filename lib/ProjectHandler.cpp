@@ -119,7 +119,7 @@ void CProjectHandler::GITPushLOCGitRepos()
     if (!bFirstRun)
     {
       //Jump back to the start of list with the cursor
-      int iLines = MapReposToPush.size() +2;
+      int iLines = MapReposToPush.size() +4;
       std::string sNumOfLines = g_CharsetUtils.IntToStr(iLines);
       std::string sEscapeCode = "\033[" +sNumOfLines + "A";
       CLog::Log(logPRINT, "%s", sEscapeCode.c_str());
@@ -159,18 +159,14 @@ void CProjectHandler::GITPushLOCGitRepos()
                 bRepoHasCommit?KMAG:KGRAY, (GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch).c_str(), RESET);
     }
 
-    //Clean cache Directory
-    std::string sCachePath = g_File.GetHomePath();
-    sCachePath += "/.cache/kodi-txupdate";
-    g_File.DeleteDirectory(sCachePath);
-    g_File.MakeDir(sCachePath);
-
-    GenerateDiffListsPerRepo(sCachePath + DirSepChar + "1_Separate diff Lists", listReposToIncludeInLists);
-    GenerateCombinedDiffLists(sCachePath + DirSepChar + "2_Combined diff Lists", listReposToIncludeInLists);
-    GenerateCombinedDiffListsSRC(sCachePath + DirSepChar + "3_Combined diff Lists (SRC)", listReposToIncludeInLists);
-
     CLog::Log(logPRINT, "\n\n\033[2A");
-    CLog::Log(logPRINT, "\n%sChoose option:%s %s0%s:Continue with pushing to Github %s1%s:Check diff lists by repo %s2%s:Option 2 %ss%s:Skip. Your Choice:                           \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
+    CLog::Log(logPRINT, "\n\n\033[2A");
+    CLog::Log(logPRINT, "\n\n\033[2A");
+    CLog::Log(logPRINT, "\n\n\033[2A");
+
+    CLog::Log(logPRINT, "\n%sChoose option:%s\n", KRED, RESET);
+    CLog::Log(logPRINT, "%sfp%s: force push (eg. fp 3-6,8), %ssp%s: skip push (eg. sp3,8-9)\n", KMAG, RESET, KMAG, RESET);
+    CLog::Log(logPRINT, "%spush%s:Continue with pushing to Github %sdf%s:Check diff lists by repo (you can also use filter here) %ss%s:Skip. Your Choice:                           \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", KMAG, RESET, KMAG, RESET, KRED, RESET);
     cin >> strInput;
 
     if (strInput.find("fp") == 0 || strInput.find("sp") == 0)
@@ -182,7 +178,7 @@ void CProjectHandler::GITPushLOCGitRepos()
       std::set<int> ListRepos;
 
       if (!ParseRepoList(strInput, ListRepos))
-        CLog::Log(logERROR, "Unable to parse command, with wron syntax: %s", strInput.c_str());
+        CLog::Log(logERROR, "Unable to parse command, with wrong syntax: %s", strInput.c_str());
 
       for (std::set<int>::iterator it = ListRepos.begin(); it!= ListRepos.end(); it++)
       {
@@ -194,24 +190,36 @@ void CProjectHandler::GITPushLOCGitRepos()
       }
     }
 
-    else if (strInput == "1")
+    else if (strInput.find("df") == 0)
     {
+      std::set<int> ListRepos = listReposToIncludeInLists;
+
+      if (strInput != "df")
+      {
+        ListRepos.clear();
+        if (!ParseRepoList(strInput, ListRepos))
+          CLog::Log(logERROR, "Unable to parse command, with wrong syntax: %s", strInput.c_str());
+      }
+
+      //Clean cache Directory
       std::string sCachePath = g_File.GetHomePath();
       sCachePath += "/.cache/kodi-txupdate";
+      g_File.DeleteDirectory(sCachePath);
+      g_File.MakeDir(sCachePath);
+
+      GenerateDiffListsPerRepo(sCachePath + DirSepChar + "1_Separate diff Lists", ListRepos);
+      GenerateCombinedDiffLists(sCachePath + DirSepChar + "2_Combined diff Lists", ListRepos);
+      GenerateCombinedDiffListsSRC(sCachePath + DirSepChar + "3_Combined diff Lists (SRC)", ListRepos);
       std::string sCommand = "vi " + sCachePath;
       g_File.SytemCommand(sCommand);
     }
 
-    /*
-    else if (charInput == '2')
-    {
-    } */
     if (strInput == "s")
       return;
 
     bFirstRun = false;
   }
-  while (strInput != "0" && strInput != "dr");
+  while (strInput != "push" && strInput != "dr");
 
   bool bDryRun = strInput == "dr";
 
@@ -411,16 +419,16 @@ void CProjectHandler::GenerateCombinedDiffListsSRC(std::string sPath, set< int >
         sGitCommand += g_CharsetUtils.IntToStr(iNumOfCommit+1);
         sGitCommand += "..HEAD~" + g_CharsetUtils.IntToStr(iNumOfCommit);
 
-        RunGitCommandIntoFile(RepoData, sGitCommand, sPathToCombinedFile, "GIT LOG");
+        RunGitCommandIntoFile(RepoData, sGitCommand, sPathToCombinedFile, "GIT LOG (SRC)");
       }
       iNumOfCommit++;
     }
   }
 
   //write header
-  sPathToCombinedFile = sPathListFiles + DirSepChar + "Changed Files.diff";
+  sPathToCombinedFile = sPathListFiles + DirSepChar + "Changed Files (SRC).diff";
 
-  sHeader = "Combined list of changed files for all repos:\n";
+  sHeader = "Combined list of changed SRC files for all repos:\n";
   g_File.WriteFileFromStr(sPathToCombinedFile, sHeader);
 
   for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
@@ -440,16 +448,16 @@ void CProjectHandler::GenerateCombinedDiffListsSRC(std::string sPath, set< int >
         std::string sGitCommand = "git diff --name-status HEAD~";
         sGitCommand += g_CharsetUtils.IntToStr(iNumOfCommit+1);
         sGitCommand += "..HEAD~" + g_CharsetUtils.IntToStr(iNumOfCommit);
-        RunGitCommandIntoFile(RepoData, sGitCommand, sPathToCombinedFile, "LIST OF CHANGED FILES:");
+        RunGitCommandIntoFile(RepoData, sGitCommand, sPathToCombinedFile, "LIST OF CHANGED SRC FILES:");
       }
       iNumOfCommit++;
     }
   }
 
   //write header
-  sPathToCombinedFile = sPathListFiles + DirSepChar + "Diffs of changed files.diff";
+  sPathToCombinedFile = sPathListFiles + DirSepChar + "Diffs of changed files (SRC).diff";
 
-  sHeader = "Combined diffs of all changed files for all repos:\n";
+  sHeader = "Combined diffs of all changed SRC files for all repos:\n";
   g_File.WriteFileFromStr(sPathToCombinedFile, sHeader);
 
   for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
@@ -468,7 +476,7 @@ void CProjectHandler::GenerateCombinedDiffListsSRC(std::string sPath, set< int >
         std::string sGitCommand = "git diff HEAD~";
         sGitCommand += g_CharsetUtils.IntToStr(iNumOfCommit+1);
         sGitCommand += "..HEAD~" + g_CharsetUtils.IntToStr(iNumOfCommit);
-        RunGitCommandIntoFile(RepoData, sGitCommand, sPathToCombinedFile, "DIFF OF CHANGED FILES:");
+        RunGitCommandIntoFile(RepoData, sGitCommand, sPathToCombinedFile, "DIFF OF CHANGED SRC FILES:");
       }
       iNumOfCommit++;
     }
