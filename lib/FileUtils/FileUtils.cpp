@@ -398,6 +398,9 @@ bool CFile::isDir(string dir)
 
 void CFile::CleanDir(string baseDir, bool recursive, const std::set<std::string>& mapValidCacheFiles)
 {
+  CLog::Log(logPRINT, "\033[s\033[K%s\033[u", baseDir.c_str());
+//  CLog::Log(logPRINT, "\033[1A");
+
   DIR *dp;
   struct dirent *dirp;
 
@@ -416,7 +419,8 @@ void CFile::CleanDir(string baseDir, bool recursive, const std::set<std::string>
             CleanDir(sDir, true, mapValidCacheFiles);
           else
           {
-            CLog::Log(logPRINT, "\n%s", sDir.c_str());
+//            CLog::Log(logPRINT, "\n%s", sDir.c_str());
+            m_sCleandDirOutput += sDir + "\n";
             DeleteDirectory(sDir);
           }
         }
@@ -425,7 +429,8 @@ void CFile::CleanDir(string baseDir, bool recursive, const std::set<std::string>
           std::string sFileName = baseDir + dirp->d_name;
           if (!IsValidPath(mapValidCacheFiles, sFileName))
           {
-            CLog::Log(logPRINT, "\n%s", sFileName.c_str());
+//            CLog::Log(logPRINT, "\n%s", sFileName.c_str());
+            m_sCleandDirOutput += sFileName + "\n";
             DeleteFile(sFileName);
           }
         }

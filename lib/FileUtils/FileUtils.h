@@ -64,6 +64,9 @@ public:
   void SytemCommand (const std::string &strCommand);
   bool isDir(std::string dir);
   void CleanDir(std::string baseDir, bool recursive, const std::set<std::string>& mapValidCacheFiles);
+  void ClearCleandDirOutput() {m_sCleandDirOutput.clear();}
+  std::string GetCleanDirOutput() {return m_sCleandDirOutput;}
+  std::string m_sCleandDirOutput;
   std::string getcwd_string();
   bool IsValidPath(const std::set<std::string>& mapValidCacheFiles, const std::string& sPath);
 };

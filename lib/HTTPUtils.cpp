@@ -1003,4 +1003,9 @@ std::string CHTTPHandler::GetGithubCloneRootPath(const std::string& sUPSLocalPat
 void CHTTPHandler::CleanCacheFiles()
 {
   g_File.CleanDir(m_strCacheDir, true, m_mapValidCacheFiles);
+  CLog::Log(logPRINT, "\033[s\033[K");
+  if (g_File.GetCleanDirOutput().empty())
+    CLog::Log(logPRINT, "No unecesarry files found.\n");
+  else
+    CLog::Log(logPRINT, "Cleaned files:\n%s", g_File.GetCleanDirOutput().c_str());
 }
