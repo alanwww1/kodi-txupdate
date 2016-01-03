@@ -483,6 +483,27 @@ void CProjectHandler::GenerateCombinedDiffListsSRC(std::string sPath, set< int >
   }
 }
 
+void CProjectHandler::CleanGitRepos()
+{
+  std::map<unsigned int, CBasicGITData> MapReposToPush;
+  std::set<std::string> listValidGitRepoPaths;
+  for (std::map<std::string, CBasicGITData>::iterator it = m_MapGitRepos.begin(); it != m_MapGitRepos.end(); it++)
+  {
+    CBasicGITData GitData = it->second;
+    std::string sGitHubRootNoBranch = GitData.sUPSLocalPath + GitData.Owner + "/" + GitData.Repo;
+    std::string sGitHubRoot = sGitHubRootNoBranch + "/" + GitData.Branch + "/";
+    if (g_File.FileExist(sGitHubRoot +  ".git/config"))
+      listValidGitRepoPaths.insert(sGitHubRoot);
+  }
+  g_File.ClearCleandDirOutput();
+  g_File.CleanGitRepoDir(m_MapGitRepos.begin()->second.sUPSLocalPath, true, listValidGitRepoPaths);
+
+  CLog::Log(logPRINT, "\033[s\033[K");
+  if (g_File.GetCleanDirOutput().empty())
+    CLog::Log(logPRINT, "No unecesarry files found.\n");
+  else
+    CLog::Log(logPRINT, "Cleaned files:\n%s", g_File.GetCleanDirOutput().c_str());
+}
 
 void CProjectHandler::RunGitCommandIntoFile(const CBasicGITData& RepoData, std::string sGitCommand, std::string sFilePath, std::string sHeader)
 {
@@ -702,6 +723,44 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   }
 
   return;
+}
+
+void CProjectHandler::GitCommitTranslationRepo(std::string sWorkingDir)
+{
+    char charInput;
+
+    std::string sCachePath = g_File.GetHomePath();
+    sCachePath += "/.cache/kodi-txupdate";
+    std::string sDiffPath = sCachePath + "/MRGDiff.diff";
+
+    CLog::Log(logPRINT, "\n");
+    do
+    {
+      CLog::Log(logPRINT, "%sChoose option:%s %s0%s:Continue with git Commit %s1%s:GIT diff MRG files %ss%s:Skip. Your Choice:   \b\b", KRED, RESET, KMAG, RESET, KMAG, RESET, KRED, RESET);
+      cin >> charInput;
+
+      if (charInput == '1')
+      { 
+        std::string sCommand = "cd " + sWorkingDir + ";";
+        sCommand += "git diff " + m_mapResData.begin()->second.sMRGLFilesDir + " > " + sDiffPath + " ;";
+        sCommand += "vi " + sDiffPath;
+
+        g_File.SytemCommand(sCommand);
+      }
+      else if (charInput == 's')
+        return;
+
+      CLog::Log(logPRINT, "\e[A");
+    }
+    while (charInput != '0');
+
+    std::string sCommand = "cd " + sWorkingDir + ";";
+    sCommand += "git add -A;";
+    sCommand += "git commit -am \"[" + m_mapResData.begin()->second.UPD.ProjectName + "] sync\";";
+    sCommand += "git push origin master";
+
+    CLog::Log(logPRINT, "%s%s%s\n", KORNG, sCommand.c_str(), RESET);
+    g_File.SytemCommand(sCommand);
 }
 
 void CProjectHandler::MigrateTranslators()

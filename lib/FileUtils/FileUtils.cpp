@@ -419,7 +419,6 @@ void CFile::CleanDir(string baseDir, bool recursive, const std::set<std::string>
             CleanDir(sDir, true, mapValidCacheFiles);
           else
           {
-//            CLog::Log(logPRINT, "\n%s", sDir.c_str());
             m_sCleandDirOutput += sDir + "\n";
             DeleteDirectory(sDir);
           }
@@ -429,7 +428,6 @@ void CFile::CleanDir(string baseDir, bool recursive, const std::set<std::string>
           std::string sFileName = baseDir + dirp->d_name;
           if (!IsValidPath(mapValidCacheFiles, sFileName))
           {
-//            CLog::Log(logPRINT, "\n%s", sFileName.c_str());
             m_sCleandDirOutput += sFileName + "\n";
             DeleteFile(sFileName);
           }
@@ -439,6 +437,74 @@ void CFile::CleanDir(string baseDir, bool recursive, const std::set<std::string>
     closedir(dp);
   }
 }
+
+void CFile::CleanGitRepoDir(string baseDir, bool recursive, const std::set<std::string>& listValidGitRepoPaths)
+{
+  CLog::Log(logPRINT, "\033[s\033[K%s\033[u", baseDir.c_str());
+
+  DIR *dp;
+  struct dirent *dirp;
+
+  if ((dp = opendir(baseDir.c_str())) == NULL)
+    CLog::Log(logERROR, "Could not read cache directory: %s", baseDir.c_str());
+  else
+  {
+    while ((dirp = readdir(dp)) != NULL)
+    {
+      if (dirp->d_name != string(".") && dirp->d_name != string(".."))
+      {
+        if (isDir(baseDir + dirp->d_name) == true && recursive == true)
+        {
+          std::string sDir = baseDir + dirp->d_name + "/";
+          bool bHasMatch, bHasExactMatch;
+          IsValidGitPath(listValidGitRepoPaths, sDir, bHasMatch, bHasExactMatch);
+          if (bHasMatch && !bHasExactMatch)
+            CleanGitRepoDir(sDir, true, listValidGitRepoPaths);
+          else if (!bHasMatch)
+          {
+            m_sCleandDirOutput += sDir + "\n";
+            DeleteDirectory(sDir);
+          }
+        }
+        else
+        {
+          std::string sFileName = baseDir + dirp->d_name;
+          bool bHasMatch, bHasExactMatch;
+          IsValidGitPath(listValidGitRepoPaths, sFileName, bHasMatch, bHasExactMatch);
+
+          if (!bHasMatch)
+          {
+            m_sCleandDirOutput += sFileName + "\n";
+            DeleteFile(sFileName);
+          }
+        }
+      }
+    }
+    closedir(dp);
+  }
+}
+
+void CFile::IsValidGitPath(const std::set<std::string>& listValidGitRepoPaths, const std::string& sPath, bool &bHasMatch, bool &bHasExactMatch)
+{
+  bHasMatch = false;
+  bHasExactMatch = false;
+
+  for (std::set<std::string>::iterator it = listValidGitRepoPaths.begin(); it != listValidGitRepoPaths.end(); it++)
+  {
+    if (*it == sPath)
+    {
+      bHasExactMatch = true;
+      bHasMatch = true;
+      return;
+    }
+
+    if (it->find(sPath) == 0)
+      bHasMatch = true;
+  }
+  return;
+}
+
+
 
 std::string CFile::getcwd_string()
 {

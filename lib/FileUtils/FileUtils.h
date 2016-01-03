@@ -67,6 +67,9 @@ public:
   void ClearCleandDirOutput() {m_sCleandDirOutput.clear();}
   std::string GetCleanDirOutput() {return m_sCleandDirOutput;}
   std::string m_sCleandDirOutput;
+  void CleanGitRepoDir(std::string baseDir, bool recursive, const std::set<std::string>& listValidGitRepoPaths);
+  void IsValidGitPath(const std::set<std::string>& listValidGitRepoPaths, const std::string& sPath, bool &bHasMatch, bool &bHasExactMatch);
+
   std::string getcwd_string();
   bool IsValidPath(const std::set<std::string>& mapValidCacheFiles, const std::string& sPath);
 };

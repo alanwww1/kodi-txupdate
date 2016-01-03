@@ -39,9 +39,11 @@ public:
   bool WriteResourcesToFile(std::string strProjRootDir);
   bool WriteResourcesToLOCGitRepos(std::string strProjRootDir);
   void GITPushLOCGitRepos();
+  void GitCommitTranslationRepo(std::string sWorkingDir);
   void UploadTXUpdateFiles(std::string strProjRootDir);
   void MigrateTranslators();
   void InitLCodeHandler();
+  void CleanGitRepos();
 
 protected:
   std::string GetResNameFromTXResName(std::string const &strTXResName);

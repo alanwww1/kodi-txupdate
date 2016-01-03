@@ -145,6 +145,13 @@ int main(int argc, char* argv[])
     CLog::Log(LogHEADLINE, "CLEANING CACHE FILE DIRECTORY FROM UNUSED FILES\n");
     g_HTTPHandler.CleanCacheFiles();
 
+    CLog::Log(LogHEADLINE, "CLEANING GIT REPOS FROM UNUSED REPO DIRECTORIES\n");
+    TXProject.CleanGitRepos();
+
+    CLog::Log(LogHEADLINE, "GIT COMMIT TO KODI TRANSLATION REPO\n");
+    TXProject.GitCommitTranslationRepo(WorkingDir);
+
+
     if (CLog::GetWarnCount() ==0)
       CLog::Log(LogHEADLINE, "PROCESS FINISHED SUCCESFULLY WITHOUT WARNINGS\n");
     else
