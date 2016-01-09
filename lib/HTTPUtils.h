@@ -48,6 +48,34 @@ struct CGithubURLData
 
 const std::string sUSERAGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1870.2 Safari/537.36";
 const std::string sCACHEDATADIRNAME = ".0data";
+const std::string sPasswordsXML = ""
+"<?xml version=\"1.0\" ?>\n"
+"<websites>\n"
+"  <website prefix=\"https://www.transifex.com/api/2/project/\">\n"
+"    <login>TeamKODI</login>\n"
+"    <password>$PWTR</password>\n"
+"  </website>\n"
+"  <website prefix=\"https://api.github.com/\">\n"
+"    <login>txtranslation</login>\n"
+"    <password>$PWGH</password>\n"
+"  </website>\n"
+"  <website prefix=\"https://raw.github.com/\">\n"
+"    <login>txtranslation</login>\n"
+"    <password>$PWGH</password>\n"
+"  </website>\n"
+"  <website prefix=\"https://raw2.github.com/\">\n"
+"    <login>txtranslation</login>\n"
+"    <password>$PWGH</password>\n"
+"  </website>\n"
+"  <website prefix=\"https://raw.githubusercontent.com/\">\n"
+"    <login>txtranslation</login>\n"
+"    <password>$PWGH</password>\n"
+"  </website>\n"
+"  <website prefix=\"https://raw2.githubusercontent.com/\">\n"
+"    <login>txtranslation</login>\n"
+"    <password>$PWGH</password>\n"
+"  </website>\n"
+"</websites>\n";
 
 class CHTTPHandler
 {

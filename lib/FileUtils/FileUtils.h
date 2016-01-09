@@ -27,6 +27,7 @@
 #include <string>
 #include <ctime>
 #include <set>
+#include <map>
 
 #include <unistd.h>
 #define GetCurrentDir getcwd
@@ -69,6 +70,7 @@ public:
   std::string m_sCleandDirOutput;
   void CleanGitRepoDir(std::string baseDir, bool recursive, const std::set<std::string>& listValidGitRepoPaths);
   void IsValidGitPath(const std::set<std::string>& listValidGitRepoPaths, const std::string& sPath, bool &bHasMatch, bool &bHasExactMatch);
+  void ReadDirStructure(std::string baseDir, std::map<int, std::string>& listOfDirs);
 
   std::string getcwd_string();
   bool IsValidPath(const std::set<std::string>& mapValidCacheFiles, const std::string& sPath);

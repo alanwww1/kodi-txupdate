@@ -438,6 +438,31 @@ void CFile::CleanDir(string baseDir, bool recursive, const std::set<std::string>
   }
 }
 
+void CFile::ReadDirStructure(string baseDir, std::map<int, std::string>& listOfDirs)
+{
+  DIR *dp;
+  struct dirent *dirp;
+
+  if ((dp = opendir(baseDir.c_str())) == NULL)
+    CLog::Log(logERROR, "Could not read directory: %s", baseDir.c_str());
+
+  int iCounter = 1;
+  while ((dirp = readdir(dp)) != NULL)
+  {
+    if (dirp->d_name != string(".") && dirp->d_name != string(".."))
+    {
+      if (isDir(baseDir + dirp->d_name) == true)
+      {
+        std::string sDir = baseDir + dirp->d_name + "/";
+        listOfDirs[iCounter] = sDir;
+        iCounter++;
+      }
+    }
+  }
+
+    closedir(dp);
+}
+
 void CFile::CleanGitRepoDir(string baseDir, bool recursive, const std::set<std::string>& listValidGitRepoPaths)
 {
   CLog::Log(logPRINT, "\033[s\033[K%s\033[u", baseDir.c_str());
