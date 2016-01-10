@@ -30,7 +30,7 @@
 #include <curl/curl.h>
 #include "TinyXML/tinyxml.h"
 #include "POHandler.h"
-#include "FileUtils/FileUtils.h"
+#include "FileUtils.h"
 
 struct CLoginData
 {

@@ -20,7 +20,7 @@
  */
 
 #include "Log.h"
-#include "FileUtils/FileUtils.h"
+#include "FileUtils.h"
 
 static int m_numWarnings;
 

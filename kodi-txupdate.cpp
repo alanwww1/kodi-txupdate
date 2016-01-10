@@ -26,7 +26,7 @@
 #include "src/Langcodes.h"
 #include "jsoncpp/json/json.h"
 #include "src/Log.h"
-#include "src/FileUtils/FileUtils.h"
+#include "src/FileUtils.h"
 #include <iostream>
 #include "src/CharsetUtils.h"
 

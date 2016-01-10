@@ -27,7 +27,7 @@
 #include "CharsetUtils.h"
 #include "Log.h"
 #include "Langcodes.h"
-#include "FileUtils/FileUtils.h"
+#include "FileUtils.h"
 
 CPOEntry::CPOEntry()
 {

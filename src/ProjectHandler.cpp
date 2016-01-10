@@ -27,7 +27,7 @@
 #include "ConfigHandler.h"
 #include "Log.h"
 #include "CharsetUtils.h"
-#include "FileUtils/FileUtils.h"
+#include "FileUtils.h"
 #include "Langcodes.h"
 #include <iostream>
 

@@ -26,7 +26,7 @@
 #include <sstream>
 #include <algorithm>
 #include "Langcodes.h"
-#include "FileUtils/FileUtils.h"
+#include "FileUtils.h"
 
 CCharsetUtils g_CharsetUtils;
 

@@ -27,7 +27,7 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "../Log.h"
+#include "Log.h"
 #include <ftw.h>
 #include <unistd.h>
 #include <stdlib.h>

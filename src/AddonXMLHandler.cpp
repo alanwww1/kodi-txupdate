@@ -26,7 +26,7 @@
 #include <algorithm>
 #include "HTTPUtils.h"
 #include "ConfigHandler.h"
-#include "FileUtils/FileUtils.h"
+#include "FileUtils.h"
 #include "CharsetUtils.h"
 #include "Log.h"
 #include "Langcodes.h"

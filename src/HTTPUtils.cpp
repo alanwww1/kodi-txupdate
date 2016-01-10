@@ -22,7 +22,7 @@
 #include "Log.h"
 #include "HTTPUtils.h"
 #include <curl/easy.h>
-#include "FileUtils/FileUtils.h"
+#include "FileUtils.h"
 #include <cctype>
 #include "Fileversioning.h"
 #include "jsoncpp/json/json.h"

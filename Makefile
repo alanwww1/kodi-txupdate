@@ -32,7 +32,7 @@ SRCS := src/TinyXML/tinyxml.cpp src/TinyXML/tinyxmlparser.cpp src/TinyXML/tinyst
 src/HTTPUtils.cpp \
 src/Langcodes.cpp \
 src/CharsetUtils.cpp \
-src/FileUtils/FileUtils.cpp \
+src/FileUtils.cpp \
 src/Fileversioning.cpp \
 src/Log.cpp \
 src/POHandler.cpp \
