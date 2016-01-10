@@ -50,8 +50,12 @@ int main(int argc, char* argv[])
   CLog::Log(logPRINT, "\nKODI-TXUPDATE v%s by Team Kodi\n", VERSION.c_str());
 
   bool bNullArgMode = false;
+  std::string sArg1;
 
-  if (argc == 1)
+  if (argc ==2)
+    sArg1 = argv[1];
+
+  if (argc == 1 || (argc ==2 && sArg1 == "-c"))
     bNullArgMode = true;
 
   setbuf(stdout, NULL);
@@ -122,6 +126,9 @@ int main(int argc, char* argv[])
   }
   else
   {
+    if (sArg1 == "-c")
+      bForceUseCache = true;
+
     std::string sPathToDefaultDir = sHomePath + "/.config/kodi-txupdate/default-dir.conf";
     std::string sDefaultDir;
 
