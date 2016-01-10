@@ -72,6 +72,7 @@ Fileversioning.o: Fileversioning.h HTTPUtils.h HTTPUtils.cpp
 AddonXMLHandler.cpp: AddonXMLHandler.h
 
 install:
-	install -m 755 kodi-txupdate /usr/local/bin/
+	mkdir -p ~/bin
+	install -m 755 kodi-txupdate ~/bin/
 uninstall:
-	rm -rf /usr/local/bin/kodi-txupdate
+	rm -rf ~/bin/kodi-txupdate
