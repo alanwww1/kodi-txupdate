@@ -21,14 +21,14 @@
 
 #include <string>
 #include <stdio.h>
-#include "lib/ProjectHandler.h"
-#include "lib/HTTPUtils.h"
-#include "lib/Langcodes.h"
+#include "src/ProjectHandler.h"
+#include "src/HTTPUtils.h"
+#include "src/Langcodes.h"
 #include "jsoncpp/json/json.h"
-#include "lib/Log.h"
-#include "lib/FileUtils/FileUtils.h"
+#include "src/Log.h"
+#include "src/FileUtils/FileUtils.h"
 #include <iostream>
-#include "lib/CharsetUtils/CharsetUtils.h"
+#include "src/CharsetUtils/CharsetUtils.h"
 
 using namespace std;
 

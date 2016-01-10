@@ -28,18 +28,18 @@ OUTPUT := kodi-txupdate
 
 all: ${OUTPUT}
 
-SRCS := lib/TinyXML/tinyxml.cpp lib/TinyXML/tinyxmlparser.cpp lib/TinyXML/tinystr.cpp lib/TinyXML/tinyxmlerror.cpp \
-lib/HTTPUtils.cpp \
-lib/Langcodes.cpp \
-lib/CharsetUtils/CharsetUtils.cpp \
-lib/FileUtils/FileUtils.cpp \
-lib/Fileversioning.cpp \
-lib/Log.cpp \
-lib/POHandler.cpp \
-lib/ResourceHandler.cpp \
-lib/ProjectHandler.cpp \
-lib/ConfigHandler.cpp \
-lib/AddonXMLHandler.cpp \
+SRCS := src/TinyXML/tinyxml.cpp src/TinyXML/tinyxmlparser.cpp src/TinyXML/tinystr.cpp src/TinyXML/tinyxmlerror.cpp \
+src/HTTPUtils.cpp \
+src/Langcodes.cpp \
+src/CharsetUtils/CharsetUtils.cpp \
+src/FileUtils/FileUtils.cpp \
+src/Fileversioning.cpp \
+src/Log.cpp \
+src/POHandler.cpp \
+src/ResourceHandler.cpp \
+src/ProjectHandler.cpp \
+src/ConfigHandler.cpp \
+src/AddonXMLHandler.cpp \
 $(OUTPUT)
 
 OBJS := $(addsuffix .o,$(basename ${SRCS}))
