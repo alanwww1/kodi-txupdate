@@ -165,7 +165,7 @@ void CProjectHandler::GITPushLOCGitRepos()
     CLog::Log(logPRINT, "\n\n\033[2A");
 
     CLog::Log(logPRINT, "\n%sChoose option:%s\n", KRED, RESET);
-    CLog::Log(logPRINT, "%sfp%s: force push (eg. fp 3-6,8), %ssp%s: skip push (eg. sp3,8-9)\n", KMAG, RESET, KMAG, RESET);
+    CLog::Log(logPRINT, "%sfp%s: force push (eg. fp 3-6,8), %ssp%s: skip push (eg. sp3,8-9), %sdr%s: dry run push\n", KMAG, RESET, KMAG, RESET, KMAG, RESET);
     CLog::Log(logPRINT, "%spush%s:Continue with pushing to Github %sdf%s:Check diff lists by repo (you can also use filter here) %ss%s:Skip. Your Choice:                           \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", KMAG, RESET, KMAG, RESET, KRED, RESET);
     cin >> strInput;
 
