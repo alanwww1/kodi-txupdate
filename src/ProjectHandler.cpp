@@ -227,10 +227,16 @@ void CProjectHandler::GITPushLOCGitRepos()
   for (std::map<unsigned int, CBasicGITData>::iterator it = MapReposToPush.begin(); it != MapReposToPush.end(); it++)
   {
     CBasicGITData GitData = it->second;
+
+    std::list<CCommitData>& listCommitData = GitData.listCommitData;
+    size_t iNumOfCommits = listCommitData.size();
+    bool bRepoHasCommit = iNumOfCommits != 0;
+
     size_t iLastPushAge = g_HTTPHandler.GetLastGitPushAge(GitData.Owner, GitData.Repo, GitData.Branch);
     bool bGitPush = ((GitData.iGitPushInterval * 24 * 60 * 60) < iLastPushAge);
     bGitPush = bGitPush||GitData.bForceGitPush;
     bGitPush = bGitPush&&!GitData.bSkipGitPush;
+    bGitPush = bGitPush && bRepoHasCommit;
 
     if (bGitPush)
     {
