@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <list>
 #include <sstream>
-#include "CharsetUtils/CharsetUtils.h"
+#include "CharsetUtils.h"
 #include "Log.h"
 #include "Langcodes.h"
 #include "FileUtils/FileUtils.h"

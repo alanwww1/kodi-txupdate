@@ -27,7 +27,7 @@
 #include "Fileversioning.h"
 #include "jsoncpp/json/json.h"
 #include "Langcodes.h"
-#include "CharsetUtils/CharsetUtils.h"
+#include "CharsetUtils.h"
 
 
 CHTTPHandler g_HTTPHandler;

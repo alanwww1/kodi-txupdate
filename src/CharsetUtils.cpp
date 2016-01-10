@@ -22,11 +22,11 @@
 #include <string>
 #include "CharsetUtils.h"
 #include <errno.h>
-#include "../Log.h"
+#include "Log.h"
 #include <sstream>
 #include <algorithm>
-#include "../Langcodes.h"
-#include "../FileUtils/FileUtils.h"
+#include "Langcodes.h"
+#include "FileUtils/FileUtils.h"
 
 CCharsetUtils g_CharsetUtils;
 

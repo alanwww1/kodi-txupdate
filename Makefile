@@ -31,7 +31,7 @@ all: ${OUTPUT}
 SRCS := src/TinyXML/tinyxml.cpp src/TinyXML/tinyxmlparser.cpp src/TinyXML/tinystr.cpp src/TinyXML/tinyxmlerror.cpp \
 src/HTTPUtils.cpp \
 src/Langcodes.cpp \
-src/CharsetUtils/CharsetUtils.cpp \
+src/CharsetUtils.cpp \
 src/FileUtils/FileUtils.cpp \
 src/Fileversioning.cpp \
 src/Log.cpp \

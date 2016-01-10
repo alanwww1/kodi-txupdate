@@ -27,7 +27,7 @@
 #include "Fileversioning.h"
 #include "jsoncpp/json/json.h"
 #include "Log.h"
-#include "CharsetUtils/CharsetUtils.h"
+#include "CharsetUtils.h"
 #include "FileUtils/FileUtils.h"
 
 using namespace std;

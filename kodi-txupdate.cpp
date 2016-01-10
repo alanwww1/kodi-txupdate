@@ -28,7 +28,7 @@
 #include "src/Log.h"
 #include "src/FileUtils/FileUtils.h"
 #include <iostream>
-#include "src/CharsetUtils/CharsetUtils.h"
+#include "src/CharsetUtils.h"
 
 using namespace std;
 

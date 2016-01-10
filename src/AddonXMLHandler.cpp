@@ -27,7 +27,7 @@
 #include "HTTPUtils.h"
 #include "ConfigHandler.h"
 #include "FileUtils/FileUtils.h"
-#include "CharsetUtils/CharsetUtils.h"
+#include "CharsetUtils.h"
 #include "Log.h"
 #include "Langcodes.h"
 #include "Fileversioning.h"
