@@ -32,28 +32,28 @@ These locations are defined as the following:
 
 **General internal variables**
 
-* **ChgLogFormat**
-* **GitCommitText**
-* **GitCommitTextSRC**
-* MRGLFilesDir
-* UPSLocalPath
-* UPDLFilesDir
-* SupportEmailAddr
-* SRCLCode
-* BaseLForm
-* LTeamLFormat
-* LDatabaseURL
-* MinComplPercent
-* CacheExpire
-* GitPushInterval
-* ForceComm
-* ForceGitDloadToCache
-* SkipGitReset
-* SkipGitPush
-* ForceGitPush
-* Rebrand
-* ForceTXUpd
-* IsLangAddon
-* HasOnlyAddonXML
+* **ChgLogFormat** - Contains the text which goes into the changelog.txt file for addons (if requested). Can contain parameters like %i for the version of the addon, %Y current year, %m current month, %d current day
+* **GitCommitText** - Contains the text which will be used at as git commit text. Variable $(RESNAME) can be used to include the resource name in it.
+* **GitCommitTextSRC** - Same as the previous, just for the case when the en_GB file gets changed (due to a syntax mistake) it will be git commited separately and this variable holds the message for that kind of change.
+* **MRGLFilesDir** - Path to the merged files store in the kodi translations git repo. It is currently "merged-langflies" in the repo.
+* **UPSLocalPath** - This is a path where all the git clones of the upstream git repos will be cloned and stored. Currently used path: /home/translator/transifex/upstream-kodi-txupdate/PROJECTNAME/
+* **UPDLFilesDir** - Path to the temporary update files created in the kodi translations git repo. These files get used for updating Transifex with new en_GB files or new translations coming from upstrem. Currently used foldername: "tempfiles_txupdate"
+* **SupportEmailAddr** - This email address gets written in all string.po file as a reference if someone discovers any problems with the files. Currently used address: "http://trac.kodi.tv/"
+* **SRCLCode** - Defines the language code for the source language. For Kodi we use "en_GB".
+* **BaseLForm** - Defines the default language code system to use. For Kodi we use "$(LCODE)". This is also used to tell the path naming of the update language files creation.
+* **LTeamLFormat** - Defines the lanaguage code system we use in the strings.po file at line language team. At Kodi we use $(TXLNAME). It is, because this language format gets appeared also in Transifex when translators navigate there.
+* **LDatabaseURL** - Tells where to get the language database file from. We have one database created here: "https://raw.github.com/xbmc/translations/master/tool/lang-database/kodi-languages.json"
+* **MinComplPercent** - Defines a minimum completion percentage for languages to be considered and downloaded. We use 1% at the moment.
+* **CacheExpire** - Tells the utility an expire time (in minutes) from when the cached files gets checked, if there is a newer version upstream or at Transifex. If we are within this time, NO new files get downloaded, only the previously cached files get used. This is usefull for debugging reasons, and in case of an error we immediately re-run the utility. We use value "10" here.
+* **GitPushInterval** - An inerval (in days) to update and push the new files to the original upstream github repositories. We use 5 days by default.
+* **ForceComm** - Fore comments to appear in non source language files. Default is false.
+* **ForceGitDloadToCache** - Force cache to be considered expired, so always get a fresh file from git.
+* **SkipGitReset** - Git reset could be time consuming. With this option if we know what we do, we can turn it off for upstream locations. Default is false.
+* **SkipGitPush** - For each resource we can force not to git push the git repo, even if it passed the interval. This state can be manually overwritten at push time, where there is a menu to choose.
+* **ForceGitPush** - The opposite of the previous option.
+* **Rebrand** - Change all xbmc strings to Kodi. Default is false.
+* **ForceTXUpd** - Force upload of all language files to Transifex.
+* **IsLangAddon** - Tell the utility that the resource is a language-addon. It is only used for the main language file.
+* **HasOnlyAddonXML** - This tells the utility that the resource (addon) has no language file, just the addon.xml file.
 
 
