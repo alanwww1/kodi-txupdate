@@ -56,4 +56,24 @@ These locations are defined as the following:
 * **IsLangAddon** - Tell the utility that the resource is a language-addon. It is only used for the main language file.
 * **HasOnlyAddonXML** - This tells the utility that the resource (addon) has no language file, just the addon.xml file.
 
+**Location dependent internal variables**
 
+* For locations UPS, UPS, MRG, UPSSRC, LOC, LOCSRC. The following variables are defined as a combination of keywords (eg. UPSOwner) (not all combinations exist. See table below)
+  * **Owner, Repo, Branch** - Basic git data for identifying the github repo.
+  * **LPath** - Path where the strings.po files are found in the git repo. This is language dependent so it has to be parametric.
+  * **AXMLPath** - Path where the addon.xml file is found in the git repo. This is only language dependent for the main language addons.
+  * **LFormInAXML** - Tells what language code format we use in the addon.xml file for description, summary and disclaimer.
+  * **ChLogPath** - Path where the changelog.txt file is found in the git repo.
+
+* For locations TRX, UPD. The following variables are defined as a combination of keywords (eg. TRXLForm) (not all combinations exist. See table below)
+  * **ProjectName** - Defines the projectname used on Transifex.
+  * **LongProjectName** - Defines the LONG projectname used on Transifex.
+  * **LForm** - Tells what language code forma we use at Transifex.
+
+**Resource creation specific variables**
+
+* **ResName** - Defines the name of the resource.We use the addon id here.
+* **TRXResName** - Defines the resource name used on Transifex. This is usually different, because for example dots are not allowed at Transifex in the resource name.
+* **GITCommit** -  We tell the utility that we want to create a git commit after updating this resource.
+* **SkipVersionBump** - We set this true if we want to leave the addons's version number and changelog.txt unchanged. Default is false.
+* **MajorVersionBump** - We force the version number to get a major bump  for the addon version: eg. x.y.z changes to x+1.0.0
