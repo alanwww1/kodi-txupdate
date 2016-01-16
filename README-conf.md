@@ -79,25 +79,25 @@ These locations are defined as the following:
 * `SkipVersionBump` - We set this true if we want to leave the addons's version number and changelog.txt unchanged. Default is false.
 * `MajorVersionBump` - We force the version number to get a major bump  for the addon version: eg. x.y.z changes to x+1.0.0
 
-Table 1: Possible location dependent variables for UPS, UPSSRC, loC, LOCSRC, MRG
+Table 1: Possible location dependent variables for UPS, UPSSRC, LOC, LOCSRC, MRG
 
-  | UPS           | UPSSRC         | LOC           | LOCSRC         | MRG          |
-  | ------------- | -------------- | ------------- | -------------- | ------------ |
-  | UPSOwner      | UPSSRCOwner    | LOCOwner      | LOCSRCOwner    | -            |
-  | UPSRepo       | UPSSRCRepo     | LOCRepo       | LOCSRCRepo     | -            |
-  | UPSBranch     | UPSSRCBranch   | LOCBranch     | LOCSRCBranch   | -            |
-  | UPSLPath      | UPSSRCLPath    | LOCLPath      | LOCSRCLPath    | MRGLPath     |
-  | UPSAXMLPath   | UPSSRCAXMLPath | LOCAXMLPath   | LOCSRCAXMLPath | MRGAXMLPath  |
-  | UPSLFormInAXM | -              | LOCLFormInAXM | -              | -            |
-  | UPSChLogPath  | -              | LOCChLogPath  | -              | MRGChLogPath |
+| UPS           | UPSSRC         | LOC           | LOCSRC         | MRG          |
+| ------------- | -------------- | ------------- | -------------- | ------------ |
+| UPSOwner      | UPSSRCOwner    | LOCOwner      | LOCSRCOwner    | -            |
+| UPSRepo       | UPSSRCRepo     | LOCRepo       | LOCSRCRepo     | -            |
+| UPSBranch     | UPSSRCBranch   | LOCBranch     | LOCSRCBranch   | -            |
+| UPSLPath      | UPSSRCLPath    | LOCLPath      | LOCSRCLPath    | MRGLPath     |
+| UPSAXMLPath   | UPSSRCAXMLPath | LOCAXMLPath   | LOCSRCAXMLPath | MRGAXMLPath  |
+| UPSLFormInAXM | -              | LOCLFormInAXM | -              | -            |
+| UPSChLogPath  | -              | LOCChLogPath  | -              | MRGChLogPath |
 
 Table 2: Possible location dependent variables for TRX, UPD
 
-  | TRX                | UPD                |
-  | -----------------  | ------------------ |
-  | TRXProjectName     | UPSProjectName     |
-  | TRXLongProjectName | UPDLongProjectName |
-  | TRXLForm           | UPDLForm           |
-  | TRXResName*        | UPDResName         |
+| TRX                | UPD                |
+| -----------------  | ------------------ |
+| TRXProjectName     | UPSProjectName     |
+| TRXLongProjectName | UPDLongProjectName |
+| TRXLForm           | UPDLForm           |
+| TRXResName*        | UPDResName         |
 
   Note: TRXResName is only specified in the create resource line.
