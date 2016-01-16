@@ -71,13 +71,15 @@ These locations are defined as the following:
   * `LForm` - Tells what language code forma we use at Transifex.
   * `ResName` - Defines the resource name used at Transifex. Please note that TRXResName is given in the line of creating the resource, UPDResName can be specified separately.
 
-**Resource creation specific variables**
+##Resource creation specific variables**
 
 * `ResName` - Defines the name of the resource.We use the addon id here.
 * `TRXResName` - Defines the resource name used on Transifex. This is usually different, because for example dots are not allowed at Transifex in the resource name.
 * `GITCommit` -  We tell the utility that we want to create a git commit after updating this resource.
 * `SkipVersionBump` - We set this true if we want to leave the addons's version number and changelog.txt unchanged. Default is false.
 * `MajorVersionBump` - We force the version number to get a major bump  for the addon version: eg. x.y.z changes to x+1.0.0
+
+##Summary tables of location dependent variables
 
 Table 1: Possible location dependent variables for UPS, UPSSRC, LOC, LOCSRC, MRG
 
