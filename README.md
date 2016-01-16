@@ -35,7 +35,7 @@ make install copies this file to ~/bin/.
 ## Usage
 
 
-**kodi-txpudate (-c)**
+`kodi-txpudate (-c)`
 
 
   * **-c** This optional parameter tells the utility to use cache files instead of fresh files. This is useful for debugging some situations.
@@ -44,22 +44,22 @@ make install copies this file to ~/bin/.
 These files get created by the utility, if you run it the first time.
 
 
-**~/.config/kodi-txupdate/passwords.xml**
+`~/.config/kodi-txupdate/passwords.xml`
 
 This file stores http password to access protected upstream Github or Transifex language files. For Transifex you must specify your user credentials here.
 This file gets auto generated in case it is not there. You just have to type in the passwords for Transifex and Github.
 
 
-**~/.config/kodi-txupdate/default-dir.conf**
+`~/.config/kodi-txupdate/default-dir.conf`
 
    At this file you can store the desired location of the Kodi translation github repo clone. Default is /home/translator/transifex/
 
-**KODITRANSLATIONS/PROJECTNAME/kodi-txupdate.conf**
+`KODITRANSLATIONS/PROJECTNAME/kodi-txupdate.conf`
 
    This file resides at the Kodi translations github repo. We have one conf file for each project. This file tells all the info to the utility what resources have to be synced and how, where the files are stored in what format, etc.
-   For detailed explanation, please check README-conf.md file.
+   For detailed explanation, please check [README-conf.md](README-conf.md) file.
 
-**vim related configfiles**
+`vim related configfiles`
   These files get copied at the right locations if they are not there. These help to show the kodi-txupdate.conf files syntax highlight the internal variables and main commands.
   Also for diff view there is a color scheme installed. These config files are:
   * ~/.vim/colors/desert256.vim
@@ -72,4 +72,4 @@ This file gets auto generated in case it is not there. You just have to type in 
 
 For any questions, please write to: alanwww1@kodi.tv
 
-2016 Attila Jakosa, TeamKODI
+2016 Attila Jakosa(alanwww1), TeamKODI
