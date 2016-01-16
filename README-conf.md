@@ -78,13 +78,13 @@ These locations are defined as the following:
 * **SkipVersionBump** - We set this true if we want to leave the addons's version number and changelog.txt unchanged. Default is false.
 * **MajorVersionBump** - We force the version number to get a major bump  for the addon version: eg. x.y.z changes to x+1.0.0
 
-| Variable/Location | UPS            | UPSSRC          | LOC            | LOCSRC          | MRG          |
-| ----------------- | -------------  | --------------- | -------------  | --------------- | ------------ |
-| **Owner**         | UPSOwner       | UPSSRCOwner     | LOCOwner       | LOCSRCOwner     | -            |
-| **Repo**          | UPSRepo        | UPSSRCRepo      | LOCRepo        | LOCSRCRepo      | -            |
-| **Branch**        | UPSBranch      | UPSSRCBranch    | LOCBranch      | LOCSRCBranch    | -            |
-| **LPath**         | UPSLPath       | UPSSRCLPath     | LOCLPath       | LOCSRCLPath     | MRGLPath     |
-| **AXMLPath**      | UPSAXMLPath    | UPSSRCAXMLPath  | LOCAXMLPath    | LOCSRCAXMLPath  | MRGAXMLPath  |
-| **LFormInAXML**   | UPSLFormInAXM  | -               | LOCLFormInAXM  | -               | -            |
-| **ChLogPath**     | UPSChLogPath   | -               | LOCChLogPath   | -               | MRGChLogPath |
+| Var\Loc        | UPS           | UPSSRC         | LOC           | LOCSRC         | MRG          |
+| -------------- | ------------- | -------------- | ------------- | -------------- | ------------ |
+| **Owner**      | UPSOwner      | UPSSRCOwner    | LOCOwner      | LOCSRCOwner    | -            |
+| **Repo**       | UPSRepo       | UPSSRCRepo     | LOCRepo       | LOCSRCRepo     | -            |
+| **Branch**     | UPSBranch     | UPSSRCBranch   | LOCBranch     | LOCSRCBranch   | -            |
+| **LPath**      | UPSLPath      | UPSSRCLPath    | LOCLPath      | LOCSRCLPath    | MRGLPath     |
+| **AXMLPath**   | UPSAXMLPath   | UPSSRCAXMLPath | LOCAXMLPath   | LOCSRCAXMLPath | MRGAXMLPath  |
+| **LFormInAXML**| UPSLFormInAXM | -              | LOCLFormInAXM | -              | -            |
+| **ChLogPath**  | UPSChLogPath  | -              | LOCChLogPath  | -              | MRGChLogPath |
 
