@@ -44,11 +44,11 @@ First you have to enter the password for Transifex user, than the password for G
 Now you have to specify the default directory where we store the git clone of kodi translations github repo.
 Here just accept the default one (just hit enter).
 
-![Enter Default Dir](screenshots/1.Enter_default_dir.png?raw=true "Enter Default Dir")
+![Enter Default Dir](screenshots/2.Enter_default_dir.png?raw=true "Enter Default Dir")
 
 Now the utility creates the needed config files for you for proper vim usage and checks if everything is ok.
 
-![Config Files OK](screenshots/4.Needed_config_files_created.png?raw=true "Config Files OK")
+![Config Files OK](screenshots/3.Needed_config_files_created.png?raw=true "Config Files OK")
 
 
 
