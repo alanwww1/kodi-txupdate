@@ -57,7 +57,7 @@ This file gets auto generated in case it is not there. You just have to type in 
 `KODITRANSLATIONS/PROJECTNAME/kodi-txupdate.conf`
 
    This file resides at the Kodi translations github repo. We have one conf file for each project. This file tells all the info to the utility what resources have to be synced and how, where the files are stored in what format, etc.
-   For detailed explanation, please check [README-conf.md](README-conf.md) file.
+   For detailed explanation, please check [README-conf.md](docs/README-conf.md) file.
 
 `vim related configfiles`
   These files get copied at the right locations if they are not there. These help to show the kodi-txupdate.conf files syntax highlight the internal variables and main commands.
