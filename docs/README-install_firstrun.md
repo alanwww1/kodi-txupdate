@@ -1,5 +1,5 @@
-kodi-txupdate step-by-step guide
-================================
+kodi-txupdate first-run guide
+=============================
 
 ## Installation
 
@@ -49,6 +49,11 @@ Here just accept the default one (just hit enter).
 Now the utility creates the needed config files for you for proper vim usage and checks if everything is ok.
 
 ![Config Files OK](screenshots/3.Needed_config_files_created.png?raw=true "Config Files OK")
+
+Now the sync system is ready for everyday use. Please just note, that when downloading from upstream locations the first time, the utility will git clone all relevant github repos.
+That can tak a while, but at next run they will only be updated, which runs very quick.
+
+For how to use the utility at everyday tasks, check out [README-everyday_use.md](README-everyday_use.md) for info.
 
 
 
