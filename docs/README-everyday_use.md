@@ -1,5 +1,5 @@
-kodi-txupdate every-day useage guide
-====================================
+kodi-txupdate every-day usage guide
+===================================
 
 ## Choose project
 
