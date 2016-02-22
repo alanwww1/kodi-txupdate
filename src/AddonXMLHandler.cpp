@@ -413,7 +413,7 @@ void CAddonXMLHandler::GenerateChangelogFile (std::string strFormat)
   if ((pos1 = strFormat.find("%M")) != std::string::npos)
     strFormat.replace(pos1, 2, g_File.GetCurrMonthText().c_str());
 
-  if  (m_bBumpAddoXMLVersion)
+  if  (m_bBumpAddoXMLVersion && !m_ResData.bSkipVersionBump)
     m_strChangelogFile = strFormat + m_strChangelogFile;
 
   return;
