@@ -57,23 +57,28 @@ bool CProjectHandler::FetchResourcesFromTransifex()
   g_HTTPHandler.ReInit();
   CLog::Log(logPRINT, "TXresourcelist");
 
-  //TODO multiple projects
-  const std::string& sProjectName = m_mapResData.begin()->second.TRX.ProjectName;
   g_HTTPHandler.SetLocation("TRX");
-  g_HTTPHandler.SetProjectName(sProjectName);
   g_HTTPHandler.SetResName("");
   g_HTTPHandler.SetLCode("");
   g_HTTPHandler.SetFileName("TXResourceList.json");
   g_HTTPHandler.SetDataFile(true);
+  std::set<std::string> listTRXProjectnames;
 
-  std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + sProjectName + "/resources/");
-  if (strtemp.empty())
-    CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
+  for (T_itResData it = m_mapResData.begin(); it != m_mapResData.end(); it++)
+    listTRXProjectnames.insert(it->second.TRX.ProjectName);
 
+  std::set<std::string> listResNamesAvailOnTX ;
+  for (std::set<std::string>::iterator it = listTRXProjectnames.begin(); it != listTRXProjectnames.end(); it++)
+  {
+    g_HTTPHandler.SetProjectName(*it);
+    std::string strtemp = g_HTTPHandler.GetURLToSTR("https://www.transifex.com/api/2/project/" + *it + "/resources/");
+    if (strtemp.empty())
+      CLog::Log(logERROR, "ProjectHandler::FetchResourcesFromTransifex: error getting resources from transifex.net");
+
+    ParseResources(listResNamesAvailOnTX, strtemp);
+  }
   CLog::Log(logPRINT, "\n\n");
 
-  std::set<std::string> listResNamesAvailOnTX = ParseResources(strtemp);
-//TODO collect out txprojectnames, check all resources in them, if we need to download
   for (T_itResData it = m_mapResData.begin(); it != m_mapResData.end(); it++)
   {
     const std::string& sResName = it->second.sResName;
@@ -711,7 +716,8 @@ void CProjectHandler::UploadTXUpdateFiles(std::string strProjRootDir)
   g_HTTPHandler.SetSkipCache(false);
   CLog::Log(logPRINT, "\n\n");
 
-  std::set<std::string> lResourcesAtTX = ParseResources(strtemp);
+  std::set<std::string> lResourcesAtTX;
+  ParseResources(lResourcesAtTX, strtemp);
 
   g_HTTPHandler.Cleanup();
   g_HTTPHandler.ReInit();
@@ -803,18 +809,17 @@ void CProjectHandler::InitLCodeHandler()
   g_LCodeHandler.Init(Resdata.sLDatabaseURL, Resdata);
 }
 
-std::set<std::string> CProjectHandler::ParseResources(std::string strJSON)
+void CProjectHandler::ParseResources(std::set<std::string>& listResAvailOnTX,  std::string& strJSON)
 {
   Json::Value root;   // will contains the root value after parsing.
   Json::Reader reader;
   std::string sTXResName, sResName;
-  std::set<std::string> listResources;
 
   bool parsingSuccessful = reader.parse(strJSON, root );
   if ( !parsingSuccessful )
   {
     CLog::Log(logERROR, "JSONHandler: Parse resource: no valid JSON data");
-    return listResources;
+    return;
   }
 
   for(Json::ValueIterator itr = root.begin() ; itr != root.end() ; itr++)
@@ -827,9 +832,9 @@ std::set<std::string> CProjectHandler::ParseResources(std::string strJSON)
 
     //TODO check if a resource only exists at transifex and warn user
     if ((sResName = GetResNameFromTXResName(sTXResName)) != "")
-      listResources.insert(sResName);
+      listResAvailOnTX.insert(sResName);
   };
-  return listResources;
+  return;
 };
 
 std::string CProjectHandler::GetResNameFromTXResName(const std::string& strTXResName)

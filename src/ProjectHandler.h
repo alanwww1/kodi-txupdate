@@ -48,7 +48,7 @@ public:
 protected:
   std::string GetResNameFromTXResName(std::string const &strTXResName);
 
-  std::set<std::string> ParseResources(std::string strJSON);
+  void ParseResources(std::set<std::string>& listResAvailOnTX,  std::string& strJSON);
   bool ParseRepoList(const std::string& sStringToParse, std::set<int>& ListRepos);
   void GenerateDiffListsPerRepo(std::string sPath, std::set<int> listReposToInclude);
   void GenerateCombinedDiffLists(std::string sPath, std::set<int> listReposToInclude);
