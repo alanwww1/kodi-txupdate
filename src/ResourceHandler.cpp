@@ -255,6 +255,8 @@ void CResourceHandler::MergeResource()
       {
         T_itPOData itPOTRX = GetTRXItFoundEntry();
         m_mapMRG[sLCode].AddItEntry(itPOTRX);
+        if (m_ResData.bForceTXUpd) //In case we force update TRX with all translations (in case we transfer a resource from an older project)
+          m_mapUPD[sLCode].AddItEntry(itPOTRX);
 
         if (!bisInUPS) // check if this is a new translation at transifex, if so make changed flag true
           bPOChangedFromUPS = true;
