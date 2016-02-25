@@ -112,7 +112,8 @@ public:
   void CreateHeader (const std::string &strPreText, const std::string& sLCode);
   CAddonXMLEntry GetAddonXMLEntry () {return m_AddonXMLEntry;}
 
-  size_t const GetClassEntriesCount() {return m_mapPOData.size();}
+  size_t const GetClassPOEntriesCount() {return m_mapPOData.size();}
+  size_t const GetPOEntriesCount() {return m_mapPOData.size() + m_mapItPOData.size();}
   size_t const GetCommntEntriesCount() {return m_CommsCntr;}
   std::map <unsigned long long, CPOEntry>::iterator GetPOMapBeginIterator() {return m_mapPOData.begin();}
   std::map <unsigned long long, CPOEntry>::iterator GetPOMapEndIterator() {return m_mapPOData.end();}

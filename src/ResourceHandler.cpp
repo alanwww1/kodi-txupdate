@@ -185,7 +185,7 @@ bool CResourceHandler::FetchPOFilesUpstreamToMem()
 
 bool CResourceHandler::ComparePOFiles(CPOHandler& POHandler1, CPOHandler& POHandler2)
 {
-  if (POHandler1.GetClassEntriesCount() != POHandler2.GetClassEntriesCount())
+  if (POHandler1.GetClassPOEntriesCount() != POHandler2.GetClassPOEntriesCount())
     return false;
 
   T_itPOData itPO1 = POHandler1.GetPOMapBeginIterator();
@@ -438,12 +438,18 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
 
   if (!m_ResData.bHasOnlyAddonXML)
   {
+    size_t SourcePOEntryCount = m_mapMRG.at(m_ResData.sSRCLCode).GetPOEntriesCount();
+    size_t MinPOEntryCount = m_ResData.iMinComplPercent * SourcePOEntryCount;
+
     for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
     {
       const std::string& sLCode = itmapPOFiles->first;
       std::string strPODir, strAddonDir;
 
       CPOHandler& POHandler = m_mapMRG.at(sLCode);
+      size_t POEntryCount = POHandler.GetPOEntriesCount();
+      if (MinPOEntryCount > POEntryCount)
+        continue;
 
       if (sLCode != m_ResData.sSRCLCode || !m_ResData.bIsLangAddon)
       {
@@ -664,8 +670,6 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
   }
 
   const Json::Value langs = root;
-  std::string strLangsToFetch;
-  std::string strLangsToDrop;
 
   for(Json::ValueIterator itr = langs.begin() ; itr != langs.end() ; itr++)
   {
@@ -682,16 +686,8 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
     std::string strCompletedPerc = valu.get("completed", "unknown").asString();
     std::string strModTime = valu.get("last_update", "unknown").asString();
 
-    // we only add language codes to the list which has a minimum ready percentage defined in the xml file
-    // we make an exception with all English derived languages, as they can have only a few srings changed
-    if (LCode.find("en_") != std::string::npos || strtol(&strCompletedPerc[0], NULL, 10) > m_ResData.iMinComplPercent-1)
-    {
-      strLangsToFetch += LCode + ": " + strCompletedPerc + ", ";
-      listLangs.push_back(LCode);
-      g_Fileversion.SetVersionForURL(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(LCode, m_ResData.TRX.LForm) + "/?file", strModTime);
-    }
-    else
-      strLangsToDrop += LCode + ": " + strCompletedPerc + ", ";
+    listLangs.push_back(LCode);
+    g_Fileversion.SetVersionForURL(strURL + "translation/" + g_LCodeHandler.GetLangFromLCode(LCode, m_ResData.TRX.LForm) + "/?file", strModTime);
   };
 
   return listLangs;
