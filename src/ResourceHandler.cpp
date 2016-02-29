@@ -438,18 +438,12 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
 
   if (!m_ResData.bHasOnlyAddonXML)
   {
-    size_t SourcePOEntryCount = m_mapMRG.at(m_ResData.sSRCLCode).GetPOEntriesCount();
-    size_t MinPOEntryCount = m_ResData.iMinComplPercent * SourcePOEntryCount;
-
     for (T_itmapPOFiles itmapPOFiles = m_mapMRG.begin(); itmapPOFiles != m_mapMRG.end(); itmapPOFiles++)
     {
       const std::string& sLCode = itmapPOFiles->first;
       std::string strPODir, strAddonDir;
 
       CPOHandler& POHandler = m_mapMRG.at(sLCode);
-      size_t POEntryCount = POHandler.GetPOEntriesCount();
-      if (MinPOEntryCount > POEntryCount)
-        continue;
 
       if (sLCode != m_ResData.sSRCLCode || !m_ResData.bIsLangAddon)
       {
