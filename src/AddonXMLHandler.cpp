@@ -269,6 +269,45 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
       m_AddonMetadata.strSource = " ";
   }
 
+  const TiXmlElement *pChildNewsElement = pChildElement->FirstChildElement("news");
+  if (pChildNewsElement)
+  {
+    if (pChildNewsElement->FirstChild())
+      m_AddonMetadata.strNews = pChildNewsElement->FirstChild()->Value();
+    else
+      m_AddonMetadata.strNews = " ";
+  }
+
+  m_AddonMetadata.bHasAssetsNode =false;
+  const TiXmlElement *pAssetsElement = pChildElement->FirstChildElement("assets");
+  if (pAssetsElement)
+  {
+    m_AddonMetadata.bHasAssetsNode = true;
+    const TiXmlElement *pIconElement = pAssetsElement->FirstChildElement("icon");
+    if (pIconElement)
+    {
+      if (pIconElement->FirstChild())
+        m_AddonMetadata.strIconLink = pIconElement->FirstChild()->Value();
+      else
+        m_AddonMetadata.strIconLink = " ";
+    }
+    const TiXmlElement *pFanartElement = pAssetsElement->FirstChildElement("fanart");
+    if (pFanartElement)
+    {
+      if (pFanartElement->FirstChild())
+        m_AddonMetadata.strFanartLink = pFanartElement->FirstChild()->Value();
+      else
+        m_AddonMetadata.strFanartLink = " ";
+    }
+    const TiXmlElement *pChildScreenshotElement = pAssetsElement->FirstChildElement("screenshot");
+    while (pChildScreenshotElement && pChildScreenshotElement->FirstChild())
+    {
+      m_AddonMetadata.listScreenshotLinks.push_back(pChildDisclElement->FirstChild()->Value());
+      pAssetsElement = pAssetsElement->NextSiblingElement("screenshot");
+    }
+  }
+
+
   return true;
 };
 
@@ -382,6 +421,38 @@ void CAddonXMLHandler::GenerateAddonXMLFile ()
   {
     if (m_AddonMetadata.strSource.compare(" ") ==0 ) m_AddonMetadata.strSource.clear();
     strNewMetadata += strAllign + "<source>" + m_AddonMetadata.strSource + "</source>\n";
+  }
+
+  std::string strAllignHalf;
+  char cWhiteSpace = ' ';
+
+  if (strAllign != "")
+      cWhiteSpace = strAllign.at(0);
+
+  strAllignHalf.assign(strAllign.size()/2, cWhiteSpace);
+
+  if (m_AddonMetadata.bHasAssetsNode)
+  {
+    strNewMetadata += strAllign + "<assets>\n";
+    if (m_AddonMetadata.strIconLink != " " && m_AddonMetadata.strIconLink != "")
+      strNewMetadata += strAllign + strAllignHalf + "<icon>" + m_AddonMetadata.strIconLink + "</icon>\n";
+    if (m_AddonMetadata.strFanartLink != " " && m_AddonMetadata.strFanartLink != "")
+      strNewMetadata += strAllign + strAllignHalf + "<fanart>" + m_AddonMetadata.strFanartLink + "</fanart>\n";
+
+    for (std::list<std::string>::iterator itlist = m_AddonMetadata.listScreenshotLinks.begin();
+         itlist != m_AddonMetadata.listScreenshotLinks.end(); itlist++)
+    {
+    if (*itlist != " " && *itlist != "")
+      strNewMetadata += strAllign + strAllignHalf + "<screenshot>" + *itlist + "</screenshot>\n";
+    }
+
+    strNewMetadata += strAllign + "</assets>\n";
+
+  }
+  if (!m_AddonMetadata.strNews.empty())
+  {
+    if (m_AddonMetadata.strNews.compare(" ") ==0 ) m_AddonMetadata.strNews.clear();
+    strNewMetadata += strAllign + "<news>" + m_AddonMetadata.strNews + "</news>\n";
   }
 
   m_strAddonXMLFile.replace(posMetaDataStart, posMetaDataEnd -posMetaDataStart +1, strNewMetadata);

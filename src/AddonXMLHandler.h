@@ -29,11 +29,16 @@ struct COtherAddonMetadata
 {
   std::string strLanguage;
   std::string strPlatform;
+  std::string strNews;
   std::string strLicense;
   std::string strForum;
   std::string strWebsite;
   std::string strEmail;
   std::string strSource;
+  std::string strFanartLink;
+  std::string strIconLink;
+  bool bHasAssetsNode;
+  std::list<std::string> listScreenshotLinks;
 };
 
 class CAddonXMLHandler
