@@ -294,7 +294,7 @@ void CFile::ConvertStrLineEnds(std::string &strToConvert)
     {
       if (it+1 == strToConvert.end() || *(it+1) != '\n')
         strTemp.push_back('\n'); // convert Mac style line ending and continue
-        continue; // we have Win style line ending so we exclude this CR now
+      continue; // we have Win style line ending so we exclude this CR now
     }
     strTemp.push_back(*it);
   }

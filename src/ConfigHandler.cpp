@@ -222,7 +222,6 @@ void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::str
   else if (sVar == "UPSLPath")              ResData.UPS.LPath = sVal;
   else if (sVar == "UPSAXMLPath")           ResData.UPS.AXMLPath = sVal;
   else if (sVar == "UPSLFormInAXML")        ResData.UPS.LFormInAXML = sVal;
-  else if (sVar == "UPSChLogPath")          ResData.UPS.ChLogPath = sVal;
 
   else if (sVar == "LOCOwner")              ResData.LOC.Owner = sVal;
   else if (sVar == "LOCRepo")               ResData.LOC.Repo = sVal;
@@ -231,11 +230,9 @@ void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::str
   else if (sVar == "LOCLPath")              ResData.LOC.LPath = sVal;
   else if (sVar == "LOCAXMLPath")           ResData.LOC.AXMLPath = sVal;
   else if (sVar == "LOCLFormInAXML")        ResData.LOC.LFormInAXML = sVal;
-  else if (sVar == "LOCChLogPath")          ResData.LOC.ChLogPath = sVal;
 
   else if (sVar == "MRGLPath")              ResData.MRG.LPath = sVal;
   else if (sVar == "MRGAXMLPath")           ResData.MRG.AXMLPath = sVal;
-  else if (sVar == "MRGChLogPath")          ResData.MRG.ChLogPath = sVal;
 
   else if (sVar == "UPSSRCOwner")           ResData.UPSSRC.Owner = sVal;
   else if (sVar == "UPSSRCRepo")            ResData.UPSSRC.Repo = sVal;
@@ -262,7 +259,6 @@ void CConfigHandler::SetInternalVariable(const std::string& sVar, const std::str
   else if (sVar == "UPDLForm")              ResData.UPD.LForm = sVal;
 
   else if (sVar == "ResName")               ResData.sResName = sVal;
-  else if (sVar == "ChgLogFormat")          ResData.sChgLogFormat = sVal;
   else if (sVar == "GitCommitText")         ResData.sGitCommitText = sVal;
   else if (sVar == "GitCommitTextSRC")      ResData.sGitCommitTextSRC = sVal;
   else if (sVar == "MRGLFilesDir")          ResData.sMRGLFilesDir = sVal;
@@ -408,7 +404,6 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   ResDataToStore.UPS.LPath            = ReplaceResName(ResData.UPS.LPath, ResDataToStore);
   ResDataToStore.UPS.AXMLPath         = ReplaceResName(ResData.UPS.AXMLPath, ResDataToStore);
   ResDataToStore.UPS.LFormInAXML      = ReplaceResName(ResData.UPS.LFormInAXML, ResDataToStore);
-  ResDataToStore.UPS.ChLogPath        = ReplaceResName(ResData.UPS.ChLogPath, ResDataToStore);
 
   ResDataToStore.LOC.Owner            = ReplaceResName(ResData.LOC.Owner, ResDataToStore);
   ResDataToStore.LOC.Repo             = ReplaceResName(ResData.LOC.Repo, ResDataToStore);
@@ -417,12 +412,10 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   ResDataToStore.LOC.LPath            = ReplaceResName(ResData.LOC.LPath, ResDataToStore);
   ResDataToStore.LOC.AXMLPath         = ReplaceResName(ResData.LOC.AXMLPath, ResDataToStore);
   ResDataToStore.LOC.LFormInAXML      = ReplaceResName(ResData.LOC.LFormInAXML, ResDataToStore);
-  ResDataToStore.LOC.ChLogPath        = ReplaceResName(ResData.LOC.ChLogPath, ResDataToStore);
 
   ResDataToStore.MRG.LPath            = ReplaceResName(ResData.MRG.LPath, ResDataToStore);
   ResDataToStore.MRG.AXMLPath         = ReplaceResName(ResData.MRG.AXMLPath, ResDataToStore);
 //ResDataToStore.MRG.LFormInAXML      = ReplaceResName(ResData.MRG.LFormInAXML, ResDataToStore);
-  ResDataToStore.MRG.ChLogPath        = ReplaceResName(ResData.MRG.ChLogPath, ResDataToStore);
 
   ResDataToStore.UPSSRC.Owner         = ReplaceResName(ResData.UPSSRC.Owner, ResDataToStore);
   ResDataToStore.UPSSRC.Repo          = ReplaceResName(ResData.UPSSRC.Repo, ResDataToStore);
@@ -440,7 +433,6 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
   ResDataToStore.LOCSRC.LPath         = ReplaceResName(ResData.LOCSRC.LPath, ResDataToStore);
   ResDataToStore.LOCSRC.AXMLPath      = ReplaceResName(ResData.LOCSRC.AXMLPath, ResDataToStore);
   ResDataToStore.LOCSRC.LFormInAXML   = ReplaceResName(ResData.LOCSRC.LFormInAXML, ResDataToStore);
-  ResDataToStore.LOCSRC.ChLogPath     = ReplaceResName(ResData.LOCSRC.ChLogPath, ResDataToStore);
 
   ResDataToStore.TRX.ProjectName      = ReplaceResName(ResData.TRX.ProjectName, ResDataToStore);
   ResDataToStore.TRX.LongProjectName  = ReplaceResName(ResData.TRX.LongProjectName, ResDataToStore);
@@ -454,7 +446,6 @@ void CConfigHandler::CreateResource(CResData& ResData, const std::string& sLine,
 
 
 //ResDataToStore.sResName             = ReplaceResName(ResData.sResName, ResDataToStore);
-  ResDataToStore.sChgLogFormat        = ReplaceResName(ResData.sChgLogFormat, ResDataToStore);
 
   ResDataToStore.sProjRootDir         = ReplaceResName(ResData.sProjRootDir, ResDataToStore);
   ResDataToStore.sMRGLFilesDir        = ReplaceResName(ResData.sMRGLFilesDir, ResDataToStore);

@@ -63,7 +63,6 @@ struct CGITData
   std::string Owner, Repo, Branch;
   std::string LPath;
   std::string AXMLPath, LFormInAXML;
-  std::string ChLogPath;
 };
 
 struct CTRXData
@@ -87,7 +86,6 @@ public:
   CGITData MRG;
   CTRXData TRX, UPD;
 
-  std::string sChgLogFormat;
   std::string sGitCommitText, sGitCommitTextSRC;
   bool bIsLangAddon;
   bool bHasOnlyAddonXML;

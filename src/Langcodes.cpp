@@ -184,7 +184,7 @@ std::map<std::string, std::string>  CLCodeHandler::GetTranslatorsDatabase(const 
 
     std::list<std::string> listNames;
 
-    for(Json::ValueIterator itr = JNames.begin() ; itr !=JNames.end() ; itr++)
+    for(Json::ValueConstIterator itr = JNames.begin() ; itr !=JNames.end() ; itr++)
     {
       Json::Value JValu = *itr;
       std::string strName =JValu.asString();
@@ -251,7 +251,7 @@ std::map<std::string, CLangcodes> CLCodeHandler::ParseTransifexLanguageDatabase(
   const Json::Value JRoot = root;
   const Json::Value JLangs =  JRoot["fixtures"];
 
-  for (Json::ValueIterator itrlangs = JLangs.begin() ; itrlangs !=JLangs.end() ; itrlangs++)
+  for (Json::ValueConstIterator itrlangs = JLangs.begin() ; itrlangs !=JLangs.end() ; itrlangs++)
   {
     Json::Value JValu = *itrlangs;
     const Json::Value JAliases =JValu.get("aliases", "unknown");
@@ -259,7 +259,7 @@ std::map<std::string, CLangcodes> CLCodeHandler::ParseTransifexLanguageDatabase(
     CLangcodes LangData;
     std::string strLCode;
 
-    for (Json::ValueIterator itralias = JAliases.begin(); itralias !=JAliases.end() ; itralias++)
+    for (Json::ValueConstIterator itralias = JAliases.begin(); itralias !=JAliases.end() ; itralias++)
     {
       std::string langstrKey = itralias.key().asString();
       std::string langstrName = (*itralias).asString();
@@ -284,19 +284,19 @@ std::map<std::string, CLangcodes> CLCodeHandler::ParseTransifexLanguageDatabase(
   const Json::Value JRulesGen =  JRules.get("general","unknown");
   const Json::Value JRulesCust =  JRules["custom"];
 
-  for (Json::ValueIterator itrules = JRulesGen.begin() ; itrules !=JRulesGen.end() ; itrules++)
+  for (Json::ValueConstIterator itrules = JRulesGen.begin() ; itrules !=JRulesGen.end() ; itrules++)
   {
     std::string strLeft = itrules.key().asString();
     std::string strRight = (*itrules).asString();
     AddGeneralRule(mapTXLangs, strLeft, strRight);
   }
 
-  for (Json::ValueIterator itrules = JRulesCust.begin() ; itrules !=JRulesCust.end() ; itrules++)
+  for (Json::ValueConstIterator itrules = JRulesCust.begin() ; itrules !=JRulesCust.end() ; itrules++)
   {
     std::string strLangformat = itrules.key().asString();
     const Json::Value JRulesCustR = (*itrules);
 
-    for (Json::ValueIterator itrulesR = JRulesCustR.begin() ; itrulesR !=JRulesCustR.end() ; itrulesR++)
+    for (Json::ValueConstIterator itrulesR = JRulesCustR.begin() ; itrulesR !=JRulesCustR.end() ; itrulesR++)
     {
       std::string strLeft = itrulesR.key().asString(); //= itrulesR.key().asString();
       std::string strRight = (*itrulesR).asString();
@@ -355,7 +355,7 @@ void CLCodeHandler::ParseLangDatabaseVersion(const std::string &strJSON, const s
 
   const Json::Value JFiles = root;
 
-  for(Json::ValueIterator itr = JFiles.begin() ; itr !=JFiles.end() ; itr++)
+  for(Json::ValueConstIterator itr = JFiles.begin() ; itr !=JFiles.end() ; itr++)
   {
     Json::Value JValu = *itr;
     std::string strType =JValu.get("type", "unknown").asString();

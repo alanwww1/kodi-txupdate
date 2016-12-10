@@ -46,9 +46,6 @@ public:
   void GenerateAddonXMLFile ();
   void WriteAddonXMLFile (std::string strAddonXMLFilename);
 
-  void GenerateChangelogFile (std::string strFormat);
-  bool WriteAddonChangelogFile (const std::string& strFilename);
-  bool FetchAddonChangelogFile ();
   void FetchAddonDataFiles();
   std::string GetResHeaderPretext () const {return m_strResourceData;}
   void AddAddonXMLLangsToList(std::set<std::string>& listLangs);
@@ -72,7 +69,6 @@ protected:
   std::string m_strResourceData;
   std::string m_strAddonXMLFile;
   std::string m_strAddonVersion;
-  std::string m_strChangelogFile;
   bool m_bBumpAddoXMLVersion;
   COtherAddonMetadata m_AddonMetadata;
   CResData m_ResData;

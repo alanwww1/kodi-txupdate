@@ -32,7 +32,6 @@ These locations are defined as the following:
 
 **General internal variables**
 
-* **`ChgLogFormat`** - Contains the text which goes into the changelog.txt file for addons (if requested). Can contain parameters like %i for the version of the addon, %Y current year, %m current month, %d current day
 * **`GitCommitText`** - Contains the text which will be used at as git commit text. Variable $(RESNAME) can be used to include the resource name in it.
 * **`GitCommitTextSRC`** - Same as the previous, just for the case when the en_GB file gets changed (due to a syntax mistake) it will be git commited separately and this variable holds the message for that kind of change.
 * **`MRGLFilesDir`** - Path to the merged files store in the kodi translations git repo. It is currently "merged-langflies" in the repo.
@@ -63,7 +62,6 @@ These locations are defined as the following:
   * **`LPath`** - Path where the strings.po files are found in the git repo. This is language dependent so it has to be parametric.
   * **`AXMLPath`** - Path where the addon.xml file is found in the git repo. This is only language dependent for the main language addons.
   * **`LFormInAXML`** - Tells what language code format we use in the addon.xml file for description, summary and disclaimer.
-  * **`ChLogPath`** - Path where the changelog.txt file is found in the git repo.
 
 * For locations TRX, UPD. The following variables are defined as a combination of keywords (eg. TRXLForm) (not all combinations exist. See table below)
   * **`ProjectName`** - Defines the projectname used on Transifex (eg. kodi-main, kodi-skins, kodi-addons).
@@ -91,7 +89,6 @@ Table 1: Possible location dependent variables for UPS, UPSSRC, LOC, LOCSRC, MRG
 | UPSLPath      | UPSSRCLPath    | LOCLPath      | LOCSRCLPath    | MRGLPath     |
 | UPSAXMLPath   | UPSSRCAXMLPath | LOCAXMLPath   | LOCSRCAXMLPath | MRGAXMLPath  |
 | UPSLFormInAXM | -              | LOCLFormInAXM | -              | -            |
-| UPSChLogPath  | -              | LOCChLogPath  | -              | MRGChLogPath |
 
 Table 2: Possible location dependent variables for TRX, UPD
 

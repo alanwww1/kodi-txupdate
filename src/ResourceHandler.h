@@ -40,7 +40,7 @@ public:
 
   void GenerateMergedPOFiles();
   void GenerateUpdatePOFiles();
-  void WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sChangeLogPath, const std::string& sLangPath);
+  void WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sLangPath);
   void WriteLOCPOFiles(CCommitData& CommitData, CCommitData& CommitDataSRC);
   void WriteUpdatePOFiles(const std::string& strPath);
 

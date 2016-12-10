@@ -383,14 +383,10 @@ T_itPOData CResourceHandler::GetTRXItFoundEntry()
   return m_lastTRXIterator->second.GetItFoundEntry();
 }
 
-void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sChangeLogPath, const std::string& sLangPath)
+void CResourceHandler::WriteMergedPOFiles(const std::string& sAddonXMLPath, const std::string& sLangAddonXMLPath, const std::string& sLangPath)
 {
   if (!m_ResData.bIsLangAddon)
-  {
     m_AddonXMLHandler.WriteAddonXMLFile(sAddonXMLPath);
-    if (!m_ResData.sChgLogFormat.empty())
-      m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath);
-  }
 
   if (m_ResData.bHasOnlyAddonXML)
     return;
@@ -422,7 +418,6 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
     std::string sLOCSRCGITDir = m_ResData.sUPSLocalPath + m_ResData.LOCSRC.Owner + "/" + m_ResData.LOCSRC.Repo + "/" + m_ResData.LOCSRC.Branch + "/";
 
     std::string sAddonXMLPath = sLOCGITDir + m_ResData.LOC.AXMLPath;
-    std::string sChangeLogPath =  sLOCGITDir + m_ResData.LOC.ChLogPath;
     std::string sLangPath  = sLOCGITDir + m_ResData.LOC.LPath;
 
     std::string sLangPathSRC  = sLOCSRCGITDir + m_ResData.LOCSRC.LPath;
@@ -430,11 +425,7 @@ void CResourceHandler::WriteLOCPOFiles(CCommitData& CommitData, CCommitData& Com
 
 
   if (!m_ResData.bIsLangAddon)
-  {
     m_AddonXMLHandler.WriteAddonXMLFile(sAddonXMLPath);
-    if (!m_ResData.sChgLogFormat.empty())
-      m_AddonXMLHandler.WriteAddonChangelogFile(sChangeLogPath);
-  }
 
   if (!m_ResData.bHasOnlyAddonXML)
   {
@@ -622,10 +613,7 @@ void CResourceHandler::GenerateMergedPOFiles()
   }
 
   if (!m_ResData.bIsLangAddon)
-  {
     m_AddonXMLHandler.GenerateAddonXMLFile();
-    m_AddonXMLHandler.GenerateChangelogFile(m_ResData.sChgLogFormat);
-  }
 
   return;
 }
@@ -665,7 +653,7 @@ std::list<std::string> CResourceHandler::ParseAvailLanguagesTX(std::string strJS
 
   const Json::Value langs = root;
 
-  for(Json::ValueIterator itr = langs.begin() ; itr != langs.end() ; itr++)
+  for(Json::ValueConstIterator itr = langs.begin() ; itr != langs.end() ; itr++)
   {
     LCode = itr.key().asString();
     if (LCode == "unknown")
@@ -749,12 +737,6 @@ std::set<std::string> CResourceHandler::GetAvailLangsGITHUB()
       //Get version for addon.xml file
       CGITData GitData = m_ResData.UPS;
       g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + GitData.AXMLPath, sSHA);
-    }
-    else if (sReadPath == m_ResData.UPS.ChLogPath)
-    {
-      //Get version for changelog.txt file
-      CGITData GitData = m_ResData.UPS;
-      g_Fileversion.SetVersionForURL("git://" + GitData.Owner + "/" + GitData.Repo + "/" + GitData.Branch + "/" + GitData.ChLogPath, sSHA);
     }
   }
 

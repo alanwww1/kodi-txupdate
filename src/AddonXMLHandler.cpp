@@ -52,11 +52,6 @@ void CAddonXMLHandler::FetchAddonDataFiles()
 
   CLog::Log(logPRINT, " Addxml");
   FetchAddonXMLFileUpstr();
-  if (!m_ResData.sChgLogFormat.empty())
-  {
-    CLog::Log(logPRINT, " Chlog");
-    FetchAddonChangelogFile();
-  }
 }
 
 bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
@@ -397,44 +392,6 @@ std::string CAddonXMLHandler::GetXMLEntry (std::string const &strprefix, size_t 
   pos1 =   m_strAddonXMLFile.find(strprefix, pos1);
   pos2 =   m_strAddonXMLFile.find(">", pos1);
   return m_strAddonXMLFile.substr(pos1, pos2 - pos1 +1);
-}
-
-void CAddonXMLHandler::GenerateChangelogFile (std::string strFormat)
-{
-  size_t pos1;
-  if ((pos1 = strFormat.find("%i")) != std::string::npos)
-    strFormat.replace(pos1, 2, m_strAddonVersion.c_str());
-  if ((pos1 = strFormat.find("%d")) != std::string::npos)
-    strFormat.replace(pos1, 2, g_File.GetCurrDay().c_str());
-  if ((pos1 = strFormat.find("%m")) != std::string::npos)
-    strFormat.replace(pos1, 2, g_File.GetCurrMonth().c_str());
-  if ((pos1 = strFormat.find("%y")) != std::string::npos)
-    strFormat.replace(pos1, 2, g_File.GetCurrYear().c_str());
-  if ((pos1 = strFormat.find("%M")) != std::string::npos)
-    strFormat.replace(pos1, 2, g_File.GetCurrMonthText().c_str());
-
-  if  (m_bBumpAddoXMLVersion && !m_ResData.bSkipVersionBump)
-    m_strChangelogFile = strFormat + m_strChangelogFile;
-
-  return;
-}
-
-bool CAddonXMLHandler::WriteAddonChangelogFile (const std::string& strFilename)
-{
-  return g_File.WriteFileFromStr(strFilename, m_strChangelogFile.c_str());
-}
-
-bool CAddonXMLHandler::FetchAddonChangelogFile ()
-{
-  g_HTTPHandler.SetFileName("changelog.txt");
-  g_HTTPHandler.SetDataFile(false);
-
-  std::string strChangelogFile = g_HTTPHandler.GetGithubPathToSTR (m_ResData.sUPSLocalPath, m_ResData.UPS, m_ResData.UPS.ChLogPath, m_ResData.bForceGitDloadToCache);
-
-  g_File.ConvertStrLineEnds(strChangelogFile);
-
-  m_strChangelogFile.swap(strChangelogFile);
-  return true;
 }
 
 void CAddonXMLHandler::BumpVersionNumber()

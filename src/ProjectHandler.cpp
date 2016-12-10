@@ -624,11 +624,10 @@ bool CProjectHandler::WriteResourcesToFile(std::string strProjRootDir)
 
     std::string sMergedLangDir = ResData.sProjRootDir + DirSepChar + ResData.sMRGLFilesDir + DirSepChar;
     std::string sAddonXMLPath = sMergedLangDir + ResData.MRG.AXMLPath;
-    std::string sChangeLogPath =  sMergedLangDir + ResData.MRG.ChLogPath;
     std::string sLangPath  = sMergedLangDir + ResData.MRG.LPath;
     std::string sLangAddonXMLPath = sMergedLangDir + ResData.MRG.AXMLPath;
     ResHandler.GenerateMergedPOFiles ();
-    ResHandler.WriteMergedPOFiles (sAddonXMLPath, sLangAddonXMLPath, sChangeLogPath, sLangPath);
+    ResHandler.WriteMergedPOFiles (sAddonXMLPath, sLangAddonXMLPath, sLangPath);
 
     std::string sPathUpdate = ResData.sProjRootDir + ResData.sUPDLFilesDir + DirSepChar + ResData.sResName + DirSepChar + ResData.sBaseLForm + DirSepChar + "strings.po";
     ResHandler.GenerateUpdatePOFiles ();
