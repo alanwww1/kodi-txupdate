@@ -74,9 +74,15 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
   if (pos != std::string::npos)
     sAXMLFile = m_strAddonXMLFile.substr(0,pos) + m_strAddonXMLFile.substr(pos+39);
 
-  if (!xmlAddonXML.Parse(sAXMLFile.c_str(), 0, TIXML_DEFAULT_ENCODING))
+  xmlAddonXML.Parse(sAXMLFile.c_str(), 0, TIXML_DEFAULT_ENCODING);
+
+  if (xmlAddonXML.Error())
   {
-    CLog::Log(logERROR, "AddonXMLHandler: AddonXML file problem: %s %s\n", xmlAddonXML.ErrorDesc(), m_ResData.UPS.AXMLPath.c_str());
+    int iErrorCode = xmlAddonXML.ErrorId();
+    int iErrorRow = xmlAddonXML.ErrorRow();
+    int iErrorCol = xmlAddonXML.ErrorCol();
+    CLog::Log(logERROR, "AddonXMLHandler: AddonXML file problem.\nErorr Code:%i, Error in row:column: %i/%i\nError description: %s\n In file: %s\n",
+              iErrorCode, iErrorRow, iErrorCol, xmlAddonXML.ErrorDesc(), m_ResData.UPS.AXMLPath.c_str());
     return false;
   }
 
@@ -302,8 +308,9 @@ bool CAddonXMLHandler::FetchAddonXMLFileUpstr ()
     const TiXmlElement *pChildScreenshotElement = pAssetsElement->FirstChildElement("screenshot");
     while (pChildScreenshotElement && pChildScreenshotElement->FirstChild())
     {
-      m_AddonMetadata.listScreenshotLinks.push_back(pChildDisclElement->FirstChild()->Value());
-      pAssetsElement = pAssetsElement->NextSiblingElement("screenshot");
+      std::string sScreenShotLink = pChildScreenshotElement->FirstChild()->Value();
+      m_AddonMetadata.listScreenshotLinks.push_back(sScreenShotLink);
+      pChildScreenshotElement = pChildScreenshotElement->NextSiblingElement("screenshot");
     }
   }
 

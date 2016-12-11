@@ -207,6 +207,9 @@ void CResourceHandler::MergeResource()
   CLog::Log(logPRINT, "%s%s%s\n", KMAG, m_ResData.sResName.c_str(), RESET);
 
   std::list<std::string> listMergedLangs = CreateMergedLangList();
+  if (m_mapUPS.find(m_ResData.sSRCLCode) == m_mapUPS.end())
+    CLog::Log(logERROR, "Source language not defined in resource files: %s%s%s\n", KMAG, m_ResData.sSRCLCode.c_str(), RESET);
+
   CPOHandler& POHandlUPSSRC = m_mapUPS.at(m_ResData.sSRCLCode);
   m_bResChangedFromUPS = false;
 
