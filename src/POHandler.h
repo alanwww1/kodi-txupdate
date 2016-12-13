@@ -130,9 +130,9 @@ public:
 
 protected:
   void ClearCPOEntry (CPOEntry &entry);
-  bool ProcessPOFile();
+  bool ProcessPOFile(bool bIsTXPOFile);
   unsigned int GetPluralNumOfVec(std::vector<std::string> &vecPluralStrings);
-  void AddPOEntryToMaps (const CPOEntry& Entry);
+  void AddPOEntryToMaps (const CPOEntry& Entry, bool bAddonXMLEntryAllowed = false);
 
   std::string m_strHeader;
   std::string m_CurrentEntryText;

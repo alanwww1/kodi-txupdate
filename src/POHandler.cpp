@@ -92,7 +92,7 @@ bool CPOHandler::FetchPOGitPathToMem (std::string sLPath, CGITData& GitData)
   ClearVariables();
   m_strBuffer = g_HTTPHandler.GetGithubPathToSTR (m_ResData.sUPSLocalPath, GitData, sLPath, m_ResData.bForceGitDloadToCache);
 
-  return ProcessPOFile();
+  return ProcessPOFile(false);
 };
 
 bool CPOHandler::FetchPOTXPathToMem (std::string sLPath)
@@ -100,10 +100,10 @@ bool CPOHandler::FetchPOTXPathToMem (std::string sLPath)
   ClearVariables();
   m_strBuffer = g_HTTPHandler.GetURLToSTR(sLPath);
 
-  return ProcessPOFile();
+  return ProcessPOFile(true);
 };
 
-bool CPOHandler::ProcessPOFile()
+bool CPOHandler::ProcessPOFile(bool bIsTXPOFile)
 {
   if (m_strBuffer.empty())
     CLog::Log(logERROR, "CPODocument::ParseStrToMem: PO file to parse has a zero length.");
@@ -184,7 +184,7 @@ bool CPOHandler::ProcessPOFile()
 
       // Only add entry if it has a translation or if the entry is from the source language
       if (m_bIsSRCLang || !m_Entry.msgStr.empty() || !m_Entry.msgStrPlural.empty())
-        AddPOEntryToMaps(m_Entry);
+        AddPOEntryToMaps(m_Entry, bIsTXPOFile);
 
       ClearCPOEntry(m_Entry);
     }
@@ -317,29 +317,38 @@ void CPOHandler::AddAddonXMLEntries (const CAddonXMLEntry& AddonXMLEntry, const 
     EntryToAdd.msgCtxt = "Addon Summary";
     EntryToAdd.msgID = AddonXMLEntrySRC.strSummary;
     EntryToAdd.msgStr = AddonXMLEntry.strSummary;
-    AddPOEntryToMaps(EntryToAdd);
+    AddPOEntryToMaps(EntryToAdd, true);
   }
   if (!AddonXMLEntry.strDescription.empty())
   {
     EntryToAdd.msgCtxt = "Addon Description";
     EntryToAdd.msgID = AddonXMLEntrySRC.strDescription;
     EntryToAdd.msgStr = AddonXMLEntry.strDescription;
-    AddPOEntryToMaps(EntryToAdd);
+    AddPOEntryToMaps(EntryToAdd, true);
   }
   if (!AddonXMLEntry.strDisclaimer.empty())
   {
     EntryToAdd.msgCtxt = "Addon Disclaimer";
     EntryToAdd.msgID = AddonXMLEntrySRC.strDisclaimer;
     EntryToAdd.msgStr = AddonXMLEntry.strDisclaimer;
-    AddPOEntryToMaps(EntryToAdd);
+    AddPOEntryToMaps(EntryToAdd, true);
   }
 };
 
-void CPOHandler::AddPOEntryToMaps (const CPOEntry& Entry)
+void CPOHandler::AddPOEntryToMaps (const CPOEntry& Entry,  bool bAddonXMLEntryAllowed)
 {
   // store m_entry content in memory maps, separating the way it is stored for numid, msgid and addon data types
   // we also create two additional index maps for faster sequencial lookup and classic entry lookup
   size_t iEntryCounter = m_mapPOData.size();
+
+  // First check if an addon.xml entry accidentaly got into a strings.po file upstream
+  // Happens if one copies the unchanged po file from Transifex which still contains these entries
+  if ((Entry.msgCtxt == "Addon Summary" || Entry.msgCtxt == "Addon Description" || Entry.msgCtxt == "Addon Disclaimer") &&
+      !bAddonXMLEntryAllowed)
+  {
+    CLog::Log(logWARNING, "POParser: addon.xml entry in upstream strings.po file, skipping it.");
+    return;
+  }
 
   if (Entry.Type == NUMID)
   {
