@@ -333,9 +333,6 @@ void CAddonXMLHandler::WriteAddonXMLFile (std::string strAddonXMLFilename)
 
 void CAddonXMLHandler::GenerateAddonXMLFile ()
 {
-  if (m_ResData.bSkipVersionBump)
-    sleep (1);
-
   if (m_bBumpAddoXMLVersion && !m_ResData.bSkipVersionBump)
     UpdateVersionNumber();
 
@@ -474,6 +471,9 @@ std::string CAddonXMLHandler::GetXMLEntry (std::string const &strprefix, size_t 
 
 void CAddonXMLHandler::BumpVersionNumber()
 {
+  if (m_ResData.bSkipVersionBump)
+    return;
+
   size_t posLastDot = m_strAddonVersion.find_last_of(".");
   if (posLastDot == string::npos)
   {
