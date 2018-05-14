@@ -74,7 +74,7 @@ void CHTTPHandler::HTTPRetry(int nretry)
 
 std::string CHTTPHandler::GetURLToSTR(std::string strURL)
 {
-  bool bCacheFileExists, bCacheFileExpired;
+  bool bCacheFileExists = false, bCacheFileExpired = true;
   std::string sCacheFileName = CreateCacheFilename(strURL, bCacheFileExists, bCacheFileExpired);
   if (sCacheFileName != "")
   {
