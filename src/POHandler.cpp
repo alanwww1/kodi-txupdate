@@ -805,9 +805,9 @@ void CPOHandler::WritePOEntry(const CPOEntry &currEntry)
     {
       WriteLF();
       if (id-m_previd == 2)
-        m_strOutBuffer += "#empty string with id "  + g_CharsetUtils.IntToStr(id-1) + "\n";
+        m_strOutBuffer += "# empty string with id "  + g_CharsetUtils.IntToStr(id-1) + "\n";
       if (id-m_previd > 2)
-        m_strOutBuffer += "#empty strings from id " + g_CharsetUtils.IntToStr(m_previd+1) + " to " + g_CharsetUtils.IntToStr(id-1) + "\n";
+        m_strOutBuffer += "# empty strings from id " + g_CharsetUtils.IntToStr(m_previd+1) + " to " + g_CharsetUtils.IntToStr(id-1) + "\n";
     }
     WriteMultilineComment(currEntry.interlineComm, "#");
     m_previd =id;
