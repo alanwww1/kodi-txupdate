@@ -22,7 +22,7 @@ Important to note, that in case we both have a translation at the upstream repos
 
 ## Install
 Requirements:
-* OS: Linux
+* OS: Linux: Ubuntu
 * Packages: curl, libcurl, libjsoncpp, git, vim
 
 Ubuntu prerequisites installation:
@@ -72,4 +72,4 @@ This file gets auto generated in case it is not there. You just have to type in 
 
 For any questions, please write to: alanwww1@kodi.tv
 
-2016 Attila Jakosa(alanwww1), TeamKODI
+2016 Attila Jakosa(alanwww1), Team kodi
